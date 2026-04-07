@@ -37,6 +37,7 @@ defmodule Escalated.MixProject do
       {:plug, "~> 1.14"},
 
       # Dev/test
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
       {:ecto_sqlite3, "~> 0.15", only: :test}
     ]
