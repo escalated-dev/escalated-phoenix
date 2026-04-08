@@ -30,7 +30,15 @@ defmodule Escalated.Config do
         working_days: [1, 2, 3, 4, 5]
       }
     },
-    notification_channels: [:email]
+    notification_channels: [:email],
+    email_branding: %{
+      company_name: "Support",
+      logo_url: nil,
+      accent_color: "#4F46E5",
+      footer_text: "Powered by Escalated"
+    },
+    email_domain: "escalated.localhost",
+    from_email: nil
   ]
 
   @type t :: %__MODULE__{}
