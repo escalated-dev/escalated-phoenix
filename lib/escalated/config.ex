@@ -30,7 +30,19 @@ defmodule Escalated.Config do
         working_days: [1, 2, 3, 4, 5]
       }
     },
-    notification_channels: [:email]
+    notification_channels: [:email],
+    widget_settings: %{
+      enabled: true,
+      title: "Contact Support",
+      greeting: "How can we help you?",
+      primary_color: "#4F46E5",
+      fields: ~w(name email subject description),
+      require_email: true
+    },
+    widget_rate_limit: %{
+      max_requests: 20,
+      window_ms: 60_000
+    }
   ]
 
   @type t :: %__MODULE__{}

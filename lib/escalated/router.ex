@@ -75,6 +75,16 @@ defmodule Escalated.Router do
           put "/settings", SettingsController, :update
         end
 
+        # Widget routes (public, rate-limited)
+        scope "/widget", Escalated.Controllers, as: :widget do
+          pipe_through Escalated.Plugs.WidgetRateLimit
+
+          get "/config", WidgetController, :config
+          post "/tickets", WidgetController, :create_ticket
+          get "/tickets/:reference", WidgetController, :show_ticket
+          post "/tickets/:reference/reply", WidgetController, :reply
+        end
+
         # API routes
         if unquote(opts[:api]) || Application.compile_env(:escalated, :api_enabled, false) do
           scope "/api/v1", Escalated.Controllers.Api, as: :api do
