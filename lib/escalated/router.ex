@@ -58,6 +58,12 @@ defmodule Escalated.Router do
           post "/tickets/:reference/snooze", TicketController, :snooze
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
           post "/tickets/:reference/split", TicketController, :split
+
+          # Live chat agent routes
+          get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
+          post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
+          post "/chat/sessions/:id/message", Escalated.Controllers.Agent.ChatController, :send_message
+          post "/chat/sessions/:id/end", Escalated.Controllers.Agent.ChatController, :end_session
         end
 
         # Admin routes
@@ -91,6 +97,12 @@ defmodule Escalated.Router do
           post "/tickets", WidgetController, :create_ticket
           get "/tickets/:reference", WidgetController, :show_ticket
           post "/tickets/:reference/reply", WidgetController, :reply
+
+          # Live chat widget routes
+          get "/chat/availability", Escalated.Controllers.WidgetChatController, :availability
+          post "/chat/start", Escalated.Controllers.WidgetChatController, :start
+          post "/chat/sessions/:reference/messages", Escalated.Controllers.WidgetChatController, :send_message
+          post "/chat/sessions/:reference/end", Escalated.Controllers.WidgetChatController, :end_session
         end
 
         # API routes
