@@ -55,6 +55,9 @@ defmodule Escalated.Router do
           post "/tickets/:reference/assign", TicketController, :assign
 
           resources "/saved-views", SavedViewController, except: [:new, :edit]
+          post "/tickets/:reference/snooze", TicketController, :snooze
+          post "/tickets/:reference/unsnooze", TicketController, :unsnooze
+          post "/tickets/:reference/split", TicketController, :split
         end
 
         # Admin routes
@@ -70,6 +73,9 @@ defmodule Escalated.Router do
           post "/tickets/:reference/assign", TicketController, :assign
           patch "/tickets/:reference/tags", TicketController, :tags
           patch "/tickets/:reference/department", TicketController, :department
+          post "/tickets/:reference/snooze", TicketController, :snooze
+          post "/tickets/:reference/unsnooze", TicketController, :unsnooze
+          post "/tickets/:reference/split", TicketController, :split
 
           resources "/departments", DepartmentController, except: [:edit]
           resources "/tags", TagController, except: [:edit]
