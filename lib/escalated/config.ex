@@ -31,6 +31,8 @@ defmodule Escalated.Config do
       }
     },
     notification_channels: [:email],
+    broadcasting_enabled: false,
+    pubsub_server: nil,
     knowledge_base_enabled: false,
     knowledge_base_public: false,
     knowledge_base_feedback_enabled: false,
@@ -81,6 +83,11 @@ defmodule Escalated.Config do
   Returns true if UI routes should be mounted.
   """
   def ui_enabled?(%__MODULE__{ui_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if real-time broadcasting is enabled.
+  """
+  def broadcasting_enabled?(%__MODULE__{broadcasting_enabled: val}), do: val == true
 
   @doc """
   Returns true if the knowledge base feature is enabled.
