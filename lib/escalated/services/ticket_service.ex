@@ -192,6 +192,105 @@ defmodule Escalated.Services.TicketService do
   end
 
   @doc """
+  Snoozes a ticket until a given datetime.
+
+  Transitions the ticket to "snoozed" status, records the previous status,
+  and stores who snoozed it and until when.
+
+  ## Parameters
+
+    * `ticket` - the ticket to snooze
+    * `until` - a `DateTime` for when the ticket should wake
+    * `opts` - keyword list with `:actor_id`
+
+  ## Returns
+
+    * `{:ok, ticket}` on success
+    * `{:error, changeset}` on failure
+  """
+  def snooze_ticket(ticket, until, opts \\ []) do
+    repo = Escalated.repo()
+    actor_id = Keyword.get(opts, :actor_id)
+
+    ticket
+    |> Ticket.changeset(%{
+      status: "snoozed",
+      status_before_snooze: ticket.status,
+      snoozed_until: until,
+      snoozed_by: actor_id
+    })
+    |> repo.update()
+    |> case do
+      {:ok, updated} ->
+        log_activity(updated, "snoozed", actor_id, %{
+          until: DateTime.to_iso8601(until),
+          previous_status: ticket.status
+        })
+
+        {:ok, updated}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Unsnoozes a ticket, restoring its previous status.
+
+  Clears the snooze fields and transitions back to the status the ticket
+  had before it was snoozed (defaults to "open").
+
+  ## Parameters
+
+    * `ticket` - the snoozed ticket
+    * `opts` - keyword list with `:actor_id`
+
+  ## Returns
+
+    * `{:ok, ticket}` on success
+    * `{:error, changeset}` on failure
+  """
+  def unsnooze_ticket(ticket, opts \\ []) do
+    repo = Escalated.repo()
+    actor_id = Keyword.get(opts, :actor_id)
+    restore_status = ticket.status_before_snooze || "open"
+
+    ticket
+    |> Ticket.changeset(%{
+      status: restore_status,
+      status_before_snooze: nil,
+      snoozed_until: nil,
+      snoozed_by: nil
+    })
+    |> repo.update()
+    |> case do
+      {:ok, updated} ->
+        log_activity(updated, "unsnoozed", actor_id, %{
+          restored_status: restore_status
+        })
+
+        {:ok, updated}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Wakes all tickets whose snooze period has elapsed.
+
+  Returns a list of `{:ok, ticket}` tuples for each ticket that was woken.
+  """
+  def wake_snoozed_tickets do
+    repo = Escalated.repo()
+    tickets = repo.all(Ticket.wake_due())
+
+    Enum.map(tickets, fn ticket ->
+      unsnooze_ticket(ticket)
+    end)
+  end
+
+  @doc """
   Lists tickets with optional filters.
   """
   def list(filters \\ %{}) do

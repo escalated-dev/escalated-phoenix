@@ -103,7 +103,7 @@ defmodule Escalated.Schemas.TicketTest do
       assert "open" in statuses
       assert "closed" in statuses
       assert "resolved" in statuses
-      assert length(statuses) == 8
+      assert length(statuses) == 9
     end
   end
 

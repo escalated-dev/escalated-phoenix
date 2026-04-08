@@ -53,6 +53,8 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/status", TicketController, :status
           patch "/tickets/:reference/priority", TicketController, :priority
           post "/tickets/:reference/assign", TicketController, :assign
+          post "/tickets/:reference/snooze", TicketController, :snooze
+          post "/tickets/:reference/unsnooze", TicketController, :unsnooze
         end
 
         # Admin routes
@@ -68,6 +70,8 @@ defmodule Escalated.Router do
           post "/tickets/:reference/assign", TicketController, :assign
           patch "/tickets/:reference/tags", TicketController, :tags
           patch "/tickets/:reference/department", TicketController, :department
+          post "/tickets/:reference/snooze", TicketController, :snooze
+          post "/tickets/:reference/unsnooze", TicketController, :unsnooze
 
           resources "/departments", DepartmentController, except: [:edit]
           resources "/tags", TagController, except: [:edit]
