@@ -235,6 +235,77 @@ defmodule Escalated.Services.TicketService do
   end
 
   @doc """
+  Splits a ticket by creating a new ticket from a specific reply.
+
+  Copies metadata from the original ticket, links both tickets via metadata,
+  and logs activity on both tickets.
+
+  ## Parameters
+
+    * `ticket` - the original ticket struct
+    * `reply` - the reply to use as the basis for the new ticket
+    * `opts` - keyword list of options:
+      * `:actor_id` - ID of the user performing the split
+      * `:subject` - optional subject override for the new ticket
+
+  ## Returns
+
+    * `{:ok, new_ticket}` on success
+    * `{:error, changeset}` on failure
+  """
+  def split_ticket(ticket, reply, opts \\ []) do
+    repo = Escalated.repo()
+    actor_id = Keyword.get(opts, :actor_id)
+    subject = Keyword.get(opts, :subject, "Split from #{ticket.reference}: #{ticket.subject}")
+
+    new_ticket_attrs = %{
+      subject: subject,
+      description: reply.body,
+      status: "open",
+      priority: ticket.priority,
+      ticket_type: ticket.ticket_type,
+      department_id: ticket.department_id,
+      requester_id: ticket.requester_id,
+      requester_type: ticket.requester_type,
+      guest_name: ticket.guest_name,
+      guest_email: ticket.guest_email,
+      metadata: Map.merge(ticket.metadata || %{}, %{"split_from_ticket_id" => ticket.id, "split_from_reply_id" => reply.id})
+    }
+
+    %Ticket{}
+    |> Ticket.changeset(new_ticket_attrs)
+    |> repo.insert()
+    |> case do
+      {:ok, new_ticket} ->
+        # Update original ticket metadata to link to the new ticket
+        original_splits = Map.get(ticket.metadata || %{}, "split_ticket_ids", [])
+
+        ticket
+        |> Ticket.changeset(%{
+          metadata: Map.put(ticket.metadata || %{}, "split_ticket_ids", original_splits ++ [new_ticket.id])
+        })
+        |> repo.update()
+
+        # Log activity on both tickets
+        log_activity(ticket, "ticket_split", actor_id, %{
+          new_ticket_id: new_ticket.id,
+          new_ticket_reference: new_ticket.reference,
+          reply_id: reply.id
+        })
+
+        log_activity(new_ticket, "created_from_split", actor_id, %{
+          original_ticket_id: ticket.id,
+          original_ticket_reference: ticket.reference,
+          reply_id: reply.id
+        })
+
+        {:ok, new_ticket}
+
+      error ->
+        error
+    end
+
+    @doc """
   Unsnoozes a ticket, restoring its previous status.
 
   Clears the snooze fields and transitions back to the status the ticket

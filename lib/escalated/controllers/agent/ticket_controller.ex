@@ -146,6 +146,28 @@ defmodule Escalated.Controllers.Agent.TicketController do
     end
   end
 
+  def split(conn, %{"reference" => reference, "reply_id" => reply_id} = params) do
+    user = conn.assigns[:current_user]
+    repo = Escalated.repo()
+
+    with ticket when not is_nil(ticket) <- TicketService.find(reference),
+         reply when not is_nil(reply) <- repo.get(Reply, reply_id),
+         true <- reply.ticket_id == ticket.id,
+         opts <- [actor_id: user.id] ++ if(params["subject"], do: [subject: params["subject"]], else: []),
+         {:ok, new_ticket} <- TicketService.split_ticket(ticket, reply, opts) do
+      conn
+      |> put_status(201)
+      |> Phoenix.Controller.json(%{
+        message: "Ticket split successfully.",
+        ticket: ticket_list_json(new_ticket)
+      })
+    else
+      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket or reply not found"})
+      false -> conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Reply does not belong to this ticket"})
+      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+    end
+  end
+
   # Private helpers
 
   defp agent_ticket_path(conn, ticket) do
