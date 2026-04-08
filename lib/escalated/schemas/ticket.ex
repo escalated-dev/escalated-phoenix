@@ -6,7 +6,7 @@ defmodule Escalated.Schemas.Ticket do
   import Ecto.Changeset
   import Ecto.Query
 
-  @statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated resolved closed reopened snoozed)
+  @statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated resolved closed reopened snoozed live)
   @priorities ~w(low medium high urgent critical)
   @ticket_types ~w(question problem incident task)
 
@@ -24,6 +24,11 @@ defmodule Escalated.Schemas.Ticket do
     field :guest_email, :string
     field :guest_token, :string
     field :metadata, :map, default: %{}
+
+    # Chat fields
+    field :channel, :string
+    field :chat_ended_at, :utc_datetime
+    field :chat_metadata, :map, default: %{}
 
     # Snooze fields
     field :snoozed_until, :utc_datetime
@@ -65,7 +70,8 @@ defmodule Escalated.Schemas.Ticket do
       :department_id, :sla_policy_id, :metadata,
       :snoozed_until, :snoozed_by, :status_before_snooze,
       :sla_breached, :sla_first_response_due_at, :sla_resolution_due_at,
-      :first_response_at, :resolved_at, :closed_at
+      :first_response_at, :resolved_at, :closed_at,
+      :channel, :chat_ended_at, :chat_metadata
     ])
     |> validate_required([:subject, :description])
     |> validate_length(:subject, max: 255)
@@ -150,6 +156,22 @@ defmodule Escalated.Schemas.Ticket do
 
   def snoozed?(ticket) do
     ticket.status == "snoozed" && ticket.snoozed_until != nil
+  end
+
+  def live_chat?(ticket) do
+    ticket.channel == "chat"
+  end
+
+  def chat_active?(ticket) do
+    live_chat?(ticket) && ticket.status == "live" && is_nil(ticket.chat_ended_at)
+  end
+
+  def by_channel(query \\ __MODULE__, channel) do
+    from(t in query, where: t.channel == ^channel)
+  end
+
+  def live_chats(query \\ __MODULE__) do
+    from(t in query, where: t.channel == "chat" and t.status == "live")
   end
 
   # Private
