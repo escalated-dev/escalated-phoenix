@@ -30,7 +30,10 @@ defmodule Escalated.Config do
         working_days: [1, 2, 3, 4, 5]
       }
     },
-    notification_channels: [:email]
+    notification_channels: [:email],
+    knowledge_base_enabled: false,
+    knowledge_base_public: false,
+    knowledge_base_feedback_enabled: false
   ]
 
   @type t :: %__MODULE__{}
@@ -58,4 +61,19 @@ defmodule Escalated.Config do
   Returns true if UI routes should be mounted.
   """
   def ui_enabled?(%__MODULE__{ui_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if the knowledge base feature is enabled.
+  """
+  def knowledge_base_enabled?(%__MODULE__{knowledge_base_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if the knowledge base is publicly accessible (no auth required).
+  """
+  def knowledge_base_public?(%__MODULE__{knowledge_base_public: val}), do: val == true
+
+  @doc """
+  Returns true if feedback on knowledge base articles is enabled.
+  """
+  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}), do: val == true
 end
