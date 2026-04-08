@@ -30,7 +30,9 @@ defmodule Escalated.Config do
         working_days: [1, 2, 3, 4, 5]
       }
     },
-    notification_channels: [:email]
+    notification_channels: [:email],
+    broadcasting_enabled: false,
+    pubsub_server: nil
   ]
 
   @type t :: %__MODULE__{}
@@ -58,4 +60,9 @@ defmodule Escalated.Config do
   Returns true if UI routes should be mounted.
   """
   def ui_enabled?(%__MODULE__{ui_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if real-time broadcasting is enabled.
+  """
+  def broadcasting_enabled?(%__MODULE__{broadcasting_enabled: val}), do: val == true
 end
