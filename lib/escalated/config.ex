@@ -32,7 +32,30 @@ defmodule Escalated.Config do
     },
     notification_channels: [:email],
     broadcasting_enabled: false,
-    pubsub_server: nil
+    pubsub_server: nil,
+    knowledge_base_enabled: false,
+    knowledge_base_public: false,
+    knowledge_base_feedback_enabled: false,
+    widget_settings: %{
+      enabled: true,
+      title: "Contact Support",
+      greeting: "How can we help you?",
+      primary_color: "#4F46E5",
+      fields: ~w(name email subject description),
+      require_email: true
+    },
+    widget_rate_limit: %{
+      max_requests: 20,
+      window_ms: 60_000
+    },
+    email_branding: %{
+      company_name: "Support",
+      logo_url: nil,
+      accent_color: "#4F46E5",
+      footer_text: "Powered by Escalated"
+    },
+    email_domain: "escalated.localhost",
+    from_email: nil
   ]
 
   @type t :: %__MODULE__{}
@@ -65,4 +88,19 @@ defmodule Escalated.Config do
   Returns true if real-time broadcasting is enabled.
   """
   def broadcasting_enabled?(%__MODULE__{broadcasting_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if the knowledge base feature is enabled.
+  """
+  def knowledge_base_enabled?(%__MODULE__{knowledge_base_enabled: val}), do: val == true
+
+  @doc """
+  Returns true if the knowledge base is publicly accessible (no auth required).
+  """
+  def knowledge_base_public?(%__MODULE__{knowledge_base_public: val}), do: val == true
+
+  @doc """
+  Returns true if feedback on knowledge base articles is enabled.
+  """
+  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}), do: val == true
 end

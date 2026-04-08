@@ -6,7 +6,7 @@ defmodule Escalated.Schemas.Ticket do
   import Ecto.Changeset
   import Ecto.Query
 
-  @statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated resolved closed reopened)
+  @statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated resolved closed reopened snoozed)
   @priorities ~w(low medium high urgent critical)
   @ticket_types ~w(question problem incident task)
 
@@ -24,6 +24,11 @@ defmodule Escalated.Schemas.Ticket do
     field :guest_email, :string
     field :guest_token, :string
     field :metadata, :map, default: %{}
+
+    # Snooze fields
+    field :snoozed_until, :utc_datetime
+    field :snoozed_by, :integer
+    field :status_before_snooze, :string
 
     # SLA fields
     field :sla_breached, :boolean, default: false
@@ -58,6 +63,7 @@ defmodule Escalated.Schemas.Ticket do
       :assigned_to, :requester_id, :requester_type,
       :guest_name, :guest_email, :guest_token,
       :department_id, :sla_policy_id, :metadata,
+      :snoozed_until, :snoozed_by, :status_before_snooze,
       :sla_breached, :sla_first_response_due_at, :sla_resolution_due_at,
       :first_response_at, :resolved_at, :closed_at
     ])
@@ -129,8 +135,21 @@ defmodule Escalated.Schemas.Ticket do
     from(t in query, order_by: [desc: t.inserted_at])
   end
 
+  def snoozed(query \\ __MODULE__) do
+    from(t in query, where: t.status == "snoozed" and not is_nil(t.snoozed_until))
+  end
+
+  def wake_due(query \\ __MODULE__) do
+    now = DateTime.utc_now()
+    from(t in query, where: t.status == "snoozed" and t.snoozed_until <= ^now)
+  end
+
   def open?(ticket) do
     ticket.status in ~w(open in_progress waiting_on_customer waiting_on_agent escalated reopened)
+  end
+
+  def snoozed?(ticket) do
+    ticket.status == "snoozed" && ticket.snoozed_until != nil
   end
 
   # Private
