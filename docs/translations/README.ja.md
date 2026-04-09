@@ -17,31 +17,31 @@
 
 # Escalated for Phoenix
 
-Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in support tickets, departments, SLA policies, and agent management as a Hex package.
+Phoenixアプリケーション向けの組み込み可能なヘルプデスクおよびサポートチケットシステム。Hexパッケージとして、サポートチケット、部門、SLAポリシー、エージェント管理をドロップインで提供します。
 
 ## 機能
 
-- **Ticket lifecycle** — Create, assign, reply, resolve, close, reopen with configurable status transitions
-- **SLA engine** — Per-priority response and resolution targets, business hours calculation, automatic breach detection
-- **Agent dashboard** — Ticket queue with filters, internal notes, canned responses
-- **Customer portal** — Self-service ticket creation, replies, and status tracking
-- **Admin panel** — Manage departments, SLA policies, tags, and view reports
-- **File attachments** — Drag-and-drop uploads with configurable storage and size limits
-- **Activity timeline** — Full audit log of every action on every ticket
-- **Department routing** — Organize agents into departments with auto-assignment
-- **Tagging system** — Categorize tickets with colored tags
-- **Ticket splitting** — Split a reply into a new standalone ticket while preserving the original context
-- **Ticket snooze** — Snooze tickets with presets (1h, 4h, tomorrow, next week); `mix escalated.wake_snoozed_tickets` Mix task auto-wakes them on schedule
-- **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
-- **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check
-- **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
-- **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
-- **Real-time broadcasting** — Opt-in broadcasting via Phoenix PubSub with automatic polling fallback
-- **Knowledge base toggle** — Enable or disable the public knowledge base from admin settings
+- **チケットライフサイクル** — 設定可能なステータス遷移によるの作成、割り当て、返信、解決、クローズ、再開
+- **SLAエンジン** — 優先度別の応答・解決目標、営業時間計算、自動違反検出
+- **エージェントダッシュボード** — フィルター、内部メモ、定型応答付きのチケットキュー
+- **カスタマーポータル** — セルフサービスのチケット作成、返信、ステータス追跡
+- **管理パネル** — 部門、SLAポリシー、タグの管理とレポートの閲覧
+- **ファイル添付** — 設定可能なストレージとサイズ制限付きのドラッグ＆ドロップアップロード
+- **アクティビティタイムライン** — すべてのチケットのすべての操作の完全な監査ログ
+- **部門ルーティング** — 自動割り当て付きでエージェントを部門に編成
+- **タグシステム** — カラータグでチケットを分類
+- **チケット分割** — 元のコンテキストを保持しながら返信を新しい独立したチケットに分割
+- **チケットスヌーズ** — プリセット（1時間、4時間、明日、来週）でチケットをスヌーズ；`mix escalated.wake_snoozed_tickets` Mixタスクがスケジュールに従って自動的に起こします
+- **保存済みビュー / カスタムキュー** — フィルタープリセットを再利用可能なチケットビューとして保存、命名、共有
+- **埋め込み可能サポートウィジェット** — KB検索、チケットフォーム、ステータス確認付きの軽量 `<script>` ウィジェット
+- **メールスレッディング** — 送信メールにメールクライアントでの正しいスレッド表示のための適切な `In-Reply-To` と `References` ヘッダーを含む
+- **ブランド付きメールテンプレート** — すべての送信メールに設定可能なロゴ、プライマリカラー、フッターテキスト
+- **リアルタイムブロードキャスト** — 自動ポーリングフォールバック付きのPhoenix PubSubによるオプトインブロードキャスト
+- **ナレッジベーストグル** — 管理設定から公開ナレッジベースを有効/無効に切り替え
 
 ## インストール
 
-Add `escalated` to your list of dependencies in `mix.exs`:
+`mix.exs` の依存関係リストに `escalated` を追加してください：
 
 ```elixir
 def deps do
@@ -53,7 +53,7 @@ end
 
 ## 設定
 
-Add the following to your `config/config.exs`:
+`config/config.exs` に以下を追加してください：
 
 ```elixir
 config :escalated,
@@ -66,39 +66,39 @@ config :escalated,
   agent_check: &MyApp.Accounts.agent?/1
 ```
 
-### Configuration Options
+### 設定オプション
 
-| Option | Default | Description |
+| オプション | デフォルト | 説明 |
 |--------|---------|-------------|
-| `repo` | *required* | Your Ecto Repo module |
-| `user_schema` | *required* | Your User schema module |
-| `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
-| `table_prefix` | `"escalated_"` | Database table name prefix |
-| `ui_enabled` | `true` | Mount Inertia.js UI routes |
-| `api_enabled` | `false` | Mount JSON API routes |
-| `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
-| `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
-| `default_priority` | `:medium` | Default ticket priority |
-| `allow_customer_close` | `true` | Allow customers to close their tickets |
-| `sla` | `%{enabled: true, ...}` | SLA configuration map |
+| `repo` | *必須* | Ecto Repoモジュール |
+| `user_schema` | *必須* | Userスキーマモジュール |
+| `route_prefix` | `"/support"` | すべてのEscalatedルートのURLプレフィックス |
+| `table_prefix` | `"escalated_"` | データベーステーブル名のプレフィックス |
+| `ui_enabled` | `true` | Inertia.js UIルートをマウント |
+| `api_enabled` | `false` | JSON APIルートをマウント |
+| `admin_check` | `nil` | 管理者アクセス用の関数 `(user -> boolean)` |
+| `agent_check` | `nil` | エージェントアクセス用の関数 `(user -> boolean)` |
+| `default_priority` | `:medium` | デフォルトのチケット優先度 |
+| `allow_customer_close` | `true` | 顧客が自分のチケットをクローズすることを許可 |
+| `sla` | `%{enabled: true, ...}` | SLA設定マップ |
 
-## Database Setup
+## データベースのセットアップ
 
-Run the Escalated migration:
+Escalatedマイグレーションを実行してください：
 
 ```bash
 mix ecto.gen.migration create_escalated_tables
 ```
 
-Then copy the migration content from `priv/repo/migrations/20260406000001_create_escalated_tables.exs` or install via:
+次に `priv/repo/migrations/20260406000001_create_escalated_tables.exs` からマイグレーション内容をコピーするか、以下で実行してください：
 
 ```bash
 mix ecto.migrate
 ```
 
-## Router Setup
+## ルーターの設定
 
-Mount Escalated routes in your Phoenix router:
+PhoenixルーターにEscalatedルートをマウントしてください：
 
 ```elixir
 defmodule MyAppWeb.Router do
@@ -116,16 +116,16 @@ defmodule MyAppWeb.Router do
 end
 ```
 
-This mounts:
+これにより以下がマウントされます：
 
-- **Customer routes** at `/support/tickets/*` -- view/create/reply to tickets
-- **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
-- **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
-- **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+- **カスタマールート** `/support/tickets/*` — チケットの表示/作成/返信
+- **エージェントルート** `/support/agent/*` — エージェントダッシュボードとチケット管理
+- **管理ルート** `/support/admin/*` — 完全な管理（部門、タグ、設定）
+- **APIルート** `/support/api/v1/*` — JSON API（`api_enabled: true` の場合）
 
 ## 使い方
 
-### Creating Tickets Programmatically
+### プログラムでチケットを作成
 
 ```elixir
 {:ok, ticket} = Escalated.Services.TicketService.create(%{
@@ -137,7 +137,7 @@ This mounts:
 })
 ```
 
-### Replying to Tickets
+### チケットに返信
 
 ```elixir
 {:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
@@ -147,47 +147,47 @@ This mounts:
 })
 ```
 
-### Assigning Tickets
+### チケットの割り当て
 
 ```elixir
 {:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
 {:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
 ```
 
-### SLA Management
+### SLA管理
 
 ```elixir
-# Check for SLA breaches (run periodically via a scheduler)
+# SLA違反をチェック（スケジューラーで定期的に実行）
 breached = Escalated.Services.SlaService.check_breaches()
 
-# Get SLA statistics
+# SLA統計を取得
 stats = Escalated.Services.SlaService.stats()
 ```
 
-## UI Rendering
+## UIレンダリング
 
-By default, Escalated renders pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) when `inertia_phoenix` is installed. If Inertia is not available, controllers fall back to JSON responses.
+デフォルトでは、`inertia_phoenix` がインストールされている場合、Escalatedは [Inertia.js](https://github.com/inertiajs/inertia-phoenix) を通じてページをレンダリングします。Inertiaが利用できない場合、コントローラーはJSON応答にフォールバックします。
 
-You can build your own frontend components that consume the Inertia page props, or use the JSON API directly.
+Inertiaページのpropsを消費する独自のフロントエンドコンポーネントを構築するか、JSON APIを直接使用できます。
 
-## Plugs
+## プラグ
 
-Escalated provides plugs for authorization:
+Escalatedは認可用のプラグを提供します：
 
-- `Escalated.Plugs.EnsureAgent` -- requires the user to pass the configured `agent_check`
-- `Escalated.Plugs.EnsureAdmin` -- requires the user to pass the configured `admin_check`
-- `Escalated.Plugs.ShareInertiaData` -- shares common Escalated data with Inertia pages
+- `Escalated.Plugs.EnsureAgent` — 設定された `agent_check` にユーザーが合格することを要求
+- `Escalated.Plugs.EnsureAdmin` — 設定された `admin_check` にユーザーが合格することを要求
+- `Escalated.Plugs.ShareInertiaData` — 共通のEscalatedデータをInertiaページと共有
 
-## Schemas
+## スキーマ
 
-- `Escalated.Schemas.Ticket` -- support tickets with status, priority, SLA tracking
-- `Escalated.Schemas.Reply` -- ticket replies and internal notes
-- `Escalated.Schemas.Department` -- support departments/teams
-- `Escalated.Schemas.Tag` -- ticket tags for categorization
-- `Escalated.Schemas.SlaPolicy` -- SLA policies with per-priority targets
-- `Escalated.Schemas.TicketActivity` -- audit log of ticket changes
-- `Escalated.Schemas.AgentProfile` -- agent-specific profile data
+- `Escalated.Schemas.Ticket` — ステータス、優先度、SLA追跡付きのサポートチケット
+- `Escalated.Schemas.Reply` — チケットの返信と内部メモ
+- `Escalated.Schemas.Department` — サポート部門/チーム
+- `Escalated.Schemas.Tag` — 分類用のチケットタグ
+- `Escalated.Schemas.SlaPolicy` — 優先度別目標付きのSLAポリシー
+- `Escalated.Schemas.TicketActivity` — チケット変更の監査ログ
+- `Escalated.Schemas.AgentProfile` — エージェント固有のプロファイルデータ
 
 ## ライセンス
 
-MIT License. See [LICENSE](LICENSE) for details.
+MITライセンス。詳細は [LICENSE](LICENSE) を参照してください。
