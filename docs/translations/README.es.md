@@ -15,33 +15,33 @@
   <a href="README.zh-CN.md">简体中文</a>
 </p>
 
-# Escalated for Phoenix
+# Escalated para Phoenix
 
-Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in support tickets, departments, SLA policies, and agent management as a Hex package.
+Sistema de helpdesk y tickets de soporte integrable para aplicaciones Phoenix. Tickets de soporte, departamentos, políticas SLA y gestión de agentes listos para usar como paquete Hex.
 
 ## Características
 
-- **Ticket lifecycle** — Create, assign, reply, resolve, close, reopen with configurable status transitions
-- **SLA engine** — Per-priority response and resolution targets, business hours calculation, automatic breach detection
-- **Agent dashboard** — Ticket queue with filters, internal notes, canned responses
-- **Customer portal** — Self-service ticket creation, replies, and status tracking
-- **Admin panel** — Manage departments, SLA policies, tags, and view reports
-- **File attachments** — Drag-and-drop uploads with configurable storage and size limits
-- **Activity timeline** — Full audit log of every action on every ticket
-- **Department routing** — Organize agents into departments with auto-assignment
-- **Tagging system** — Categorize tickets with colored tags
-- **Ticket splitting** — Split a reply into a new standalone ticket while preserving the original context
-- **Ticket snooze** — Snooze tickets with presets (1h, 4h, tomorrow, next week); `mix escalated.wake_snoozed_tickets` Mix task auto-wakes them on schedule
-- **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
-- **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check
-- **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
-- **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
-- **Real-time broadcasting** — Opt-in broadcasting via Phoenix PubSub with automatic polling fallback
-- **Knowledge base toggle** — Enable or disable the public knowledge base from admin settings
+- **Ciclo de vida del ticket** — Crear, asignar, responder, resolver, cerrar, reabrir con transiciones de estado configurables
+- **Motor SLA** — Objetivos de respuesta y resolución por prioridad, cálculo de horas laborales, detección automática de infracciones
+- **Panel del agente** — Cola de tickets con filtros, notas internas, respuestas predefinidas
+- **Portal del cliente** — Creación de tickets autoservicio, respuestas y seguimiento de estado
+- **Panel de administración** — Gestionar departamentos, políticas SLA, etiquetas y ver informes
+- **Archivos adjuntos** — Carga por arrastrar y soltar con almacenamiento y límites de tamaño configurables
+- **Línea de tiempo de actividad** — Registro de auditoría completo de cada acción en cada ticket
+- **Enrutamiento por departamento** — Organizar agentes en departamentos con asignación automática
+- **Sistema de etiquetas** — Categorizar tickets con etiquetas de colores
+- **División de tickets** — Dividir una respuesta en un nuevo ticket independiente preservando el contexto original
+- **Posponer tickets** — Posponer tickets con preajustes (1h, 4h, mañana, próxima semana); la tarea `mix escalated.wake_snoozed_tickets` los reactiva automáticamente según lo programado
+- **Vistas guardadas / colas personalizadas** — Guardar, nombrar y compartir preajustes de filtros como vistas de tickets reutilizables
+- **Widget de soporte integrable** — Widget `<script>` ligero con búsqueda en base de conocimiento, formulario de tickets y verificación de estado
+- **Threading de correo electrónico** — Los correos salientes incluyen encabezados `In-Reply-To` y `References` correctos para el threading adecuado en clientes de correo
+- **Plantillas de correo personalizadas** — Logo configurable, color primario y texto de pie de página para todos los correos salientes
+- **Transmisión en tiempo real** — Transmisión opt-in a través de Phoenix PubSub con polling automático como respaldo
+- **Alternador de base de conocimiento** — Habilitar o deshabilitar la base de conocimiento pública desde la configuración de administración
 
 ## Instalación
 
-Add `escalated` to your list of dependencies in `mix.exs`:
+Agregue `escalated` a su lista de dependencias en `mix.exs`:
 
 ```elixir
 def deps do
@@ -53,7 +53,7 @@ end
 
 ## Configuración
 
-Add the following to your `config/config.exs`:
+Agregue lo siguiente a su `config/config.exs`:
 
 ```elixir
 config :escalated,
@@ -66,39 +66,39 @@ config :escalated,
   agent_check: &MyApp.Accounts.agent?/1
 ```
 
-### Configuration Options
+### Opciones de configuración
 
-| Option | Default | Description |
+| Opción | Predeterminado | Descripción |
 |--------|---------|-------------|
-| `repo` | *required* | Your Ecto Repo module |
-| `user_schema` | *required* | Your User schema module |
-| `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
-| `table_prefix` | `"escalated_"` | Database table name prefix |
-| `ui_enabled` | `true` | Mount Inertia.js UI routes |
-| `api_enabled` | `false` | Mount JSON API routes |
-| `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
-| `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
-| `default_priority` | `:medium` | Default ticket priority |
-| `allow_customer_close` | `true` | Allow customers to close their tickets |
-| `sla` | `%{enabled: true, ...}` | SLA configuration map |
+| `repo` | *requerido* | Su módulo Ecto Repo |
+| `user_schema` | *requerido* | Su módulo de esquema de usuario |
+| `route_prefix` | `"/support"` | Prefijo de URL para todas las rutas de Escalated |
+| `table_prefix` | `"escalated_"` | Prefijo para nombres de tablas de base de datos |
+| `ui_enabled` | `true` | Montar rutas de interfaz Inertia.js |
+| `api_enabled` | `false` | Montar rutas de JSON API |
+| `admin_check` | `nil` | Función `(user -> boolean)` para acceso de administrador |
+| `agent_check` | `nil` | Función `(user -> boolean)` para acceso de agente |
+| `default_priority` | `:medium` | Prioridad de ticket predeterminada |
+| `allow_customer_close` | `true` | Permitir a los clientes cerrar sus tickets |
+| `sla` | `%{enabled: true, ...}` | Mapa de configuración SLA |
 
-## Database Setup
+## Configuración de base de datos
 
-Run the Escalated migration:
+Ejecute la migración de Escalated:
 
 ```bash
 mix ecto.gen.migration create_escalated_tables
 ```
 
-Then copy the migration content from `priv/repo/migrations/20260406000001_create_escalated_tables.exs` or install via:
+Luego copie el contenido de la migración desde `priv/repo/migrations/20260406000001_create_escalated_tables.exs` o instale mediante:
 
 ```bash
 mix ecto.migrate
 ```
 
-## Router Setup
+## Configuración del enrutador
 
-Mount Escalated routes in your Phoenix router:
+Monte las rutas de Escalated en su enrutador Phoenix:
 
 ```elixir
 defmodule MyAppWeb.Router do
@@ -116,16 +116,16 @@ defmodule MyAppWeb.Router do
 end
 ```
 
-This mounts:
+Esto monta:
 
-- **Customer routes** at `/support/tickets/*` -- view/create/reply to tickets
-- **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
-- **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
-- **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+- **Rutas del cliente** en `/support/tickets/*` — ver/crear/responder tickets
+- **Rutas del agente** en `/support/agent/*` — panel del agente y gestión de tickets
+- **Rutas de administración** en `/support/admin/*` — administración completa (departamentos, etiquetas, configuración)
+- **Rutas API** en `/support/api/v1/*` — JSON API (cuando `api_enabled: true`)
 
 ## Uso
 
-### Creating Tickets Programmatically
+### Crear tickets programáticamente
 
 ```elixir
 {:ok, ticket} = Escalated.Services.TicketService.create(%{
@@ -137,7 +137,7 @@ This mounts:
 })
 ```
 
-### Replying to Tickets
+### Responder a tickets
 
 ```elixir
 {:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
@@ -147,47 +147,47 @@ This mounts:
 })
 ```
 
-### Assigning Tickets
+### Asignar tickets
 
 ```elixir
 {:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
 {:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
 ```
 
-### SLA Management
+### Gestión de SLA
 
 ```elixir
-# Check for SLA breaches (run periodically via a scheduler)
+# Verificar infracciones de SLA (ejecutar periódicamente a través de un programador)
 breached = Escalated.Services.SlaService.check_breaches()
 
-# Get SLA statistics
+# Obtener estadísticas de SLA
 stats = Escalated.Services.SlaService.stats()
 ```
 
-## UI Rendering
+## Renderizado de UI
 
-By default, Escalated renders pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) when `inertia_phoenix` is installed. If Inertia is not available, controllers fall back to JSON responses.
+Por defecto, Escalated renderiza páginas a través de [Inertia.js](https://github.com/inertiajs/inertia-phoenix) cuando `inertia_phoenix` está instalado. Si Inertia no está disponible, los controladores recurren a respuestas JSON.
 
-You can build your own frontend components that consume the Inertia page props, or use the JSON API directly.
+Puede construir sus propios componentes frontend que consuman las props de la página Inertia, o usar la JSON API directamente.
 
 ## Plugs
 
-Escalated provides plugs for authorization:
+Escalated proporciona plugs para autorización:
 
-- `Escalated.Plugs.EnsureAgent` -- requires the user to pass the configured `agent_check`
-- `Escalated.Plugs.EnsureAdmin` -- requires the user to pass the configured `admin_check`
-- `Escalated.Plugs.ShareInertiaData` -- shares common Escalated data with Inertia pages
+- `Escalated.Plugs.EnsureAgent` — requiere que el usuario pase el `agent_check` configurado
+- `Escalated.Plugs.EnsureAdmin` — requiere que el usuario pase el `admin_check` configurado
+- `Escalated.Plugs.ShareInertiaData` — comparte datos comunes de Escalated con páginas Inertia
 
-## Schemas
+## Esquemas
 
-- `Escalated.Schemas.Ticket` -- support tickets with status, priority, SLA tracking
-- `Escalated.Schemas.Reply` -- ticket replies and internal notes
-- `Escalated.Schemas.Department` -- support departments/teams
-- `Escalated.Schemas.Tag` -- ticket tags for categorization
-- `Escalated.Schemas.SlaPolicy` -- SLA policies with per-priority targets
-- `Escalated.Schemas.TicketActivity` -- audit log of ticket changes
-- `Escalated.Schemas.AgentProfile` -- agent-specific profile data
+- `Escalated.Schemas.Ticket` — tickets de soporte con estado, prioridad, seguimiento SLA
+- `Escalated.Schemas.Reply` — respuestas de tickets y notas internas
+- `Escalated.Schemas.Department` — departamentos/equipos de soporte
+- `Escalated.Schemas.Tag` — etiquetas de tickets para categorización
+- `Escalated.Schemas.SlaPolicy` — políticas SLA con objetivos por prioridad
+- `Escalated.Schemas.TicketActivity` — registro de auditoría de cambios en tickets
+- `Escalated.Schemas.AgentProfile` — datos de perfil específicos del agente
 
 ## Licencia
 
-MIT License. See [LICENSE](LICENSE) for details.
+Licencia MIT. Consulte [LICENSE](LICENSE) para más detalles.

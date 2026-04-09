@@ -15,33 +15,33 @@
   <b>简体中文</b>
 </p>
 
-# Escalated for Phoenix
+# Escalated Phoenix 版
 
-Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in support tickets, departments, SLA policies, and agent management as a Hex package.
+Phoenix 应用程序的可嵌入帮助台和支持工单系统。作为 Hex 包提供即插即用的支持工单、部门、SLA 策略和客服管理。
 
 ## 功能特性
 
-- **Ticket lifecycle** — Create, assign, reply, resolve, close, reopen with configurable status transitions
-- **SLA engine** — Per-priority response and resolution targets, business hours calculation, automatic breach detection
-- **Agent dashboard** — Ticket queue with filters, internal notes, canned responses
-- **Customer portal** — Self-service ticket creation, replies, and status tracking
-- **Admin panel** — Manage departments, SLA policies, tags, and view reports
-- **File attachments** — Drag-and-drop uploads with configurable storage and size limits
-- **Activity timeline** — Full audit log of every action on every ticket
-- **Department routing** — Organize agents into departments with auto-assignment
-- **Tagging system** — Categorize tickets with colored tags
-- **Ticket splitting** — Split a reply into a new standalone ticket while preserving the original context
-- **Ticket snooze** — Snooze tickets with presets (1h, 4h, tomorrow, next week); `mix escalated.wake_snoozed_tickets` Mix task auto-wakes them on schedule
-- **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
-- **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check
-- **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
-- **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
-- **Real-time broadcasting** — Opt-in broadcasting via Phoenix PubSub with automatic polling fallback
-- **Knowledge base toggle** — Enable or disable the public knowledge base from admin settings
+- **工单生命周期** — 创建、分配、回复、解决、关闭、重新打开，具有可配置的状态转换
+- **SLA 引擎** — 按优先级的响应和解决目标、工作时间计算、自动违规检测
+- **客服仪表板** — 带筛选器、内部备注、预设回复的工单队列
+- **客户门户** — 自助工单创建、回复和状态跟踪
+- **管理面板** — 管理部门、SLA 策略、标签并查看报告
+- **文件附件** — 可配置存储和大小限制的拖放上传
+- **活动时间线** — 每张工单每个操作的完整审计日志
+- **部门路由** — 将客服组织到部门中并自动分配
+- **标签系统** — 使用彩色标签对工单进行分类
+- **工单拆分** — 将回复拆分为新的独立工单，同时保留原始上下文
+- **工单暂停** — 使用预设（1小时、4小时、明天、下周）暂停工单；`mix escalated.wake_snoozed_tickets` Mix 任务按计划自动唤醒
+- **保存的视图 / 自定义队列** — 将筛选预设保存、命名和共享为可重用的工单视图
+- **可嵌入支持小部件** — 带知识库搜索、工单表单和状态检查的轻量级 `<script>` 小部件
+- **邮件线程** — 发出的邮件包含正确的 `In-Reply-To` 和 `References` 头部，以便在邮件客户端中正确分组
+- **品牌邮件模板** — 所有发出邮件的可配置 Logo、主色调和页脚文字
+- **实时广播** — 通过 Phoenix PubSub 进行可选广播，带自动轮询回退
+- **知识库开关** — 从管理设置中启用或禁用公共知识库
 
 ## 安装
 
-Add `escalated` to your list of dependencies in `mix.exs`:
+在 `mix.exs` 的依赖列表中添加 `escalated`：
 
 ```elixir
 def deps do
@@ -53,7 +53,7 @@ end
 
 ## 配置
 
-Add the following to your `config/config.exs`:
+在 `config/config.exs` 中添加以下内容：
 
 ```elixir
 config :escalated,
@@ -66,39 +66,39 @@ config :escalated,
   agent_check: &MyApp.Accounts.agent?/1
 ```
 
-### Configuration Options
+### 配置选项
 
-| Option | Default | Description |
+| 选项 | 默认值 | 描述 |
 |--------|---------|-------------|
-| `repo` | *required* | Your Ecto Repo module |
-| `user_schema` | *required* | Your User schema module |
-| `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
-| `table_prefix` | `"escalated_"` | Database table name prefix |
-| `ui_enabled` | `true` | Mount Inertia.js UI routes |
-| `api_enabled` | `false` | Mount JSON API routes |
-| `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
-| `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
-| `default_priority` | `:medium` | Default ticket priority |
-| `allow_customer_close` | `true` | Allow customers to close their tickets |
-| `sla` | `%{enabled: true, ...}` | SLA configuration map |
+| `repo` | *必需* | 你的 Ecto Repo 模块 |
+| `user_schema` | *必需* | 你的 User schema 模块 |
+| `route_prefix` | `"/support"` | 所有 Escalated 路由的 URL 前缀 |
+| `table_prefix` | `"escalated_"` | 数据库表名前缀 |
+| `ui_enabled` | `true` | 挂载 Inertia.js UI 路由 |
+| `api_enabled` | `false` | 挂载 JSON API 路由 |
+| `admin_check` | `nil` | 管理员访问函数 `(user -> boolean)` |
+| `agent_check` | `nil` | 客服访问函数 `(user -> boolean)` |
+| `default_priority` | `:medium` | 默认工单优先级 |
+| `allow_customer_close` | `true` | 允许客户关闭自己的工单 |
+| `sla` | `%{enabled: true, ...}` | SLA 配置映射 |
 
-## Database Setup
+## 数据库设置
 
-Run the Escalated migration:
+运行 Escalated 迁移：
 
 ```bash
 mix ecto.gen.migration create_escalated_tables
 ```
 
-Then copy the migration content from `priv/repo/migrations/20260406000001_create_escalated_tables.exs` or install via:
+然后从 `priv/repo/migrations/20260406000001_create_escalated_tables.exs` 复制迁移内容，或通过以下命令安装：
 
 ```bash
 mix ecto.migrate
 ```
 
-## Router Setup
+## 路由器设置
 
-Mount Escalated routes in your Phoenix router:
+在 Phoenix 路由器中挂载 Escalated 路由：
 
 ```elixir
 defmodule MyAppWeb.Router do
@@ -116,16 +116,16 @@ defmodule MyAppWeb.Router do
 end
 ```
 
-This mounts:
+这将挂载：
 
-- **Customer routes** at `/support/tickets/*` -- view/create/reply to tickets
-- **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
-- **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
-- **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+- **客户路由** 在 `/support/tickets/*` — 查看/创建/回复工单
+- **客服路由** 在 `/support/agent/*` — 客服仪表板和工单管理
+- **管理路由** 在 `/support/admin/*` — 完整管理（部门、标签、设置）
+- **API 路由** 在 `/support/api/v1/*` — JSON API（当 `api_enabled: true` 时）
 
 ## 使用方法
 
-### Creating Tickets Programmatically
+### 通过代码创建工单
 
 ```elixir
 {:ok, ticket} = Escalated.Services.TicketService.create(%{
@@ -137,7 +137,7 @@ This mounts:
 })
 ```
 
-### Replying to Tickets
+### 回复工单
 
 ```elixir
 {:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
@@ -147,47 +147,47 @@ This mounts:
 })
 ```
 
-### Assigning Tickets
+### 分配工单
 
 ```elixir
 {:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
 {:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
 ```
 
-### SLA Management
+### SLA 管理
 
 ```elixir
-# Check for SLA breaches (run periodically via a scheduler)
+# 检查 SLA 违规（通过调度器定期运行）
 breached = Escalated.Services.SlaService.check_breaches()
 
-# Get SLA statistics
+# 获取 SLA 统计
 stats = Escalated.Services.SlaService.stats()
 ```
 
-## UI Rendering
+## UI 渲染
 
-By default, Escalated renders pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) when `inertia_phoenix` is installed. If Inertia is not available, controllers fall back to JSON responses.
+默认情况下，当安装了 `inertia_phoenix` 时，Escalated 通过 [Inertia.js](https://github.com/inertiajs/inertia-phoenix) 渲染页面。如果 Inertia 不可用，控制器将回退到 JSON 响应。
 
-You can build your own frontend components that consume the Inertia page props, or use the JSON API directly.
+您可以构建自己的前端组件来消费 Inertia 页面 props，或直接使用 JSON API。
 
 ## Plugs
 
-Escalated provides plugs for authorization:
+Escalated 提供用于授权的 plugs：
 
-- `Escalated.Plugs.EnsureAgent` -- requires the user to pass the configured `agent_check`
-- `Escalated.Plugs.EnsureAdmin` -- requires the user to pass the configured `admin_check`
-- `Escalated.Plugs.ShareInertiaData` -- shares common Escalated data with Inertia pages
+- `Escalated.Plugs.EnsureAgent` — 要求用户通过配置的 `agent_check`
+- `Escalated.Plugs.EnsureAdmin` — 要求用户通过配置的 `admin_check`
+- `Escalated.Plugs.ShareInertiaData` — 与 Inertia 页面共享通用 Escalated 数据
 
-## Schemas
+## 模式
 
-- `Escalated.Schemas.Ticket` -- support tickets with status, priority, SLA tracking
-- `Escalated.Schemas.Reply` -- ticket replies and internal notes
-- `Escalated.Schemas.Department` -- support departments/teams
-- `Escalated.Schemas.Tag` -- ticket tags for categorization
-- `Escalated.Schemas.SlaPolicy` -- SLA policies with per-priority targets
-- `Escalated.Schemas.TicketActivity` -- audit log of ticket changes
-- `Escalated.Schemas.AgentProfile` -- agent-specific profile data
+- `Escalated.Schemas.Ticket` — 带状态、优先级、SLA 跟踪的支持工单
+- `Escalated.Schemas.Reply` — 工单回复和内部备注
+- `Escalated.Schemas.Department` — 支持部门/团队
+- `Escalated.Schemas.Tag` — 用于分类的工单标签
+- `Escalated.Schemas.SlaPolicy` — 带按优先级目标的 SLA 策略
+- `Escalated.Schemas.TicketActivity` — 工单变更审计日志
+- `Escalated.Schemas.AgentProfile` — 客服特定的档案数据
 
 ## 许可证
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT 许可证。详情请参阅 [LICENSE](LICENSE)。
