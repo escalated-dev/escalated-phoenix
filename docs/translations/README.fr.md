@@ -1,25 +1,25 @@
 <p align="center">
-  <a href="docs/translations/README.ar.md">العربية</a> •
-  <a href="docs/translations/README.de.md">Deutsch</a> •
-  <b>English</b> •
-  <a href="docs/translations/README.es.md">Español</a> •
-  <a href="docs/translations/README.fr.md">Français</a> •
-  <a href="docs/translations/README.it.md">Italiano</a> •
-  <a href="docs/translations/README.ja.md">日本語</a> •
-  <a href="docs/translations/README.ko.md">한국어</a> •
-  <a href="docs/translations/README.nl.md">Nederlands</a> •
-  <a href="docs/translations/README.pl.md">Polski</a> •
-  <a href="docs/translations/README.pt-BR.md">Português (BR)</a> •
-  <a href="docs/translations/README.ru.md">Русский</a> •
-  <a href="docs/translations/README.tr.md">Türkçe</a> •
-  <a href="docs/translations/README.zh-CN.md">简体中文</a>
+  <a href="README.ar.md">العربية</a> •
+  <a href="README.de.md">Deutsch</a> •
+  <a href="../../README.md">English</a> •
+  <a href="README.es.md">Español</a> •
+  <b>Français</b> •
+  <a href="README.it.md">Italiano</a> •
+  <a href="README.ja.md">日本語</a> •
+  <a href="README.ko.md">한국어</a> •
+  <a href="README.nl.md">Nederlands</a> •
+  <a href="README.pl.md">Polski</a> •
+  <a href="README.pt-BR.md">Português (BR)</a> •
+  <a href="README.ru.md">Русский</a> •
+  <a href="README.tr.md">Türkçe</a> •
+  <a href="README.zh-CN.md">简体中文</a>
 </p>
 
 # Escalated for Phoenix
 
 Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in support tickets, departments, SLA policies, and agent management as a Hex package.
 
-## Features
+## Fonctionnalités
 
 - **Ticket lifecycle** — Create, assign, reply, resolve, close, reopen with configurable status transitions
 - **SLA engine** — Per-priority response and resolution targets, business hours calculation, automatic breach detection
@@ -123,7 +123,7 @@ This mounts:
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
 
-## Usage
+## Utilisation
 
 ### Creating Tickets Programmatically
 
@@ -188,6 +188,6 @@ Escalated provides plugs for authorization:
 - `Escalated.Schemas.TicketActivity` -- audit log of ticket changes
 - `Escalated.Schemas.AgentProfile` -- agent-specific profile data
 
-## License
+## Licence
 
 MIT License. See [LICENSE](LICENSE) for details.
