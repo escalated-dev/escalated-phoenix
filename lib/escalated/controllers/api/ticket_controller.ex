@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.Api.TicketController do
   import Plug.Conn
 
   alias Escalated.Services.{TicketService, AssignmentService}
+  alias Escalated.Serializers.TicketSerializer
 
   def index(conn, params) do
     tickets =
@@ -33,6 +34,7 @@ defmodule Escalated.Controllers.Api.TicketController do
             created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
             updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
           }
+          |> Map.merge(TicketSerializer.computed_fields(t))
         end)
     })
   end
@@ -135,6 +137,7 @@ defmodule Escalated.Controllers.Api.TicketController do
       created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
       updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
     }
+    |> Map.merge(TicketSerializer.computed_fields(t))
   end
 
   defp format_errors(changeset) do
