@@ -6,7 +6,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
   import Plug.Conn
 
   alias Escalated.Services.{TicketService, AssignmentService}
-  alias Escalated.Schemas.{Ticket, Reply}
+  alias Escalated.Schemas.{Ticket, Reply, Attachment}
   alias Escalated.Rendering.UIRenderer
   import Ecto.Query
 
@@ -29,7 +29,8 @@ defmodule Escalated.Controllers.Agent.TicketController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
       ticket ->
-        replies = repo.all(from(r in Reply, where: r.ticket_id == ^ticket.id) |> Reply.chronological())
+        ticket = repo.preload(ticket, :attachments)
+        replies = repo.all(from(r in Reply, where: r.ticket_id == ^ticket.id) |> Reply.chronological()) |> repo.preload(:attachments)
         activities = repo.all(from(a in Escalated.Schemas.TicketActivity, where: a.ticket_id == ^ticket.id) |> Escalated.Schemas.TicketActivity.reverse_chronological() |> limit(50))
 
         UIRenderer.render_page(conn, "Escalated/Agent/Tickets/Show", %{
@@ -208,6 +209,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
       description: t.description,
       ticket_type: t.ticket_type,
       metadata: t.metadata,
+      attachments: serialize_attachments(t),
       sla_first_response_due_at: t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
       sla_resolution_due_at: t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
       first_response_at: t.first_response_at && DateTime.to_iso8601(t.first_response_at),
@@ -223,6 +225,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
       is_system: r.is_system,
       is_pinned: r.is_pinned,
       author_id: r.author_id,
+      attachments: serialize_attachments(r),
       created_at: r.inserted_at && DateTime.to_iso8601(r.inserted_at)
     }
   end
@@ -234,6 +237,23 @@ defmodule Escalated.Controllers.Agent.TicketController do
       description: a.description,
       causer_id: a.causer_id,
       details: a.details,
+      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
+    }
+  end
+
+  defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
+    Enum.map(attachments, &attachment_json/1)
+  end
+
+  defp serialize_attachments(_), do: []
+
+  defp attachment_json(a) do
+    %{
+      id: a.id,
+      original_filename: a.original_filename,
+      mime_type: a.mime_type,
+      size: a.size,
+      url: Attachment.url(a),
       created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
     }
   end

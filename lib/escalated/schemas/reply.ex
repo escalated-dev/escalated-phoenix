@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.Reply do
     field :author_id, :integer
 
     belongs_to :ticket, Escalated.Schemas.Ticket
+    has_many :attachments, Escalated.Schemas.Attachment
 
     timestamps(type: :utc_datetime)
   end

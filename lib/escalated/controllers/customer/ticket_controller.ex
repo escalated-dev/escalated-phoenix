@@ -9,7 +9,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
   import Plug.Conn
 
   alias Escalated.Services.TicketService
-  alias Escalated.Schemas.Ticket
+  alias Escalated.Schemas.{Ticket, Attachment}
   alias Escalated.Rendering.UIRenderer
 
   def index(conn, params) do
@@ -72,7 +72,8 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
       ticket ->
         repo = Escalated.repo()
-        replies = repo.all(Escalated.Schemas.Reply.chronological() |> Ecto.Query.where([r], r.ticket_id == ^ticket.id and r.is_internal == false))
+        ticket = repo.preload(ticket, :attachments)
+        replies = repo.all(Escalated.Schemas.Reply.chronological() |> Ecto.Query.where([r], r.ticket_id == ^ticket.id and r.is_internal == false)) |> repo.preload(:attachments)
 
         UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Show", %{
           ticket: ticket_detail_json(ticket),
@@ -129,7 +130,8 @@ defmodule Escalated.Controllers.Customer.TicketController do
     |> Map.merge(%{
       description: ticket.description,
       ticket_type: ticket.ticket_type,
-      department_id: ticket.department_id
+      department_id: ticket.department_id,
+      attachments: serialize_attachments(ticket)
     })
   end
 
@@ -139,7 +141,25 @@ defmodule Escalated.Controllers.Customer.TicketController do
       body: reply.body,
       is_internal: reply.is_internal,
       author_id: reply.author_id,
+      attachments: serialize_attachments(reply),
       created_at: reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
+    }
+  end
+
+  defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
+    Enum.map(attachments, &attachment_json/1)
+  end
+
+  defp serialize_attachments(_), do: []
+
+  defp attachment_json(a) do
+    %{
+      id: a.id,
+      original_filename: a.original_filename,
+      mime_type: a.mime_type,
+      size: a.size,
+      url: Attachment.url(a),
+      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
     }
   end
 
