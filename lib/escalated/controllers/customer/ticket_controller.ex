@@ -10,6 +10,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
   alias Escalated.Services.TicketService
   alias Escalated.Schemas.{Ticket, Attachment}
+  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
 
   def index(conn, params) do
@@ -123,6 +124,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       created_at: ticket.inserted_at && DateTime.to_iso8601(ticket.inserted_at),
       updated_at: ticket.updated_at && DateTime.to_iso8601(ticket.updated_at)
     }
+    |> Map.merge(TicketSerializer.computed_fields(ticket))
   end
 
   defp ticket_detail_json(ticket) do

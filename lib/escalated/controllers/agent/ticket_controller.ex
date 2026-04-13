@@ -7,6 +7,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
 
   alias Escalated.Services.{TicketService, AssignmentService}
   alias Escalated.Schemas.{Ticket, Reply, Attachment}
+  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
   import Ecto.Query
 
@@ -201,6 +202,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
       created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
       updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
     }
+    |> Map.merge(TicketSerializer.computed_fields(t))
   end
 
   defp ticket_detail_json(t) do
