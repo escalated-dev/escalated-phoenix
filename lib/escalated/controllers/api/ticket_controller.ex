@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.Api.TicketController do
   import Plug.Conn
 
   alias Escalated.Services.{TicketService, AssignmentService}
+  alias Escalated.Schemas.Attachment
   alias Escalated.Serializers.TicketSerializer
 
   def index(conn, params) do
@@ -40,11 +41,14 @@ defmodule Escalated.Controllers.Api.TicketController do
   end
 
   def show(conn, %{"reference" => reference}) do
+    repo = Escalated.repo()
+
     case TicketService.find(reference) do
       nil ->
         conn |> put_status(404) |> json(%{error: "Ticket not found"})
 
       ticket ->
+        ticket = repo.preload(ticket, :attachments)
         json(conn, %{data: ticket_json(ticket)})
     end
   end
@@ -132,12 +136,30 @@ defmodule Escalated.Controllers.Api.TicketController do
       assigned_to: t.assigned_to,
       department_id: t.department_id,
       sla_breached: t.sla_breached,
+      attachments: serialize_attachments(t),
       sla_first_response_due_at: t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
       sla_resolution_due_at: t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
       created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
       updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
     }
     |> Map.merge(TicketSerializer.computed_fields(t))
+  end
+
+  defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
+    Enum.map(attachments, &attachment_json/1)
+  end
+
+  defp serialize_attachments(_), do: []
+
+  defp attachment_json(a) do
+    %{
+      id: a.id,
+      original_filename: a.original_filename,
+      mime_type: a.mime_type,
+      size: a.size,
+      url: Attachment.url(a),
+      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
+    }
   end
 
   defp format_errors(changeset) do

@@ -32,6 +32,9 @@ defmodule Escalated.Router do
   defmacro escalated_routes(prefix, opts \\ []) do
     quote do
       scope unquote(prefix), as: :escalated do
+        # Attachment downloads (accessible to any authenticated user)
+        get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
+
         # Customer routes
         scope "/", Escalated.Controllers.Customer do
           get "/tickets", TicketController, :index
