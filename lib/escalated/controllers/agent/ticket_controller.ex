@@ -217,6 +217,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
       first_response_at: t.first_response_at && DateTime.to_iso8601(t.first_response_at),
       resolved_at: t.resolved_at && DateTime.to_iso8601(t.resolved_at)
     })
+    |> Map.merge(TicketSerializer.detail_fields(t))
   end
 
   defp reply_json(r) do
@@ -239,7 +240,8 @@ defmodule Escalated.Controllers.Agent.TicketController do
       description: a.description,
       causer_id: a.causer_id,
       details: a.details,
-      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
+      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at),
+      created_at_human: TicketSerializer.human_time(a.inserted_at)
     }
   end
 

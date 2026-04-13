@@ -9,9 +9,17 @@ defmodule Escalated.Serializers.TicketSerializer do
     * `last_reply_author` — name of the most recent reply's author
     * `is_live_chat`    — true when status is "live" and channel is "chat"
     * `is_snoozed`      — true when `snoozed_until` is set and in the future
+
+  Detail-only fields (via `detail_fields/1`):
+    * `chat_session_id`        — ID of the associated ChatSession
+    * `chat_started_at`        — when the chat session was created
+    * `chat_messages`          — array of chat message objects
+    * `chat_metadata`          — metadata map from the ticket
+    * `requester_ticket_count` — total tickets submitted by the requester
+    * `related_tickets`        — linked tickets (splits, parent)
   """
 
-  alias Escalated.Schemas.Reply
+  alias Escalated.Schemas.{Reply, ChatSession, Ticket}
   import Ecto.Query
 
   @doc """
@@ -34,6 +42,47 @@ defmodule Escalated.Serializers.TicketSerializer do
       is_live_chat: ticket.status == "live" && ticket.channel == "chat",
       is_snoozed: not is_nil(ticket.snoozed_until) && DateTime.compare(ticket.snoozed_until, DateTime.utc_now()) == :gt
     }
+  end
+
+  @doc """
+  Returns additional computed fields for the ticket detail (show) view.
+
+  Includes chat session context, requester ticket count, and related tickets.
+  """
+  def detail_fields(ticket) do
+    repo = Escalated.repo()
+
+    chat_session = resolve_chat_session(ticket, repo)
+    chat_messages = resolve_chat_messages(ticket, repo)
+    requester_ticket_count = resolve_requester_ticket_count(ticket, repo)
+    related_tickets = resolve_related_tickets(ticket, repo)
+
+    %{
+      chat_session_id: chat_session && chat_session.id,
+      chat_started_at: chat_session && chat_session.inserted_at && DateTime.to_iso8601(chat_session.inserted_at),
+      chat_messages: chat_messages,
+      chat_metadata: ticket.chat_metadata,
+      requester_ticket_count: requester_ticket_count,
+      related_tickets: related_tickets
+    }
+  end
+
+  @doc """
+  Formats a UTC datetime into a human-readable relative string.
+  """
+  def human_time(nil), do: nil
+
+  def human_time(datetime) do
+    now = DateTime.utc_now()
+    diff = DateTime.diff(now, datetime, :second)
+
+    cond do
+      diff < 60 -> "just now"
+      diff < 3600 -> "#{div(diff, 60)}m ago"
+      diff < 86_400 -> "#{div(diff, 3600)}h ago"
+      diff < 604_800 -> "#{div(diff, 86_400)}d ago"
+      true -> Calendar.strftime(datetime, "%b %d, %Y %H:%M")
+    end
   end
 
   # ---------------------------------------------------------------------------
@@ -94,6 +143,88 @@ defmodule Escalated.Serializers.TicketSerializer do
       nil -> nil
       user ->
         if function_exported?(user.__struct__, :name, 1), do: user.__struct__.name(user), else: Map.get(user, :name)
+    end
+  end
+
+  defp resolve_chat_session(ticket, repo) do
+    if ticket.channel == "chat" do
+      repo.one(
+        from(s in ChatSession,
+          where: s.ticket_id == ^ticket.id,
+          order_by: [desc: s.inserted_at],
+          limit: 1
+        )
+      )
+    else
+      nil
+    end
+  end
+
+  defp resolve_chat_messages(ticket, repo) do
+    if ticket.channel == "chat" do
+      replies =
+        from(r in Reply,
+          where: r.ticket_id == ^ticket.id and r.is_internal == false,
+          order_by: [asc: r.inserted_at]
+        )
+        |> repo.all()
+
+      Enum.map(replies, fn r ->
+        %{
+          id: r.id,
+          body: r.body,
+          author_id: r.author_id,
+          created_at: r.inserted_at && DateTime.to_iso8601(r.inserted_at)
+        }
+      end)
+    else
+      nil
+    end
+  end
+
+  defp resolve_requester_ticket_count(ticket, repo) do
+    cond do
+      ticket.requester_id != nil ->
+        repo.aggregate(
+          from(t in Ticket, where: t.requester_id == ^ticket.requester_id),
+          :count
+        )
+
+      ticket.guest_email != nil ->
+        repo.aggregate(
+          from(t in Ticket, where: t.guest_email == ^ticket.guest_email),
+          :count
+        )
+
+      true ->
+        1
+    end
+  end
+
+  defp resolve_related_tickets(ticket, repo) do
+    meta = ticket.metadata || %{}
+    related_ids = []
+
+    # Tickets split from this ticket
+    split_ids = Map.get(meta, "split_ticket_ids", [])
+
+    # The ticket this was split from
+    split_from_id = Map.get(meta, "split_from_ticket_id")
+    related_ids = if split_from_id, do: [split_from_id | related_ids], else: related_ids
+    related_ids = related_ids ++ split_ids
+
+    if related_ids == [] do
+      []
+    else
+      related_ids
+      |> Enum.uniq()
+      |> then(fn ids ->
+        from(t in Ticket,
+          where: t.id in ^ids,
+          select: %{id: t.id, reference: t.reference, subject: t.subject, status: t.status}
+        )
+        |> repo.all()
+      end)
     end
   end
 end

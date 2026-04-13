@@ -143,6 +143,7 @@ defmodule Escalated.Controllers.Api.TicketController do
       updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
     }
     |> Map.merge(TicketSerializer.computed_fields(t))
+    |> Map.merge(TicketSerializer.detail_fields(t))
   end
 
   defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
