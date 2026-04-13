@@ -183,7 +183,8 @@ defmodule Escalated.Controllers.Admin.TicketController do
   end
 
   defp ticket_detail_json(t) do
-    ticket_list_json(t) |> Map.merge(%{
+    ticket_list_json(t)
+    |> Map.merge(%{
       description: t.description, metadata: t.metadata,
       sla_policy_id: t.sla_policy_id,
       attachments: serialize_attachments(t),
@@ -193,6 +194,7 @@ defmodule Escalated.Controllers.Admin.TicketController do
       resolved_at: t.resolved_at && DateTime.to_iso8601(t.resolved_at),
       closed_at: t.closed_at && DateTime.to_iso8601(t.closed_at)
     })
+    |> Map.merge(TicketSerializer.detail_fields(t))
   end
 
   defp reply_json(r) do
@@ -205,7 +207,8 @@ defmodule Escalated.Controllers.Admin.TicketController do
   defp activity_json(a) do
     %{id: a.id, action: a.action, description: a.description,
       causer_id: a.causer_id, details: a.details,
-      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)}
+      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at),
+      created_at_human: TicketSerializer.human_time(a.inserted_at)}
   end
 
   defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
