@@ -1,0 +1,34 @@
+name: escalated-phoenix-demo
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "${APP_PORT:-4000}:4000"
+    environment:
+      MIX_ENV: dev
+      APP_ENV: demo
+      DATABASE_URL: "ecto://escalated:escalated@db/escalated"
+      SECRET_KEY_BASE: demo-only-secret-64-bytes-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      PHX_HOST: localhost
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: escalated
+      POSTGRES_USER: escalated
+      POSTGRES_PASSWORD: escalated
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U escalated -d escalated"]
+      interval: 2s
+      retries: 15
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_PORT:-8025}:8025"
