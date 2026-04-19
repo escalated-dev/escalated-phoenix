@@ -24,6 +24,18 @@ RUN python3 -c "import re,pathlib; p=pathlib.Path('mix.exs'); t=p.read_text(); t
 RUN apk add --no-cache python3 \
     && mix deps.get || echo "[demo] mix deps.get failed - see PR body"
 
+# Patch dev.exs: read DB connection from env (defaults to compose service "db") and bind 0.0.0.0.
+RUN sed -i \
+    -e 's|hostname: "localhost"|hostname: System.get_env("POSTGRES_HOST", "db")|' \
+    -e 's|username: "postgres"|username: System.get_env("POSTGRES_USER", "escalated")|' \
+    -e 's|password: "postgres"|password: System.get_env("POSTGRES_PASSWORD", "escalated")|' \
+    -e 's|database: "escalated_demo_dev"|database: System.get_env("POSTGRES_DB", "escalated")|' \
+    -e 's|http: \[ip: {127, 0, 0, 1}|http: [ip: {0, 0, 0, 0}|' \
+    config/dev.exs
+
+# Add a /demo placeholder route so curl can verify the host bootstraps end-to-end.
+COPY docker/host-app/demo_router.ex /host/lib/escalated_demo_web/router.ex
+
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
