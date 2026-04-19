@@ -33,8 +33,16 @@ RUN sed -i \
     -e 's|http: \[ip: {127, 0, 0, 1}|http: [ip: {0, 0, 0, 0}|' \
     config/dev.exs
 
-# Add a /demo placeholder route so curl can verify the host bootstraps end-to-end.
+# Add /demo picker + click-login + agent profile route + configure
+# the package's :escalated app with the host's Repo.
 COPY docker/host-app/demo_router.ex /host/lib/escalated_demo_web/router.ex
+RUN echo '' >> config/config.exs && \
+    echo 'config :escalated, repo: EscalatedDemo.Repo' >> config/config.exs
+
+# Copy the package migrations into the host's migration path so mix ecto.migrate
+# picks them up. The package ships migrations in /package/priv/repo/migrations/
+# and the demo Repo runs migrations from /host/priv/repo/migrations/.
+RUN cp /package/priv/repo/migrations/*.exs /host/priv/repo/migrations/
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
