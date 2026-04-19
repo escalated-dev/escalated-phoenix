@@ -122,8 +122,8 @@ defmodule Escalated.Services.ReportingService do
       Float.round(hd(sorted) / 1, 2)
     else
       k = p / 100 * (length(sorted) - 1)
-      f = floor(k) |> trunc()
-      c = ceil(k) |> trunc()
+      f = floor_(k) |> trunc()
+      c = ceil_(k) |> trunc()
 
       if f == c do
         Float.round(Enum.at(sorted, f) / 1, 2)
@@ -137,11 +137,11 @@ defmodule Escalated.Services.ReportingService do
   defp ceil_int(val) when is_float(val), do: val |> Float.ceil() |> trunc()
   defp ceil_int(val) when is_integer(val), do: val
 
-  defp floor(val) when is_float(val), do: Float.floor(val)
-  defp floor(val) when is_integer(val), do: val * 1.0
+  defp floor_(val) when is_float(val), do: Float.floor(val)
+  defp floor_(val) when is_integer(val), do: val * 1.0
 
-  defp ceil(val) when is_float(val), do: Float.ceil(val)
-  defp ceil(val) when is_integer(val), do: val * 1.0
+  defp ceil_(val) when is_float(val), do: Float.ceil(val)
+  defp ceil_(val) when is_integer(val), do: val * 1.0
 
   defp to_float(val) when is_float(val), do: val
   defp to_float(val) when is_integer(val), do: val / 1
