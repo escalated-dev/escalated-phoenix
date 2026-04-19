@@ -7,6 +7,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
+  import Ecto.Query, only: [where: 3]
 
   alias Escalated.Services.TicketService
   alias Escalated.Schemas.{Ticket, Attachment}
@@ -74,7 +75,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
       ticket ->
         repo = Escalated.repo()
         ticket = repo.preload(ticket, :attachments)
-        replies = repo.all(Escalated.Schemas.Reply.chronological() |> Ecto.Query.where([r], r.ticket_id == ^ticket.id and r.is_internal == false)) |> repo.preload(:attachments)
+        replies =
+          Escalated.Schemas.Reply.chronological()
+          |> where([r], r.ticket_id == ^ticket.id and r.is_internal == false)
+          |> repo.all()
+          |> repo.preload(:attachments)
 
         UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Show", %{
           ticket: ticket_detail_json(ticket),
