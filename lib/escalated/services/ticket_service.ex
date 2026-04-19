@@ -304,8 +304,9 @@ defmodule Escalated.Services.TicketService do
       error ->
         error
     end
+  end
 
-    @doc """
+  @doc """
   Unsnoozes a ticket, restoring its previous status.
 
   Clears the snooze fields and transitions back to the status the ticket
