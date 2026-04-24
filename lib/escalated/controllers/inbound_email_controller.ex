@@ -33,7 +33,8 @@ defmodule Escalated.Controllers.InboundEmailController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
-  alias Escalated.Services.Email.Inbound.Router
+  alias Escalated.Services.Email.Inbound.Service
+  alias Escalated.Services.TicketService
   alias Escalated.Schemas.Ticket
 
   @default_parsers [Escalated.Services.Email.Inbound.PostmarkParser]
@@ -80,14 +81,23 @@ defmodule Escalated.Controllers.InboundEmailController do
     case parser.parse(params) do
       {:ok, message} ->
         lookup = default_lookup()
+        writer = default_writer()
         options = %{inbound_secret: inbound_secret()}
 
-        case Router.resolve_ticket(message, lookup, options) do
-          %Ticket{id: id} ->
-            json(conn, %{"status" => "matched", "ticket_id" => id})
+        case Service.process(message, lookup, writer, options) do
+          {:ok, result} ->
+            json(conn, %{
+              "status" => status_string(result.outcome),
+              "outcome" => Atom.to_string(result.outcome),
+              "ticket_id" => result.ticket_id,
+              "reply_id" => result.reply_id,
+              "pending_attachment_downloads" => result.pending_attachment_downloads
+            })
 
-          nil ->
-            json(conn, %{"status" => "unmatched", "ticket_id" => nil})
+          {:error, _reason} ->
+            conn
+            |> put_status(500)
+            |> json(%{error: "processing failed"})
         end
 
       {:error, _reason} ->
@@ -97,12 +107,23 @@ defmodule Escalated.Controllers.InboundEmailController do
     end
   end
 
+  defp status_string(:replied_to_existing), do: "matched"
+  defp status_string(:created_new), do: "created"
+  defp status_string(:skipped), do: "skipped"
+
   defp default_lookup do
     repo = Escalated.repo()
 
     %{
       get_ticket_by_id: fn id -> repo.get(Ticket, id) end,
       get_ticket_by_reference: fn ref -> repo.get_by(Ticket, reference: ref) end
+    }
+  end
+
+  defp default_writer do
+    %{
+      create: fn attrs -> TicketService.create(attrs) end,
+      add_reply: fn ticket, attrs -> TicketService.reply(ticket, attrs) end
     }
   end
 
