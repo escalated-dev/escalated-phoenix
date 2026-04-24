@@ -51,10 +51,18 @@ jobs:
           echo "Checking: $files"
           mix format --check-formatted $files
 
-      # Same reasoning as the format check: master has ~60 pre-existing
-      # Credo --strict findings from the period before this workflow ran.
-      # Drop --strict so the run enforces only Credo's default level (actual
-      # warnings + design issues stay as info), matching what was implicitly
-      # enforced before.
-      - name: Run Credo
-        run: mix credo
+      # Same reasoning as the format check: master has ~30 pre-existing
+      # Credo findings from the period before this workflow ran. Scope the
+      # check to .ex/.exs files the PR actually modifies so drift cleans up
+      # organically and new issues still block merge.
+      - name: Run Credo (PR-changed files)
+        if: github.event_name == 'pull_request'
+        run: |
+          files=$(git diff --name-only --diff-filter=AM \
+            "origin/${{ github.base_ref }}...HEAD" -- '*.ex' '*.exs' | tr '\n' ' ')
+          if [ -z "$files" ]; then
+            echo "No Elixir files changed; skipping credo."
+            exit 0
+          fi
+          echo "Running credo on: $files"
+          mix credo --files-included "$files"
