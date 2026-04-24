@@ -23,6 +23,8 @@ defmodule Escalated.Schemas.Ticket do
     field :guest_name, :string
     field :guest_email, :string
     field :guest_token, :string
+    # First-class Contact FK (Pattern B convergence).
+    field :contact_id, :integer
     field :metadata, :map, default: %{}
 
     # Chat fields
@@ -67,7 +69,7 @@ defmodule Escalated.Schemas.Ticket do
     |> cast(attrs, [
       :subject, :description, :status, :priority, :ticket_type,
       :assigned_to, :requester_id, :requester_type,
-      :guest_name, :guest_email, :guest_token,
+      :guest_name, :guest_email, :guest_token, :contact_id,
       :department_id, :sla_policy_id, :metadata,
       :snoozed_until, :snoozed_by, :status_before_snooze,
       :sla_breached, :sla_first_response_due_at, :sla_resolution_due_at,
