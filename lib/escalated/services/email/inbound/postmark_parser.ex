@@ -50,7 +50,8 @@ defmodule Escalated.Services.Email.Inbound.PostmarkParser do
        subject: Map.get(payload, "Subject") || "",
        body_text: blank_to_nil(Map.get(payload, "TextBody")),
        body_html: blank_to_nil(Map.get(payload, "HtmlBody")),
-       message_id: first_nonempty(Map.get(payload, "MessageID"), Map.get(headers, "Message-ID")),
+       message_id:
+         first_nonempty(Map.get(payload, "MessageID"), Map.get(headers, "Message-ID")),
        in_reply_to: Map.get(headers, "In-Reply-To"),
        references: Map.get(headers, "References"),
        headers: headers,
