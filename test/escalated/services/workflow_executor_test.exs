@@ -133,6 +133,56 @@ defmodule Escalated.Services.WorkflowExecutorTest do
                  %{"type" => "future_action", "value" => "x"}
                )
     end
+
+    test "dispatch_action on delay returns :handled_in_execute (usage error)" do
+      assert {:error, "delay", :handled_in_execute} =
+               WorkflowExecutor.dispatch_action(
+                 %{id: 1},
+                 %{"type" => "delay", "value" => "60"}
+               )
+    end
+  end
+
+  describe "handle_delay/4 — non-DB validation" do
+    test "returns :no_workflow_id when workflow_id is missing from opts" do
+      assert {:error, "delay", :no_workflow_id} =
+               WorkflowExecutor.handle_delay(
+                 %{id: 1},
+                 %{"type" => "delay", "value" => "60"},
+                 [],
+                 []
+               )
+    end
+
+    test "returns :invalid_minutes when value is not numeric" do
+      assert {:error, "delay", :invalid_minutes} =
+               WorkflowExecutor.handle_delay(
+                 %{id: 1},
+                 %{"type" => "delay", "value" => "abc"},
+                 [],
+                 workflow_id: 7
+               )
+    end
+
+    test "returns :invalid_minutes when value is zero" do
+      assert {:error, "delay", :invalid_minutes} =
+               WorkflowExecutor.handle_delay(
+                 %{id: 1},
+                 %{"type" => "delay", "value" => "0"},
+                 [],
+                 workflow_id: 7
+               )
+    end
+
+    test "returns :invalid_minutes when value is negative" do
+      assert {:error, "delay", :invalid_minutes} =
+               WorkflowExecutor.handle_delay(
+                 %{id: 1},
+                 %{"type" => "delay", "value" => "-1"},
+                 [],
+                 workflow_id: 7
+               )
+    end
   end
 
   describe "execute/2 shape" do
@@ -158,9 +208,42 @@ defmodule Escalated.Services.WorkflowExecutorTest do
     end
   end
 
+  describe "execute/3 delay short-circuits remaining actions" do
+    test "when delay has :no_workflow_id, remaining actions are skipped" do
+      json = ~s([
+        {"type":"delay","value":"5"},
+        {"type":"change_priority","value":"high"}
+      ])
+
+      {:ok, actions, results} = WorkflowExecutor.execute(%{id: 1}, json)
+      assert length(actions) == 2
+      assert Enum.at(results, 0) == {:error, "delay", :no_workflow_id}
+      assert Enum.at(results, 1) == {:error, "change_priority", :skipped_after_delay}
+    end
+
+    test "when delay has :invalid_minutes, remaining actions are skipped" do
+      json = ~s([
+        {"type":"change_priority","value":""},
+        {"type":"delay","value":"abc"},
+        {"type":"add_note","value":"after wait"}
+      ])
+
+      {:ok, _actions, results} =
+        WorkflowExecutor.execute(%{id: 1}, json, workflow_id: 9)
+
+      assert Enum.at(results, 0) == {:error, "change_priority", :blank_value}
+      assert Enum.at(results, 1) == {:error, "delay", :invalid_minutes}
+      assert Enum.at(results, 2) == {:error, "add_note", :skipped_after_delay}
+    end
+  end
+
   describe "module interface" do
     test "execute/2 is defined" do
       assert function_exported?(WorkflowExecutor, :execute, 2)
+    end
+
+    test "execute/3 is defined" do
+      assert function_exported?(WorkflowExecutor, :execute, 3)
     end
 
     test "parse_actions/1 is defined" do
@@ -169,6 +252,14 @@ defmodule Escalated.Services.WorkflowExecutorTest do
 
     test "dispatch_action/2 is defined" do
       assert function_exported?(WorkflowExecutor, :dispatch_action, 2)
+    end
+
+    test "handle_delay/4 is defined" do
+      assert function_exported?(WorkflowExecutor, :handle_delay, 4)
+    end
+
+    test "run_due_delayed_actions/0 is defined" do
+      assert function_exported?(WorkflowExecutor, :run_due_delayed_actions, 0)
     end
 
     test "resolve_tag_id/1 is defined" do
