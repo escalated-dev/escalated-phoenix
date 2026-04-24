@@ -3,14 +3,19 @@ defmodule Escalated.Services.TicketService do
   Core service for ticket operations: create, reply, status transitions, etc.
   """
 
-  alias Escalated.Schemas.{Ticket, Reply, TicketActivity}
+  alias Escalated.Schemas.{Contact, Ticket, Reply, TicketActivity}
   import Ecto.Query
 
   @doc """
   Creates a new ticket.
+
+  When the attrs carry a `:guest_email` (or `"guest_email"`) and no
+  `:contact_id`, a Contact is resolved/created (Pattern B dedupe)
+  and `:contact_id` is injected into the changeset attrs.
   """
   def create(attrs) do
     repo = Escalated.repo()
+    attrs = resolve_contact(attrs, repo)
 
     %Ticket{}
     |> Ticket.changeset(attrs)
@@ -23,6 +28,49 @@ defmodule Escalated.Services.TicketService do
 
       error ->
         error
+    end
+  end
+
+  # Resolve/create a Contact when guest_email is in attrs and contact_id is not
+  # already set. Returns attrs with :contact_id injected. Inline guest_*
+  # fields remain for backwards-compat dual-read.
+  defp resolve_contact(attrs, repo) do
+    guest_email = Map.get(attrs, :guest_email) || Map.get(attrs, "guest_email")
+    existing_contact_id = Map.get(attrs, :contact_id) || Map.get(attrs, "contact_id")
+
+    cond do
+      not is_nil(existing_contact_id) ->
+        attrs
+
+      is_binary(guest_email) and guest_email != "" ->
+        guest_name = Map.get(attrs, :guest_name) || Map.get(attrs, "guest_name")
+        case find_or_create_contact(guest_email, guest_name, repo) do
+          {:ok, %Contact{id: id}} -> Map.put(attrs, :contact_id, id)
+          _ -> attrs
+        end
+
+      true ->
+        attrs
+    end
+  end
+
+  defp find_or_create_contact(email, name, repo) do
+    normalized = Contact.normalize_email(email)
+    existing = repo.get_by(Contact, email: normalized)
+
+    case Contact.decide_action(existing, name) do
+      :return_existing ->
+        {:ok, existing}
+
+      :update_name ->
+        existing
+        |> Contact.changeset(%{name: name})
+        |> repo.update()
+
+      :create ->
+        %Contact{}
+        |> Contact.changeset(%{email: normalized, name: name, metadata: %{}})
+        |> repo.insert()
     end
   end
 
