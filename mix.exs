@@ -33,7 +33,7 @@ defmodule Escalated.MixProject do
       {:phoenix, "~> 1.7"},
       {:ecto_sql, "~> 3.10"},
       {:jason, "~> 1.4"},
-      {:inertia_phoenix, "~> 0.9", optional: true},
+      {:inertia_phoenix, "~> 0.4", optional: true},
       {:plug, "~> 1.14"},
 
       # Dev/test
