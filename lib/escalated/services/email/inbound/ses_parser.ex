@@ -211,31 +211,34 @@ defmodule Escalated.Services.Email.Inbound.SESParser do
 
   defp walk_multipart(body, content_type) do
     case extract_boundary(content_type) do
-      nil -> {nil, nil}
-      boundary -> Enum.reduce(split_multipart(body, boundary), {nil, nil}, &fold_part/2)
-    end
-  end
+      nil ->
+        {nil, nil}
 
-  defp fold_part(part, {text, html}) do
-    case split_headers(part) do
-      {:ok, part_headers, part_body} ->
-        part_type = Map.get(part_headers, "content-type", "")
-        part_enc = Map.get(part_headers, "content-transfer-encoding", "7bit")
-        decoded = decode_body(String.trim(part_body), part_enc)
-        merge_part(text, html, part_type, decoded)
+      boundary ->
+        parts = split_multipart(body, boundary)
 
-      _ ->
-        {text, html}
-    end
-  end
+        Enum.reduce(parts, {nil, nil}, fn part, {text, html} ->
+          case split_headers(part) do
+            {:ok, part_headers, part_body} ->
+              part_type = Map.get(part_headers, "content-type", "")
+              part_enc = Map.get(part_headers, "content-transfer-encoding", "7bit")
+              decoded = decode_body(String.trim(part_body), part_enc)
 
-  defp merge_part(text, html, part_type, decoded) do
-    type = String.downcase(part_type)
+              cond do
+                String.starts_with?(String.downcase(part_type), "text/plain") and is_nil(text) ->
+                  {decoded, html}
 
-    cond do
-      String.starts_with?(type, "text/plain") and is_nil(text) -> {decoded, html}
-      String.starts_with?(type, "text/html") and is_nil(html) -> {text, decoded}
-      true -> {text, html}
+                String.starts_with?(String.downcase(part_type), "text/html") and is_nil(html) ->
+                  {text, decoded}
+
+                true ->
+                  {text, html}
+              end
+
+            _ ->
+              {text, html}
+          end
+        end)
     end
   end
 
@@ -261,26 +264,23 @@ defmodule Escalated.Services.Email.Inbound.SESParser do
 
   defp decode_body(body, transfer_enc) do
     case String.downcase(String.trim(transfer_enc)) do
-      "quoted-printable" ->
-        decode_quoted_printable(body)
-
-      "base64" ->
-        case Base.decode64(body, ignore: :whitespace) do
-          {:ok, decoded} -> decoded
-          :error -> body
-        end
-
-      _ ->
-        body
+      "quoted-printable" -> decode_quoted_printable(body)
+      "base64" -> case Base.decode64(body, ignore: :whitespace) do
+        {:ok, decoded} -> decoded
+        :error -> body
+      end
+      _ -> body
     end
   end
 
   defp decode_quoted_printable(body) do
-    stripped = String.replace(body, ~r/=\r?\n/, "")
-
-    Regex.replace(~r/=([0-9A-Fa-f]{2})/, stripped, fn _match, hex ->
-      <<String.to_integer(hex, 16)>>
-    end)
+    body
+    |> String.replace(~r/=\r?\n/, "")
+    |> (fn stripped ->
+          Regex.replace(~r/=([0-9A-Fa-f]{2})/, stripped, fn _match, hex ->
+            <<String.to_integer(hex, 16)>>
+          end)
+        end).()
   end
 
   defp blank_to_nil(nil), do: nil

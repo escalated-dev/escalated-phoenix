@@ -28,29 +28,26 @@ defmodule Escalated.Services.Email.Inbound.SESParserTest do
 
   describe "notification" do
     test "extracts full threading metadata from commonHeaders + headers" do
-      envelope =
-        notification_envelope(%{
-          "mail" => %{
-            "source" => "alice@example.com",
-            "destination" => ["support@example.com"],
-            "headers" => [
-              %{"name" => "From", "value" => "Alice <alice@example.com>"},
-              %{"name" => "To", "value" => "support@example.com"},
-              %{"name" => "Subject", "value" => "[ESC-42] Re: Help"},
-              %{"name" => "Message-ID", "value" => "<external-xyz@mail.alice.com>"},
-              %{"name" => "In-Reply-To", "value" => "<ticket-42@support.example.com>"},
-              %{
-                "name" => "References",
-                "value" => "<ticket-42@support.example.com> <prev@mail.com>"
-              }
-            ],
-            "commonHeaders" => %{
-              "from" => ["Alice <alice@example.com>"],
-              "to" => ["support@example.com"],
-              "subject" => "[ESC-42] Re: Help"
-            }
+      envelope = notification_envelope(%{
+        "mail" => %{
+          "source" => "alice@example.com",
+          "destination" => ["support@example.com"],
+          "headers" => [
+            %{"name" => "From", "value" => "Alice <alice@example.com>"},
+            %{"name" => "To", "value" => "support@example.com"},
+            %{"name" => "Subject", "value" => "[ESC-42] Re: Help"},
+            %{"name" => "Message-ID", "value" => "<external-xyz@mail.alice.com>"},
+            %{"name" => "In-Reply-To", "value" => "<ticket-42@support.example.com>"},
+            %{"name" => "References",
+              "value" => "<ticket-42@support.example.com> <prev@mail.com>"}
+          ],
+          "commonHeaders" => %{
+            "from" => ["Alice <alice@example.com>"],
+            "to" => ["support@example.com"],
+            "subject" => "[ESC-42] Re: Help"
           }
-        })
+        }
+      })
 
       assert {:ok, msg} = SESParser.parse(envelope)
       assert msg.from_email == "alice@example.com"
