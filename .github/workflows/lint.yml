@@ -53,15 +53,22 @@ jobs:
 
       # Same reasoning as the format check: master has ~30 pre-existing
       # Credo findings from the period before this workflow ran. Scope the
-      # check to .ex/.exs files the PR actually modifies so drift cleans up
-      # organically and new issues still block merge.
+      # check to source files under lib/ and test/ the PR actually modifies
+      # so drift cleans up organically and new issues still block merge.
+      #
+      # mix.exs / config/*.exs are excluded: credo's --files-included
+      # matcher works on globs under the analyzed project root and doesn't
+      # reliably scope to top-level files, and linting build config isn't
+      # the intent of credo anyway.
       - name: Run Credo (PR-changed files)
         if: github.event_name == 'pull_request'
         run: |
           files=$(git diff --name-only --diff-filter=AM \
-            "origin/${{ github.base_ref }}...HEAD" -- '*.ex' '*.exs' | tr '\n' ' ')
+            "origin/${{ github.base_ref }}...HEAD" \
+            -- 'lib/**/*.ex' 'lib/**/*.exs' 'test/**/*.ex' 'test/**/*.exs' \
+            | tr '\n' ',' | sed 's/,$//')
           if [ -z "$files" ]; then
-            echo "No Elixir files changed; skipping credo."
+            echo "No lib/ or test/ Elixir files changed; skipping credo."
             exit 0
           fi
           echo "Running credo on: $files"
