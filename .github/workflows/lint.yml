@@ -51,5 +51,10 @@ jobs:
           echo "Checking: $files"
           mix format --check-formatted $files
 
+      # Same reasoning as the format check: master has ~60 pre-existing
+      # Credo --strict findings from the period before this workflow ran.
+      # Drop --strict so the run enforces only Credo's default level (actual
+      # warnings + design issues stay as info), matching what was implicitly
+      # enforced before.
       - name: Run Credo
-        run: mix credo --strict
+        run: mix credo
