@@ -1,14 +1,19 @@
 defmodule Escalated.Emails.TicketEmail do
   @moduledoc """
-  Builds Swoosh email structs for ticket notifications with proper
-  threading headers (Message-ID, In-Reply-To, References) and
-  configurable branding.
+  Builds Swoosh email structs for ticket notifications with RFC 5322
+  threading headers (Message-ID, In-Reply-To, References) plus a signed
+  Reply-To that lets inbound provider webhooks verify ticket identity
+  even when clients strip the Message-ID chain.
+
+  Delegates Message-ID / Reply-To generation to
+  `Escalated.Services.Email.MessageIdUtil` so the format matches the
+  canonical NestJS reference across frameworks.
 
   ## Threading
 
-  Each ticket gets a stable Message-ID based on its reference. Replies
-  include `In-Reply-To` and `References` headers so email clients group
-  them into a single conversation thread.
+  Each ticket gets a stable anchor Message-ID `<ticket-{id}@{domain}>`;
+  replies include `In-Reply-To` + `References` pointing at the anchor
+  plus their own Message-ID `<ticket-{id}-reply-{reply_id}@{domain}>`.
 
   ## Branding
 
@@ -21,7 +26,15 @@ defmodule Escalated.Emails.TicketEmail do
           accent_color: "#4F46E5",
           footer_text: "Powered by Escalated"
         }
+
+  ## Signed Reply-To config
+
+      config :escalated,
+        email_domain: "support.example.com",
+        email_inbound_secret: "hmac-key"  # empty → Reply-To skipped
   """
+
+  alias Escalated.Services.Email.MessageIdUtil
 
   @doc """
   Returns the configured email branding settings merged with defaults.
@@ -42,49 +55,69 @@ defmodule Escalated.Emails.TicketEmail do
   @doc """
   Generates a stable Message-ID for a ticket.
 
-  Format: `<escalated-REFERENCE@DOMAIN>`
+  Format: `<ticket-{id}@{domain}>`
   """
   def message_id_for_ticket(ticket) do
-    domain = email_domain()
-    "<escalated-#{ticket.reference}@#{domain}>"
+    MessageIdUtil.build_message_id(ticket.id, nil, email_domain())
   end
 
   @doc """
   Generates a Message-ID for a specific reply on a ticket.
 
-  Format: `<escalated-REFERENCE-REPLY_ID@DOMAIN>`
+  Format: `<ticket-{id}-reply-{reply_id}@{domain}>`
   """
   def message_id_for_reply(ticket, reply) do
-    domain = email_domain()
-    "<escalated-#{ticket.reference}-#{reply.id}@#{domain}>"
+    MessageIdUtil.build_message_id(ticket.id, reply.id, email_domain())
+  end
+
+  @doc """
+  Returns a signed Reply-To address for a ticket, or `nil` when the
+  `email_inbound_secret` config is empty.
+  """
+  def signed_reply_to(ticket) do
+    secret = email_inbound_secret()
+
+    if secret == "" do
+      nil
+    else
+      MessageIdUtil.build_reply_to(ticket.id, secret, email_domain())
+    end
   end
 
   @doc """
   Returns threading headers for a new ticket notification email.
 
-  Only sets `Message-ID`.
+  Sets `Message-ID` (and `Reply-To` when the inbound secret is set).
   """
   def threading_headers_for_ticket(ticket) do
-    [
-      {"Message-ID", message_id_for_ticket(ticket)}
-    ]
+    headers = [{"Message-ID", message_id_for_ticket(ticket)}]
+    with_reply_to(headers, ticket)
   end
 
   @doc """
   Returns threading headers for a reply notification email.
 
-  Sets `Message-ID`, `In-Reply-To`, and `References` so clients thread
-  the reply under the original ticket email.
+  Sets `Message-ID`, `In-Reply-To`, `References`, and — when the inbound
+  secret is configured — `Reply-To`.
   """
   def threading_headers_for_reply(ticket, reply) do
     ticket_mid = message_id_for_ticket(ticket)
     reply_mid = message_id_for_reply(ticket, reply)
 
-    [
+    headers = [
       {"Message-ID", reply_mid},
       {"In-Reply-To", ticket_mid},
       {"References", ticket_mid}
     ]
+
+    with_reply_to(headers, ticket)
+  end
+
+  defp with_reply_to(headers, ticket) do
+    case signed_reply_to(ticket) do
+      nil -> headers
+      reply_to -> headers ++ [{"Reply-To", reply_to}]
+    end
   end
 
   @doc """
@@ -125,6 +158,10 @@ defmodule Escalated.Emails.TicketEmail do
 
   defp email_domain do
     Escalated.config(:email_domain, "escalated.localhost")
+  end
+
+  defp email_inbound_secret do
+    Escalated.config(:email_inbound_secret, "") || ""
   end
 
   defp from_address(brand) do
