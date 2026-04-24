@@ -24,7 +24,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
     """
     def get(:get, _url, _headers) do
       [status | rest] = Process.get(:__ad_sequence__, [200])
-      Process.put(:__ad_sequence__, (rest == [] and [200]) or rest)
+      Process.put(:__ad_sequence__, rest == [] and [200] or rest)
       {:ok, %{status: status, body: "ok", headers: []}}
     end
   end
@@ -78,10 +78,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
 
   describe "download/6" do
     test "happy path persists attachment" do
-      stub_response(
-        {:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}}
-      )
-
+      stub_response({:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}})
       storage = fake_storage(path: "/store/report.pdf")
       writer = fake_writer(attachment: %{id: 1, original_filename: "report.pdf"})
 
@@ -108,8 +105,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
       storage = fake_storage()
       writer = fake_writer()
 
-      assert {:ok, _} =
-               AttachmentDownloader.download(pending(), 42, 7, storage, writer, options())
+      assert {:ok, _} = AttachmentDownloader.download(pending(), 42, 7, storage, writer, options())
 
       [{:create, attrs}] = :ets.tab2list(writer._ets)
       assert attrs.reply_id == 7
@@ -178,10 +174,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
     end
 
     test "falls back to response Content-Type when pending content_type is blank" do
-      stub_response(
-        {:ok, %{status: 200, body: <<1, 2, 3>>, headers: [{"Content-Type", "image/png"}]}}
-      )
-
+      stub_response({:ok, %{status: 200, body: <<1, 2, 3>>, headers: [{"Content-Type", "image/png"}]}})
       storage = fake_storage()
       writer = fake_writer()
 

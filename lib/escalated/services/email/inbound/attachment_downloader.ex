@@ -50,9 +50,8 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
   @type pending :: Service.pending_attachment()
 
   @type storage :: %{
-          required(:put) =>
-            (String.t(), binary(), String.t() ->
-               {:ok, String.t()} | {:error, any()})
+          required(:put) => (String.t(), binary(), String.t() ->
+                               {:ok, String.t()} | {:error, any()})
         }
 
   @type writer :: %{
@@ -81,10 +80,12 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
       when is_map(pending) do
     url = Map.get(pending, :download_url) || Map.get(pending, "download_url")
 
-    if is_nil(url) or url == "" do
-      {:error, :missing_download_url}
-    else
-      do_download(pending, url, ticket_id, reply_id, storage, writer, options)
+    cond do
+      is_nil(url) or url == "" ->
+        {:error, :missing_download_url}
+
+      true ->
+        do_download(pending, url, ticket_id, reply_id, storage, writer, options)
     end
   end
 
@@ -176,9 +177,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
     _ = :application.ensure_all_started(:ssl)
 
     charlist_url = String.to_charlist(url)
-
-    charlist_headers =
-      Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
+    charlist_headers = Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
 
     case :httpc.request(:get, {charlist_url, charlist_headers}, [], body_format: :binary) do
       {:ok, {{_version, status, _reason}, resp_headers, body}} ->
