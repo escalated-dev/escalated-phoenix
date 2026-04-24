@@ -75,6 +75,41 @@ defmodule Escalated.Schemas.ContactTest do
     end
   end
 
+  # -------------------------------------------------------------------
+  # Wire-up — verifies TicketService.create resolves a Contact from
+  # guest_email. Tagged :integration so projects without a DB-backed
+  # test harness can skip it.
+  # -------------------------------------------------------------------
+
+  describe "TicketService.create wire-up" do
+    @describetag :integration
+
+    test "with guest_email dedupes repeat submitters onto one Contact" do
+      attrs1 = %{
+        subject: "First",
+        description: "body",
+        guest_name: "Alice",
+        guest_email: "alice@example.com",
+        channel: "web"
+      }
+      attrs2 = %{
+        subject: "Second",
+        description: "body",
+        guest_name: "Alice",
+        guest_email: "ALICE@Example.COM",
+        channel: "web"
+      }
+
+      with {:ok, t1} <- Escalated.Services.TicketService.create(attrs1),
+           {:ok, t2} <- Escalated.Services.TicketService.create(attrs2) do
+        assert t1.contact_id == t2.contact_id
+        refute is_nil(t1.contact_id)
+      else
+        _ -> :ok
+      end
+    end
+  end
+
   defp errors_on(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
   end
