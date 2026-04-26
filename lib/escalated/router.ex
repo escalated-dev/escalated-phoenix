@@ -90,6 +90,11 @@ defmodule Escalated.Router do
           resources "/tags", TagController, except: [:edit]
           get "/settings", SettingsController, :index
           put "/settings", SettingsController, :update
+
+          # Time-based admin automations (distinct from event-driven Workflows
+          # and agent-applied Macros — see escalated-developer-context).
+          resources "/automations", AutomationController, except: [:edit, :new]
+          post "/automations/run", AutomationController, :run
         end
 
         # Widget routes (public, rate-limited)
