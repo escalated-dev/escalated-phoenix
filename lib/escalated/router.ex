@@ -62,6 +62,10 @@ defmodule Escalated.Router do
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
           post "/tickets/:reference/split", TicketController, :split
 
+          # Macro routes (agent-applied one-click action bundles).
+          get "/macros", MacroController, :index
+          post "/tickets/:ticket_id/macros/:macro_id/apply", MacroController, :apply
+
           # Live chat agent routes
           get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
           post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
@@ -95,6 +99,10 @@ defmodule Escalated.Router do
           # and agent-applied Macros — see escalated-developer-context).
           resources "/automations", AutomationController, except: [:edit, :new]
           post "/automations/run", AutomationController, :run
+
+          # Macro admin CRUD (the agent-facing apply endpoint lives in
+          # the agent scope above).
+          resources "/macros", MacroController, except: [:edit, :new]
         end
 
         # Widget routes (public, rate-limited)
