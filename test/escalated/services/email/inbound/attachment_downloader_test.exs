@@ -107,7 +107,8 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
       storage = fake_storage()
       writer = fake_writer()
 
-      assert {:ok, _} = AttachmentDownloader.download(pending(), 42, 7, storage, writer, options())
+      assert {:ok, _} =
+               AttachmentDownloader.download(pending(), 42, 7, storage, writer, options())
 
       [{:create, attrs}] = :ets.tab2list(writer._ets)
       assert attrs.reply_id == 7
