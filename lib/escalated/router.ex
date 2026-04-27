@@ -124,8 +124,14 @@ defmodule Escalated.Router do
           # Live chat widget routes
           get "/chat/availability", Escalated.Controllers.WidgetChatController, :availability
           post "/chat/start", Escalated.Controllers.WidgetChatController, :start
-          post "/chat/sessions/:reference/messages", Escalated.Controllers.WidgetChatController, :send_message
-          post "/chat/sessions/:reference/end", Escalated.Controllers.WidgetChatController, :end_session
+
+          post "/chat/sessions/:reference/messages",
+               Escalated.Controllers.WidgetChatController,
+               :send_message
+
+          post "/chat/sessions/:reference/end",
+               Escalated.Controllers.WidgetChatController,
+               :end_session
         end
 
         # API routes
