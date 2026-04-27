@@ -35,6 +35,7 @@ Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in 
 - **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
 - **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check
 - **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
+- **Inbound email** — Single webhook endpoint with Postmark + Mailgun + AWS SES parsers, signed Reply-To verification, and Message-ID-based ticket resolution
 - **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
 - **Real-time broadcasting** — Opt-in broadcasting via Phoenix PubSub with automatic polling fallback
 - **Knowledge base toggle** — Enable or disable the public knowledge base from admin settings
@@ -123,14 +124,43 @@ This mounts:
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
 
-### Admin settings endpoints
+## Inbound email
 
-The admin area exposes these JSON endpoints for runtime configuration:
+Point your Postmark, Mailgun, or AWS SES (via SNS HTTP subscription) inbound webhook at:
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET/PUT` | `/support/admin/settings` | General app settings (writes to application env; not persisted across restarts) |
-| `GET/PUT` | `/support/admin/settings/public-tickets` | Runtime guest-policy mode (`unassigned` / `guest_user` / `prompt_signup`). Persisted to the `escalated_settings` table. See [docs.escalated.dev/public-tickets](https://docs.escalated.dev/public-tickets). |
+```
+POST /support/webhook/email/inbound?adapter=postmark
+POST /support/webhook/email/inbound?adapter=mailgun
+POST /support/webhook/email/inbound?adapter=ses
+```
+
+The adapter can be selected via the query parameter or the `x-escalated-adapter` header. Your provider must attach the shared secret as `x-escalated-inbound-secret`, which is compared with `Plug.Crypto.secure_compare/2` (timing-safe).
+
+Configure the symmetric secret + mail domain (used for signed `Reply-To` + canonical `Message-ID` headers) in `config/runtime.exs`:
+
+```elixir
+config :escalated,
+  mail_domain: System.get_env("ESCALATED_MAIL_DOMAIN", "support.yourapp.com"),
+  email_inbound_secret: System.fetch_env!("ESCALATED_INBOUND_SECRET"),
+  inbound_parsers: [
+    Escalated.Services.Email.Inbound.PostmarkParser,
+    Escalated.Services.Email.Inbound.MailgunParser,
+    Escalated.Services.Email.Inbound.SESParser
+  ]
+```
+
+Register the controller route:
+
+```elixir
+scope "/support/webhook/email", Escalated.Controllers do
+  pipe_through :api
+  post "/inbound", InboundEmailController, :inbound
+end
+```
+
+The service resolves inbound messages to existing tickets via, in order: canonical `Message-ID` headers, signed `Reply-To` verification, and subject-reference tags. Unmatched messages with real content create a new ticket; SNS subscription confirmations and empty body+subject messages are skipped.
+
+See the [inbound email docs](https://docs.escalated.dev/inbound-email) for provider setup, the response shape, and a ready-to-paste curl test recipe.
 
 ## Usage
 
