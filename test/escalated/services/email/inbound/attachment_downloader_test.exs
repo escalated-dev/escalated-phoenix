@@ -174,7 +174,9 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
     end
 
     test "falls back to response Content-Type when pending content_type is blank" do
-      stub_response({:ok, %{status: 200, body: <<1, 2, 3>>, headers: [{"Content-Type", "image/png"}]}})
+      stub_response(
+        {:ok, %{status: 200, body: <<1, 2, 3>>, headers: [{"Content-Type", "image/png"}]}}
+      )
       storage = fake_storage()
       writer = fake_writer()
 
