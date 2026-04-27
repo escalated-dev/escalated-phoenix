@@ -81,6 +81,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
       stub_response(
         {:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}}
       )
+
       storage = fake_storage(path: "/store/report.pdf")
       writer = fake_writer(attachment: %{id: 1, original_filename: "report.pdf"})
 
@@ -180,6 +181,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
       stub_response(
         {:ok, %{status: 200, body: <<1, 2, 3>>, headers: [{"Content-Type", "image/png"}]}}
       )
+
       storage = fake_storage()
       writer = fake_writer()
 
