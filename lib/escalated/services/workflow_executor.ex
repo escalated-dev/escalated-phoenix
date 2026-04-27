@@ -10,25 +10,40 @@ defmodule Escalated.Services.WorkflowExecutor do
   ## Action catalog
 
   `change_priority`, `change_status`, `assign_agent`, `set_department`,
-  `add_tag`, `remove_tag`, `add_note`, `insert_canned_reply`.
+  `add_tag`, `remove_tag`, `add_note`, `insert_canned_reply`, `delay`.
 
   Mirrors the NestJS reference impl in
   `escalated-nestjs/src/services/workflow-executor.service.ts`.
+
+  ## Delay semantics
+
+  A `delay` action with numeric `value` (minutes) splits the run: actions
+  before `delay` run inline, remaining actions become one
+  `Escalated.Schemas.DelayedAction` row each with `execute_at = now + N`
+  minutes. `run_due_delayed_actions/0` sweeps pending rows and
+  re-dispatches them. Requires `workflow_id` in the options — without
+  it, the delay action returns `{:error, "delay", :no_workflow_id}`
+  and the rest of the actions are skipped (caller logs + moves on).
 
   ## Failure semantics
 
   One failing action does not halt the others — the failure is returned
   in the result list as `{:error, type, reason}` but execution continues.
   Unknown action types are returned as `{:error, type, :unknown}`.
-  Malformed JSON input returns `{:ok, []}`.
+  Malformed JSON input returns `{:ok, []}`. `delay` short-circuits
+  execution for the remaining actions in that run (they're deferred).
   """
 
+  alias Escalated.Schemas.{DelayedAction, Tag}
   alias Escalated.Services.{AssignmentService, TicketService, WorkflowEngine}
-  alias Escalated.Schemas.{Reply, Tag}
   import Ecto.Query
+  require Logger
 
   @type action :: %{String.t() => any()}
-  @type execution_result :: {:ok, String.t()} | {:error, String.t(), atom()}
+  @type execution_result ::
+          {:ok, String.t()}
+          | {:error, String.t(), atom()}
+          | {:deferred, pos_integer()}
 
   @doc """
   Execute every action in `actions_json` against `ticket`.
@@ -37,12 +52,35 @@ defmodule Escalated.Services.WorkflowExecutor do
   raw decoded list (empty on malformed input) and `results` is a list
   of `{:ok, type}` / `{:error, type, reason}` tuples in the same order
   as the input actions.
+
+  Pass `workflow_id:` in `opts` to enable the `delay` action — otherwise
+  `delay` returns `{:error, "delay", :no_workflow_id}` and any actions
+  after it are skipped.
   """
-  @spec execute(map(), String.t() | nil) :: {:ok, [action()], [execution_result()]}
-  def execute(ticket, actions_json) do
+  @spec execute(map(), String.t() | nil, keyword()) ::
+          {:ok, [action()], [execution_result()]}
+  def execute(ticket, actions_json, opts \\ []) do
     actions = parse_actions(actions_json)
-    results = Enum.map(actions, &dispatch_action(ticket, &1))
-    {:ok, actions, results}
+    indexed = Enum.with_index(actions)
+
+    {results, _halted?} =
+      Enum.reduce(indexed, {[], false}, fn {action, i}, {acc, halted?} ->
+        cond do
+          halted? ->
+            {[{:error, action["type"] || "unknown", :skipped_after_delay} | acc], true}
+
+          (action["type"] || "") == "delay" ->
+            remaining = Enum.drop(actions, i + 1)
+            result = handle_delay(ticket, action, remaining, opts)
+            halt? = match?({:deferred, _}, result) or match?({:error, "delay", _}, result)
+            {[result | acc], halt?}
+
+          true ->
+            {[dispatch_action(ticket, action) | acc], false}
+        end
+      end)
+
+    {:ok, actions, Enum.reverse(results)}
   end
 
   @doc """
@@ -166,7 +204,135 @@ defmodule Escalated.Services.WorkflowExecutor do
     end
   end
 
+  # `delay` is handled inline by `execute/3` because it needs the list of
+  # remaining actions plus the workflow_id from the caller. Calling
+  # `dispatch_action` on a delay directly is a usage error.
+  defp do_dispatch("delay", _ticket, _value),
+    do: {:error, "delay", :handled_in_execute}
+
   defp do_dispatch(type, _ticket, _value), do: {:error, type, :unknown}
+
+  # --- Delay handling ---
+
+  @doc false
+  @spec handle_delay(map(), action(), [action()], keyword()) :: execution_result()
+  def handle_delay(ticket, action, remaining, opts) do
+    value = to_string(action["value"] || "")
+    workflow_id = Keyword.get(opts, :workflow_id)
+
+    if is_nil(workflow_id) do
+      {:error, "delay", :no_workflow_id}
+    else
+      case Integer.parse(value) do
+        {minutes, ""} when minutes > 0 ->
+          persist_delayed_actions(workflow_id, ticket, remaining, minutes)
+
+        _ ->
+          {:error, "delay", :invalid_minutes}
+      end
+    end
+  end
+
+  defp persist_delayed_actions(workflow_id, ticket, remaining, minutes) do
+    execute_at =
+      DateTime.utc_now()
+      |> DateTime.add(minutes * 60, :second)
+      |> DateTime.truncate(:second)
+
+    ticket_id = Map.get(ticket, :id) || Map.get(ticket, "id")
+    repo = Escalated.repo()
+
+    # One row per remaining action to match the existing DelayedAction
+    # schema shape (`action_data: :map`). The runner sweeps `pending/1`
+    # rows and dispatches each through `dispatch_action/2`.
+    count =
+      remaining
+      |> Enum.reduce(0, fn action, acc ->
+        attrs = %{
+          workflow_id: workflow_id,
+          ticket_id: ticket_id,
+          action_data: action,
+          execute_at: execute_at
+        }
+
+        case %DelayedAction{} |> DelayedAction.changeset(attrs) |> repo.insert() do
+          {:ok, _} -> acc + 1
+          {:error, _} -> acc
+        end
+      end)
+
+    {:deferred, count}
+  end
+
+  @doc """
+  Dispatch every pending `DelayedAction` whose `execute_at` has elapsed.
+
+  For each row, re-loads the ticket, runs `dispatch_action/2` on the
+  stored `action_data`, and stamps `executed=true`. Failures are
+  logged but do not stop the sweep.
+
+  Intended to be called periodically from host-app cron via
+  `mix escalated.run_due_delayed_actions`.
+
+  Returns `{processed, failed}` tuple.
+  """
+  @spec run_due_delayed_actions() :: {non_neg_integer(), non_neg_integer()}
+  def run_due_delayed_actions do
+    repo = Escalated.repo()
+
+    DelayedAction
+    |> DelayedAction.pending()
+    |> repo.all()
+    |> Enum.reduce({0, 0}, fn delayed, {ok_count, err_count} ->
+      case run_one_delayed(delayed) do
+        :ok -> {ok_count + 1, err_count}
+        :error -> {ok_count, err_count + 1}
+      end
+    end)
+  end
+
+  defp run_one_delayed(%DelayedAction{} = delayed) do
+    repo = Escalated.repo()
+
+    with ticket when not is_nil(ticket) <-
+           repo.get(Escalated.Schemas.Ticket, delayed.ticket_id),
+         {:ok, _type} <- dispatch_action(ticket, delayed.action_data) do
+      delayed
+      |> DelayedAction.changeset(%{executed: true})
+      |> repo.update()
+
+      :ok
+    else
+      nil ->
+        Logger.warning(
+          "[WorkflowExecutor] delayed_action #{delayed.id}: ticket ##{delayed.ticket_id} not found"
+        )
+
+        delayed
+        |> DelayedAction.changeset(%{executed: true})
+        |> repo.update()
+
+        :error
+
+      {:error, type, reason} ->
+        Logger.warning(
+          "[WorkflowExecutor] delayed_action #{delayed.id}: #{type} failed (#{inspect(reason)})"
+        )
+
+        delayed
+        |> DelayedAction.changeset(%{executed: true})
+        |> repo.update()
+
+        :error
+
+      other ->
+        Logger.warning(
+          "[WorkflowExecutor] delayed_action #{delayed.id}: unexpected result #{inspect(other)}"
+        )
+
+        :error
+    end
+  end
 
   @doc false
   @spec resolve_tag_id(String.t()) :: integer() | nil
