@@ -50,8 +50,9 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
   @type pending :: Service.pending_attachment()
 
   @type storage :: %{
-          required(:put) => (String.t(), binary(), String.t() ->
-                               {:ok, String.t()} | {:error, any()})
+          required(:put) =>
+            (String.t(), binary(), String.t() ->
+               {:ok, String.t()} | {:error, any()})
         }
 
   @type writer :: %{
@@ -177,7 +178,9 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
     _ = :application.ensure_all_started(:ssl)
 
     charlist_url = String.to_charlist(url)
-    charlist_headers = Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
+
+    charlist_headers =
+      Enum.map(headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
 
     case :httpc.request(:get, {charlist_url, charlist_headers}, [], body_format: :binary) do
       {:ok, {{_version, status, _reason}, resp_headers, body}} ->
