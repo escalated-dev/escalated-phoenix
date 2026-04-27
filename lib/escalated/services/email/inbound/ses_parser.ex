@@ -264,12 +264,17 @@ defmodule Escalated.Services.Email.Inbound.SESParser do
 
   defp decode_body(body, transfer_enc) do
     case String.downcase(String.trim(transfer_enc)) do
-      "quoted-printable" -> decode_quoted_printable(body)
-      "base64" -> case Base.decode64(body, ignore: :whitespace) do
-        {:ok, decoded} -> decoded
-        :error -> body
-      end
-      _ -> body
+      "quoted-printable" ->
+        decode_quoted_printable(body)
+
+      "base64" ->
+        case Base.decode64(body, ignore: :whitespace) do
+          {:ok, decoded} -> decoded
+          :error -> body
+        end
+
+      _ ->
+        body
     end
   end
 
