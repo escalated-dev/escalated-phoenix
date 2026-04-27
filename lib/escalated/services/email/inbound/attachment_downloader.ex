@@ -81,12 +81,10 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloader do
       when is_map(pending) do
     url = Map.get(pending, :download_url) || Map.get(pending, "download_url")
 
-    cond do
-      is_nil(url) or url == "" ->
-        {:error, :missing_download_url}
-
-      true ->
-        do_download(pending, url, ticket_id, reply_id, storage, writer, options)
+    if is_nil(url) or url == "" do
+      {:error, :missing_download_url}
+    else
+      do_download(pending, url, ticket_id, reply_id, storage, writer, options)
     end
   end
 
