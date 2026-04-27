@@ -110,12 +110,10 @@ defmodule Escalated.Services.WorkflowRunner do
     do: WorkflowEngine.evaluate_conditions(conditions, condition_map)
 
   defp execute_safely(ticket, %Workflow{} = wf) do
-    try do
-      {:ok, _actions, results} = WorkflowExecutor.execute(ticket, wf.actions)
-      {:ok, results}
-    rescue
-      e -> {:error, Exception.message(e)}
-    end
+    {:ok, _actions, results} = WorkflowExecutor.execute(ticket, wf.actions)
+    {:ok, results}
+  rescue
+    e -> {:error, Exception.message(e)}
   end
 
   defp persist_log(attrs) do
