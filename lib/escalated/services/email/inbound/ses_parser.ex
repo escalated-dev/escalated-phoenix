@@ -211,34 +211,31 @@ defmodule Escalated.Services.Email.Inbound.SESParser do
 
   defp walk_multipart(body, content_type) do
     case extract_boundary(content_type) do
-      nil ->
-        {nil, nil}
+      nil -> {nil, nil}
+      boundary -> Enum.reduce(split_multipart(body, boundary), {nil, nil}, &fold_part/2)
+    end
+  end
 
-      boundary ->
-        parts = split_multipart(body, boundary)
+  defp fold_part(part, {text, html}) do
+    case split_headers(part) do
+      {:ok, part_headers, part_body} ->
+        part_type = Map.get(part_headers, "content-type", "")
+        part_enc = Map.get(part_headers, "content-transfer-encoding", "7bit")
+        decoded = decode_body(String.trim(part_body), part_enc)
+        merge_part(text, html, part_type, decoded)
 
-        Enum.reduce(parts, {nil, nil}, fn part, {text, html} ->
-          case split_headers(part) do
-            {:ok, part_headers, part_body} ->
-              part_type = Map.get(part_headers, "content-type", "")
-              part_enc = Map.get(part_headers, "content-transfer-encoding", "7bit")
-              decoded = decode_body(String.trim(part_body), part_enc)
+      _ ->
+        {text, html}
+    end
+  end
 
-              cond do
-                String.starts_with?(String.downcase(part_type), "text/plain") and is_nil(text) ->
-                  {decoded, html}
+  defp merge_part(text, html, part_type, decoded) do
+    type = String.downcase(part_type)
 
-                String.starts_with?(String.downcase(part_type), "text/html") and is_nil(html) ->
-                  {text, decoded}
-
-                true ->
-                  {text, html}
-              end
-
-            _ ->
-              {text, html}
-          end
-        end)
+    cond do
+      String.starts_with?(type, "text/plain") and is_nil(text) -> {decoded, html}
+      String.starts_with?(type, "text/html") and is_nil(html) -> {text, decoded}
+      true -> {text, html}
     end
   end
 
