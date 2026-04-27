@@ -55,7 +55,7 @@ defmodule Escalated.Services.Email.Inbound.RouterTest do
       m = message(to_email: to)
 
       result =
-        Router.resolve_ticket(m, lookup(by_id: %{42 => ticket}), %{inbound_secret: })
+        Router.resolve_ticket(m, lookup(by_id: %{42 => ticket}), %{inbound_secret: @secret})
 
       assert result == ticket
     end
