@@ -86,8 +86,11 @@ jobs:
 
           # For each PR-changed file, fail if Credo reports it. fgrep'ing
           # for a literal `path:` token avoids regex-escaping pitfalls.
+          # Guard against empty array entries — `grep -F ""` matches every
+          # line, which would falsely fail every PR.
           hit=0
           for f in "${changed_files[@]}"; do
+            [ -z "$f" ] && continue
             if printf '%s\n' "$output" | grep -F "$f:" > /dev/null; then
               echo "::error file=$f::Credo found issue(s) in this PR-changed file."
               hit=1
