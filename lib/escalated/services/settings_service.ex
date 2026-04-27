@@ -65,11 +65,15 @@ defmodule Escalated.Services.SettingsService do
     repo = Escalated.repo()
 
     case repo.one(from s in EscalatedSetting, where: s.key == ^key) do
-      nil -> :ok
-      row -> repo.delete(row) |> case do
-               {:ok, _} -> :ok
-               err -> err
-             end
+      nil ->
+        :ok
+
+      row ->
+        repo.delete(row)
+        |> case do
+          {:ok, _} -> :ok
+          err -> err
+        end
     end
   end
 end

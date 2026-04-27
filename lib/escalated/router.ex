@@ -69,7 +69,11 @@ defmodule Escalated.Router do
           # Live chat agent routes
           get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
           post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
-          post "/chat/sessions/:id/message", Escalated.Controllers.Agent.ChatController, :send_message
+
+          post "/chat/sessions/:id/message",
+               Escalated.Controllers.Agent.ChatController,
+               :send_message
+
           post "/chat/sessions/:id/end", Escalated.Controllers.Agent.ChatController, :end_session
         end
 

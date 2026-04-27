@@ -47,7 +47,8 @@ defmodule Escalated.Controllers.Admin.SettingsController do
   def update(conn, %{"settings" => settings_params}) do
     # Runtime settings updates are applied to the application environment.
     # Only a subset of settings can be changed at runtime.
-    runtime_keys = ~w(default_priority allow_customer_close auto_close_resolved_after_days max_attachments max_attachment_size_kb knowledge_base_enabled knowledge_base_public knowledge_base_feedback_enabled)a
+    runtime_keys =
+      ~w(default_priority allow_customer_close auto_close_resolved_after_days max_attachments max_attachment_size_kb knowledge_base_enabled knowledge_base_public knowledge_base_feedback_enabled)a
 
     Enum.each(runtime_keys, fn key ->
       str_key = to_string(key)

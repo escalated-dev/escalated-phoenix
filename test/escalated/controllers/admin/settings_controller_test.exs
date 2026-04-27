@@ -114,11 +114,13 @@ defmodule Escalated.Controllers.Admin.SettingsControllerTest do
     end
 
     test "changeset accepts value + group" do
-      cs = EscalatedSetting.changeset(%EscalatedSetting{}, %{
-        key: "guest_policy_mode",
-        value: "guest_user",
-        group: "public_tickets"
-      })
+      cs =
+        EscalatedSetting.changeset(%EscalatedSetting{}, %{
+          key: "guest_policy_mode",
+          value: "guest_user",
+          group: "public_tickets"
+        })
+
       assert cs.valid?
     end
   end
