@@ -2,7 +2,7 @@ defmodule Escalated.Emails.TicketEmailTest do
   use ExUnit.Case, async: true
 
   alias Escalated.Emails.TicketEmail
-  alias Escalated.Schemas.{Ticket, Reply}
+  alias Escalated.Schemas.{Reply, Ticket}
 
   @ticket %Ticket{
     id: 1,
@@ -31,10 +31,10 @@ defmodule Escalated.Emails.TicketEmailTest do
   end
 
   describe "message_id_for_ticket/1" do
-    test "generates a stable message ID with ticket reference" do
+    # Format matches the canonical MessageIdUtil shape: <ticket-{id}@{domain}>.
+    test "generates a stable message ID with the ticket id" do
       mid = TicketEmail.message_id_for_ticket(@ticket)
-      assert mid =~ "escalated-ESC-2604-ABC123@"
-      assert String.starts_with?(mid, "<")
+      assert mid =~ ~r/^<ticket-1@/
       assert String.ends_with?(mid, ">")
     end
 
@@ -46,10 +46,9 @@ defmodule Escalated.Emails.TicketEmailTest do
   end
 
   describe "message_id_for_reply/2" do
-    test "includes ticket reference and reply ID" do
+    test "includes ticket id and reply ID" do
       mid = TicketEmail.message_id_for_reply(@ticket, @reply)
-      assert mid =~ "escalated-ESC-2604-ABC123-42@"
-      assert String.starts_with?(mid, "<")
+      assert mid =~ ~r/^<ticket-1-reply-42@/
       assert String.ends_with?(mid, ">")
     end
 
@@ -58,6 +57,52 @@ defmodule Escalated.Emails.TicketEmailTest do
       mid1 = TicketEmail.message_id_for_reply(@ticket, @reply)
       mid2 = TicketEmail.message_id_for_reply(@ticket, reply2)
       refute mid1 == mid2
+    end
+  end
+
+  describe "signed_reply_to/1" do
+    setup do
+      on_exit(fn ->
+        Application.delete_env(:escalated, :email_inbound_secret)
+        Application.delete_env(:escalated, :email_domain)
+      end)
+
+      :ok
+    end
+
+    test "returns nil when email_inbound_secret is unset" do
+      assert TicketEmail.signed_reply_to(@ticket) == nil
+    end
+
+    test "returns a signed address when email_inbound_secret is set" do
+      Application.put_env(:escalated, :email_domain, "support.example.com")
+      Application.put_env(:escalated, :email_inbound_secret, "test-secret")
+
+      address = TicketEmail.signed_reply_to(@ticket)
+      assert address =~ ~r/^reply\+1\.[a-f0-9]{8}@support\.example\.com$/
+    end
+  end
+
+  describe "threading headers include Reply-To when inbound secret is set" do
+    setup do
+      on_exit(fn ->
+        Application.delete_env(:escalated, :email_inbound_secret)
+        Application.delete_env(:escalated, :email_domain)
+      end)
+
+      Application.put_env(:escalated, :email_domain, "support.example.com")
+      Application.put_env(:escalated, :email_inbound_secret, "test-secret")
+      :ok
+    end
+
+    test "ticket headers add Reply-To" do
+      headers = TicketEmail.threading_headers_for_ticket(@ticket) |> Map.new()
+      assert headers["Reply-To"] =~ ~r/^reply\+1\./
+    end
+
+    test "reply headers add Reply-To" do
+      headers = TicketEmail.threading_headers_for_reply(@ticket, @reply) |> Map.new()
+      assert headers["Reply-To"] =~ ~r/^reply\+1\./
     end
   end
 
