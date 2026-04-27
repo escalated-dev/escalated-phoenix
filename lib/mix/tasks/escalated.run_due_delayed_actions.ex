@@ -13,13 +13,15 @@ defmodule Mix.Tasks.Escalated.RunDueDelayedActions do
   """
   use Mix.Task
 
+  alias Escalated.Services.WorkflowExecutor
+
   @shortdoc "Runs every pending delayed workflow action whose wait has elapsed"
 
   @impl Mix.Task
   def run(_args) do
     Mix.Task.run("app.start")
 
-    {processed, failed} = Escalated.Services.WorkflowExecutor.run_due_delayed_actions()
+    {processed, failed} = WorkflowExecutor.run_due_delayed_actions()
 
     Mix.shell().info("Escalated: ran #{processed} delayed action(s). Errors: #{failed}.")
   end

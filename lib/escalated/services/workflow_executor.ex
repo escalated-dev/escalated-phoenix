@@ -220,18 +220,16 @@ defmodule Escalated.Services.WorkflowExecutor do
     value = to_string(action["value"] || "")
     workflow_id = Keyword.get(opts, :workflow_id)
 
-    cond do
-      is_nil(workflow_id) ->
-        {:error, "delay", :no_workflow_id}
+    if is_nil(workflow_id) do
+      {:error, "delay", :no_workflow_id}
+    else
+      case Integer.parse(value) do
+        {minutes, ""} when minutes > 0 ->
+          persist_delayed_actions(workflow_id, ticket, remaining, minutes)
 
-      true ->
-        case Integer.parse(value) do
-          {minutes, ""} when minutes > 0 ->
-            persist_delayed_actions(workflow_id, ticket, remaining, minutes)
-
-          _ ->
-            {:error, "delay", :invalid_minutes}
-        end
+        _ ->
+          {:error, "delay", :invalid_minutes}
+      end
     end
   end
 
