@@ -69,7 +69,11 @@ defmodule Escalated.Router do
           # Live chat agent routes
           get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
           post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
-          post "/chat/sessions/:id/message", Escalated.Controllers.Agent.ChatController, :send_message
+
+          post "/chat/sessions/:id/message",
+               Escalated.Controllers.Agent.ChatController,
+               :send_message
+
           post "/chat/sessions/:id/end", Escalated.Controllers.Agent.ChatController, :end_session
         end
 
@@ -103,6 +107,9 @@ defmodule Escalated.Router do
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
+
+          get "/settings/public-tickets", SettingsController, :public_tickets
+          put "/settings/public-tickets", SettingsController, :update_public_tickets
         end
 
         # Widget routes (public, rate-limited)
@@ -117,8 +124,14 @@ defmodule Escalated.Router do
           # Live chat widget routes
           get "/chat/availability", Escalated.Controllers.WidgetChatController, :availability
           post "/chat/start", Escalated.Controllers.WidgetChatController, :start
-          post "/chat/sessions/:reference/messages", Escalated.Controllers.WidgetChatController, :send_message
-          post "/chat/sessions/:reference/end", Escalated.Controllers.WidgetChatController, :end_session
+
+          post "/chat/sessions/:reference/messages",
+               Escalated.Controllers.WidgetChatController,
+               :send_message
+
+          post "/chat/sessions/:reference/end",
+               Escalated.Controllers.WidgetChatController,
+               :end_session
         end
 
         # API routes

@@ -123,6 +123,15 @@ This mounts:
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
 
+### Admin settings endpoints
+
+The admin area exposes these JSON endpoints for runtime configuration:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET/PUT` | `/support/admin/settings` | General app settings (writes to application env; not persisted across restarts) |
+| `GET/PUT` | `/support/admin/settings/public-tickets` | Runtime guest-policy mode (`unassigned` / `guest_user` / `prompt_signup`). Persisted to the `escalated_settings` table. See [docs.escalated.dev/public-tickets](https://docs.escalated.dev/public-tickets). |
+
 ## Usage
 
 ### Creating Tickets Programmatically
