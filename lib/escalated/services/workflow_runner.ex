@@ -105,6 +105,7 @@ defmodule Escalated.Services.WorkflowRunner do
   def evaluate(nil, _), do: true
   def evaluate(conds, _) when map_size(conds) == 0, do: true
   def evaluate([], _), do: true
+
   def evaluate(conditions, condition_map),
     do: WorkflowEngine.evaluate_conditions(conditions, condition_map)
 
