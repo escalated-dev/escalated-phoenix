@@ -26,8 +26,11 @@ defmodule Escalated.Services.WorkflowExecutorTest do
     test "returns parsed list for valid action array" do
       json = ~s([{"type":"change_priority","value":"high"},{"type":"add_note","value":"go"}])
       result = WorkflowExecutor.parse_actions(json)
-      assert [%{"type" => "change_priority", "value" => "high"},
-              %{"type" => "add_note", "value" => "go"}] = result
+
+      assert [
+               %{"type" => "change_priority", "value" => "high"},
+               %{"type" => "add_note", "value" => "go"}
+             ] = result
     end
 
     test "passes pre-decoded list through unchanged" do

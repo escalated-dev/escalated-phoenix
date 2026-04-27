@@ -21,8 +21,6 @@ defmodule Mix.Tasks.Escalated.RunDueDelayedActions do
 
     {processed, failed} = Escalated.Services.WorkflowExecutor.run_due_delayed_actions()
 
-    Mix.shell().info(
-      "Escalated: ran #{processed} delayed action(s). Errors: #{failed}."
-    )
+    Mix.shell().info("Escalated: ran #{processed} delayed action(s). Errors: #{failed}.")
   end
 end
