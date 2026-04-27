@@ -55,9 +55,7 @@ defmodule Escalated.Services.Email.Inbound.Router do
     # 1 + 2. Parse canonical Message-IDs out of our own headers.
     ticket = resolve_by_header_message_ids(message, lookup)
 
-    if not is_nil(ticket) do
-      ticket
-    else
+    if is_nil(ticket) do
       # 3. Signed Reply-To on the recipient address.
       case resolve_by_signed_reply_to(message, lookup, options) do
         nil ->
@@ -67,6 +65,8 @@ defmodule Escalated.Services.Email.Inbound.Router do
         signed_ticket ->
           signed_ticket
       end
+    else
+      ticket
     end
   end
 
