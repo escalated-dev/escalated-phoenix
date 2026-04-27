@@ -33,8 +33,8 @@ defmodule Escalated.Controllers.InboundEmailController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
-  alias Escalated.Services.Email.Inbound.Router
   alias Escalated.Schemas.Ticket
+  alias Escalated.Services.Email.Inbound.Router
 
   @default_parsers [Escalated.Services.Email.Inbound.PostmarkParser]
 
