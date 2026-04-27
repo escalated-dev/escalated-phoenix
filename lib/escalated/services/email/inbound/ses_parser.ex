@@ -276,13 +276,11 @@ defmodule Escalated.Services.Email.Inbound.SESParser do
   end
 
   defp decode_quoted_printable(body) do
-    body
-    |> String.replace(~r/=\r?\n/, "")
-    |> (fn stripped ->
-          Regex.replace(~r/=([0-9A-Fa-f]{2})/, stripped, fn _match, hex ->
-            <<String.to_integer(hex, 16)>>
-          end)
-        end).()
+    stripped = String.replace(body, ~r/=\r?\n/, "")
+
+    Regex.replace(~r/=([0-9A-Fa-f]{2})/, stripped, fn _match, hex ->
+      <<String.to_integer(hex, 16)>>
+    end)
   end
 
   defp blank_to_nil(nil), do: nil
