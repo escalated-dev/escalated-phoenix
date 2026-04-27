@@ -22,7 +22,10 @@ defmodule Escalated.Services.Email.Inbound.LocalFileStorage do
     %{
       put: fn filename, content, _content_type ->
         now = DateTime.utc_now()
-        prefix = DateTime.to_iso8601(now, :basic) <> "-" <> Integer.to_string(now.microsecond |> elem(0))
+
+        prefix =
+          DateTime.to_iso8601(now, :basic) <> "-" <> Integer.to_string(now.microsecond |> elem(0))
+
         stored_name = "#{prefix}-#{filename}"
         full_path = Path.join(root, stored_name)
 

@@ -24,7 +24,7 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
     """
     def get(:get, _url, _headers) do
       [status | rest] = Process.get(:__ad_sequence__, [200])
-      Process.put(:__ad_sequence__, rest == [] and [200] or rest)
+      Process.put(:__ad_sequence__, (rest == [] and [200]) or rest)
       {:ok, %{status: status, body: "ok", headers: []}}
     end
   end
@@ -78,7 +78,10 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
 
   describe "download/6" do
     test "happy path persists attachment" do
-      stub_response({:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}})
+      stub_response(
+        {:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}}
+      )
+
       storage = fake_storage(path: "/store/report.pdf")
       writer = fake_writer(attachment: %{id: 1, original_filename: "report.pdf"})
 
