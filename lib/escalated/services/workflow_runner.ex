@@ -105,7 +105,8 @@ defmodule Escalated.Services.WorkflowRunner do
   def evaluate(nil, _), do: true
   def evaluate(conds, _) when map_size(conds) == 0, do: true
   def evaluate([], _), do: true
-  def evaluate(conditions, condition_map), do: WorkflowEngine.evaluate_conditions(conditions, condition_map)
+  def evaluate(conditions, condition_map),
+    do: WorkflowEngine.evaluate_conditions(conditions, condition_map)
 
   defp execute_safely(ticket, %Workflow{} = wf) do
     try do
@@ -128,9 +129,14 @@ defmodule Escalated.Services.WorkflowRunner do
   # Serialize into plain maps for the JSON column.
   defp normalize_results(results) do
     Enum.map(results, fn
-      {:ok, type} -> %{"type" => type, "status" => "ok"}
-      {:error, type, reason} -> %{"type" => type, "status" => "error", "reason" => to_string(reason)}
-      other -> %{"raw" => inspect(other)}
+      {:ok, type} ->
+        %{"type" => type, "status" => "ok"}
+
+      {:error, type, reason} ->
+        %{"type" => type, "status" => "error", "reason" => to_string(reason)}
+
+      other ->
+        %{"raw" => inspect(other)}
     end)
   end
 

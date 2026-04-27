@@ -20,12 +20,18 @@ defmodule Escalated.Services.WorkflowRunnerTest do
     end
 
     test "matching 'all' returns true" do
-      conditions = %{"all" => [%{"field" => "status", "operator" => "equals", "value" => "open"}]}
+      conditions = %{
+        "all" => [%{"field" => "status", "operator" => "equals", "value" => "open"}]
+      }
+
       assert WorkflowRunner.evaluate(conditions, %{"status" => "open"}) == true
     end
 
     test "non-matching 'all' returns false" do
-      conditions = %{"all" => [%{"field" => "status", "operator" => "equals", "value" => "closed"}]}
+      conditions = %{
+        "all" => [%{"field" => "status", "operator" => "equals", "value" => "closed"}]
+      }
+
       assert WorkflowRunner.evaluate(conditions, %{"status" => "open"}) == false
     end
   end
