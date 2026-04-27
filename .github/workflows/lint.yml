@@ -52,24 +52,41 @@ jobs:
           mix format --check-formatted $files
 
       # Same reasoning as the format check: master has ~30 pre-existing
-      # Credo findings from the period before this workflow ran. Scope the
-      # check to source files under lib/ and test/ the PR actually modifies
-      # so drift cleans up organically and new issues still block merge.
+      # Credo findings from the period before this workflow ran. We scope
+      # the check to source files under lib/ and test/ the PR actually
+      # modifies so drift cleans up organically and new issues still block
+      # merge.
       #
-      # mix.exs / config/*.exs are excluded: credo's --files-included
-      # matcher works on globs under the analyzed project root and doesn't
-      # reliably scope to top-level files, and linting build config isn't
-      # the intent of credo anyway.
+      # `--files-included` filters which files Credo *reports on* but
+      # Credo's exit code still reflects the whole codebase's analysis,
+      # so we run with `--mute-exit-status` and grep the output for any
+      # mention of the PR-changed files. If a PR-changed file appears as
+      # an issue, fail. Otherwise exit 0 even if pre-existing issues exist
+      # elsewhere.
       - name: Run Credo (PR-changed files)
         if: github.event_name == 'pull_request'
         run: |
           files=$(git diff --name-only --diff-filter=AM \
             "origin/${{ github.base_ref }}...HEAD" \
             -- 'lib/**/*.ex' 'lib/**/*.exs' 'test/**/*.ex' 'test/**/*.exs' \
-            | tr '\n' ',' | sed 's/,$//')
+            | tr '\n' ' ')
           if [ -z "$files" ]; then
             echo "No lib/ or test/ Elixir files changed; skipping credo."
             exit 0
           fi
-          echo "Running credo on: $files"
-          mix credo --files-included "$files"
+          echo "Running credo on changed files: $files"
+          # Build a regex alternation from the changed paths, escape dots
+          # so they match literally instead of as any-char wildcards.
+          pattern=$(echo "$files" | tr ' ' '\n' | sed 's/\./\\./g' | tr '\n' '|' | sed 's/|$//')
+          # Run credo over the whole project (--files-included alone does
+          # not reliably scope analysis), capture output, mute exit, then
+          # fail only if a changed file appears in the issues.
+          output=$(mix credo --strict --mute-exit-status 2>&1) || true
+          echo "$output"
+          if echo "$output" | grep -E "($pattern):[0-9]+" > /dev/null; then
+            echo ""
+            echo "::error::Credo found issues in PR-changed files."
+            exit 1
+          fi
+          echo ""
+          echo "No Credo issues in PR-changed files (pre-existing drift on master is ignored)."
