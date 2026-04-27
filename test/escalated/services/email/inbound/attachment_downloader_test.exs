@@ -78,7 +78,9 @@ defmodule Escalated.Services.Email.Inbound.AttachmentDownloaderTest do
 
   describe "download/6" do
     test "happy path persists attachment" do
-      stub_response({:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}})
+      stub_response(
+        {:ok, %{status: 200, body: "hello pdf", headers: [{"Content-Type", "application/pdf"}]}}
+      )
       storage = fake_storage(path: "/store/report.pdf")
       writer = fake_writer(attachment: %{id: 1, original_filename: "report.pdf"})
 
