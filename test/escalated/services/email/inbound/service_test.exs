@@ -108,6 +108,7 @@ defmodule Escalated.Services.Email.Inbound.ServiceTest do
 
     test "SNS confirmation → skipped" do
       w = writer()
+
       m =
         message(%{from_email: "no-reply@sns.amazonaws.com", subject: "SubscriptionConfirmation"})
 
