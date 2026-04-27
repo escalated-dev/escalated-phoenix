@@ -55,20 +55,18 @@ defmodule Escalated.Services.Email.Inbound.Router do
     # 1 + 2. Parse canonical Message-IDs out of our own headers.
     ticket = resolve_by_header_message_ids(message, lookup)
 
-    cond do
-      not is_nil(ticket) ->
-        ticket
+    if not is_nil(ticket) do
+      ticket
+    else
+      # 3. Signed Reply-To on the recipient address.
+      case resolve_by_signed_reply_to(message, lookup, options) do
+        nil ->
+          # 4. Subject-line reference tag.
+          resolve_by_subject_reference(message, lookup, options)
 
-      true ->
-        # 3. Signed Reply-To on the recipient address.
-        case resolve_by_signed_reply_to(message, lookup, options) do
-          nil ->
-            # 4. Subject-line reference tag.
-            resolve_by_subject_reference(message, lookup, options)
-
-          signed_ticket ->
-            signed_ticket
-        end
+        signed_ticket ->
+          signed_ticket
+      end
     end
   end
 
