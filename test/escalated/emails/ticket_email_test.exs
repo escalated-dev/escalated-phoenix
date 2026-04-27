@@ -2,7 +2,7 @@ defmodule Escalated.Emails.TicketEmailTest do
   use ExUnit.Case, async: true
 
   alias Escalated.Emails.TicketEmail
-  alias Escalated.Schemas.{Ticket, Reply}
+  alias Escalated.Schemas.{Reply, Ticket}
 
   @ticket %Ticket{
     id: 1,
