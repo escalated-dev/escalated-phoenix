@@ -188,19 +188,23 @@ defmodule Escalated.Services.Email.Inbound.Service do
     attachments = Map.get(message, :attachments) || Map.get(message, "attachments") || []
 
     attachments
-    |> Enum.filter(fn a ->
-      url = Map.get(a, :download_url) || Map.get(a, "download_url")
-      content = Map.get(a, :content) || Map.get(a, "content")
-      is_binary(url) and url != "" and (is_nil(content) or content == "")
-    end)
-    |> Enum.map(fn a ->
-      %{
-        name: Map.get(a, :name) || Map.get(a, "name"),
-        content_type: Map.get(a, :content_type) || Map.get(a, "content_type"),
-        size_bytes: Map.get(a, :size_bytes) || Map.get(a, "size_bytes"),
-        download_url: Map.get(a, :download_url) || Map.get(a, "download_url")
-      }
-    end)
+    |> Enum.filter(&provider_hosted?/1)
+    |> Enum.map(&to_pending_download/1)
+  end
+
+  defp provider_hosted?(a) do
+    url = Map.get(a, :download_url) || Map.get(a, "download_url")
+    content = Map.get(a, :content) || Map.get(a, "content")
+    is_binary(url) and url != "" and (is_nil(content) or content == "")
+  end
+
+  defp to_pending_download(a) do
+    %{
+      name: Map.get(a, :name) || Map.get(a, "name"),
+      content_type: Map.get(a, :content_type) || Map.get(a, "content_type"),
+      size_bytes: Map.get(a, :size_bytes) || Map.get(a, "size_bytes"),
+      download_url: Map.get(a, :download_url) || Map.get(a, "download_url")
+    }
   end
 
   defp ticket_id(%{id: id}), do: id
