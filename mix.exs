@@ -35,6 +35,11 @@ defmodule Escalated.MixProject do
       {:jason, "~> 1.4"},
       {:inertia_phoenix, "~> 0.4", optional: true},
       {:plug, "~> 1.14"},
+      {:gettext, "~> 0.24"},
+
+      # Translations are shipped centrally as a Hex package
+      # so every Escalated host plugin stays in lockstep.
+      {:escalated_locale, "~> 0.1"},
 
       # Dev/test
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
@@ -58,7 +63,7 @@ defmodule Escalated.MixProject do
       name: "escalated_phoenix",
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE)
+      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 

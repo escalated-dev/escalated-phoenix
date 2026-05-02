@@ -227,6 +227,33 @@ Escalated provides plugs for authorization:
 - `Escalated.Schemas.TicketActivity` -- audit log of ticket changes
 - `Escalated.Schemas.AgentProfile` -- agent-specific profile data
 
+## Translations
+
+Escalated for Phoenix consumes its translation catalogs from the central
+[`:escalated_locale`](https://hex.pm/packages/escalated_locale) Hex package
+so that every Escalated host plugin (Phoenix, Laravel, Rails, Django, …)
+ships an identical message set.
+
+The central package exposes Gettext-style `.po` files at
+`priv/gettext/{locale}/LC_MESSAGES/escalated.po`. This repository defines an
+`Escalated.Gettext` backend that re-exports those catalogs and additionally
+loads any per-host overrides placed under
+`priv/gettext/overrides/{locale}/LC_MESSAGES/escalated.po`.
+
+Override pattern:
+
+```
+priv/gettext/overrides/
+└── en/
+    └── LC_MESSAGES/
+        └── escalated.po   # only the strings you want to differ from upstream
+```
+
+Translation contributions should be opened against
+[`escalated-dev/escalated-locale`](https://github.com/escalated-dev/escalated-locale),
+not this repository — that way every host plugin picks the change up on the
+next `mix deps.update escalated_locale`.
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
