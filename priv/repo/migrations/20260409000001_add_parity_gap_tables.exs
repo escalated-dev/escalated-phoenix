@@ -85,7 +85,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
     end
 
     create index("#{@prefix}custom_object_records", [:custom_object_id])
-    create index("#{@prefix}custom_object_records", [:linked_entity_type, :linked_entity_id])
+    create index("#{@prefix}custom_object_records", [:linked_entity_type, :linked_entity_id], name: :custom_object_records_linked_idx)
 
     # Audit Logs
     create table("#{@prefix}audit_logs") do
