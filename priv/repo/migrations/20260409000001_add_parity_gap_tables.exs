@@ -50,7 +50,9 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
 
     # Custom Field Values
     create table("#{@prefix}custom_field_values") do
-      add :custom_field_id, references("#{@prefix}custom_fields", on_delete: :delete_all), null: false
+      add :custom_field_id, references("#{@prefix}custom_fields", on_delete: :delete_all),
+        null: false
+
       add :entity_type, :string, default: "ticket"
       add :entity_id, :integer, null: false
       add :value, :text
@@ -58,7 +60,11 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index("#{@prefix}custom_field_values", [:custom_field_id, :entity_type, :entity_id], name: :unique_field_entity)
+    create unique_index(
+             "#{@prefix}custom_field_values",
+             [:custom_field_id, :entity_type, :entity_id],
+             name: :unique_field_entity
+           )
 
     # Custom Objects
     create table("#{@prefix}custom_objects") do
@@ -75,7 +81,9 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
 
     # Custom Object Records
     create table("#{@prefix}custom_object_records") do
-      add :custom_object_id, references("#{@prefix}custom_objects", on_delete: :delete_all), null: false
+      add :custom_object_id, references("#{@prefix}custom_objects", on_delete: :delete_all),
+        null: false
+
       add :title, :string
       add :data, :map, default: %{}
       add :linked_entity_type, :string
@@ -85,7 +93,10 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
     end
 
     create index("#{@prefix}custom_object_records", [:custom_object_id])
-    create index("#{@prefix}custom_object_records", [:linked_entity_type, :linked_entity_id], name: :custom_object_records_linked_idx)
+
+    create index("#{@prefix}custom_object_records", [:linked_entity_type, :linked_entity_id],
+             name: :custom_object_records_linked_idx
+           )
 
     # Audit Logs
     create table("#{@prefix}audit_logs") do
@@ -119,7 +130,10 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
 
     # Holidays
     create table("#{@prefix}holidays") do
-      add :business_schedule_id, references("#{@prefix}business_schedules", on_delete: :delete_all), null: false
+      add :business_schedule_id,
+          references("#{@prefix}business_schedules", on_delete: :delete_all),
+          null: false
+
       add :name, :string, null: false
       add :date, :date, null: false
       add :is_recurring, :boolean, default: false
