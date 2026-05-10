@@ -53,21 +53,23 @@ defmodule Escalated.Controllers.Admin.UserControllerTest do
     end
 
     test "shows customer and agent rows alongside admins" do
-      customer = UserController.user_to_payload(%{
-        id: 2,
-        name: "Customer",
-        email: "customer@example.com",
-        is_admin: false,
-        is_agent: false
-      })
+      customer =
+        UserController.user_to_payload(%{
+          id: 2,
+          name: "Customer",
+          email: "customer@example.com",
+          is_admin: false,
+          is_agent: false
+        })
 
-      agent = UserController.user_to_payload(%{
-        id: 3,
-        name: "Agent",
-        email: "agent@example.com",
-        is_admin: false,
-        is_agent: true
-      })
+      agent =
+        UserController.user_to_payload(%{
+          id: 3,
+          name: "Agent",
+          email: "agent@example.com",
+          is_admin: false,
+          is_agent: true
+        })
 
       assert customer.is_admin == false
       assert customer.is_agent == false
