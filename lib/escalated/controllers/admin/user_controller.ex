@@ -77,22 +77,20 @@ defmodule Escalated.Controllers.Admin.UserController do
         |> Phoenix.Controller.json(%{error: "User not found"})
 
       target ->
-        cond do
-          role == "admin" and value == false and self_target?(conn, target) ->
-            conn
-            |> put_flash(:error, "You cannot remove your own admin role.")
-            |> redirect_back()
+        if role == "admin" and value == false and self_target?(conn, target) do
+          conn
+          |> put_flash(:error, "You cannot remove your own admin role.")
+          |> redirect_back()
+        else
+          updates = build_updates(role, value, target)
 
-          true ->
-            updates = build_updates(role, value, target)
+          target
+          |> Ecto.Changeset.change(updates)
+          |> repo.update!()
 
-            target
-            |> Ecto.Changeset.change(updates)
-            |> repo.update!()
-
-            conn
-            |> put_flash(:info, "User updated.")
-            |> redirect_back()
+          conn
+          |> put_flash(:info, "User updated.")
+          |> redirect_back()
         end
     end
   end
