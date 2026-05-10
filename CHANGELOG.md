@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Parity with Laravel reference across tickets, workflows, chat, KB, reports (#17)
+- Admin Users management page with admin/agent role toggles, mirroring `escalated-laravel#94`. Surfaces the host `users` table with `is_admin`/`is_agent` columns, paginated list with email/name search, and a PATCH endpoint that prevents self-admin-demotion.
 
 ### Internal
 - Docker dev/demo environment under `docker/` with click-to-login agent picker and seeded profiles (#22, #28)

@@ -96,6 +96,13 @@ defmodule Escalated.Router do
 
           resources "/departments", DepartmentController, except: [:edit]
           resources "/tags", TagController, except: [:edit]
+
+          # Users (host User model: list + grant/revoke admin/agent).
+          # Surfaces the host's `users` table for an admin to flip the
+          # `is_admin` / `is_agent` columns from the panel.
+          get "/users", UserController, :index
+          patch "/users/:user_id/role", UserController, :update_role
+
           get "/settings", SettingsController, :index
           put "/settings", SettingsController, :update
 
