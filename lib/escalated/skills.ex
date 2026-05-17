@@ -244,7 +244,9 @@ defmodule Escalated.Skills do
   defp blank_to_nil(v), do: to_string(v)
 
   defp normalize_id_list(nil), do: []
-  defp normalize_id_list(list) when is_list(list), do: Enum.map(list, &to_int/1) |> Enum.reject(&is_nil/1)
+
+  defp normalize_id_list(list) when is_list(list),
+    do: list |> Enum.map(&to_int/1) |> Enum.reject(&is_nil/1)
 
   defp normalize_id_list(_), do: []
 
