@@ -210,18 +210,19 @@ defmodule Escalated.Skills do
 
     cs =
       Enum.reduce(attrs.agents, cs, fn %{user_id: uid}, acc ->
-        case repo.get(user_schema, uid) do
-          nil ->
-            Ecto.Changeset.add_error(acc, :agents, "invalid user id")
-
-          u ->
-            if Map.get(u, :is_agent, false),
-              do: acc,
-              else: Ecto.Changeset.add_error(acc, :agents, "user must be an agent")
-        end
+        validate_agent_user(acc, repo.get(user_schema, uid))
       end)
 
     if cs.valid?, do: :ok, else: {:error, cs}
+  end
+
+  defp validate_agent_user(cs, nil),
+    do: Ecto.Changeset.add_error(cs, :agents, "invalid user id")
+
+  defp validate_agent_user(cs, user) do
+    if Map.get(user, :is_agent, false),
+      do: cs,
+      else: Ecto.Changeset.add_error(cs, :agents, "user must be an agent")
   end
 
   defp cast_skill_fields(attrs) do
