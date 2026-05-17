@@ -25,8 +25,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedSkillsManagement do
     create table("#{@prefix}skill_routing_departments") do
       add :skill_id, references("#{@prefix}skills", on_delete: :delete_all), null: false
 
-      add :department_id, references("#{@prefix}departments", on_delete: :delete_all),
-        null: false
+      add :department_id, references("#{@prefix}departments", on_delete: :delete_all), null: false
     end
 
     create unique_index("#{@prefix}skill_routing_departments", [:skill_id, :department_id])
