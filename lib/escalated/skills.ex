@@ -160,7 +160,10 @@ defmodule Escalated.Skills do
     Multi.new()
     |> Multi.update(:skill, Skill.changeset(skill, cast_skill_fields(attrs)))
     |> Multi.delete_all(:purge_tags, from(rt in SkillRoutingTag, where: rt.skill_id == ^id))
-    |> Multi.delete_all(:purge_depts, from(rd in SkillRoutingDepartment, where: rd.skill_id == ^id))
+    |> Multi.delete_all(
+      :purge_depts,
+      from(rd in SkillRoutingDepartment, where: rd.skill_id == ^id)
+    )
     |> Multi.delete_all(:purge_agents, from(as in AgentSkill, where: as.skill_id == ^id))
     |> Multi.merge(fn _ ->
       sync_relations_multi(id, attrs)
