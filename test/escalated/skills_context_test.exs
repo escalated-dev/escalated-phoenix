@@ -1,8 +1,8 @@
 defmodule Escalated.SkillsContextTest do
   use ExUnit.Case, async: true
 
-  alias Escalated.Skills
   alias Escalated.Schemas.Skill
+  alias Escalated.Skills
 
   describe "Skills module" do
     test "exports contract functions" do
