@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Consume translation catalogs from the central `:escalated_locale` Hex package
+  via a new `Escalated.Gettext` backend. Per-host overrides can be placed under
+  `priv/gettext/overrides/{locale}/LC_MESSAGES/escalated.po`.
+
 ### Fixed
 - Rename `ReportingService` floor/ceil helpers to avoid `Kernel` name conflict (#27)
 - Close `split_ticket/3` with missing `end` so the module compiles (#26)

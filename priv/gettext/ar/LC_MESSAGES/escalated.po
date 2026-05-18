@@ -1,0 +1,5550 @@
+# Escalated locale catalog — auto-generated, do not edit manually.
+# locale: ar, domain: escalated
+msgid ""
+msgstr ""
+"Project-Id-Version: escalated-locale 0.1.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "nav.admin"
+msgstr "الإدارة"
+
+msgid "nav.adminBadge"
+msgstr "مدير"
+
+msgid "nav.agentPanel"
+msgstr "لوحة الوكيل"
+
+msgid "nav.backToApp"
+msgstr "العودة إلى التطبيق"
+
+msgid "nav.myTickets"
+msgstr "تذاكري"
+
+msgid "nav.dashboard"
+msgstr "لوحة التحكم"
+
+msgid "nav.tickets"
+msgstr "التذاكر"
+
+msgid "nav.reports"
+msgstr "التقارير"
+
+msgid "nav.departments"
+msgstr "الأقسام"
+
+msgid "nav.slaPolicies"
+msgstr "سياسات SLA"
+
+msgid "nav.escalationRules"
+msgstr "قواعد التصعيد"
+
+msgid "nav.tags"
+msgstr "العلامات"
+
+msgid "nav.cannedResponses"
+msgstr "الردود الجاهزة"
+
+msgid "nav.macros"
+msgstr "الماكرو"
+
+msgid "nav.apiTokens"
+msgstr "رموز API"
+
+msgid "nav.plugins"
+msgstr "الإضافات"
+
+msgid "nav.settings"
+msgstr "الإعدادات"
+
+msgid "status.open"
+msgstr "مفتوح"
+
+msgid "status.inProgress"
+msgstr "قيد التنفيذ"
+
+msgid "status.waitingOnCustomer"
+msgstr "بانتظار العميل"
+
+msgid "status.waitingOnAgent"
+msgstr "بانتظار الوكيل"
+
+msgid "status.escalated"
+msgstr "مُصعَّد"
+
+msgid "status.resolved"
+msgstr "تم الحل"
+
+msgid "status.closed"
+msgstr "مغلق"
+
+msgid "status.reopened"
+msgstr "أعيد فتحه"
+
+msgid "status.snoozed"
+msgstr "مؤجَّل"
+
+msgid "status.unsnoozed"
+msgstr "تم إلغاء التأجيل"
+
+msgid "status.live"
+msgstr "مباشر"
+
+msgid "priority.low"
+msgstr "منخفض"
+
+msgid "priority.medium"
+msgstr "متوسط"
+
+msgid "priority.high"
+msgstr "مرتفع"
+
+msgid "priority.urgent"
+msgstr "عاجل"
+
+msgid "priority.critical"
+msgstr "حرج"
+
+msgid "activity.statusChanged"
+msgstr "غيّر الحالة"
+
+msgid "activity.assigned"
+msgstr "أسند التذكرة"
+
+msgid "activity.unassigned"
+msgstr "ألغى إسناد التذكرة"
+
+msgid "activity.priorityChanged"
+msgstr "غيّر الأولوية"
+
+msgid "activity.tagAdded"
+msgstr "أضاف علامة"
+
+msgid "activity.tagRemoved"
+msgstr "أزال علامة"
+
+msgid "activity.escalated"
+msgstr "صعّد التذكرة"
+
+msgid "activity.slaBreached"
+msgstr "تم خرق SLA"
+
+msgid "activity.replied"
+msgstr "ردّ"
+
+msgid "activity.noteAdded"
+msgstr "أضاف ملاحظة"
+
+msgid "activity.departmentChanged"
+msgstr "غيّر القسم"
+
+msgid "activity.reopened"
+msgstr "أعاد فتح التذكرة"
+
+msgid "activity.resolved"
+msgstr "حلّ التذكرة"
+
+msgid "activity.closed"
+msgstr "أغلق التذكرة"
+
+msgid "activity.system"
+msgstr "النظام"
+
+msgid "activity.noActivity"
+msgstr "لا يوجد نشاط بعد."
+
+msgid "activity.to"
+msgstr "إلى"
+
+msgid "activity.assignedTo"
+msgstr "أسند إلى"
+
+msgid "activity.snoozed"
+msgstr "مؤجَّل"
+
+msgid "activity.unsnoozed"
+msgstr "تم إلغاء التأجيل"
+
+msgid "activity.ticketSplit"
+msgstr "تم تقسيم التذكرة"
+
+msgid "ticket.reference"
+msgstr "المرجع"
+
+msgid "ticket.subject"
+msgstr "الموضوع"
+
+msgid "ticket.requester"
+msgstr "مقدم الطلب"
+
+msgid "ticket.status"
+msgstr "الحالة"
+
+msgid "ticket.priority"
+msgstr "الأولوية"
+
+msgid "ticket.assignee"
+msgstr "المسند إليه"
+
+msgid "ticket.lastReply"
+msgstr "آخر رد"
+
+msgid "ticket.unknown"
+msgstr "غير معروف"
+
+msgid "ticket.unassigned"
+msgstr "غير مسند"
+
+msgid "ticket.noTickets"
+msgstr "لم يتم العثور على تذاكر."
+
+msgid "ticket.details"
+msgstr "التفاصيل"
+
+msgid "ticket.department"
+msgstr "القسم"
+
+msgid "ticket.created"
+msgstr "تاريخ الإنشاء"
+
+msgid "ticket.activity"
+msgstr "النشاط"
+
+msgid "ticket.conversation"
+msgstr "المحادثة"
+
+msgid "ticket.by"
+msgstr "بواسطة"
+
+msgid "ticket.assignToMe"
+msgstr "إسناد لي"
+
+msgid "ticket.closeTicket"
+msgstr "إغلاق التذكرة"
+
+msgid "ticket.reopen"
+msgstr "إعادة الفتح"
+
+msgid "ticket.allTickets"
+msgstr "جميع التذاكر"
+
+msgid "ticket.ticketQueue"
+msgstr "قائمة التذاكر"
+
+msgid "ticket.myTickets"
+msgstr "تذاكري"
+
+msgid "ticket.newTicket"
+msgstr "تذكرة جديدة"
+
+msgid "ticket.createTicket"
+msgstr "إنشاء تذكرة"
+
+msgid "ticket.submitTicket"
+msgstr "إرسال التذكرة"
+
+msgid "ticket.noReplies"
+msgstr "لا توجد ردود بعد."
+
+msgid "ticket.ticketClosedNoReplies"
+msgstr "هذه التذكرة مغلقة. لا يمكن إضافة ردود أخرى."
+
+msgid "ticket.replySent"
+msgstr "تم إرسال الرد."
+
+msgid "ticket.noteAdded"
+msgstr "تمت إضافة الملاحظة."
+
+msgid "ticket.assigned"
+msgstr "تم تعيين التذكرة."
+
+msgid "ticket.statusUpdated"
+msgstr "تم تحديث الحالة."
+
+msgid "ticket.priorityUpdated"
+msgstr "تم تحديث الأولوية."
+
+msgid "ticket.tagsUpdated"
+msgstr "تم تحديث الوسوم."
+
+msgid "ticket.departmentUpdated"
+msgstr "تم تحديث القسم."
+
+msgid "ticket.macroApplied"
+msgstr "تم تطبيق الماكرو \"{name}\"."
+
+msgid "ticket.following"
+msgstr "أنت تتابع التذكرة."
+
+msgid "ticket.unfollowed"
+msgstr "تم إلغاء متابعة التذكرة."
+
+msgid "ticket.onlyInternalNotesPinned"
+msgstr "يمكن تثبيت الملاحظات الداخلية فقط."
+
+msgid "ticket.updated"
+msgstr "تم تحديث التذكرة."
+
+msgid "ticket.closed"
+msgstr "تم إغلاق التذكرة."
+
+msgid "ticket.reopened"
+msgstr "تم إعادة فتح التذكرة."
+
+msgid "ticket.customersCannotClose"
+msgstr "لا يمكن للعملاء إغلاق التذاكر."
+
+msgid "ticket.notePinned"
+msgstr "تم تثبيت الملاحظة."
+
+msgid "ticket.noteUnpinned"
+msgstr "تم إلغاء تثبيت الملاحظة."
+
+msgid "ticket.pinNotesOnly"
+msgstr "يمكن تثبيت الملاحظات الداخلية فقط."
+
+msgid "ticket.customerCloseForbidden"
+msgstr "لا يمكن للعملاء إغلاق التذاكر."
+
+msgid "bulk.ticketsSelected"
+msgstr "{count} تذكرة محددة"
+
+msgid "bulk.statusPlaceholder"
+msgstr "الحالة..."
+
+msgid "bulk.priorityPlaceholder"
+msgstr "الأولوية..."
+
+msgid "bulk.assignPlaceholder"
+msgstr "إسناد إلى..."
+
+msgid "bulk.departmentPlaceholder"
+msgstr "القسم..."
+
+msgid "bulk.delete"
+msgstr "حذف"
+
+msgid "bulk.deselectAll"
+msgstr "إلغاء تحديد الكل"
+
+msgid "bulk.updated"
+msgstr "تم تحديث {count} تذكرة (تذاكر)."
+
+msgid "filter.searchTickets"
+msgstr "البحث في التذاكر..."
+
+msgid "filter.allStatuses"
+msgstr "جميع الحالات"
+
+msgid "filter.allPriorities"
+msgstr "جميع الأولويات"
+
+msgid "filter.allAgents"
+msgstr "جميع الوكلاء"
+
+msgid "filter.allDepartments"
+msgstr "جميع الأقسام"
+
+msgid "filter.following"
+msgstr "متابَعة"
+
+msgid "quickFilter.myTickets"
+msgstr "تذاكري"
+
+msgid "quickFilter.unassigned"
+msgstr "غير مسندة"
+
+msgid "quickFilter.urgentPlus"
+msgstr "عاجل+"
+
+msgid "quickFilter.slaBreaching"
+msgstr "خرق SLA"
+
+msgid "quickFilter.following"
+msgstr "متابَعة"
+
+msgid "reply.reply"
+msgstr "رد"
+
+msgid "reply.internalNote"
+msgstr "ملاحظة داخلية"
+
+msgid "reply.noteVisibility"
+msgstr "هذه الملاحظة مرئية للوكلاء فقط."
+
+msgid "reply.placeholder"
+msgstr "اكتب ردك..."
+
+msgid "reply.cannedResponses"
+msgstr "الردود الجاهزة..."
+
+msgid "reply.addNote"
+msgstr "إضافة ملاحظة"
+
+msgid "reply.sendReply"
+msgstr "إرسال الرد"
+
+msgid "reply.pinned"
+msgstr "مثبّت"
+
+msgid "reply.unpin"
+msgstr "إلغاء التثبيت"
+
+msgid "reply.pin"
+msgstr "تثبيت"
+
+msgid "reply.writeInternalNote"
+msgstr "اكتب ملاحظة داخلية..."
+
+msgid "rating.customerRating"
+msgstr "تقييم العميل"
+
+msgid "rating.howWasExperience"
+msgstr "كيف كانت تجربتك؟"
+
+msgid "rating.terrible"
+msgstr "سيئة جداً"
+
+msgid "rating.poor"
+msgstr "سيئة"
+
+msgid "rating.okay"
+msgstr "مقبولة"
+
+msgid "rating.good"
+msgstr "جيدة"
+
+msgid "rating.excellent"
+msgstr "ممتازة"
+
+msgid "rating.feedbackPlaceholder"
+msgstr "أي ملاحظات إضافية؟ (اختياري)"
+
+msgid "rating.thankYou"
+msgstr "شكراً لملاحظاتك!"
+
+msgid "rating.submitRating"
+msgstr "إرسال التقييم"
+
+msgid "rating.customerSatisfaction"
+msgstr "رضا العملاء"
+
+msgid "rating.onlyResolvedClosed"
+msgstr "يمكنك تقييم التذاكر المحلولة أو المغلقة فقط."
+
+msgid "rating.alreadyRated"
+msgstr "تم تقييم هذه التذكرة بالفعل."
+
+msgid "rating.thanks"
+msgstr "شكرًا لك على ملاحظاتك!"
+
+msgid "keyboard.title"
+msgstr "اختصارات لوحة المفاتيح"
+
+msgid "keyboard.listView"
+msgstr "عرض القائمة"
+
+msgid "keyboard.detailView"
+msgstr "عرض التفاصيل"
+
+msgid "keyboard.global"
+msgstr "عام"
+
+msgid "keyboard.moveDown"
+msgstr "التحرك لأسفل"
+
+msgid "keyboard.moveUp"
+msgstr "التحرك لأعلى"
+
+msgid "keyboard.toggleSelect"
+msgstr "تبديل التحديد"
+
+msgid "keyboard.openTicket"
+msgstr "فتح التذكرة"
+
+msgid "keyboard.reply"
+msgstr "رد"
+
+msgid "keyboard.internalNote"
+msgstr "ملاحظة داخلية"
+
+msgid "keyboard.changeStatus"
+msgstr "تغيير الحالة"
+
+msgid "keyboard.changePriority"
+msgstr "تغيير الأولوية"
+
+msgid "keyboard.followUnfollow"
+msgstr "متابعة/إلغاء المتابعة"
+
+msgid "keyboard.showHelp"
+msgstr "عرض هذه المساعدة"
+
+msgid "keyboard.escToClose"
+msgstr "اضغط Esc للإغلاق"
+
+msgid "sla.overdue"
+msgstr "متأخر"
+
+msgid "sla.breached"
+msgstr "تم خرق SLA"
+
+msgid "sla.firstResponse"
+msgstr "الاستجابة الأولى"
+
+msgid "sla.resolution"
+msgstr "الحل"
+
+msgid "follow.following"
+msgstr "متابَع"
+
+msgid "follow.follow"
+msgstr "متابعة"
+
+msgid "file.dropOrBrowse"
+msgstr "أفلت الملفات هنا أو {link}"
+
+msgid "file.browse"
+msgstr "تصفح"
+
+msgid "macro.applyMacro"
+msgstr "تطبيق ماكرو"
+
+msgid "macro.macros"
+msgstr "الماكرو"
+
+msgid "macro.noMacros"
+msgstr "لا توجد ماكرو متاحة"
+
+msgid "macro.created"
+msgstr "تم إنشاء الماكرو."
+
+msgid "macro.updated"
+msgstr "تم تحديث الماكرو."
+
+msgid "macro.deleted"
+msgstr "تم حذف الماكرو."
+
+msgid "form.name"
+msgstr "الاسم"
+
+msgid "form.description"
+msgstr "الوصف"
+
+msgid "form.slug"
+msgstr "المعرّف"
+
+msgid "form.autoGenerated"
+msgstr "يُنشأ تلقائياً إذا ترك فارغاً"
+
+msgid "form.active"
+msgstr "نشط"
+
+msgid "form.update"
+msgstr "تحديث"
+
+msgid "form.create"
+msgstr "إنشاء"
+
+msgid "form.save"
+msgstr "حفظ"
+
+msgid "form.cancel"
+msgstr "إلغاء"
+
+msgid "form.edit"
+msgstr "تعديل"
+
+msgid "form.delete"
+msgstr "حذف"
+
+msgid "form.actions"
+msgstr "الإجراءات"
+
+msgid "form.order"
+msgstr "الترتيب"
+
+msgid "form.value"
+msgstr "القيمة"
+
+msgid "form.yes"
+msgstr "نعم"
+
+msgid "form.no"
+msgstr "لا"
+
+msgid "form.confirm"
+msgstr "تأكيد"
+
+msgid "form.none"
+msgstr "لا شيء"
+
+msgid "form.general"
+msgstr "عام"
+
+msgid "form.shared"
+msgstr "مشترك"
+
+msgid "form.private"
+msgstr "خاص"
+
+msgid "form.color"
+msgstr "اللون"
+
+msgid "form.title"
+msgstr "العنوان"
+
+msgid "form.copy"
+msgstr "نسخ"
+
+msgid "form.dismiss"
+msgstr "إخفاء"
+
+msgid "form.saved"
+msgstr "تم الحفظ."
+
+msgid "form.saving"
+msgstr "جاري الحفظ..."
+
+msgid "form.creating"
+msgstr "جاري الإنشاء..."
+
+msgid "form.submitting"
+msgstr "جاري الإرسال..."
+
+msgid "form.sending"
+msgstr "جاري الإرسال..."
+
+msgid "form.uploading"
+msgstr "جاري الرفع..."
+
+msgid "form.copied"
+msgstr "تم النسخ!"
+
+msgid "form.subject"
+msgstr "الموضوع"
+
+msgid "form.priority"
+msgstr "الأولوية"
+
+msgid "form.department"
+msgstr "القسم"
+
+msgid "form.attachments"
+msgstr "المرفقات"
+
+msgid "presence.alsoViewing"
+msgstr "يشاهد أيضاً: {names}"
+
+msgid "pinnedNotes.title"
+msgstr "الملاحظات المثبتة"
+
+msgid "pinnedNotes.unpin"
+msgstr "إلغاء التثبيت"
+
+msgid "admin.settings.title"
+msgstr "الإعدادات"
+
+msgid "admin.settings.general"
+msgstr "عام"
+
+msgid "admin.settings.guestTickets"
+msgstr "تذاكر الزوار"
+
+msgid "admin.settings.guestTicketsDesc"
+msgstr "السماح للزوار بإرسال تذاكر بدون تسجيل الدخول"
+
+msgid "admin.settings.allowCustomerClose"
+msgstr "السماح للعميل بالإغلاق"
+
+msgid "admin.settings.allowCustomerCloseDesc"
+msgstr "السماح للعملاء بإغلاق تذاكرهم"
+
+msgid "admin.settings.autoClose"
+msgstr "إغلاق التذاكر المحلولة تلقائياً بعد"
+
+msgid "admin.settings.autoCloseDesc"
+msgstr "الأيام بعد الحل قبل الإغلاق التلقائي (0 للتعطيل)"
+
+msgid "admin.settings.days"
+msgstr "أيام"
+
+msgid "admin.settings.limits"
+msgstr "الحدود"
+
+msgid "admin.settings.maxAttachments"
+msgstr "الحد الأقصى للمرفقات لكل رد"
+
+msgid "admin.settings.maxAttachmentSize"
+msgstr "الحد الأقصى لحجم المرفق"
+
+msgid "admin.settings.tickets"
+msgstr "التذاكر"
+
+msgid "admin.settings.referencePrefix"
+msgstr "بادئة المرجع"
+
+msgid "admin.settings.referencePrefixDesc"
+msgstr "بادئة مراجع التذاكر (مثلاً ESC تنتج ESC-00001)"
+
+msgid "admin.settings.inboundEmail"
+msgstr "البريد الإلكتروني الوارد"
+
+msgid "admin.settings.inboundEmailDesc"
+msgstr "السماح بإنشاء والرد على التذاكر عبر البريد الإلكتروني"
+
+msgid "admin.settings.emailProvider"
+msgstr "مزود البريد الإلكتروني"
+
+msgid "admin.settings.emailProviderDesc"
+msgstr "كيفية استقبال رسائل البريد الإلكتروني الواردة"
+
+msgid "admin.settings.supportEmail"
+msgstr "عنوان البريد الإلكتروني للدعم"
+
+msgid "admin.settings.supportEmailDesc"
+msgstr "عنوان البريد الإلكتروني الذي سيراسله العملاء (مثلاً support@example.com)"
+
+msgid "admin.settings.signingKey"
+msgstr "مفتاح التوقيع"
+
+msgid "admin.settings.webhookUrl"
+msgstr "رابط Webhook"
+
+msgid "admin.settings.mailgunWebhookDesc"
+msgstr "قم بتكوين هذا الرابط في لوحة تحكم Mailgun"
+
+msgid "admin.settings.inboundToken"
+msgstr "رمز الوارد"
+
+msgid "admin.settings.postmarkWebhookDesc"
+msgstr "قم بتكوين هذا الرابط في إعدادات خادم Postmark"
+
+msgid "admin.settings.region"
+msgstr "المنطقة"
+
+msgid "admin.settings.topicArn"
+msgstr "Topic ARN"
+
+msgid "admin.settings.sesWebhookDesc"
+msgstr "قم بتكوين هذا الرابط كنقطة نهاية اشتراك SNS"
+
+msgid "admin.settings.host"
+msgstr "المضيف"
+
+msgid "admin.settings.port"
+msgstr "المنفذ"
+
+msgid "admin.settings.encryption"
+msgstr "التشفير"
+
+msgid "admin.settings.username"
+msgstr "اسم المستخدم"
+
+msgid "admin.settings.password"
+msgstr "كلمة المرور"
+
+msgid "admin.settings.mailbox"
+msgstr "صندوق البريد"
+
+msgid "admin.settings.saveSettings"
+msgstr "حفظ الإعدادات"
+
+msgid "admin.settings.updated"
+msgstr "تم تحديث الإعدادات بنجاح."
+
+msgid "admin.reports.title"
+msgstr "التقارير"
+
+msgid "admin.reports.lastDays"
+msgstr "آخر {count} يوم"
+
+msgid "admin.reports.totalTickets"
+msgstr "إجمالي التذاكر"
+
+msgid "admin.reports.resolved"
+msgstr "تم حلها"
+
+msgid "admin.reports.avgFirstResponse"
+msgstr "متوسط الاستجابة الأولى"
+
+msgid "admin.reports.slaBreaches"
+msgstr "خروقات SLA"
+
+msgid "admin.reports.byStatus"
+msgstr "حسب الحالة"
+
+msgid "admin.reports.byPriority"
+msgstr "حسب الأولوية"
+
+msgid "admin.reports.noData"
+msgstr "لا توجد بيانات تذاكر لهذه الفترة"
+
+msgid "admin.reports.noRatings"
+msgstr "لا توجد تقييمات لهذه الفترة"
+
+msgid "admin.reports.ratingsCount"
+msgstr "({count} تقييم)"
+
+msgid "admin.reports.advancedReports"
+msgstr "تقارير متقدمة"
+
+msgid "admin.reports.slaTrends"
+msgstr "اتجاهات خروقات SLA"
+
+msgid "admin.reports.responseTimes"
+msgstr "تحليل زمن الاستجابة الأولى"
+
+msgid "admin.reports.resolutionTimes"
+msgstr "تحليل زمن الحل"
+
+msgid "admin.reports.agentRanking"
+msgstr "تصنيف أداء الوكلاء"
+
+msgid "admin.reports.agentDetail"
+msgstr "تحليل معمّق للوكيل"
+
+msgid "admin.reports.cohorts"
+msgstr "تحليل المجموعات"
+
+msgid "admin.reports.comparison"
+msgstr "مقارنة الفترات"
+
+msgid "admin.reports.overview"
+msgstr "نظرة عامة"
+
+msgid "admin.reports.agents"
+msgstr "الوكلاء"
+
+msgid "admin.reports.sla"
+msgstr "SLA"
+
+msgid "admin.reports.csat"
+msgstr "CSAT"
+
+msgid "admin.reports.export"
+msgstr "تصدير"
+
+msgid "admin.reports.exportCsv"
+msgstr "تصدير كـ CSV"
+
+msgid "admin.reports.exportJson"
+msgstr "تصدير كـ JSON"
+
+msgid "admin.reports.periodCustom"
+msgstr "مخصص"
+
+msgid "admin.reports.periodApply"
+msgstr "تطبيق"
+
+msgid "admin.reports.periodStart"
+msgstr "البداية"
+
+msgid "admin.reports.periodEnd"
+msgstr "النهاية"
+
+msgid "admin.reports.totalBreaches"
+msgstr "إجمالي الخروقات"
+
+msgid "admin.reports.breachRate"
+msgstr "معدل الخرق"
+
+msgid "admin.reports.frtBreaches"
+msgstr "خروقات الاستجابة الأولى"
+
+msgid "admin.reports.resolutionBreachesLabel"
+msgstr "خروقات الحل"
+
+msgid "admin.reports.breachCountOverTime"
+msgstr "عدد الخروقات بمرور الوقت"
+
+msgid "admin.reports.frtVsResolution"
+msgstr "الاستجابة الأولى مقابل خروقات الحل"
+
+msgid "admin.reports.breachByDepartment"
+msgstr "معدل الخرق حسب القسم"
+
+msgid "admin.reports.breachByPriority"
+msgstr "معدل الخرق حسب الأولوية"
+
+msgid "admin.reports.atRisk"
+msgstr "معرّض للخطر - يقترب من خرق SLA"
+
+msgid "admin.reports.critical"
+msgstr "حرج"
+
+msgid "admin.reports.warning"
+msgstr "تحذير"
+
+msgid "admin.reports.watch"
+msgstr "مراقبة"
+
+msgid "admin.reports.hoursRemaining"
+msgstr "{count} ساعة متبقية"
+
+msgid "admin.reports.noAtRisk"
+msgstr "لا توجد تذاكر معرّضة لخطر خرق SLA حالياً."
+
+msgid "admin.reports.avgFrt"
+msgstr "متوسط الاستجابة الأولى"
+
+msgid "admin.reports.medianFrt"
+msgstr "وسيط الاستجابة الأولى"
+
+msgid "admin.reports.p90Frt"
+msgstr "المئوية 90 للاستجابة الأولى"
+
+msgid "admin.reports.underTarget"
+msgstr "ضمن الهدف"
+
+msgid "admin.reports.frtDistribution"
+msgstr "توزيع الاستجابة الأولى"
+
+msgid "admin.reports.avgFrtTrend"
+msgstr "اتجاه متوسط الاستجابة الأولى"
+
+msgid "admin.reports.frtByDepartment"
+msgstr "الاستجابة الأولى حسب القسم"
+
+msgid "admin.reports.frtByPriority"
+msgstr "الاستجابة الأولى حسب الأولوية"
+
+msgid "admin.reports.frtByAgent"
+msgstr "الاستجابة الأولى حسب الوكيل"
+
+msgid "admin.reports.avgResolution"
+msgstr "متوسط الحل"
+
+msgid "admin.reports.medianResolution"
+msgstr "وسيط الحل"
+
+msgid "admin.reports.p90Resolution"
+msgstr "المئوية 90 للحل"
+
+msgid "admin.reports.resolutionDistribution"
+msgstr "توزيع زمن الحل"
+
+msgid "admin.reports.resolutionTrend"
+msgstr "اتجاه متوسط زمن الحل"
+
+msgid "admin.reports.resolutionByDepartment"
+msgstr "الحل حسب القسم"
+
+msgid "admin.reports.resolutionByChannel"
+msgstr "الحل حسب القناة"
+
+msgid "admin.reports.resolutionByAgent"
+msgstr "زمن الحل حسب الوكيل"
+
+msgid "admin.reports.compositeScore"
+msgstr "النتيجة"
+
+msgid "admin.reports.resolutionRate"
+msgstr "نسبة الحل"
+
+msgid "admin.reports.volume"
+msgstr "الحجم"
+
+msgid "admin.reports.trend"
+msgstr "الاتجاه"
+
+msgid "admin.reports.topPerformers"
+msgstr "الأفضل أداءً"
+
+msgid "admin.reports.needsAttention"
+msgstr "يحتاج اهتمام"
+
+msgid "admin.reports.backToRankings"
+msgstr "العودة إلى التصنيفات"
+
+msgid "admin.reports.responsePercentiles"
+msgstr "المئويات لزمن الاستجابة"
+
+msgid "admin.reports.productivity"
+msgstr "الإنتاجية"
+
+msgid "admin.reports.workloadOverTime"
+msgstr "عبء العمل بمرور الوقت"
+
+msgid "admin.reports.csatBreakdown"
+msgstr "تفاصيل CSAT"
+
+msgid "admin.reports.byTag"
+msgstr "حسب العلامة"
+
+msgid "admin.reports.byDepartment"
+msgstr "حسب القسم"
+
+msgid "admin.reports.byChannel"
+msgstr "حسب القناة"
+
+msgid "admin.reports.byType"
+msgstr "حسب النوع"
+
+msgid "admin.reports.noCohortData"
+msgstr "لا توجد بيانات لهذا النوع من المجموعات."
+
+msgid "admin.reports.currentPeriod"
+msgstr "الفترة الحالية"
+
+msgid "admin.reports.previousPeriod"
+msgstr "الفترة السابقة"
+
+msgid "admin.reports.vsPrevious"
+msgstr "مقارنة بالفترة السابقة"
+
+msgid "admin.reports.pctChange"
+msgstr "نسبة التغير"
+
+msgid "admin.reports.slaCompliance"
+msgstr "الامتثال لـ SLA"
+
+msgid "admin.reports.noAgentData"
+msgstr "لا توجد بيانات وكلاء لهذه الفترة."
+
+msgid "admin.reports.avg"
+msgstr "متوسط"
+
+msgid "admin.reports.median"
+msgstr "وسيط"
+
+msgid "admin.reports.agent"
+msgstr "الوكيل"
+
+msgid "admin.reports.back"
+msgstr "رجوع"
+
+msgid "admin.departments.title"
+msgstr "الأقسام"
+
+msgid "admin.departments.add"
+msgstr "إضافة قسم"
+
+msgid "admin.departments.editTitle"
+msgstr "تعديل القسم"
+
+msgid "admin.departments.newTitle"
+msgstr "قسم جديد"
+
+msgid "admin.departments.tickets"
+msgstr "التذاكر"
+
+msgid "admin.departments.agents"
+msgstr "الوكلاء"
+
+msgid "admin.departments.noDepartments"
+msgstr "لا توجد أقسام بعد"
+
+msgid "admin.departments.noDepartmentsDesc"
+msgstr "أنشئ قسمك الأول لتنظيم التذاكر"
+
+msgid "admin.departments.confirmDelete"
+msgstr "حذف هذا القسم؟"
+
+msgid "admin.slaPolicies.title"
+msgstr "سياسات SLA"
+
+msgid "admin.slaPolicies.add"
+msgstr "إضافة سياسة"
+
+msgid "admin.slaPolicies.editTitle"
+msgstr "تعديل سياسة SLA"
+
+msgid "admin.slaPolicies.newTitle"
+msgstr "سياسة SLA جديدة"
+
+msgid "admin.slaPolicies.default"
+msgstr "افتراضي"
+
+msgid "admin.slaPolicies.businessHours"
+msgstr "ساعات العمل"
+
+msgid "admin.slaPolicies.businessHoursOnly"
+msgstr "ساعات العمل فقط"
+
+msgid "admin.slaPolicies.defaultPolicy"
+msgstr "السياسة الافتراضية"
+
+msgid "admin.slaPolicies.firstResponseHours"
+msgstr "ساعات الاستجابة الأولى (حسب الأولوية)"
+
+msgid "admin.slaPolicies.resolutionHours"
+msgstr "ساعات الحل (حسب الأولوية)"
+
+msgid "admin.slaPolicies.noPolicies"
+msgstr "لا توجد سياسات SLA بعد"
+
+msgid "admin.slaPolicies.noPoliciesDesc"
+msgstr "حدد أهداف زمن الاستجابة والحل"
+
+msgid "admin.slaPolicies.confirmDelete"
+msgstr "حذف سياسة SLA هذه؟"
+
+msgid "admin.escalationRules.title"
+msgstr "قواعد التصعيد"
+
+msgid "admin.escalationRules.add"
+msgstr "إضافة قاعدة"
+
+msgid "admin.escalationRules.editTitle"
+msgstr "تعديل قاعدة التصعيد"
+
+msgid "admin.escalationRules.newTitle"
+msgstr "قاعدة تصعيد جديدة"
+
+msgid "admin.escalationRules.trigger"
+msgstr "المشغّل"
+
+msgid "admin.escalationRules.triggerType"
+msgstr "نوع المشغّل"
+
+msgid "admin.escalationRules.timeBased"
+msgstr "مبني على الوقت"
+
+msgid "admin.escalationRules.slaBreach"
+msgstr "خرق SLA"
+
+msgid "admin.escalationRules.priorityBased"
+msgstr "مبني على الأولوية"
+
+msgid "admin.escalationRules.conditions"
+msgstr "الشروط"
+
+msgid "admin.escalationRules.addShort"
+msgstr "+ إضافة"
+
+msgid "admin.escalationRules.status"
+msgstr "الحالة"
+
+msgid "admin.escalationRules.priority"
+msgstr "الأولوية"
+
+msgid "admin.escalationRules.assignment"
+msgstr "الإسناد"
+
+msgid "admin.escalationRules.ageHours"
+msgstr "العمر (ساعات)"
+
+msgid "admin.escalationRules.noResponseHours"
+msgstr "بدون استجابة (ساعات)"
+
+msgid "admin.escalationRules.slaBreached"
+msgstr "تم خرق SLA"
+
+msgid "admin.escalationRules.escalate"
+msgstr "تصعيد"
+
+msgid "admin.escalationRules.changePriority"
+msgstr "تغيير الأولوية"
+
+msgid "admin.escalationRules.assignTo"
+msgstr "إسناد إلى"
+
+msgid "admin.escalationRules.changeDepartment"
+msgstr "تغيير القسم"
+
+msgid "admin.escalationRules.noRules"
+msgstr "لا توجد قواعد تصعيد بعد"
+
+msgid "admin.escalationRules.noRulesDesc"
+msgstr "أعدّ التصعيد التلقائي للتذاكر المتأخرة"
+
+msgid "admin.escalationRules.confirmDelete"
+msgstr "حذف قاعدة التصعيد هذه؟"
+
+msgid "admin.cannedResponses.title"
+msgstr "الردود الجاهزة"
+
+msgid "admin.cannedResponses.add"
+msgstr "إضافة رد"
+
+msgid "admin.cannedResponses.titlePlaceholder"
+msgstr "العنوان"
+
+msgid "admin.cannedResponses.bodyPlaceholder"
+msgstr "نص الرد..."
+
+msgid "admin.cannedResponses.categoryPlaceholder"
+msgstr "الفئة (اختياري)"
+
+msgid "admin.cannedResponses.noResponses"
+msgstr "لا توجد ردود جاهزة بعد"
+
+msgid "admin.cannedResponses.noResponsesDesc"
+msgstr "أنشئ قوالب قابلة لإعادة الاستخدام للردود الشائعة"
+
+msgid "admin.cannedResponses.confirmDelete"
+msgstr "حذف هذا الرد الجاهز؟"
+
+msgid "admin.tags.title"
+msgstr "العلامات"
+
+msgid "admin.tags.add"
+msgstr "إضافة علامة"
+
+msgid "admin.tags.noTags"
+msgstr "لا توجد علامات بعد"
+
+msgid "admin.tags.noTagsDesc"
+msgstr "أنشئ علامات لتصنيف التذاكر وتصفيتها"
+
+msgid "admin.tags.confirmDelete"
+msgstr "حذف هذه العلامة؟"
+
+msgid "admin.macros.title"
+msgstr "الماكرو"
+
+msgid "admin.macros.subtitle"
+msgstr "تعمل الماكرو على أتمتة الإجراءات المتكررة على التذاكر."
+
+msgid "admin.macros.createMacro"
+msgstr "إنشاء ماكرو"
+
+msgid "admin.macros.updateMacro"
+msgstr "تحديث الماكرو"
+
+msgid "admin.macros.sharedLabel"
+msgstr "مشترك مع جميع الوكلاء"
+
+msgid "admin.macros.addAction"
+msgstr "+ إضافة إجراء"
+
+msgid "admin.macros.noActions"
+msgstr "لا توجد إجراءات بعد. أضف إجراءات لتحديد ما يفعله هذا الماكرو."
+
+msgid "admin.macros.setStatus"
+msgstr "تعيين الحالة"
+
+msgid "admin.macros.setPriority"
+msgstr "تعيين الأولوية"
+
+msgid "admin.macros.assignTo"
+msgstr "إسناد إلى"
+
+msgid "admin.macros.addTags"
+msgstr "إضافة علامات"
+
+msgid "admin.macros.moveToDepartment"
+msgstr "نقل إلى قسم"
+
+msgid "admin.macros.sendReply"
+msgstr "إرسال رد"
+
+msgid "admin.macros.addInternalNote"
+msgstr "إضافة ملاحظة داخلية"
+
+msgid "admin.macros.selectStatus"
+msgstr "اختر الحالة..."
+
+msgid "admin.macros.selectPriority"
+msgstr "اختر الأولوية..."
+
+msgid "admin.macros.agentPlaceholder"
+msgstr "معرّف الوكيل أو بريده الإلكتروني"
+
+msgid "admin.macros.tagsPlaceholder"
+msgstr "أسماء علامات مفصولة بفواصل"
+
+msgid "admin.macros.departmentPlaceholder"
+msgstr "معرّف القسم أو اسمه"
+
+msgid "admin.macros.replyPlaceholder"
+msgstr "رسالة الرد..."
+
+msgid "admin.macros.notePlaceholder"
+msgstr "محتوى الملاحظة..."
+
+msgid "admin.macros.noMacros"
+msgstr "لا توجد ماكرو بعد"
+
+msgid "admin.macros.noMacrosDesc"
+msgstr "أنشئ ماكرو لأتمتة إجراءات التذاكر المتكررة"
+
+msgid "admin.macros.creator"
+msgstr "المنشئ"
+
+msgid "admin.macros.confirmDelete"
+msgstr "حذف هذا الماكرو؟ لا يمكن التراجع عن هذا."
+
+msgid "admin.apiTokens.title"
+msgstr "رموز API"
+
+msgid "admin.apiTokens.subtitle"
+msgstr "إدارة رموز API لتطبيقات سطح المكتب والتكاملات الخارجية."
+
+msgid "admin.apiTokens.createToken"
+msgstr "إنشاء رمز"
+
+msgid "admin.apiTokens.apiDisabled"
+msgstr "واجهة API REST معطّلة حالياً. عيّن ESCALATED_API_ENABLED=true في ملف .env لتفعيلها."
+
+msgid "admin.apiTokens.tokenCreated"
+msgstr "تم إنشاء الرمز! انسخه الآن — لن يُعرض مرة أخرى."
+
+msgid "admin.apiTokens.newToken"
+msgstr "رمز API جديد"
+
+msgid "admin.apiTokens.tokenName"
+msgstr "اسم الرمز"
+
+msgid "admin.apiTokens.tokenNamePlaceholder"
+msgstr "مثلاً تطبيق سطح المكتب - حاسوب العمل"
+
+msgid "admin.apiTokens.user"
+msgstr "المستخدم"
+
+msgid "admin.apiTokens.selectUser"
+msgstr "اختر المستخدم..."
+
+msgid "admin.apiTokens.abilities"
+msgstr "الصلاحيات"
+
+msgid "admin.apiTokens.expiresIn"
+msgstr "ينتهي خلال (أيام)"
+
+msgid "admin.apiTokens.noExpiration"
+msgstr "اتركه فارغاً بدون انتهاء صلاحية"
+
+msgid "admin.apiTokens.lastUsed"
+msgstr "آخر استخدام"
+
+msgid "admin.apiTokens.expires"
+msgstr "ينتهي"
+
+msgid "admin.apiTokens.never"
+msgstr "أبداً"
+
+msgid "admin.apiTokens.expired"
+msgstr "منتهي الصلاحية"
+
+msgid "admin.apiTokens.revoke"
+msgstr "إلغاء"
+
+msgid "admin.apiTokens.noTokens"
+msgstr "لم يتم إنشاء رموز API بعد."
+
+msgid "admin.apiTokens.confirmRevoke"
+msgstr "هل أنت متأكد من إلغاء هذا الرمز؟ لا يمكن التراجع عن هذا."
+
+msgid "admin.plugins.title"
+msgstr "الإضافات"
+
+msgid "admin.plugins.upload"
+msgstr "رفع إضافة"
+
+msgid "admin.plugins.pluginZip"
+msgstr "ملف ZIP الإضافة"
+
+msgid "admin.plugins.installed"
+msgstr "الإضافات المثبتة"
+
+msgid "admin.plugins.noPlugins"
+msgstr "لا توجد إضافات مثبتة"
+
+msgid "admin.plugins.noPluginsAlt"
+msgstr "لا توجد إضافات مثبتة بعد."
+
+msgid "admin.plugins.noPluginsDesc"
+msgstr "ارفع ملف ZIP لإضافة لتوسيع Escalated بوظائف مخصصة."
+
+msgid "admin.plugins.active"
+msgstr "نشط"
+
+msgid "admin.plugins.inactive"
+msgstr "غير نشط"
+
+msgid "admin.plugins.installedDate"
+msgstr "تم التثبيت {date}"
+
+msgid "admin.plugins.menuItems"
+msgstr "{count} عنصر قائمة"
+
+msgid "admin.plugins.widgets"
+msgstr "{count} ودجة"
+
+msgid "admin.plugins.pageComponents"
+msgstr "{count} مكون صفحة"
+
+msgid "admin.plugins.confirmDelete"
+msgstr "هل أنت متأكد من حذف هذه الإضافة؟ لا يمكن التراجع عن هذا."
+
+msgid "admin.cannedResponse.created"
+msgstr "تم إنشاء الرد الجاهز."
+
+msgid "admin.cannedResponse.updated"
+msgstr "تم تحديث الرد الجاهز."
+
+msgid "admin.cannedResponse.deleted"
+msgstr "تم حذف الرد الجاهز."
+
+msgid "admin.department.created"
+msgstr "تم إنشاء القسم."
+
+msgid "admin.department.updated"
+msgstr "تم تحديث القسم."
+
+msgid "admin.department.deleted"
+msgstr "تم حذف القسم."
+
+msgid "admin.tag.created"
+msgstr "تم إنشاء الوسم."
+
+msgid "admin.tag.updated"
+msgstr "تم تحديث الوسم."
+
+msgid "admin.tag.deleted"
+msgstr "تم حذف الوسم."
+
+msgid "admin.macro.created"
+msgstr "تم إنشاء الماكرو."
+
+msgid "admin.macro.updated"
+msgstr "تم تحديث الماكرو."
+
+msgid "admin.macro.deleted"
+msgstr "تم حذف الماكرو."
+
+msgid "admin.escalationRule.created"
+msgstr "تم إنشاء قاعدة التصعيد."
+
+msgid "admin.escalationRule.updated"
+msgstr "تم تحديث قاعدة التصعيد."
+
+msgid "admin.escalationRule.deleted"
+msgstr "تم حذف قاعدة التصعيد."
+
+msgid "admin.slaPolicy.created"
+msgstr "تم إنشاء سياسة SLA."
+
+msgid "admin.slaPolicy.updated"
+msgstr "تم تحديث سياسة SLA."
+
+msgid "admin.slaPolicy.deleted"
+msgstr "تم حذف سياسة SLA."
+
+msgid "admin.plugin.uploaded"
+msgstr "تم رفع الإضافة بنجاح. يمكنك الآن تفعيلها."
+
+msgid "admin.plugin.uploadFailed"
+msgstr "فشل رفع الإضافة: {error}"
+
+msgid "admin.plugin.activated"
+msgstr "تم تفعيل الإضافة بنجاح."
+
+msgid "admin.plugin.activateFailed"
+msgstr "فشل تفعيل الإضافة: {error}"
+
+msgid "admin.plugin.deactivated"
+msgstr "تم تعطيل الإضافة بنجاح."
+
+msgid "admin.plugin.deactivateFailed"
+msgstr "فشل تعطيل الإضافة: {error}"
+
+msgid "admin.plugin.composerDelete"
+msgstr "لا يمكن حذف إضافات Composer. قم بإزالة الحزمة عبر Composer بدلاً من ذلك."
+
+msgid "admin.plugin.deleted"
+msgstr "تم حذف الإضافة بنجاح."
+
+msgid "admin.plugin.deleteFailed"
+msgstr "فشل حذف الإضافة: {error}"
+
+msgid "admin.departmentCreated"
+msgstr "تم إنشاء القسم."
+
+msgid "admin.departmentUpdated"
+msgstr "تم تحديث القسم."
+
+msgid "admin.departmentDeleted"
+msgstr "تم حذف القسم."
+
+msgid "admin.slaPolicyCreated"
+msgstr "تم إنشاء سياسة SLA."
+
+msgid "admin.slaPolicyUpdated"
+msgstr "تم تحديث سياسة SLA."
+
+msgid "admin.slaPolicyDeleted"
+msgstr "تم حذف سياسة SLA."
+
+msgid "admin.ruleCreated"
+msgstr "تم إنشاء القاعدة."
+
+msgid "admin.ruleUpdated"
+msgstr "تم تحديث القاعدة."
+
+msgid "admin.ruleDeleted"
+msgstr "تم حذف القاعدة."
+
+msgid "admin.cannedResponseCreated"
+msgstr "تم إنشاء الرد الجاهز."
+
+msgid "admin.cannedResponseUpdated"
+msgstr "تم تحديث الرد الجاهز."
+
+msgid "admin.cannedResponseDeleted"
+msgstr "تم حذف الرد الجاهز."
+
+msgid "admin.macroCreated"
+msgstr "تم إنشاء الماكرو."
+
+msgid "admin.macroUpdated"
+msgstr "تم تحديث الماكرو."
+
+msgid "admin.macroDeleted"
+msgstr "تم حذف الماكرو."
+
+msgid "admin.tagCreated"
+msgstr "تم إنشاء الوسم."
+
+msgid "admin.tagUpdated"
+msgstr "تم تحديث الوسم."
+
+msgid "admin.tagDeleted"
+msgstr "تم حذف الوسم."
+
+msgid "admin.settingsUpdated"
+msgstr "تم تحديث الإعدادات."
+
+msgid "import.title"
+msgstr "استيراد البيانات"
+
+msgid "import.description"
+msgstr "نقل التذاكر وجهات الاتصال والسجل من منصة دعم أخرى."
+
+msgid "import.noAdapters"
+msgstr "لا توجد محولات استيراد مثبتة."
+
+msgid "import.connect"
+msgstr "الاتصال بـ {platform}"
+
+msgid "import.testConnection"
+msgstr "اختبار الاتصال"
+
+msgid "import.testing"
+msgstr "جاري الاختبار..."
+
+msgid "import.connected"
+msgstr "تم الاتصال بنجاح"
+
+msgid "import.fieldMapping"
+msgstr "تعيين الحقول"
+
+msgid "import.skipEntity"
+msgstr "تخطي استيراد {type}"
+
+msgid "import.review"
+msgstr "مراجعة الاستيراد"
+
+msgid "import.start"
+msgstr "بدء الاستيراد"
+
+msgid "import.starting"
+msgstr "جاري البدء..."
+
+msgid "import.progress"
+msgstr "تقدم الاستيراد"
+
+msgid "import.pause"
+msgstr "إيقاف مؤقت"
+
+msgid "import.resume"
+msgstr "استئناف"
+
+msgid "import.cancel"
+msgstr "إلغاء"
+
+msgid "import.paused"
+msgstr "تم إيقاف الاستيراد مؤقتاً."
+
+msgid "import.resumed"
+msgstr "تم استئناف الاستيراد."
+
+msgid "import.cancelled"
+msgstr "تم إلغاء الاستيراد."
+
+msgid "import.completed"
+msgstr "تم الاستيراد بنجاح."
+
+msgid "import.history"
+msgstr "سجل الاستيراد"
+
+msgid "import.suppressionNotice"
+msgstr "يتم تعليق الإشعارات والأتمتة أثناء الاستيراد."
+
+msgid "import.recentErrors"
+msgstr "الأخطاء الأخيرة"
+
+msgid "agent.dashboard"
+msgstr "لوحة تحكم الوكيل"
+
+msgid "agent.openTickets"
+msgstr "التذاكر المفتوحة"
+
+msgid "agent.myAssigned"
+msgstr "المسندة إلي"
+
+msgid "agent.unassigned"
+msgstr "غير مسندة"
+
+msgid "agent.slaBreached"
+msgstr "تم خرق SLA"
+
+msgid "agent.resolvedToday"
+msgstr "تم حلها اليوم"
+
+msgid "agent.needsAttention"
+msgstr "تحتاج اهتمام"
+
+msgid "agent.slaBreaching"
+msgstr "خرق SLA"
+
+msgid "agent.unassignedUrgent"
+msgstr "عاجلة غير مسندة"
+
+msgid "agent.recentTickets"
+msgstr "التذاكر الأخيرة"
+
+msgid "agent.noRecentTickets"
+msgstr "لا توجد تذاكر أخيرة"
+
+msgid "agent.myPerformance"
+msgstr "أدائي"
+
+msgid "agent.resolvedThisWeek"
+msgstr "تم حلها هذا الأسبوع"
+
+msgid "guest.submitTitle"
+msgstr "إرسال تذكرة"
+
+msgid "guest.submitHeading"
+msgstr "إرسال تذكرة دعم"
+
+msgid "guest.submitDesc"
+msgstr "لا حاجة لحساب. سنمنحك رابطاً لتتبع تذكرتك."
+
+msgid "guest.signInLink"
+msgstr "لديك حساب بالفعل؟ سجّل الدخول"
+
+msgid "guest.yourName"
+msgstr "اسمك"
+
+msgid "guest.emailAddress"
+msgstr "البريد الإلكتروني"
+
+msgid "guest.bookmarkTitle"
+msgstr "احفظ هذه الصفحة"
+
+msgid "guest.bookmarkDesc"
+msgstr "هذا رابطك الخاص لعرض تذكرتك والرد عليها."
+
+msgid "guest.copyLink"
+msgstr "نسخ الرابط"
+
+msgid "guest.writeReply"
+msgstr "اكتب ردك..."
+
+msgid "guest.created"
+msgstr "تم إنشاء التذكرة. احفظ هذا الرابط للتحقق من حالة تذكرتك."
+
+msgid "guest.ticketClosed"
+msgstr "هذه التذكرة مغلقة."
+
+msgid "guest.replySent"
+msgstr "تم إرسال الرد."
+
+msgid "customer.replies"
+msgstr "الردود"
+
+msgid "customer.reply"
+msgstr "رد"
+
+msgid "chat.live"
+msgstr "مباشر"
+
+msgid "chat.chatWithUs"
+msgstr "تحدث معنا"
+
+msgid "chat.startChat"
+msgstr "بدء المحادثة"
+
+msgid "chat.endChat"
+msgstr "إنهاء المحادثة"
+
+msgid "chat.endConfirm"
+msgstr "إنهاء هذه المحادثة؟"
+
+msgid "chat.transfer"
+msgstr "تحويل"
+
+msgid "chat.typing"
+msgstr "{name} يكتب..."
+
+msgid "chat.chattingWith"
+msgstr "أنت تتحدث مع {name}"
+
+msgid "chat.noAgents"
+msgstr "لا يوجد وكلاء متاحون"
+
+msgid "chat.queuePosition"
+msgstr "أنت رقم #{position} في الانتظار"
+
+msgid "chat.placeholder"
+msgstr "اكتب رسالة..."
+
+msgid "chat.note"
+msgstr "ملاحظة"
+
+msgid "chat.emptyState"
+msgstr "بدأت المحادثة — في انتظار الرسائل"
+
+msgid "chat.newMessages"
+msgstr "رسائل جديدة"
+
+msgid "chat.activeChats"
+msgstr "المحادثات النشطة"
+
+msgid "chat.noActiveChats"
+msgstr "لا توجد محادثات نشطة"
+
+msgid "chat.openPanel"
+msgstr "فتح لوحة المحادثة"
+
+msgid "chat.closePanel"
+msgstr "إغلاق لوحة المحادثة"
+
+msgid "chat.noChatsWaiting"
+msgstr "لا توجد محادثات في الانتظار"
+
+msgid "chat.customer"
+msgstr "العميل"
+
+msgid "chat.department"
+msgstr "القسم"
+
+msgid "chat.firstMessage"
+msgstr "الرسالة الأولى"
+
+msgid "chat.waitTime"
+msgstr "وقت الانتظار"
+
+msgid "chat.accept"
+msgstr "قبول"
+
+msgid "chat.agents"
+msgstr "الوكلاء"
+
+msgid "chat.departments"
+msgstr "الأقسام"
+
+msgid "chat.howWasExperience"
+msgstr "كيف كانت تجربتك؟"
+
+msgid "chat.startNewChat"
+msgstr "بدء محادثة جديدة"
+
+msgid "chat.close"
+msgstr "إغلاق"
+
+msgid "chat.chatEnded"
+msgstr "انتهت المحادثة"
+
+msgid "chat.thankYou"
+msgstr "شكراً لملاحظاتك!"
+
+msgid "chat.submitRating"
+msgstr "إرسال التقييم"
+
+msgid "chat.liveChats"
+msgstr "المحادثات المباشرة"
+
+msgid "common.changeStatus"
+msgstr "تغيير الحالة..."
+
+msgid "common.changePriority"
+msgstr "تغيير الأولوية..."
+
+msgid "common.kb"
+msgstr "ك.ب"
+
+msgid "common.upload"
+msgstr "رفع"
+
+msgid "common.accessDenied"
+msgstr "تم رفض الوصول."
+
+msgid "common.notFound"
+msgstr "لم يتم العثور على المورد المطلوب."
+
+msgid "workflows.title"
+msgstr "سير العمل"
+
+msgid "workflows.create"
+msgstr "إنشاء سير عمل"
+
+msgid "workflows.edit"
+msgstr "تعديل سير العمل"
+
+msgid "workflows.deleteConfirm"
+msgstr "حذف سير العمل هذا؟ لا يمكن التراجع عن هذا."
+
+msgid "workflows.noWorkflows"
+msgstr "لا توجد سير عمل بعد"
+
+msgid "workflows.noWorkflowsDesc"
+msgstr "أنشئ أتمتة قائمة على الأحداث مع شروط وإجراءات"
+
+msgid "workflows.name"
+msgstr "اسم سير العمل"
+
+msgid "workflows.description"
+msgstr "الوصف"
+
+msgid "workflows.active"
+msgstr "نشط"
+
+msgid "workflows.save"
+msgstr "حفظ سير العمل"
+
+msgid "workflows.cancel"
+msgstr "إلغاء"
+
+msgid "workflows.viewLogs"
+msgstr "عرض السجلات"
+
+msgid "workflows.lastTriggered"
+msgstr "آخر تشغيل"
+
+msgid "workflows.triggerCount"
+msgstr "عمليات التشغيل"
+
+msgid "workflows.trigger.title"
+msgstr "حدث التشغيل"
+
+msgid "workflows.trigger.description"
+msgstr "عندما يحدث هذا..."
+
+msgid "workflows.trigger.ticketCreated"
+msgstr "إنشاء تذكرة"
+
+msgid "workflows.trigger.ticketCreatedDesc"
+msgstr "عند إرسال تذكرة جديدة"
+
+msgid "workflows.trigger.ticketUpdated"
+msgstr "تحديث تذكرة"
+
+msgid "workflows.trigger.ticketUpdatedDesc"
+msgstr "عند تعديل أي حقل في التذكرة"
+
+msgid "workflows.trigger.replyAdded"
+msgstr "إضافة رد"
+
+msgid "workflows.trigger.replyAddedDesc"
+msgstr "عند نشر رد على تذكرة"
+
+msgid "workflows.trigger.statusChanged"
+msgstr "تغيير الحالة"
+
+msgid "workflows.trigger.statusChangedDesc"
+msgstr "عند تحديث حالة التذكرة"
+
+msgid "workflows.trigger.ticketAssigned"
+msgstr "إسناد التذكرة"
+
+msgid "workflows.trigger.ticketAssignedDesc"
+msgstr "عند إسناد تذكرة لوكيل"
+
+msgid "workflows.trigger.ticketEscalated"
+msgstr "تصعيد التذكرة"
+
+msgid "workflows.trigger.ticketEscalatedDesc"
+msgstr "عند تصعيد تذكرة"
+
+msgid "workflows.trigger.slaBreached"
+msgstr "خرق SLA"
+
+msgid "workflows.trigger.slaBreachedDesc"
+msgstr "عند خرق هدف SLA"
+
+msgid "workflows.trigger.slaWarning"
+msgstr "تحذير SLA"
+
+msgid "workflows.trigger.slaWarningDesc"
+msgstr "عند اقتراب هدف SLA"
+
+msgid "workflows.trigger.chatStarted"
+msgstr "بدء المحادثة"
+
+msgid "workflows.trigger.chatStartedDesc"
+msgstr "عند بدء جلسة محادثة مباشرة"
+
+msgid "workflows.trigger.chatEnded"
+msgstr "انتهاء المحادثة"
+
+msgid "workflows.trigger.chatEndedDesc"
+msgstr "عند انتهاء جلسة محادثة مباشرة"
+
+msgid "workflows.conditions.title"
+msgstr "الشروط"
+
+msgid "workflows.conditions.description"
+msgstr "فقط إذا تحققت هذه الشروط..."
+
+msgid "workflows.conditions.optional"
+msgstr "اختياري"
+
+msgid "workflows.conditions.matchAll"
+msgstr "جميع الشروط (و)"
+
+msgid "workflows.conditions.matchAny"
+msgstr "أي شرط (أو)"
+
+msgid "workflows.conditions.addCondition"
+msgstr "إضافة شرط"
+
+msgid "workflows.conditions.preview"
+msgstr "معاينة"
+
+msgid "workflows.conditions.field.status"
+msgstr "الحالة"
+
+msgid "workflows.conditions.field.priority"
+msgstr "الأولوية"
+
+msgid "workflows.conditions.field.type"
+msgstr "النوع"
+
+msgid "workflows.conditions.field.channel"
+msgstr "القناة"
+
+msgid "workflows.conditions.field.tags"
+msgstr "العلامات"
+
+msgid "workflows.conditions.field.department"
+msgstr "القسم"
+
+msgid "workflows.conditions.field.assignedAgent"
+msgstr "الوكيل المسند"
+
+msgid "workflows.conditions.field.subject"
+msgstr "الموضوع"
+
+msgid "workflows.conditions.field.hoursSinceCreated"
+msgstr "الساعات منذ الإنشاء"
+
+msgid "workflows.conditions.field.hoursSinceUpdated"
+msgstr "الساعات منذ التحديث"
+
+msgid "workflows.conditions.field.replyCount"
+msgstr "عدد الردود"
+
+msgid "workflows.conditions.field.customField"
+msgstr "حقل مخصص"
+
+msgid "workflows.conditions.operator.equals"
+msgstr "يساوي"
+
+msgid "workflows.conditions.operator.notEquals"
+msgstr "لا يساوي"
+
+msgid "workflows.conditions.operator.contains"
+msgstr "يحتوي على"
+
+msgid "workflows.conditions.operator.in"
+msgstr "ضمن"
+
+msgid "workflows.conditions.operator.greaterThan"
+msgstr "أكبر من"
+
+msgid "workflows.conditions.operator.lessThan"
+msgstr "أقل من"
+
+msgid "workflows.conditions.operator.isEmpty"
+msgstr "فارغ"
+
+msgid "workflows.conditions.operator.matches"
+msgstr "يطابق"
+
+msgid "workflows.actions.title"
+msgstr "الإجراءات"
+
+msgid "workflows.actions.description"
+msgstr "ثم نفّذ هذا..."
+
+msgid "workflows.actions.addAction"
+msgstr "إضافة إجراء"
+
+msgid "workflows.actions.assignAgent"
+msgstr "إسناد لوكيل"
+
+msgid "workflows.actions.assignAgentDesc"
+msgstr "إسناد التذكرة لوكيل"
+
+msgid "workflows.actions.changeStatus"
+msgstr "تغيير الحالة"
+
+msgid "workflows.actions.changeStatusDesc"
+msgstr "تحديث حالة التذكرة"
+
+msgid "workflows.actions.changePriority"
+msgstr "تغيير الأولوية"
+
+msgid "workflows.actions.changePriorityDesc"
+msgstr "تحديث أولوية التذكرة"
+
+msgid "workflows.actions.addTag"
+msgstr "إضافة علامة"
+
+msgid "workflows.actions.addTagDesc"
+msgstr "إضافة علامة للتذكرة"
+
+msgid "workflows.actions.removeTag"
+msgstr "إزالة علامة"
+
+msgid "workflows.actions.removeTagDesc"
+msgstr "إزالة علامة من التذكرة"
+
+msgid "workflows.actions.moveDepartment"
+msgstr "نقل القسم"
+
+msgid "workflows.actions.moveDepartmentDesc"
+msgstr "نقل التذكرة إلى قسم آخر"
+
+msgid "workflows.actions.addNote"
+msgstr "إضافة ملاحظة داخلية"
+
+msgid "workflows.actions.addNoteDesc"
+msgstr "إضافة ملاحظة داخلية للتذكرة"
+
+msgid "workflows.actions.sendEmail"
+msgstr "إرسال إشعار بريد إلكتروني"
+
+msgid "workflows.actions.sendEmailDesc"
+msgstr "إرسال إشعار عبر البريد الإلكتروني"
+
+msgid "workflows.actions.sendWebhook"
+msgstr "إرسال Webhook"
+
+msgid "workflows.actions.sendWebhookDesc"
+msgstr "إرسال بيانات إلى رابط خارجي"
+
+msgid "workflows.actions.delay"
+msgstr "تأخير"
+
+msgid "workflows.actions.delayDesc"
+msgstr "الانتظار قبل المتابعة"
+
+msgid "workflows.actions.delayMessage"
+msgstr "انتظر {duration} {unit}، ثم تابع..."
+
+msgid "workflows.actions.applyMacro"
+msgstr "تطبيق ماكرو"
+
+msgid "workflows.actions.applyMacroDesc"
+msgstr "تطبيق ماكرو موجود"
+
+msgid "workflows.actions.closeTicket"
+msgstr "إغلاق التذكرة"
+
+msgid "workflows.actions.closeTicketDesc"
+msgstr "إغلاق التذكرة فوراً"
+
+msgid "workflows.actions.snooze"
+msgstr "تأجيل"
+
+msgid "workflows.actions.snoozeDesc"
+msgstr "تأجيل التذكرة لفترة"
+
+msgid "workflows.actions.specificAgent"
+msgstr "وكيل محدد"
+
+msgid "workflows.actions.leastBusy"
+msgstr "الوكيل الأقل انشغالاً"
+
+msgid "workflows.actions.roundRobin"
+msgstr "توزيع دوري"
+
+msgid "workflows.actions.notConfigured"
+msgstr "غير مُعدّ"
+
+msgid "workflows.logs.title"
+msgstr "سجلات تنفيذ سير العمل"
+
+msgid "workflows.logs.description"
+msgstr "تتبع تنفيذ سير العمل وتصحيح المشكلات"
+
+msgid "workflows.logs.noLogs"
+msgstr "لا توجد سجلات تنفيذ بعد"
+
+msgid "workflows.logs.noLogsDesc"
+msgstr "تظهر السجلات عند تشغيل سير العمل"
+
+msgid "workflows.logs.timestamp"
+msgstr "الوقت"
+
+msgid "workflows.logs.workflow"
+msgstr "سير العمل"
+
+msgid "workflows.logs.ticket"
+msgstr "التذكرة"
+
+msgid "workflows.logs.event"
+msgstr "الحدث"
+
+msgid "workflows.logs.matched"
+msgstr "مطابق"
+
+msgid "workflows.logs.actionsExecuted"
+msgstr "الإجراءات"
+
+msgid "workflows.logs.duration"
+msgstr "المدة"
+
+msgid "workflows.logs.status"
+msgstr "الحالة"
+
+msgid "workflows.logs.success"
+msgstr "نجاح"
+
+msgid "workflows.logs.failed"
+msgstr "فشل"
+
+msgid "workflows.logs.skipped"
+msgstr "تم التخطي"
+
+msgid "workflows.logs.actionDetails"
+msgstr "تنفيذ الإجراءات خطوة بخطوة"
+
+msgid "workflows.logs.allWorkflows"
+msgstr "جميع سير العمل"
+
+msgid "workflows.logs.from"
+msgstr "من"
+
+msgid "workflows.logs.to"
+msgstr "إلى"
+
+msgid "workflows.variables.insert"
+msgstr "إدراج متغير"
+
+msgid "workflows.variables.ticketReference"
+msgstr "مرجع التذكرة"
+
+msgid "workflows.variables.ticketSubject"
+msgstr "موضوع التذكرة"
+
+msgid "workflows.variables.ticketStatus"
+msgstr "حالة التذكرة"
+
+msgid "workflows.variables.agentName"
+msgstr "اسم الوكيل"
+
+msgid "workflows.variables.requesterName"
+msgstr "اسم مقدم الطلب"
+
+msgid "workflows.variables.requesterEmail"
+msgstr "بريد مقدم الطلب"
+
+msgid "workflows.variables.departmentName"
+msgstr "اسم القسم"
+
+msgid "workflows.builder.step"
+msgstr "خطوة"
+
+msgid "workflows.builder.triggerStep"
+msgstr "الخطوة 1: حدث التشغيل"
+
+msgid "workflows.builder.conditionsStep"
+msgstr "الخطوة 2: الشروط"
+
+msgid "workflows.builder.actionsStep"
+msgstr "الخطوة 3: الإجراءات"
+
+msgid "workflows.builder.saving"
+msgstr "جاري الحفظ..."
+
+msgid "workflows.builder.update"
+msgstr "تحديث سير العمل"
+
+msgid "workflows.builder.create"
+msgstr "إنشاء سير العمل"
+
+msgid "commands.install.installing"
+msgstr "جارٍ تثبيت Escalated..."
+
+msgid "commands.install.publishingConfig"
+msgstr "نشر الإعدادات"
+
+msgid "commands.install.publishingMigrations"
+msgstr "نشر عمليات الترحيل"
+
+msgid "commands.install.migrationsAlreadyPublished"
+msgstr "{count} ملف ترحيل من Escalated منشور بالفعل؛ تم التخطي. أعد التشغيل مع --force لاستبدالها."
+
+msgid "commands.install.publishingViews"
+msgstr "نشر قوالب البريد الإلكتروني"
+
+msgid "commands.install.installingNpm"
+msgstr "تثبيت حزمة npm"
+
+msgid "commands.install.npmManual"
+msgstr "تعذّر تثبيت حزمة npm تلقائيًا. قم بتشغيل الأمر يدويًا:"
+
+msgid "commands.install.userModelNotFound"
+msgstr "تعذّر العثور على نموذج المستخدم. ستحتاج إلى ضبطه يدويًا."
+
+msgid "commands.install.userModelAlreadyConfigured"
+msgstr "نموذج المستخدم ينفّذ بالفعل واجهة Ticketable."
+
+msgid "commands.install.userModelConfirm"
+msgstr "هل تريد ضبط نموذج المستخدم تلقائيًا لتنفيذ واجهة Ticketable؟"
+
+msgid "commands.install.userModelConfigured"
+msgstr "تم ضبط نموذج المستخدم بنجاح."
+
+msgid "commands.install.userModelFailed"
+msgstr "تعذّر ضبط نموذج المستخدم تلقائيًا: {error}"
+
+msgid "commands.install.success"
+msgstr "تم تثبيت Escalated بنجاح!"
+
+msgid "commands.install.nextSteps"
+msgstr "الخطوات التالية:"
+
+msgid "commands.install.stepTicketable"
+msgstr "نفّذ واجهة Ticketable على نموذج المستخدم الخاص بك:"
+
+msgid "commands.install.stepGates"
+msgstr "حدّد بوابات التفويض في AuthServiceProvider الخاص بك:"
+
+msgid "commands.install.stepMigrate"
+msgstr "شغّل عمليات الترحيل:"
+
+msgid "commands.install.stepTailwind"
+msgstr "أضف صفحات Escalated إلى إعدادات محتوى Tailwind الخاصة بك:"
+
+msgid "commands.install.stepInertia"
+msgstr "أضف محلل صفحات Inertia والإضافة في ملف app.ts الخاص بك:"
+
+msgid "commands.install.stepVisit"
+msgstr "قم بزيارة /support لرؤية بوابة العملاء"
+
+msgid "commands.install.createInitializer"
+msgstr "config/initializers/escalated.rb"
+
+msgid "commands.install.copyMigrations"
+msgstr "تم نسخ عمليات الترحيل. قم بتشغيل `rails db{migrate}` لتطبيقها."
+
+msgid "commands.install.injectUserModel"
+msgstr "app/models/user.rb (طرق أدوار Escalated)"
+
+msgid "commands.install.injectSkip"
+msgstr "تعذّر الحقن في نموذج المستخدم: {error}"
+
+msgid "commands.install.injectManual"
+msgstr "أضف هذه الطرق إلى نموذج المستخدم يدويًا:"
+
+msgid "commands.install.injectAgent"
+msgstr "escalated_agent? - تُرجع true لوكلاء الدعم"
+
+msgid "commands.install.injectAdmin"
+msgstr "escalated_admin? - تُرجع true لمسؤولي الدعم"
+
+msgid "commands.install.injectAgentsScope"
+msgstr "self.escalated_agents - نطاق يُرجع جميع الوكلاء"
+
+msgid "commands.install.step1"
+msgstr "1. قم بتشغيل `rails db{migrate}`"
+
+msgid "commands.install.step2"
+msgstr "2. قم بتهيئة config/initializers/escalated.rb"
+
+msgid "commands.install.step3"
+msgstr "3. أضف طرق escalated_agent? و escalated_admin? إلى نموذج المستخدم"
+
+msgid "commands.install.step4"
+msgstr "4. ثبّت مكونات Vue: انسخ من vendor/escalated/resources/js/"
+
+msgid "commands.install.step5"
+msgstr "5. قم بإعداد محلل صفحات Inertia ليشمل صفحات Escalated"
+
+msgid "commands.install.runningMigrations"
+msgstr "تشغيل الترحيلات"
+
+msgid "commands.install.seedingPermissions"
+msgstr "زرع الأذونات والأدوار"
+
+msgid "commands.install.runMigrationsConfirm"
+msgstr "هل تريد تشغيل الترحيلات وزرع الأذونات الافتراضية الآن؟"
+
+msgid "commands.install.stepSeed"
+msgstr "زرع الأذونات والأدوار الافتراضية:"
+
+msgid "commands.guestNotEnabled"
+msgstr "تذاكر الضيوف غير مفعّلة."
+
+msgid "commands.ticketNotFound"
+msgstr "التذكرة غير موجودة."
+
+msgid "emails.newTicket.heading"
+msgstr "تذكرة دعم جديدة"
+
+msgid "emails.newTicket.intro"
+msgstr "تم إنشاء تذكرة دعم جديدة."
+
+msgid "emails.newTicket.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.newTicket.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.newTicket.priorityLabel"
+msgstr "الأولوية"
+
+msgid "emails.newTicket.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.newTicket.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.assigned.heading"
+msgstr "تم تعيين تذكرة لك"
+
+msgid "emails.assigned.intro"
+msgstr "تم تعيين تذكرة دعم لك."
+
+msgid "emails.assigned.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.assigned.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.assigned.priorityLabel"
+msgstr "الأولوية"
+
+msgid "emails.assigned.statusLabel"
+msgstr "الحالة"
+
+msgid "emails.assigned.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.assigned.closing"
+msgstr "يرجى المراجعة والرد في أقرب وقت ممكن."
+
+msgid "emails.assigned.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.reply.heading"
+msgstr "رد جديد على {reference}"
+
+msgid "emails.reply.intro"
+msgstr "تمت إضافة رد جديد إلى تذكرة الدعم الخاصة بك."
+
+msgid "emails.reply.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.reply.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.reply.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.resolved.heading"
+msgstr "تم حل التذكرة"
+
+msgid "emails.resolved.intro"
+msgstr "تم حل تذكرة الدعم الخاصة بك."
+
+msgid "emails.resolved.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.resolved.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.resolved.reopenNote"
+msgstr "إذا كنت بحاجة إلى مزيد من المساعدة، يمكنك إعادة فتح هذه التذكرة."
+
+msgid "emails.resolved.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.resolved.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.statusChanged.heading"
+msgstr "تم تحديث حالة التذكرة"
+
+msgid "emails.statusChanged.intro"
+msgstr "تم تحديث حالة تذكرة الدعم الخاصة بك."
+
+msgid "emails.statusChanged.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.statusChanged.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.statusChanged.previousStatusLabel"
+msgstr "الحالة السابقة"
+
+msgid "emails.statusChanged.newStatusLabel"
+msgstr "الحالة الجديدة"
+
+msgid "emails.statusChanged.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.statusChanged.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.escalated.heading"
+msgstr "تم تصعيد التذكرة"
+
+msgid "emails.escalated.intro"
+msgstr "تم تصعيد تذكرة دعم."
+
+msgid "emails.escalated.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.escalated.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.escalated.priorityLabel"
+msgstr "الأولوية"
+
+msgid "emails.escalated.reasonLabel"
+msgstr "السبب"
+
+msgid "emails.escalated.attentionNote"
+msgstr "يتطلب الأمر اهتمامًا فوريًا."
+
+msgid "emails.escalated.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.escalated.thanks"
+msgstr "شكرًا لك"
+
+msgid "emails.slaBreach.heading"
+msgstr "تنبيه انتهاك SLA"
+
+msgid "emails.slaBreach.intro"
+msgstr "تم انتهاك SLA في تذكرة دعم."
+
+msgid "emails.slaBreach.referenceLabel"
+msgstr "المرجع"
+
+msgid "emails.slaBreach.subjectLabel"
+msgstr "الموضوع"
+
+msgid "emails.slaBreach.priorityLabel"
+msgstr "الأولوية"
+
+msgid "emails.slaBreach.breachTypeLabel"
+msgstr "نوع الانتهاك"
+
+msgid "emails.slaBreach.firstResponse"
+msgstr "الرد الأول"
+
+msgid "emails.slaBreach.resolution"
+msgstr "الحل"
+
+msgid "emails.slaBreach.attentionNote"
+msgstr "يتطلب الأمر اهتمامًا فوريًا."
+
+msgid "emails.slaBreach.button"
+msgstr "عرض التذكرة"
+
+msgid "emails.slaBreach.thanks"
+msgstr "شكرًا لك"
+
+msgid "activityType.statusChanged"
+msgstr "تم تغيير الحالة"
+
+msgid "activityType.assigned"
+msgstr "تم التعيين"
+
+msgid "activityType.unassigned"
+msgstr "تم إلغاء التعيين"
+
+msgid "activityType.priorityChanged"
+msgstr "تم تغيير الأولوية"
+
+msgid "activityType.tagAdded"
+msgstr "تمت إضافة وسم"
+
+msgid "activityType.tagRemoved"
+msgstr "تمت إزالة وسم"
+
+msgid "activityType.escalated"
+msgstr "تم التصعيد"
+
+msgid "activityType.slaBreached"
+msgstr "تم انتهاك SLA"
+
+msgid "activityType.replied"
+msgstr "تم الرد"
+
+msgid "activityType.noteAdded"
+msgstr "تمت إضافة ملاحظة"
+
+msgid "activityType.departmentChanged"
+msgstr "تم تغيير القسم"
+
+msgid "activityType.reopened"
+msgstr "أُعيد فتحه"
+
+msgid "activityType.resolved"
+msgstr "تم الحل"
+
+msgid "activityType.closed"
+msgstr "مغلق"
+
+msgid "activityType.snoozed"
+msgstr "مؤجَّل"
+
+msgid "activityType.unsnoozed"
+msgstr "تم إلغاء التأجيل"
+
+msgid "activityType.ticketSplit"
+msgstr "تم تقسيم التذكرة"
+
+msgid "cannedResponse.created"
+msgstr "تم إنشاء الرد الجاهز."
+
+msgid "cannedResponse.updated"
+msgstr "تم تحديث الرد الجاهز."
+
+msgid "cannedResponse.deleted"
+msgstr "تم حذف الرد الجاهز."
+
+msgid "department.created"
+msgstr "تم إنشاء القسم."
+
+msgid "department.updated"
+msgstr "تم تحديث القسم."
+
+msgid "department.deleted"
+msgstr "تم حذف القسم."
+
+msgid "tag.created"
+msgstr "تم إنشاء الوسم."
+
+msgid "tag.updated"
+msgstr "تم تحديث الوسم."
+
+msgid "tag.deleted"
+msgstr "تم حذف الوسم."
+
+msgid "escalationRule.created"
+msgstr "تم إنشاء القاعدة."
+
+msgid "escalationRule.updated"
+msgstr "تم تحديث القاعدة."
+
+msgid "escalationRule.deleted"
+msgstr "تم حذف القاعدة."
+
+msgid "slaPolicy.created"
+msgstr "تم إنشاء سياسة SLA."
+
+msgid "slaPolicy.updated"
+msgstr "تم تحديث سياسة SLA."
+
+msgid "slaPolicy.deleted"
+msgstr "تم حذف سياسة SLA."
+
+msgid "settings.updated"
+msgstr "تم تحديث الإعدادات."
+
+msgid "plugin.uploaded"
+msgstr "تم رفع الإضافة بنجاح. يمكنك الآن تفعيلها."
+
+msgid "plugin.uploadFailed"
+msgstr "فشل رفع الإضافة: {error}"
+
+msgid "plugin.activated"
+msgstr "تم تفعيل الإضافة بنجاح."
+
+msgid "plugin.activateFailed"
+msgstr "فشل تفعيل الإضافة: {error}"
+
+msgid "plugin.deactivated"
+msgstr "تم تعطيل الإضافة بنجاح."
+
+msgid "plugin.deactivateFailed"
+msgstr "فشل تعطيل الإضافة: {error}"
+
+msgid "plugin.composerDelete"
+msgstr "لا يمكن حذف إضافات Composer. قم بإزالة الحزمة عبر Composer بدلاً من ذلك."
+
+msgid "plugin.deleted"
+msgstr "تم حذف الإضافة بنجاح."
+
+msgid "plugin.deleteFailed"
+msgstr "فشل حذف الإضافة: {error}"
+
+msgid "middleware.notAdmin"
+msgstr "ليس لديك صلاحية كمسؤول دعم."
+
+msgid "middleware.notAgent"
+msgstr "ليس لديك صلاحية كوكيل دعم."
+
+msgid "middleware.notAuthorized"
+msgstr "ليس لديك صلاحية لتنفيذ هذا الإجراء."
+
+msgid "middleware.notFound"
+msgstr "لم يتم العثور على المورد المطلوب."
+
+msgid "inboundEmail.disabled"
+msgstr "البريد الإلكتروني الوارد معطّل."
+
+msgid "inboundEmail.unknownAdapter"
+msgstr "محوّل غير معروف."
+
+msgid "inboundEmail.invalidSignature"
+msgstr "توقيع غير صالح."
+
+msgid "inboundEmail.processingFailed"
+msgstr "فشلت المعالجة."
+
+msgid "notifications.newTicket.subject"
+msgstr "[{reference}] تذكرة جديدة: {subject}"
+
+msgid "notifications.newTicket.line1"
+msgstr "تم إنشاء تذكرة دعم جديدة."
+
+msgid "notifications.newTicket.subjectLine"
+msgstr "**الموضوع:** {subject}"
+
+msgid "notifications.newTicket.priorityLine"
+msgstr "**الأولوية:** {priority}"
+
+msgid "notifications.newTicket.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.newTicket.closing"
+msgstr "شكرًا لاستخدامك نظام الدعم الخاص بنا."
+
+msgid "notifications.ticketAssigned.subject"
+msgstr "[{reference}] تم تعيين تذكرة لك"
+
+msgid "notifications.ticketAssigned.line1"
+msgstr "تم تعيين تذكرة لك."
+
+msgid "notifications.ticketAssigned.subjectLine"
+msgstr "**الموضوع:** {subject}"
+
+msgid "notifications.ticketAssigned.priorityLine"
+msgstr "**الأولوية:** {priority}"
+
+msgid "notifications.ticketAssigned.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.ticketAssigned.closing"
+msgstr "يرجى المراجعة والرد في أقرب وقت ممكن."
+
+msgid "notifications.ticketReply.subject"
+msgstr "رد: [{reference}] {subject}"
+
+msgid "notifications.ticketReply.line1"
+msgstr "تمت إضافة رد جديد إلى تذكرتك."
+
+msgid "notifications.ticketReply.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.ticketReply.closing"
+msgstr "شكرًا لاستخدامك نظام الدعم الخاص بنا."
+
+msgid "notifications.ticketResolved.subject"
+msgstr "[{reference}] تم حل التذكرة"
+
+msgid "notifications.ticketResolved.line1"
+msgstr "تم حل تذكرة الدعم الخاصة بك."
+
+msgid "notifications.ticketResolved.subjectLine"
+msgstr "**الموضوع:** {subject}"
+
+msgid "notifications.ticketResolved.reopenLine"
+msgstr "إذا كنت بحاجة إلى مزيد من المساعدة، يمكنك إعادة فتح هذه التذكرة."
+
+msgid "notifications.ticketResolved.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.ticketResolved.closing"
+msgstr "شكرًا لاستخدامك نظام الدعم الخاص بنا."
+
+msgid "notifications.ticketStatusChanged.subject"
+msgstr "[{reference}] تم تحديث الحالة: {status}"
+
+msgid "notifications.ticketStatusChanged.line1"
+msgstr "تم تحديث حالة تذكرتك."
+
+msgid "notifications.ticketStatusChanged.fromLine"
+msgstr "**من:** {status}"
+
+msgid "notifications.ticketStatusChanged.toLine"
+msgstr "**إلى:** {status}"
+
+msgid "notifications.ticketStatusChanged.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.ticketStatusChanged.closing"
+msgstr "شكرًا لاستخدامك نظام الدعم الخاص بنا."
+
+msgid "notifications.slaBreach.subject"
+msgstr "[انتهاك SLA] [{reference}] تم انتهاك SLA {type}"
+
+msgid "notifications.slaBreach.typeFirstResponse"
+msgstr "الرد الأول"
+
+msgid "notifications.slaBreach.typeResolution"
+msgstr "الحل"
+
+msgid "notifications.slaBreach.line1"
+msgstr "تم انتهاك SLA في التذكرة {reference}."
+
+msgid "notifications.slaBreach.typeLine"
+msgstr "**النوع:** SLA {type}"
+
+msgid "notifications.slaBreach.subjectLine"
+msgstr "**الموضوع:** {subject}"
+
+msgid "notifications.slaBreach.priorityLine"
+msgstr "**الأولوية:** {priority}"
+
+msgid "notifications.slaBreach.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.slaBreach.closing"
+msgstr "يتطلب الأمر اهتمامًا فوريًا."
+
+msgid "notifications.ticketEscalated.subject"
+msgstr "[تصعيد] [{reference}] {subject}"
+
+msgid "notifications.ticketEscalated.line1"
+msgstr "تم تصعيد تذكرة."
+
+msgid "notifications.ticketEscalated.subjectLine"
+msgstr "**الموضوع:** {subject}"
+
+msgid "notifications.ticketEscalated.priorityLine"
+msgstr "**الأولوية:** {priority}"
+
+msgid "notifications.ticketEscalated.reasonLine"
+msgstr "**السبب:** {reason}"
+
+msgid "notifications.ticketEscalated.action"
+msgstr "عرض التذكرة"
+
+msgid "notifications.ticketEscalated.closing"
+msgstr "يتطلب الأمر اهتمامًا فوريًا."
+
+msgid "inbound.unknownAdapter"
+msgstr "محوّل غير معروف: {adapter}"
+
+msgid "inbound.verificationFailed"
+msgstr "فشل التحقق"
+
+msgid "inbound.internalError"
+msgstr "خطأ داخلي"
+
+msgid "inbound.disabled"
+msgstr "البريد الإلكتروني الوارد معطّل"
+
+msgid "inbound.invalidSignature"
+msgstr "توقيع غير صالح."
+
+msgid "inbound.processingFailed"
+msgstr "فشلت المعالجة."
+
+msgid "mailer.newTicket"
+msgstr "[{reference}] تذكرة جديدة: {subject}"
+
+msgid "mailer.reply"
+msgstr "رد: [{reference}] {subject}"
+
+msgid "mailer.assigned"
+msgstr "[{reference}] تم تعيين التذكرة: {subject}"
+
+msgid "mailer.statusUpdated"
+msgstr "[{reference}] تم تحديث الحالة: {status}"
+
+msgid "mailer.slaBreach"
+msgstr "[انتهاك SLA] [{reference}] {subject}"
+
+msgid "mailer.escalated"
+msgstr "[تصعيد] [{reference}] {subject}"
+
+msgid "mailer.resolved"
+msgstr "[{reference}] تم حل التذكرة: {subject}"
+
+msgid "validation.nameRequired"
+msgstr "الاسم مطلوب."
+
+msgid "validation.emailRequired"
+msgstr "البريد الإلكتروني مطلوب."
+
+msgid "validation.subjectRequired"
+msgstr "الموضوع مطلوب."
+
+msgid "validation.descriptionRequired"
+msgstr "الوصف مطلوب."
+
+msgid "filament.actions.applyMacro.label"
+msgstr "Apply Macro"
+
+msgid "filament.actions.applyMacro.macroField"
+msgstr "Macro"
+
+msgid "filament.actions.applyMacro.success"
+msgstr "Macro '{name}' applied successfully"
+
+msgid "filament.actions.assignTicket.label"
+msgstr "Assign"
+
+msgid "filament.actions.assignTicket.agentField"
+msgstr "Agent"
+
+msgid "filament.actions.assignTicket.success"
+msgstr "Ticket assigned successfully"
+
+msgid "filament.actions.changePriority.label"
+msgstr "Change Priority"
+
+msgid "filament.actions.changePriority.newPriorityField"
+msgstr "New Priority"
+
+msgid "filament.actions.changePriority.success"
+msgstr "Priority updated successfully"
+
+msgid "filament.actions.changeStatus.label"
+msgstr "Change Status"
+
+msgid "filament.actions.changeStatus.newStatusField"
+msgstr "New Status"
+
+msgid "filament.actions.changeStatus.success"
+msgstr "Status updated successfully"
+
+msgid "filament.actions.followTicket.follow"
+msgstr "Follow"
+
+msgid "filament.actions.followTicket.unfollow"
+msgstr "Unfollow"
+
+msgid "filament.actions.followTicket.nowFollowing"
+msgstr "Now following ticket"
+
+msgid "filament.actions.followTicket.unfollowed"
+msgstr "Unfollowed ticket"
+
+msgid "filament.actions.pinReply.pin"
+msgstr "Pin"
+
+msgid "filament.actions.pinReply.unpin"
+msgstr "Unpin"
+
+msgid "filament.actions.pinReply.pinned"
+msgstr "Reply pinned"
+
+msgid "filament.actions.pinReply.unpinned"
+msgstr "Reply unpinned"
+
+msgid "filament.pages.dashboard.title"
+msgstr "Support Dashboard"
+
+msgid "filament.pages.managePlugins.title"
+msgstr "Plugins"
+
+msgid "filament.pages.managePlugins.uploadPlugin"
+msgstr "Upload Plugin"
+
+msgid "filament.pages.managePlugins.pluginZipFile"
+msgstr "Plugin ZIP File"
+
+msgid "filament.pages.managePlugins.uploadHelperText"
+msgstr "Upload a plugin ZIP archive containing a valid plugin.json manifest."
+
+msgid "filament.pages.managePlugins.uploadSuccessTitle"
+msgstr "Plugin uploaded successfully"
+
+msgid "filament.pages.managePlugins.uploadSuccessBody"
+msgstr "The plugin has been extracted and is ready to activate."
+
+msgid "filament.pages.managePlugins.uploadFailedTitle"
+msgstr "Plugin upload failed"
+
+msgid "filament.pages.managePlugins.activate"
+msgstr "Activate"
+
+msgid "filament.pages.managePlugins.activateHeading"
+msgstr "Activate Plugin"
+
+msgid "filament.pages.managePlugins.activateDescription"
+msgstr "Are you sure you want to activate \"{name}\"? This will load the plugin and register its hooks."
+
+msgid "filament.pages.managePlugins.activatedTitle"
+msgstr "Plugin activated"
+
+msgid "filament.pages.managePlugins.activatedBody"
+msgstr "\"{name}\" has been activated successfully."
+
+msgid "filament.pages.managePlugins.activationFailedTitle"
+msgstr "Activation failed"
+
+msgid "filament.pages.managePlugins.deactivate"
+msgstr "Deactivate"
+
+msgid "filament.pages.managePlugins.deactivateHeading"
+msgstr "Deactivate Plugin"
+
+msgid "filament.pages.managePlugins.deactivateDescription"
+msgstr "Are you sure you want to deactivate \"{name}\"? Its hooks and extensions will be unregistered."
+
+msgid "filament.pages.managePlugins.deactivatedTitle"
+msgstr "Plugin deactivated"
+
+msgid "filament.pages.managePlugins.deactivatedBody"
+msgstr "\"{name}\" has been deactivated."
+
+msgid "filament.pages.managePlugins.deactivationFailedTitle"
+msgstr "Deactivation failed"
+
+msgid "filament.pages.managePlugins.delete"
+msgstr "Delete"
+
+msgid "filament.pages.managePlugins.deleteHeading"
+msgstr "Delete Plugin"
+
+msgid "filament.pages.managePlugins.deleteDescription"
+msgstr "Are you sure you want to permanently delete \"{name}\"? This will remove all plugin files and cannot be undone."
+
+msgid "filament.pages.managePlugins.deleteConfirm"
+msgstr "Yes, delete plugin"
+
+msgid "filament.pages.managePlugins.deletedTitle"
+msgstr "Plugin deleted"
+
+msgid "filament.pages.managePlugins.deletedBody"
+msgstr "\"{name}\" has been removed."
+
+msgid "filament.pages.managePlugins.deletionFailedTitle"
+msgstr "Deletion failed"
+
+msgid "filament.pages.managePlugins.columnPlugin"
+msgstr "Plugin"
+
+msgid "filament.pages.managePlugins.columnVersion"
+msgstr "Version"
+
+msgid "filament.pages.managePlugins.columnAuthor"
+msgstr "Author"
+
+msgid "filament.pages.managePlugins.columnSource"
+msgstr "Source"
+
+msgid "filament.pages.managePlugins.columnStatus"
+msgstr "Status"
+
+msgid "filament.pages.managePlugins.columnActivated"
+msgstr "Activated"
+
+msgid "filament.pages.managePlugins.columnDeactivated"
+msgstr "Deactivated"
+
+msgid "filament.pages.managePlugins.placeholderNever"
+msgstr "Never"
+
+msgid "filament.pages.managePlugins.emptyHeading"
+msgstr "No plugins installed"
+
+msgid "filament.pages.managePlugins.emptyDescription"
+msgstr "Upload a plugin ZIP file or install one via Composer to get started."
+
+msgid "filament.pages.managePlugins.totalPlugins"
+msgstr "Total Plugins"
+
+msgid "filament.pages.managePlugins.active"
+msgstr "Active"
+
+msgid "filament.pages.managePlugins.inactive"
+msgstr "Inactive"
+
+msgid "filament.pages.reports.title"
+msgstr "Reports"
+
+msgid "filament.pages.reports.dateFrom"
+msgstr "From"
+
+msgid "filament.pages.reports.dateTo"
+msgstr "To"
+
+msgid "filament.pages.reports.totalTickets"
+msgstr "Total Tickets"
+
+msgid "filament.pages.reports.resolved"
+msgstr "Resolved"
+
+msgid "filament.pages.reports.resolutionRate"
+msgstr "Resolution Rate"
+
+msgid "filament.pages.reports.avgResponse"
+msgstr "Avg Response"
+
+msgid "filament.pages.reports.avgResolution"
+msgstr "Avg Resolution"
+
+msgid "filament.pages.reports.csatAverage"
+msgstr "CSAT Average"
+
+msgid "filament.pages.reports.ticketsByDepartment"
+msgstr "Tickets by Department"
+
+msgid "filament.pages.reports.ticketsOverTime"
+msgstr "Tickets Over Time"
+
+msgid "filament.pages.reports.noData"
+msgstr "No data for selected period."
+
+msgid "filament.pages.settings.title"
+msgstr "Support Settings"
+
+msgid "filament.pages.settings.general"
+msgstr "General"
+
+msgid "filament.pages.settings.generalDescription"
+msgstr "Configure general ticket system behavior."
+
+msgid "filament.pages.settings.ticketReferencePrefix"
+msgstr "Ticket Reference Prefix"
+
+msgid "filament.pages.settings.ticketReferencePrefixHelper"
+msgstr "Prefix for ticket reference numbers (e.g., ESC-00001)."
+
+msgid "filament.pages.settings.allowGuestTickets"
+msgstr "Allow Guest Tickets"
+
+msgid "filament.pages.settings.allowGuestTicketsHelper"
+msgstr "Allow unauthenticated users to submit tickets."
+
+msgid "filament.pages.settings.allowCustomerClose"
+msgstr "Allow Customer Close"
+
+msgid "filament.pages.settings.allowCustomerCloseHelper"
+msgstr "Allow customers to close their own tickets."
+
+msgid "filament.pages.settings.autoClose"
+msgstr "Auto-Close"
+
+msgid "filament.pages.settings.autoCloseDescription"
+msgstr "Automatically close resolved tickets after a specified period."
+
+msgid "filament.pages.settings.autoCloseDays"
+msgstr "Auto-Close Resolved After (days)"
+
+msgid "filament.pages.settings.autoCloseDaysHelper"
+msgstr "Number of days after resolution before a ticket is automatically closed."
+
+msgid "filament.pages.settings.attachments"
+msgstr "Attachments"
+
+msgid "filament.pages.settings.attachmentsDescription"
+msgstr "Configure attachment limits for tickets and replies."
+
+msgid "filament.pages.settings.maxAttachments"
+msgstr "Max Attachments per Reply"
+
+msgid "filament.pages.settings.maxAttachmentSize"
+msgstr "Max Attachment Size"
+
+msgid "filament.pages.settings.maxAttachmentSizeHelper"
+msgstr "Maximum file size in kilobytes (1024 KB = 1 MB)."
+
+msgid "filament.pages.settings.saveSuccess"
+msgstr "Settings saved successfully"
+
+msgid "filament.pages.settings.saveButton"
+msgstr "Save Settings"
+
+msgid "filament.pages.settings.branding"
+msgstr "Branding"
+
+msgid "filament.pages.settings.brandingDescription"
+msgstr "Configure attribution and branding options."
+
+msgid "filament.pages.settings.showPoweredBy"
+msgstr "Show \"Powered by Escalated\""
+
+msgid "filament.pages.settings.showPoweredByHelper"
+msgstr "Display attribution badge in the support portal footer."
+
+msgid "filament.widgets.csatOverview.heading"
+msgstr "Customer Satisfaction"
+
+msgid "filament.widgets.csatOverview.averageRating"
+msgstr "Average Rating"
+
+msgid "filament.widgets.csatOverview.overallAverage"
+msgstr "Overall average"
+
+msgid "filament.widgets.csatOverview.totalRatings"
+msgstr "Total Ratings"
+
+msgid "filament.widgets.csatOverview.allTime"
+msgstr "All time"
+
+msgid "filament.widgets.csatOverview.satisfactionRate"
+msgstr "Satisfaction Rate"
+
+msgid "filament.widgets.csatOverview.fourFiveStar"
+msgstr "4 and 5 star ratings"
+
+msgid "filament.widgets.recentTickets.heading"
+msgstr "Recent Tickets"
+
+msgid "filament.widgets.recentTickets.columnRef"
+msgstr "Ref"
+
+msgid "filament.widgets.recentTickets.columnAgent"
+msgstr "Agent"
+
+msgid "filament.widgets.recentTickets.columnCreated"
+msgstr "Created"
+
+msgid "filament.widgets.recentTickets.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.slaBreach.heading"
+msgstr "SLA Breach Alerts"
+
+msgid "filament.widgets.slaBreach.columnRef"
+msgstr "Ref"
+
+msgid "filament.widgets.slaBreach.columnAgent"
+msgstr "Agent"
+
+msgid "filament.widgets.slaBreach.columnResponse"
+msgstr "Response"
+
+msgid "filament.widgets.slaBreach.columnResolution"
+msgstr "Resolution"
+
+msgid "filament.widgets.slaBreach.columnResolutionDue"
+msgstr "Resolution Due"
+
+msgid "filament.widgets.slaBreach.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.slaBreach.emptyHeading"
+msgstr "No SLA Breaches"
+
+msgid "filament.widgets.slaBreach.emptyDescription"
+msgstr "All tickets are within SLA targets."
+
+msgid "filament.widgets.ticketsByPriority.heading"
+msgstr "Tickets by Priority"
+
+msgid "filament.widgets.ticketsByPriority.openTickets"
+msgstr "Open Tickets"
+
+msgid "filament.widgets.ticketsByStatus.heading"
+msgstr "Tickets by Status"
+
+msgid "filament.widgets.stats.myOpenTickets"
+msgstr "My Open Tickets"
+
+msgid "filament.widgets.stats.assignedToYou"
+msgstr "Assigned to you"
+
+msgid "filament.widgets.stats.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.stats.awaitingAssignment"
+msgstr "Awaiting assignment"
+
+msgid "filament.widgets.stats.totalOpen"
+msgstr "Total Open"
+
+msgid "filament.widgets.stats.allOpenTickets"
+msgstr "All open tickets"
+
+msgid "filament.widgets.stats.slaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.widgets.stats.breachedSlaDescription"
+msgstr "Breached response or resolution SLA"
+
+msgid "filament.widgets.stats.resolvedToday"
+msgstr "Resolved Today"
+
+msgid "filament.widgets.stats.resolvedTodayDescription"
+msgstr "Resolved in the last 24 hours"
+
+msgid "filament.widgets.stats.avgCsat30d"
+msgstr "Avg CSAT (30d)"
+
+msgid "filament.widgets.stats.avgCsatDescription"
+msgstr "Average customer satisfaction"
+
+msgid "filament.resources.ticket.sectionDetails"
+msgstr "Details"
+
+msgid "filament.resources.ticket.fieldSubject"
+msgstr "Subject"
+
+msgid "filament.resources.ticket.fieldDescription"
+msgstr "Description"
+
+msgid "filament.resources.ticket.fieldDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.fieldAssignedAgent"
+msgstr "Assigned Agent"
+
+msgid "filament.resources.ticket.columnReference"
+msgstr "Reference"
+
+msgid "filament.resources.ticket.columnDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.columnAssignedTo"
+msgstr "Assigned To"
+
+msgid "filament.resources.ticket.columnRequester"
+msgstr "Requester"
+
+msgid "filament.resources.ticket.columnSla"
+msgstr "SLA"
+
+msgid "filament.resources.ticket.defaultUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.filterDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.filterAssignedAgent"
+msgstr "Assigned Agent"
+
+msgid "filament.resources.ticket.filterSlaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.resources.ticket.filterUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.bulkAssignAgent"
+msgstr "Assign Agent"
+
+msgid "filament.resources.ticket.bulkChangeStatus"
+msgstr "Change Status"
+
+msgid "filament.resources.ticket.bulkChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.ticket.bulkAddTags"
+msgstr "Add Tags"
+
+msgid "filament.resources.ticket.bulkClose"
+msgstr "Close"
+
+msgid "filament.resources.ticket.tabAll"
+msgstr "All Tickets"
+
+msgid "filament.resources.ticket.tabMyTickets"
+msgstr "My Tickets"
+
+msgid "filament.resources.ticket.tabUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.tabUrgent"
+msgstr "Urgent"
+
+msgid "filament.resources.ticket.tabSlaBreaching"
+msgstr "SLA Breaching"
+
+msgid "filament.resources.ticket.sectionTicketInfo"
+msgstr "Ticket Information"
+
+msgid "filament.resources.ticket.fieldReference"
+msgstr "Reference"
+
+msgid "filament.resources.ticket.fieldChannel"
+msgstr "Channel"
+
+msgid "filament.resources.ticket.sectionConversation"
+msgstr "Conversation"
+
+msgid "filament.resources.ticket.defaultNone"
+msgstr "None"
+
+msgid "filament.resources.ticket.fieldRequester"
+msgstr "Requester"
+
+msgid "filament.resources.ticket.fieldRequesterEmail"
+msgstr "Requester Email"
+
+msgid "filament.resources.ticket.sectionSla"
+msgstr "SLA"
+
+msgid "filament.resources.ticket.fieldSlaPolicy"
+msgstr "SLA Policy"
+
+msgid "filament.resources.ticket.defaultNoPolicy"
+msgstr "No policy"
+
+msgid "filament.resources.ticket.fieldFirstResponseDue"
+msgstr "First Response Due"
+
+msgid "filament.resources.ticket.fieldFirstResponseAt"
+msgstr "First Response At"
+
+msgid "filament.resources.ticket.placeholderNotResponded"
+msgstr "Not yet responded"
+
+msgid "filament.resources.ticket.fieldResolutionDue"
+msgstr "Resolution Due"
+
+msgid "filament.resources.ticket.fieldResponseBreached"
+msgstr "Response Breached"
+
+msgid "filament.resources.ticket.fieldResolutionBreached"
+msgstr "Resolution Breached"
+
+msgid "filament.resources.ticket.sectionTags"
+msgstr "Tags"
+
+msgid "filament.resources.ticket.sectionSatisfaction"
+msgstr "Satisfaction Rating"
+
+msgid "filament.resources.ticket.sectionTimestamps"
+msgstr "Timestamps"
+
+msgid "filament.resources.ticket.fieldCreated"
+msgstr "Created"
+
+msgid "filament.resources.ticket.fieldUpdated"
+msgstr "Updated"
+
+msgid "filament.resources.ticket.fieldResolvedAt"
+msgstr "Resolved At"
+
+msgid "filament.resources.ticket.placeholderNotResolved"
+msgstr "Not resolved"
+
+msgid "filament.resources.ticket.fieldClosedAt"
+msgstr "Closed At"
+
+msgid "filament.resources.ticket.placeholderNotClosed"
+msgstr "Not closed"
+
+msgid "filament.resources.ticket.actionReply"
+msgstr "Reply"
+
+msgid "filament.resources.ticket.actionAddNote"
+msgstr "Add Note"
+
+msgid "filament.resources.ticket.fieldInternalNote"
+msgstr "Internal Note"
+
+msgid "filament.resources.ticket.notificationReplySent"
+msgstr "Reply sent"
+
+msgid "filament.resources.ticket.notificationNoteAdded"
+msgstr "Internal note added"
+
+msgid "filament.resources.ticket.notificationAssigned"
+msgstr "Ticket assigned"
+
+msgid "filament.resources.ticket.actionStatus"
+msgstr "Status"
+
+msgid "filament.resources.ticket.notificationStatusUpdated"
+msgstr "Status updated"
+
+msgid "filament.resources.ticket.actionPriority"
+msgstr "Priority"
+
+msgid "filament.resources.ticket.notificationPriorityUpdated"
+msgstr "Priority updated"
+
+msgid "filament.resources.ticket.notificationMacroApplied"
+msgstr "Macro '{name}' applied"
+
+msgid "filament.resources.ticket.actionResolve"
+msgstr "Resolve"
+
+msgid "filament.resources.ticket.notificationResolved"
+msgstr "Ticket resolved"
+
+msgid "filament.resources.ticket.actionClose"
+msgstr "Close"
+
+msgid "filament.resources.ticket.notificationClosed"
+msgstr "Ticket closed"
+
+msgid "filament.resources.ticket.actionReopen"
+msgstr "Reopen"
+
+msgid "filament.resources.ticket.notificationReopened"
+msgstr "Ticket reopened"
+
+msgid "filament.resources.ticket.notificationFollowing"
+msgstr "Following ticket"
+
+msgid "filament.resources.ticket.notificationUnfollowed"
+msgstr "Unfollowed ticket"
+
+msgid "filament.resources.replies.title"
+msgstr "Replies & Notes"
+
+msgid "filament.resources.replies.fieldMessage"
+msgstr "Message"
+
+msgid "filament.resources.replies.fieldInternalNote"
+msgstr "Internal Note"
+
+msgid "filament.resources.replies.internalNoteHelper"
+msgstr "Internal notes are only visible to agents."
+
+msgid "filament.resources.replies.columnAuthor"
+msgstr "Author"
+
+msgid "filament.resources.replies.defaultSystem"
+msgstr "System"
+
+msgid "filament.resources.replies.columnMessage"
+msgstr "Message"
+
+msgid "filament.resources.replies.columnInternal"
+msgstr "Internal"
+
+msgid "filament.resources.replies.columnPinned"
+msgstr "Pinned"
+
+msgid "filament.resources.replies.columnDate"
+msgstr "Date"
+
+msgid "filament.resources.replies.filterType"
+msgstr "Type"
+
+msgid "filament.resources.replies.filterAll"
+msgstr "All"
+
+msgid "filament.resources.replies.filterInternalOnly"
+msgstr "Internal Notes Only"
+
+msgid "filament.resources.replies.filterPublicOnly"
+msgstr "Public Replies Only"
+
+msgid "filament.resources.replies.filterPinned"
+msgstr "Pinned"
+
+msgid "filament.resources.replies.filterPinnedOnly"
+msgstr "Pinned Only"
+
+msgid "filament.resources.replies.filterNotPinned"
+msgstr "Not Pinned"
+
+msgid "filament.resources.replies.actionAddReply"
+msgstr "Add Reply"
+
+msgid "filament.resources.replies.fieldReply"
+msgstr "Reply"
+
+msgid "filament.resources.replies.actionAddNote"
+msgstr "Add Note"
+
+msgid "filament.resources.replies.actionPin"
+msgstr "Pin"
+
+msgid "filament.resources.replies.actionUnpin"
+msgstr "Unpin"
+
+msgid "filament.resources.activities.title"
+msgstr "Activity Log"
+
+msgid "filament.resources.activities.columnActivity"
+msgstr "Activity"
+
+msgid "filament.resources.activities.columnBy"
+msgstr "By"
+
+msgid "filament.resources.activities.defaultSystem"
+msgstr "System"
+
+msgid "filament.resources.activities.columnDetails"
+msgstr "Details"
+
+msgid "filament.resources.activities.columnDate"
+msgstr "Date"
+
+msgid "filament.resources.followers.title"
+msgstr "Followers"
+
+msgid "filament.resources.followers.columnName"
+msgstr "Name"
+
+msgid "filament.resources.followers.columnEmail"
+msgstr "Email"
+
+msgid "filament.resources.followers.columnFollowingSince"
+msgstr "Following Since"
+
+msgid "filament.resources.followers.actionAddFollower"
+msgstr "Add Follower"
+
+msgid "filament.resources.followers.fieldUser"
+msgstr "User"
+
+msgid "filament.resources.followers.actionRemove"
+msgstr "Remove"
+
+msgid "filament.resources.cannedResponse.fieldResponseBody"
+msgstr "Response Body"
+
+msgid "filament.resources.cannedResponse.fieldShared"
+msgstr "Shared"
+
+msgid "filament.resources.cannedResponse.sharedHelper"
+msgstr "Shared responses are visible to all agents."
+
+msgid "filament.resources.cannedResponse.columnCreatedBy"
+msgstr "Created By"
+
+msgid "filament.resources.department.navigationLabel"
+msgstr "Departments"
+
+msgid "filament.resources.department.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.department.fieldAgents"
+msgstr "Agents"
+
+msgid "filament.resources.department.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.department.columnAgents"
+msgstr "Agents"
+
+msgid "filament.resources.department.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.resources.department.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.sectionRuleDetails"
+msgstr "Rule Details"
+
+msgid "filament.resources.escalationRule.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.sectionConditions"
+msgstr "Conditions"
+
+msgid "filament.resources.escalationRule.conditionsDescription"
+msgstr "Define the conditions that must be met for this rule to trigger."
+
+msgid "filament.resources.escalationRule.conditionFieldStatus"
+msgstr "Status"
+
+msgid "filament.resources.escalationRule.conditionFieldPriority"
+msgstr "Priority"
+
+msgid "filament.resources.escalationRule.conditionFieldAssignment"
+msgstr "Assignment"
+
+msgid "filament.resources.escalationRule.conditionFieldAgeHours"
+msgstr "Age (hours)"
+
+msgid "filament.resources.escalationRule.conditionFieldNoResponseHours"
+msgstr "No Response (hours)"
+
+msgid "filament.resources.escalationRule.conditionFieldSlaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.resources.escalationRule.conditionFieldDepartment"
+msgstr "Department"
+
+msgid "filament.resources.escalationRule.conditionValueUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.escalationRule.conditionValueAssigned"
+msgstr "Assigned"
+
+msgid "filament.resources.escalationRule.conditionValueYes"
+msgstr "Yes"
+
+msgid "filament.resources.escalationRule.fieldHours"
+msgstr "Hours"
+
+msgid "filament.resources.escalationRule.addCondition"
+msgstr "Add Condition"
+
+msgid "filament.resources.escalationRule.sectionActions"
+msgstr "Actions"
+
+msgid "filament.resources.escalationRule.actionsDescription"
+msgstr "Define the actions to execute when conditions are met."
+
+msgid "filament.resources.escalationRule.actionEscalate"
+msgstr "Escalate Ticket"
+
+msgid "filament.resources.escalationRule.actionChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.escalationRule.actionAssignTo"
+msgstr "Assign To Agent"
+
+msgid "filament.resources.escalationRule.actionChangeDepartment"
+msgstr "Change Department"
+
+msgid "filament.resources.escalationRule.addAction"
+msgstr "Add Action"
+
+msgid "filament.resources.escalationRule.columnOrder"
+msgstr "#"
+
+msgid "filament.resources.escalationRule.columnTrigger"
+msgstr "Trigger"
+
+msgid "filament.resources.escalationRule.columnConditions"
+msgstr "Conditions"
+
+msgid "filament.resources.escalationRule.columnActions"
+msgstr "Actions"
+
+msgid "filament.resources.escalationRule.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.toggleDeactivate"
+msgstr "Deactivate"
+
+msgid "filament.resources.escalationRule.toggleActivate"
+msgstr "Activate"
+
+msgid "filament.resources.escalationRule.conditionCount"
+msgstr "{count} condition(s)"
+
+msgid "filament.resources.escalationRule.actionCount"
+msgstr "{count} action(s)"
+
+msgid "filament.resources.escalationRule.zeroConditions"
+msgstr "0 conditions"
+
+msgid "filament.resources.escalationRule.zeroActions"
+msgstr "0 actions"
+
+msgid "filament.resources.macro.sectionMacroDetails"
+msgstr "Macro Details"
+
+msgid "filament.resources.macro.fieldShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.sharedHelper"
+msgstr "Shared macros are visible to all agents."
+
+msgid "filament.resources.macro.sectionActions"
+msgstr "Actions"
+
+msgid "filament.resources.macro.actionsDescription"
+msgstr "Define the actions this macro will perform when applied to a ticket."
+
+msgid "filament.resources.macro.actionChangeStatus"
+msgstr "Change Status"
+
+msgid "filament.resources.macro.actionChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.macro.actionAssignAgent"
+msgstr "Assign Agent"
+
+msgid "filament.resources.macro.actionAddTags"
+msgstr "Add Tags"
+
+msgid "filament.resources.macro.actionChangeDepartment"
+msgstr "Change Department"
+
+msgid "filament.resources.macro.actionAddReply"
+msgstr "Add Reply"
+
+msgid "filament.resources.macro.actionAddNote"
+msgstr "Add Internal Note"
+
+msgid "filament.resources.macro.fieldValue"
+msgstr "Value"
+
+msgid "filament.resources.macro.fieldTags"
+msgstr "Tags"
+
+msgid "filament.resources.macro.fieldMessage"
+msgstr "Message"
+
+msgid "filament.resources.macro.addAction"
+msgstr "Add Action"
+
+msgid "filament.resources.macro.columnOrder"
+msgstr "#"
+
+msgid "filament.resources.macro.columnActions"
+msgstr "Actions"
+
+msgid "filament.resources.macro.columnCreatedBy"
+msgstr "Created By"
+
+msgid "filament.resources.macro.columnShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.filterShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.actionCount"
+msgstr "{count} action(s)"
+
+msgid "filament.resources.macro.zeroActions"
+msgstr "0 actions"
+
+msgid "filament.resources.slaPolicy.modelLabel"
+msgstr "SLA Policy"
+
+msgid "filament.resources.slaPolicy.pluralModelLabel"
+msgstr "SLA Policies"
+
+msgid "filament.resources.slaPolicy.sectionPolicyDetails"
+msgstr "Policy Details"
+
+msgid "filament.resources.slaPolicy.fieldDefaultPolicy"
+msgstr "Default Policy"
+
+msgid "filament.resources.slaPolicy.defaultPolicyHelper"
+msgstr "The default policy is applied to new tickets automatically."
+
+msgid "filament.resources.slaPolicy.fieldBusinessHours"
+msgstr "Business Hours Only"
+
+msgid "filament.resources.slaPolicy.businessHoursHelper"
+msgstr "Count only business hours toward SLA deadlines."
+
+msgid "filament.resources.slaPolicy.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.sectionFirstResponse"
+msgstr "First Response Time (hours)"
+
+msgid "filament.resources.slaPolicy.firstResponseDescription"
+msgstr "Maximum hours for the first agent response, by priority level."
+
+msgid "filament.resources.slaPolicy.sectionResolution"
+msgstr "Resolution Time (hours)"
+
+msgid "filament.resources.slaPolicy.resolutionDescription"
+msgstr "Maximum hours for full ticket resolution, by priority level."
+
+msgid "filament.resources.slaPolicy.columnDefault"
+msgstr "Default"
+
+msgid "filament.resources.slaPolicy.columnBusinessHours"
+msgstr "Business Hours"
+
+msgid "filament.resources.slaPolicy.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.resources.slaPolicy.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.filterDefault"
+msgstr "Default"
+
+msgid "filament.resources.tag.columnColor"
+msgstr "Color"
+
+msgid "filament.resources.tag.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.livewire.conversation.pinnedNotes"
+msgstr "Pinned Notes"
+
+msgid "filament.livewire.conversation.system"
+msgstr "System"
+
+msgid "filament.livewire.conversation.internalNoteBadge"
+msgstr "Internal Note"
+
+msgid "filament.livewire.conversation.pinnedBadge"
+msgstr "Pinned"
+
+msgid "filament.livewire.conversation.noReplies"
+msgstr "No replies yet. Start the conversation below."
+
+msgid "filament.livewire.conversation.addInternalNote"
+msgstr "Add Internal Note"
+
+msgid "filament.livewire.conversation.reply"
+msgstr "Reply"
+
+msgid "filament.livewire.conversation.noteVisibleToAgents"
+msgstr "This note is only visible to agents"
+
+msgid "filament.livewire.conversation.replyVisibleToCustomer"
+msgstr "This reply will be visible to the customer"
+
+msgid "filament.livewire.conversation.addNoteButton"
+msgstr "Add Note"
+
+msgid "filament.livewire.conversation.sendReplyButton"
+msgstr "Send Reply"
+
+msgid "filament.livewire.conversation.insertCannedResponse"
+msgstr "Insert Canned Response"
+
+msgid "filament.livewire.conversation.selectCannedResponse"
+msgstr "Select a canned response..."
+
+msgid "filament.livewire.conversation.typeReply"
+msgstr "Type your reply..."
+
+msgid "filament.livewire.conversation.internalNoteLabel"
+msgstr "Internal Note"
+
+msgid "filament.livewire.conversation.internalNoteHelper"
+msgstr "Internal notes are only visible to agents."
+
+msgid "filament.livewire.conversation.notificationNoteAdded"
+msgstr "Internal note added"
+
+msgid "filament.livewire.conversation.notificationReplySent"
+msgstr "Reply sent"
+
+msgid "filament.livewire.conversation.notePinned"
+msgstr "Note pinned"
+
+msgid "filament.livewire.conversation.noteUnpinned"
+msgstr "Note unpinned"
+
+msgid "filament.livewire.rating.noRating"
+msgstr "No rating submitted yet"
+
+msgid "djangoStrings.open"
+msgstr "ÙÙØªÙØ­"
+
+msgid "djangoStrings.inProgress"
+msgstr "ÙÙØ¯ Ø§ÙØªÙÙÙØ°"
+
+msgid "djangoStrings.waitingOnCustomer"
+msgstr "Ø¨Ø§ÙØªØ¸Ø§Ø± Ø§ÙØ¹ÙÙÙ"
+
+msgid "djangoStrings.waitingOnAgent"
+msgstr "Ø¨Ø§ÙØªØ¸Ø§Ø± Ø§ÙÙÙÙÙ"
+
+msgid "djangoStrings.escalated"
+msgstr "ÙÙØµØ¹ÙÙØ¯"
+
+msgid "djangoStrings.resolved"
+msgstr "ØªÙ Ø§ÙØ­Ù"
+
+msgid "djangoStrings.closed"
+msgstr "ÙØºÙÙ"
+
+msgid "djangoStrings.reopened"
+msgstr "Ø£ÙØ¹ÙØ¯ ÙØªØ­Ù"
+
+msgid "djangoStrings.low"
+msgstr "ÙÙØ®ÙØ¶"
+
+msgid "djangoStrings.medium"
+msgstr "ÙØªÙØ³Ø·"
+
+msgid "djangoStrings.high"
+msgstr "ÙØ±ØªÙØ¹"
+
+msgid "djangoStrings.urgent"
+msgstr "Ø¹Ø§Ø¬Ù"
+
+msgid "djangoStrings.critical"
+msgstr "Ø­Ø±Ø¬"
+
+msgid "djangoStrings.reply"
+msgstr "Ø±Ø¯"
+
+msgid "djangoStrings.internalNote"
+msgstr "ÙÙØ§Ø­Ø¸Ø© Ø¯Ø§Ø®ÙÙØ©"
+
+msgid "djangoStrings.system"
+msgstr "Ø§ÙÙØ¸Ø§Ù"
+
+msgid "djangoStrings.created"
+msgstr "ØªÙ Ø§ÙØ¥ÙØ´Ø§Ø¡"
+
+msgid "djangoStrings.statusChanged"
+msgstr "ØªÙ ØªØºÙÙØ± Ø§ÙØ­Ø§ÙØ©"
+
+msgid "djangoStrings.priorityChanged"
+msgstr "ØªÙ ØªØºÙÙØ± Ø§ÙØ£ÙÙÙÙØ©"
+
+msgid "djangoStrings.assigned"
+msgstr "ØªÙ Ø§ÙØªØ¹ÙÙÙ"
+
+msgid "djangoStrings.unassigned"
+msgstr "ØºÙØ± ÙØ¹ÙÙÙÙ"
+
+msgid "djangoStrings.replyAdded"
+msgstr "ØªÙØª Ø¥Ø¶Ø§ÙØ© Ø±Ø¯"
+
+msgid "djangoStrings.noteAdded"
+msgstr "ØªÙØª Ø¥Ø¶Ø§ÙØ© ÙÙØ§Ø­Ø¸Ø©"
+
+msgid "djangoStrings.tagAdded"
+msgstr "ØªÙØª Ø¥Ø¶Ø§ÙØ© ÙØ³Ù"
+
+msgid "djangoStrings.tagRemoved"
+msgstr "ØªÙØª Ø¥Ø²Ø§ÙØ© ÙØ³Ù"
+
+msgid "djangoStrings.departmentChanged"
+msgstr "ØªÙ ØªØºÙÙØ± Ø§ÙÙØ³Ù"
+
+msgid "djangoStrings.slaBreached"
+msgstr "ØªÙ Ø§ÙØªÙØ§Ù SLA"
+
+msgid "djangoStrings.attachmentAdded"
+msgstr "ØªÙØª Ø¥Ø¶Ø§ÙØ© ÙØ±ÙÙ"
+
+msgid "djangoStrings.merged"
+msgstr "ØªÙ Ø§ÙØ¯ÙØ¬"
+
+msgid "djangoStrings.slaBreach"
+msgstr "Ø§ÙØªÙØ§Ù SLA"
+
+msgid "djangoStrings.priorityChange"
+msgstr "ØªØºÙÙØ± Ø§ÙØ£ÙÙÙÙØ©"
+
+msgid "djangoStrings.noResponse"
+msgstr "ÙØ§ Ø§Ø³ØªØ¬Ø§Ø¨Ø©"
+
+msgid "djangoStrings.customerReply"
+msgstr "Ø±Ø¯ Ø§ÙØ¹ÙÙÙ"
+
+msgid "djangoStrings.timeBased"
+msgstr "ÙØ¨ÙÙ Ø¹ÙÙ Ø§ÙÙÙØª"
+
+msgid "djangoStrings.pending"
+msgstr "ÙÙØ¯ Ø§ÙØ§ÙØªØ¸Ø§Ø±"
+
+msgid "djangoStrings.processed"
+msgstr "ØªÙØª Ø§ÙÙØ¹Ø§ÙØ¬Ø©"
+
+msgid "djangoStrings.failed"
+msgstr "ÙØ´Ù"
+
+msgid "djangoStrings.spam"
+msgstr "Ø¨Ø±ÙØ¯ ÙØ²Ø¹Ø¬"
+
+msgid "djangoStrings.slaPolicy"
+msgstr "Ø³ÙØ§Ø³Ø© SLA"
+
+msgid "djangoStrings.slaPolicies"
+msgstr "Ø³ÙØ§Ø³Ø§Øª SLA"
+
+msgid "djangoStrings.ticketActivities"
+msgstr "Ø£ÙØ´Ø·Ø© Ø§ÙØªØ°Ø§ÙØ±"
+
+msgid "djangoStrings.mapOfPriorityToHoursEGLow24Medium8High4Urgent1Critical05"
+msgstr "Map of priority to hours, e.g. {\\\"low\\\": 24, \\\"medium\\\": 8, \\\"high\\\": 4, \\\"urgent\\\": 1, \\\"critical\\\": 0.5}"
+
+msgid "djangoStrings.mapOfPriorityToHoursEGLow72Medium24High8Urgent4Critical2"
+msgstr "Map of priority to hours, e.g. {\\\"low\\\": 72, \\\"medium\\\": 24, \\\"high\\\": 8, \\\"urgent\\\": 4, \\\"critical\\\": 2}"
+
+msgid "djangoStrings.uniqueTokenForGuestTicketAccess"
+msgstr "Unique token for guest ticket access"
+
+msgid "djangoStrings.jsonConditionsThatMustBeMetForTheRuleToFire"
+msgstr "JSON conditions that must be met for the rule to fire"
+
+msgid "djangoStrings.jsonActionsToTakeWhenTheRuleFiresEGAssignNotifyChangePriority"
+msgstr "JSON actions to take when the rule fires (e.g., assign, notify, change priority)"
+
+msgid "djangoStrings.fileSizeInBytes"
+msgstr "File size in bytes"
+
+msgid "djangoStrings.jsonArrayOfActionsEGTypeSetStatusValueOpen"
+msgstr "JSON array of actions, e.g. [{\\\"type\\\": \\\"set_status\\\", \\\"value\\\": \\\"open\\\"}]"
+
+msgid "djangoStrings.ratingFrom1To5"
+msgstr "Rating from 1 to 5"
+
+msgid "djangoStrings.youDoNotHavePermissionToAccessTheAgentDashboard"
+msgstr "ÙÙØ³ ÙØ¯ÙÙ Ø¥Ø°Ù ÙÙÙØµÙÙ Ø¥ÙÙ ÙÙØ­Ø© Ø§ÙÙÙÙÙ."
+
+msgid "djangoStrings.youDoNotHavePermissionToAccessTheAdminArea"
+msgstr "ÙÙØ³ ÙØ¯ÙÙ Ø¥Ø°Ù ÙÙÙØµÙÙ Ø¥ÙÙ ÙÙØ·ÙØ© Ø§ÙØ¥Ø¯Ø§Ø±Ø©."
+
+msgid "djangoStrings.methodNotAllowed"
+msgstr "Ø§ÙØ·Ø±ÙÙØ© ØºÙØ± ÙØ³ÙÙØ­Ø©"
+
+msgid "djangoStrings.ticketNotFound"
+msgstr "Ø§ÙØªØ°ÙØ±Ø© ØºÙØ± ÙÙØ¬ÙØ¯Ø©"
+
+msgid "djangoStrings.agentAccessRequired"
+msgstr "ÙØªØ·ÙØ¨ ØµÙØ§Ø­ÙØ© ÙÙÙÙ."
+
+msgid "djangoStrings.adminAccessRequired"
+msgstr "ÙØªØ·ÙØ¨ ØµÙØ§Ø­ÙØ© ÙØ³Ø¤ÙÙ."
+
+msgid "djangoStrings.subjectIsRequired"
+msgstr "Ø§ÙÙÙØ¶ÙØ¹ ÙØ·ÙÙØ¨."
+
+msgid "djangoStrings.descriptionIsRequired"
+msgstr "Ø§ÙÙØµÙ ÙØ·ÙÙØ¨."
+
+msgid "djangoStrings.youCannotViewThisTicket"
+msgstr "ÙØ§ ÙÙÙÙÙ Ø¹Ø±Ø¶ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø©."
+
+msgid "djangoStrings.youCannotReplyToThisTicket"
+msgstr "ÙØ§ ÙÙÙÙÙ Ø§ÙØ±Ø¯ Ø¹ÙÙ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø©."
+
+msgid "djangoStrings.youCannotCloseThisTicket"
+msgstr "ÙØ§ ÙÙÙÙÙ Ø¥ØºÙØ§Ù ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø©."
+
+msgid "djangoStrings.youCannotReopenThisTicket"
+msgstr "ÙØ§ ÙÙÙÙÙ Ø¥Ø¹Ø§Ø¯Ø© ÙØªØ­ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø©."
+
+msgid "djangoStrings.youCanOnlyRateResolvedOrClosedTickets"
+msgstr "ÙÙÙÙÙ ØªÙÙÙÙ Ø§ÙØªØ°Ø§ÙØ± Ø§ÙÙØ­ÙÙÙØ© Ø£Ù Ø§ÙÙØºÙÙØ© ÙÙØ·."
+
+msgid "djangoStrings.thisTicketHasAlreadyBeenRated"
+msgstr "ØªÙ ØªÙÙÙÙ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø© Ø¨Ø§ÙÙØ¹Ù."
+
+msgid "djangoStrings.ratingMustBeBetween1And5"
+msgstr "ÙØ¬Ø¨ Ø£Ù ÙÙÙÙ Ø§ÙØªÙÙÙÙ Ø¨ÙÙ 1 Ù 5."
+
+msgid "djangoStrings.invalidRatingValue"
+msgstr "ÙÙÙØ© ØªÙÙÙÙ ØºÙØ± ØµØ§ÙØ­Ø©."
+
+msgid "djangoStrings.youCannotUpdateThisTicket"
+msgstr "ÙØ§ ÙÙÙÙÙ ØªØ­Ø¯ÙØ« ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø©."
+
+msgid "djangoStrings.agentNotFound"
+msgstr "Ø§ÙÙÙÙÙ ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.invalidStatus"
+msgstr "Ø­Ø§ÙØ© ØºÙØ± ØµØ§ÙØ­Ø©."
+
+msgid "djangoStrings.invalidPriority"
+msgstr "Ø£ÙÙÙÙØ© ØºÙØ± ØµØ§ÙØ­Ø©."
+
+msgid "djangoStrings.onlyInternalNotesCanBePinned"
+msgstr "ÙÙÙÙ ØªØ«Ø¨ÙØª Ø§ÙÙÙØ§Ø­Ø¸Ø§Øª Ø§ÙØ¯Ø§Ø®ÙÙØ© ÙÙØ·."
+
+msgid "djangoStrings.macroNotFound"
+msgstr "Ø§ÙÙØ§ÙØ±Ù ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.replyNotFound"
+msgstr "Ø§ÙØ±Ø¯ ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.guestTicketsAreNotEnabled"
+msgstr "ØªØ°Ø§ÙØ± Ø§ÙØ¶ÙÙÙ ØºÙØ± ÙÙØ¹ÙÙØ©."
+
+msgid "djangoStrings.nameIsRequired"
+msgstr "Ø§ÙØ§Ø³Ù ÙØ·ÙÙØ¨."
+
+msgid "djangoStrings.emailIsRequired"
+msgstr "Ø§ÙØ¨Ø±ÙØ¯ Ø§ÙØ¥ÙÙØªØ±ÙÙÙ ÙØ·ÙÙØ¨."
+
+msgid "djangoStrings.ticketNotFoundee570b"
+msgstr "Ø§ÙØªØ°ÙØ±Ø© ØºÙØ± ÙÙØ¬ÙØ¯Ø©."
+
+msgid "djangoStrings.thisTicketIsClosed"
+msgstr "ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø© ÙØºÙÙØ©."
+
+msgid "djangoStrings.departmentNotFound"
+msgstr "Ø§ÙÙØ³Ù ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.slaPolicyNotFound"
+msgstr "Ø³ÙØ§Ø³Ø© SLA ØºÙØ± ÙÙØ¬ÙØ¯Ø©"
+
+msgid "djangoStrings.escalationRuleNotFound"
+msgstr "ÙØ§Ø¹Ø¯Ø© Ø§ÙØªØµØ¹ÙØ¯ ØºÙØ± ÙÙØ¬ÙØ¯Ø©"
+
+msgid "djangoStrings.tagNotFound"
+msgstr "Ø§ÙÙØ³Ù ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.cannedResponseNotFound"
+msgstr "Ø§ÙØ±Ø¯ Ø§ÙØ¬Ø§ÙØ² ØºÙØ± ÙÙØ¬ÙØ¯"
+
+msgid "djangoStrings.titleIsRequired"
+msgstr "Ø§ÙØ¹ÙÙØ§Ù ÙØ·ÙÙØ¨."
+
+msgid "djangoStrings.inboundEmailProcessingIsDisabled"
+msgstr "ÙØ¹Ø§ÙØ¬Ø© Ø§ÙØ¨Ø±ÙØ¯ Ø§ÙÙØ§Ø±Ø¯ ÙØ¹Ø·ÙØ©."
+
+msgid "djangoStrings.requestVerificationFailed"
+msgstr "ÙØ´Ù Ø§ÙØªØ­ÙÙ ÙÙ Ø§ÙØ·ÙØ¨."
+
+msgid "djangoStrings.newTicketPercentSubjectS"
+msgstr "ØªØ°ÙØ±Ø© Ø¬Ø¯ÙØ¯Ø©: {subject}"
+
+msgid "djangoStrings.newReplyOnPercentSubjectS"
+msgstr "Ø±Ø¯ Ø¬Ø¯ÙØ¯ Ø¹ÙÙ: {subject}"
+
+msgid "djangoStrings.customerReplyOnPercentSubjectS"
+msgstr "Ø±Ø¯ Ø§ÙØ¹ÙÙÙ Ø¹ÙÙ: {subject}"
+
+msgid "djangoStrings.ticketAssignedToYouPercentSubjectS"
+msgstr "ØªÙ ØªØ¹ÙÙÙ ØªØ°ÙØ±Ø© ÙÙ: {subject}"
+
+msgid "djangoStrings.statusUpdatedPercentSubjectS"
+msgstr "ØªÙ ØªØ­Ø¯ÙØ« Ø§ÙØ­Ø§ÙØ©: {subject}"
+
+msgid "djangoStrings.percentBreachTypeSPercentSubjectS"
+msgstr "{breach_type}: {subject}"
+
+msgid "djangoStrings.checkAllOpenTicketsForSlaBreachesAndSendWarnings"
+msgstr "ÙØ­Øµ Ø¬ÙÙØ¹ Ø§ÙØªØ°Ø§ÙØ± Ø§ÙÙÙØªÙØ­Ø© ÙØ§ÙØªÙØ§ÙØ§Øª SLA ÙØ¥Ø±Ø³Ø§Ù ØªØ­Ø°ÙØ±Ø§Øª."
+
+msgid "djangoStrings.minutesBeforeSlaDeadlineToTriggerWarningDefault30"
+msgstr "Ø¯ÙØ§Ø¦Ù ÙØ¨Ù ÙÙØ¹Ø¯ SLA ÙØ¥Ø·ÙØ§Ù ØªØ­Ø°ÙØ± (Ø§ÙØªØ±Ø§Ø¶Ù: 30)"
+
+msgid "djangoStrings.checkingSlaDeadlinesForAllOpenTickets"
+msgstr "Ø¬Ø§Ø±Ù ÙØ­Øµ ÙÙØ§Ø¹ÙØ¯ SLA ÙØ¬ÙÙØ¹ Ø§ÙØªØ°Ø§ÙØ± Ø§ÙÙÙØªÙØ­Ø©..."
+
+msgid "djangoStrings.slaCheckCompletePercentBreachedDBreachesDetectedPercentWarnedDWarningsSent"
+msgstr "Ø§ÙØªÙÙ ÙØ­Øµ SLA: ØªÙ Ø§ÙØªØ´Ø§Ù %(breached)d Ø§ÙØªÙØ§ÙØ ØªÙ Ø¥Ø±Ø³Ø§Ù %(warned)d ØªØ­Ø°ÙØ±."
+
+msgid "djangoStrings.autoCloseTicketsThatHaveBeenResolvedForAConfigurableNumberOfDays"
+msgstr "Ø¥ØºÙØ§Ù Ø§ÙØªØ°Ø§ÙØ± ØªÙÙØ§Ø¦ÙØ§ Ø§ÙØªÙ ØªÙ Ø­ÙÙØ§ ÙÙØ° Ø¹Ø¯Ø¯ ÙØ§Ø¨Ù ÙÙØªÙÙØ¦Ø© ÙÙ Ø§ÙØ£ÙØ§Ù."
+
+msgid "djangoStrings.daysAfterResolutionToAutoCloseOverridesSetting"
+msgstr "Ø§ÙØ£ÙØ§Ù Ø¨Ø¹Ø¯ Ø§ÙØ­Ù ÙÙØ¥ØºÙØ§Ù Ø§ÙØªÙÙØ§Ø¦Ù (ÙØªØ¬Ø§ÙØ² Ø§ÙØ¥Ø¹Ø¯Ø§Ø¯)"
+
+msgid "djangoStrings.showWhatWouldBeClosedWithoutMakingChanges"
+msgstr "Ø¹Ø±Ø¶ ÙØ§ Ø³ÙØªÙ Ø¥ØºÙØ§ÙÙ Ø¯ÙÙ Ø¥Ø¬Ø±Ø§Ø¡ ØªØºÙÙØ±Ø§Øª"
+
+msgid "djangoStrings.dryRunWouldClosePercentCountDTicketsResolvedMoreThanPercentDaysDDaysAgo"
+msgstr "[ØªØ¬Ø±Ø¨Ø©] Ø³ÙØªÙ Ø¥ØºÙØ§Ù %(count)d ØªØ°ÙØ±Ø© ØªÙ Ø­ÙÙØ§ ÙÙØ° Ø£ÙØ«Ø± ÙÙ %(days)d ÙÙÙ."
+
+msgid "djangoStrings.noResolvedTicketsToAutoClose"
+msgstr "ÙØ§ ØªÙØ¬Ø¯ ØªØ°Ø§ÙØ± ÙØ­ÙÙÙØ© ÙÙØ¥ØºÙØ§Ù Ø§ÙØªÙÙØ§Ø¦Ù."
+
+msgid "djangoStrings.autoClosedPercentCountDTicketsThatWereResolvedMoreThanPercentDaysDDaysAgo"
+msgstr "ØªÙ Ø¥ØºÙØ§Ù %(count)d ØªØ°ÙØ±Ø© ØªÙÙØ§Ø¦ÙØ§ ØªÙ Ø­ÙÙØ§ ÙÙØ° Ø£ÙØ«Ø± ÙÙ %(days)d ÙÙÙ."
+
+msgid "djangoStrings.evaluateAllActiveEscalationRulesAgainstOpenTickets"
+msgstr "ØªÙÙÙÙ Ø¬ÙÙØ¹ ÙÙØ§Ø¹Ø¯ Ø§ÙØªØµØ¹ÙØ¯ Ø§ÙÙØ´Ø·Ø© Ø¹ÙÙ Ø§ÙØªØ°Ø§ÙØ± Ø§ÙÙÙØªÙØ­Ø©."
+
+msgid "djangoStrings.evaluatingEscalationRules"
+msgstr "Ø¬Ø§Ø±Ù ØªÙÙÙÙ ÙÙØ§Ø¹Ø¯ Ø§ÙØªØµØ¹ÙØ¯..."
+
+msgid "djangoStrings.escalationEvaluationCompletePercentCountDActionsTaken"
+msgstr "Ø§ÙØªÙÙ ØªÙÙÙÙ Ø§ÙØªØµØ¹ÙØ¯: ØªÙ Ø§ØªØ®Ø§Ø° %(count)d Ø¥Ø¬Ø±Ø§Ø¡."
+
+msgid "djangoStrings.newSupportTicketCreated"
+msgstr "ØªÙ Ø¥ÙØ´Ø§Ø¡ ØªØ°ÙØ±Ø© Ø¯Ø¹Ù Ø¬Ø¯ÙØ¯Ø©"
+
+msgid "djangoStrings.yourSupportTicketHasBeenCreatedSuccessfully"
+msgstr "ØªÙ Ø¥ÙØ´Ø§Ø¡ ØªØ°ÙØ±Ø© Ø§ÙØ¯Ø¹Ù Ø¨ÙØ¬Ø§Ø­."
+
+msgid "djangoStrings.reference"
+msgstr "Ø§ÙÙØ±Ø¬Ø¹:"
+
+msgid "djangoStrings.subject"
+msgstr "Ø§ÙÙÙØ¶ÙØ¹:"
+
+msgid "djangoStrings.priority"
+msgstr "Ø§ÙØ£ÙÙÙÙØ©:"
+
+msgid "djangoStrings.status"
+msgstr "Ø§ÙØ­Ø§ÙØ©:"
+
+msgid "djangoStrings.description"
+msgstr "Ø§ÙÙØµÙ:"
+
+msgid "djangoStrings.ourTeamWillReviewYourTicketShortlyYouWillReceiveUpdatesAsYourTicketProgresses"
+msgstr "Ø³ÙÙÙÙ ÙØ±ÙÙÙØ§ Ø¨ÙØ±Ø§Ø¬Ø¹Ø© ØªØ°ÙØ±ØªÙ ÙØ±ÙØ¨Ø§. Ø³ØªØªÙÙÙ ØªØ­Ø¯ÙØ«Ø§Øª ÙØ¹ ØªÙØ¯Ù ØªØ°ÙØ±ØªÙ."
+
+msgid "djangoStrings.thisIsAnAutomatedMessageFromTheSupportSystemPleaseDoNotReplyDirectlyToThisEmail"
+msgstr "ÙØ°Ù Ø±Ø³Ø§ÙØ© ØªÙÙØ§Ø¦ÙØ© ÙÙ ÙØ¸Ø§Ù Ø§ÙØ¯Ø¹Ù. ÙØ±Ø¬Ù Ø¹Ø¯Ù Ø§ÙØ±Ø¯ ÙØ¨Ø§Ø´Ø±Ø© Ø¹ÙÙ ÙØ°Ø§ Ø§ÙØ¨Ø±ÙØ¯."
+
+msgid "djangoStrings.newReplyOnTicket"
+msgstr "Ø±Ø¯ Ø¬Ø¯ÙØ¯ Ø¹ÙÙ Ø§ÙØªØ°ÙØ±Ø©"
+
+msgid "djangoStrings.aNewReplyHasBeenAdded"
+msgstr "ØªÙØª Ø¥Ø¶Ø§ÙØ© Ø±Ø¯ Ø¬Ø¯ÙØ¯:"
+
+msgid "djangoStrings.logInToYourAccountToViewTheFullConversationAndRespond"
+msgstr "Ø³Ø¬Ù Ø§ÙØ¯Ø®ÙÙ Ø¥ÙÙ Ø­Ø³Ø§Ø¨Ù ÙØ¹Ø±Ø¶ Ø§ÙÙØ­Ø§Ø¯Ø«Ø© Ø§ÙÙØ§ÙÙØ© ÙØ§ÙØ±Ø¯."
+
+msgid "djangoStrings.ticketAssignedToYou"
+msgstr "ØªÙ ØªØ¹ÙÙÙ ØªØ°ÙØ±Ø© ÙÙ"
+
+msgid "djangoStrings.aSupportTicketHasBeenAssignedToYou"
+msgstr "ØªÙ ØªØ¹ÙÙÙ ØªØ°ÙØ±Ø© Ø¯Ø¹Ù ÙÙ."
+
+msgid "djangoStrings.department"
+msgstr "Ø§ÙÙØ³Ù:"
+
+msgid "djangoStrings.pleaseReviewAndRespondToThisTicketAtYourEarliestConvenience"
+msgstr "ÙØ±Ø¬Ù Ø§ÙÙØ±Ø§Ø¬Ø¹Ø© ÙØ§ÙØ±Ø¯ Ø¹ÙÙ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø© ÙÙ Ø£ÙØ±Ø¨ ÙÙØª."
+
+msgid "djangoStrings.thisIsAnAutomatedMessageFromTheSupportSystem"
+msgstr "ÙØ°Ù Ø±Ø³Ø§ÙØ© ØªÙÙØ§Ø¦ÙØ© ÙÙ ÙØ¸Ø§Ù Ø§ÙØ¯Ø¹Ù."
+
+msgid "djangoStrings.ticketStatusUpdated"
+msgstr "ØªÙ ØªØ­Ø¯ÙØ« Ø­Ø§ÙØ© Ø§ÙØªØ°ÙØ±Ø©"
+
+msgid "djangoStrings.logInToYourAccountToViewTheFullDetailsOfYourTicket"
+msgstr "Ø³Ø¬Ù Ø§ÙØ¯Ø®ÙÙ Ø¥ÙÙ Ø­Ø³Ø§Ø¨Ù ÙØ¹Ø±Ø¶ Ø¬ÙÙØ¹ ØªÙØ§ØµÙÙ ØªØ°ÙØ±ØªÙ."
+
+msgid "djangoStrings.slaBreachAlert"
+msgstr "ØªÙØ¨ÙÙ Ø§ÙØªÙØ§Ù SLA"
+
+msgid "djangoStrings.breachType"
+msgstr "ÙÙØ¹ Ø§ÙØ§ÙØªÙØ§Ù:"
+
+msgid "djangoStrings.assignedTo"
+msgstr "ÙØ¹ÙÙÙÙ Ø¥ÙÙ:"
+
+msgid "djangoStrings.immediateActionIsRequired"
+msgstr "ÙØªØ·ÙØ¨ Ø¥Ø¬Ø±Ø§Ø¡ ÙÙØ±Ù."
+
+msgid "djangoStrings.pleaseReviewThisTicketAndTakeAppropriateAction"
+msgstr "ÙØ±Ø¬Ù ÙØ±Ø§Ø¬Ø¹Ø© ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø© ÙØ§ØªØ®Ø§Ø° Ø§ÙØ¥Ø¬Ø±Ø§Ø¡ Ø§ÙÙÙØ§Ø³Ø¨."
+
+msgid "djangoStrings.thisIsAnAutomatedSlaMonitoringAlertFromTheSupportSystem"
+msgstr "ÙØ°Ø§ ØªÙØ¨ÙÙ ÙØ±Ø§ÙØ¨Ø© SLA ØªÙÙØ§Ø¦Ù ÙÙ ÙØ¸Ø§Ù Ø§ÙØ¯Ø¹Ù."
+
+msgid "djangoStrings.ticketEscalated"
+msgstr "ØªÙ ØªØµØ¹ÙØ¯ Ø§ÙØªØ°ÙØ±Ø©"
+
+msgid "djangoStrings.reason"
+msgstr "Ø§ÙØ³Ø¨Ø¨:"
+
+msgid "djangoStrings.thisTicketRequiresImmediateAttentionPleaseReviewAndTakeAction"
+msgstr "ØªØªØ·ÙØ¨ ÙØ°Ù Ø§ÙØªØ°ÙØ±Ø© Ø§ÙØªÙØ§ÙØ§ ÙÙØ±ÙØ§. ÙØ±Ø¬Ù Ø§ÙÙØ±Ø§Ø¬Ø¹Ø© ÙØ§ØªØ®Ø§Ø° Ø¥Ø¬Ø±Ø§Ø¡."
+
+msgid "djangoStrings.thisIsAnAutomatedEscalationAlertFromTheSupportSystem"
+msgstr "ÙØ°Ø§ ØªÙØ¨ÙÙ ØªØµØ¹ÙØ¯ ØªÙÙØ§Ø¦Ù ÙÙ ÙØ¸Ø§Ù Ø§ÙØ¯Ø¹Ù."
+
+msgid "djangoStrings.ticketResolved"
+msgstr "ØªÙ Ø­Ù Ø§ÙØªØ°ÙØ±Ø©"
+
+msgid "djangoStrings.ifYouBelieveThisIssueIsNotFullyResolvedYouCanReopenTheTicketByLoggingIntoYourAccount"
+msgstr "Ø¥Ø°Ø§ ÙÙØª ØªØ¹ØªÙØ¯ Ø£Ù ÙØ°Ù Ø§ÙÙØ´ÙÙØ© ÙÙ ØªÙØ­Ù Ø¨Ø§ÙÙØ§ÙÙØ ÙÙÙÙÙ Ø¥Ø¹Ø§Ø¯Ø© ÙØªØ­ Ø§ÙØªØ°ÙØ±Ø© Ø¨ØªØ³Ø¬ÙÙ Ø§ÙØ¯Ø®ÙÙ."
+
+msgid "djangoStrings.thankYouForReachingOutToUsWeHopeWeWereAbleToHelp"
+msgstr "Ø´ÙØ±Ø§ ÙØªÙØ§ØµÙÙ ÙØ¹ÙØ§. ÙØ£ÙÙ Ø£ÙÙØ§ ØªÙÙÙØ§ ÙÙ ÙØ³Ø§Ø¹Ø¯ØªÙ!"
+
+msgid "djangoStrings.escalatedSupport"
+msgstr "Ø§ÙØ¯Ø¹Ù Ø§ÙÙØªØµØ§Ø¹Ø¯"
+
+msgid "wordpressStrings.percent1SOfPercent2S"
+msgstr "{arg1} of {arg2}"
+
+msgid "wordpressStrings.percent1SRepliedToTicketPercent2S"
+msgstr "{arg1} replied to ticket {arg2}:"
+
+msgid "wordpressStrings.percentSItem"
+msgstr "{value} item"
+
+msgid "wordpressStrings.percentSItems"
+msgstr "{value} items"
+
+msgid "wordpressStrings.percentSTicket"
+msgstr "{value} ticket"
+
+msgid "wordpressStrings.percentSTickets"
+msgstr "{value} tickets"
+
+msgid "wordpressStrings.expired"
+msgstr "(Expired)"
+
+msgid "wordpressStrings.noSubject"
+msgstr "(No Subject)"
+
+msgid "wordpressStrings.none"
+msgstr "-- None --"
+
+msgid "wordpressStrings.selectDepartment"
+msgstr "-- Select Department --"
+
+msgid "wordpressStrings.unassigned"
+msgstr "-- Unassigned --"
+
+msgid "wordpressStrings.aDescriptiveNameToIdentifyThisToken"
+msgstr "A descriptive name to identify this token."
+
+msgid "wordpressStrings.aNewSupportTicketHasBeenSubmittedOnPercentS"
+msgstr "A new support ticket has been submitted on {value}."
+
+msgid "wordpressStrings.apiWebhooks"
+msgstr "API & Webhooks"
+
+msgid "wordpressStrings.apiTokens"
+msgstr "API Tokens"
+
+msgid "wordpressStrings.apiTokenCreatedSuccessfully"
+msgstr "API token created successfully."
+
+msgid "wordpressStrings.apiTokenCreatedSuccessfullyStoreThisTokenSecurelyItWillNotBeShownAgain"
+msgstr "API token created successfully. Store this token securely - it will not be shown again."
+
+msgid "wordpressStrings.apiTokenDeletedSuccessfully"
+msgstr "API token deleted successfully."
+
+msgid "wordpressStrings.apiTokenNotFound"
+msgstr "API token not found."
+
+msgid "wordpressStrings.apiTokenRevokedSuccessfully"
+msgstr "API token revoked successfully."
+
+msgid "wordpressStrings.abilities"
+msgstr "Abilities"
+
+msgid "wordpressStrings.actionCompleted"
+msgstr "Action completed."
+
+msgid "wordpressStrings.actions"
+msgstr "Actions"
+
+msgid "wordpressStrings.actionsa2603e"
+msgstr "Actions #"
+
+msgid "wordpressStrings.actionsJson"
+msgstr "Actions (JSON)"
+
+msgid "wordpressStrings.active"
+msgstr "Active"
+
+msgid "wordpressStrings.activityLogRetentionDays"
+msgstr "Activity Log Retention (days)"
+
+msgid "wordpressStrings.activityTimeline"
+msgstr "Activity Timeline"
+
+msgid "wordpressStrings.activityLogEntriesOlderThanThisWillBeAutomaticallyDeletedSetTo0ToKeepForever"
+msgstr "Activity log entries older than this will be automatically deleted. Set to 0 to keep forever."
+
+msgid "wordpressStrings.addAutomation"
+msgstr "Add Automation"
+
+msgid "wordpressStrings.addDepartment"
+msgstr "Add Department"
+
+msgid "wordpressStrings.addInternalNote"
+msgstr "Add Internal Note"
+
+msgid "wordpressStrings.addMacro"
+msgstr "Add Macro"
+
+msgid "wordpressStrings.addNewAutomation"
+msgstr "Add New Automation"
+
+msgid "wordpressStrings.addNewCannedResponse"
+msgstr "Add New Canned Response"
+
+msgid "wordpressStrings.addNewDepartment"
+msgstr "Add New Department"
+
+msgid "wordpressStrings.addNewEscalationRule"
+msgstr "Add New Escalation Rule"
+
+msgid "wordpressStrings.addNewMacro"
+msgstr "Add New Macro"
+
+msgid "wordpressStrings.addNewSlaPolicy"
+msgstr "Add New SLA Policy"
+
+msgid "wordpressStrings.addNewTag"
+msgstr "Add New Tag"
+
+msgid "wordpressStrings.addNote"
+msgstr "Add Note"
+
+msgid "wordpressStrings.addPolicy"
+msgstr "Add Policy"
+
+msgid "wordpressStrings.addReply"
+msgstr "Add Reply"
+
+msgid "wordpressStrings.addResponse"
+msgstr "Add Response"
+
+msgid "wordpressStrings.addRule"
+msgstr "Add Rule"
+
+msgid "wordpressStrings.addTag"
+msgstr "Add Tag"
+
+msgid "wordpressStrings.agent"
+msgstr "Agent"
+
+msgid "wordpressStrings.agentNotFound"
+msgstr "Agent not found."
+
+msgid "wordpressStrings.agents"
+msgstr "Agents"
+
+msgid "wordpressStrings.allAgents"
+msgstr "All Agents"
+
+msgid "wordpressStrings.allDepartments"
+msgstr "All Departments"
+
+msgid "wordpressStrings.allPriorities"
+msgstr "All Priorities"
+
+msgid "wordpressStrings.allStatuses"
+msgstr "All Statuses"
+
+msgid "wordpressStrings.allFieldsAreRequired"
+msgstr "All fields are required."
+
+msgid "wordpressStrings.allowGuestsNonLoggedInUsersToSubmitTickets"
+msgstr "Allow guests (non-logged-in users) to submit tickets"
+
+msgid "wordpressStrings.allowTicketCreationAndRepliesViaEmail"
+msgstr "Allow ticket creation and replies via email"
+
+msgid "wordpressStrings.anErrorOccurred"
+msgstr "An error occurred."
+
+msgid "wordpressStrings.anErrorOccurredPleaseTryAgain"
+msgstr "An error occurred. Please try again."
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisSlaPolicy"
+msgstr "Are you sure you want to delete this SLA policy?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisAutomation"
+msgstr "Are you sure you want to delete this automation?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisCannedResponse"
+msgstr "Are you sure you want to delete this canned response?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisDepartment"
+msgstr "Are you sure you want to delete this department?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisMacro"
+msgstr "Are you sure you want to delete this macro?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisRule"
+msgstr "Are you sure you want to delete this rule?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisTag"
+msgstr "Are you sure you want to delete this tag?"
+
+msgid "wordpressStrings.areYouSureYouWantToRevokeThisToken"
+msgstr "Are you sure you want to revoke this token?"
+
+msgid "wordpressStrings.assignToAgent"
+msgstr "Assign to Agent"
+
+msgid "wordpressStrings.assigned"
+msgstr "ØªÙ Ø§ÙØªØ¹ÙÙÙ"
+
+msgid "wordpressStrings.assignedUnassigned"
+msgstr "Assigned / Unassigned"
+
+msgid "wordpressStrings.assignee"
+msgstr "Assignee"
+
+msgid "wordpressStrings.assignmentUpdated"
+msgstr "Assignment updated."
+
+msgid "wordpressStrings.attachments"
+msgstr "Attachments"
+
+msgid "wordpressStrings.attachments425a85"
+msgstr "Attachments:"
+
+msgid "wordpressStrings.authenticationRequired"
+msgstr "Authentication required."
+
+msgid "wordpressStrings.author"
+msgstr "Author"
+
+msgid "wordpressStrings.autoFollowsSystemPreference"
+msgstr "Auto (follows system preference)"
+
+msgid "wordpressStrings.autoClose"
+msgstr "Auto-Close"
+
+msgid "wordpressStrings.autoCloseAfterDays"
+msgstr "Auto-Close After (days)"
+
+msgid "wordpressStrings.automaticallyCloseResolvedTicketsAfterAPeriodOfInactivity"
+msgstr "Automatically close resolved tickets after a period of inactivity"
+
+msgid "wordpressStrings.automationCreatedSuccessfully"
+msgstr "Automation created successfully."
+
+msgid "wordpressStrings.automationDeletedSuccessfully"
+msgstr "Automation deleted successfully."
+
+msgid "wordpressStrings.automationIsActive"
+msgstr "Automation is active"
+
+msgid "wordpressStrings.automationNotFound"
+msgstr "Automation not found."
+
+msgid "wordpressStrings.automationUpdatedSuccessfully"
+msgstr "Automation updated successfully."
+
+msgid "wordpressStrings.automations"
+msgstr "Automations"
+
+msgid "wordpressStrings.avgFirstResponse"
+msgstr "Avg. First Response"
+
+msgid "wordpressStrings.avgResolutionTime"
+msgstr "Avg. Resolution Time"
+
+msgid "wordpressStrings.backToMyTickets"
+msgstr "Back to My Tickets"
+
+msgid "wordpressStrings.body"
+msgstr "Body"
+
+msgid "wordpressStrings.briefSummaryOfYourIssue"
+msgstr "Brief summary of your issue"
+
+msgid "wordpressStrings.businessHours"
+msgstr "Business Hours"
+
+msgid "wordpressStrings.calculateSlaDuringBusinessHoursOnly"
+msgstr "Calculate SLA during business hours only"
+
+msgid "wordpressStrings.cancel"
+msgstr "Cancel"
+
+msgid "wordpressStrings.cannedResponses"
+msgstr "Canned Responses"
+
+msgid "wordpressStrings.cannedResponseCreatedSuccessfully"
+msgstr "Canned response created successfully."
+
+msgid "wordpressStrings.cannedResponseDeletedSuccessfully"
+msgstr "Canned response deleted successfully."
+
+msgid "wordpressStrings.cannedResponseUpdatedSuccessfully"
+msgstr "Canned response updated successfully."
+
+msgid "wordpressStrings.cannotTransitionFromPercent1SToPercent2S"
+msgstr "Cannot transition from \\\"{arg1}\\\" to \\\"{arg2}\\\"."
+
+msgid "wordpressStrings.category"
+msgstr "Category"
+
+msgid "wordpressStrings.changePriority"
+msgstr "Change Priority"
+
+msgid "wordpressStrings.changeStatus"
+msgstr "Change Status"
+
+msgid "wordpressStrings.chooseTheColorThemeForTheEscalatedAdminPanel"
+msgstr "Choose the color theme for the Escalated admin panel."
+
+msgid "wordpressStrings.clear"
+msgstr "Clear"
+
+msgid "wordpressStrings.closeTicket"
+msgstr "Close Ticket"
+
+msgid "wordpressStrings.closed"
+msgstr "ÙØºÙÙ"
+
+msgid "wordpressStrings.closede23070"
+msgstr "Closed:"
+
+msgid "wordpressStrings.color"
+msgstr "Color"
+
+msgid "wordpressStrings.commentsOptional"
+msgstr "Comments (optional)"
+
+msgid "wordpressStrings.conditions"
+msgstr "Conditions"
+
+msgid "wordpressStrings.conditionsJson"
+msgstr "Conditions (JSON)"
+
+msgid "wordpressStrings.conversation"
+msgstr "Conversation"
+
+msgid "wordpressStrings.count"
+msgstr "Count"
+
+msgid "wordpressStrings.createNewTicket"
+msgstr "Create New Ticket"
+
+msgid "wordpressStrings.createNewToken"
+msgstr "Create New Token"
+
+msgid "wordpressStrings.createToken"
+msgstr "Create Token"
+
+msgid "wordpressStrings.createYourFirstTicket"
+msgstr "Create Your First Ticket"
+
+msgid "wordpressStrings.createANewTicket"
+msgstr "Create a New Ticket"
+
+msgid "wordpressStrings.createReplies"
+msgstr "Create replies"
+
+msgid "wordpressStrings.createUpdateTickets"
+msgstr "Create/update tickets"
+
+msgid "wordpressStrings.created"
+msgstr "Created"
+
+msgid "wordpressStrings.createdBy"
+msgstr "Created By"
+
+msgid "wordpressStrings.created0c78da"
+msgstr "Created:"
+
+msgid "wordpressStrings.critical"
+msgstr "Ø­Ø±Ø¬"
+
+msgid "wordpressStrings.dark"
+msgstr "Dark"
+
+msgid "wordpressStrings.date"
+msgstr "Date"
+
+msgid "wordpressStrings.default"
+msgstr "Default"
+
+msgid "wordpressStrings.defaultPriority"
+msgstr "Default Priority"
+
+msgid "wordpressStrings.defineMacroActionsAsAJsonArraySupportedActionTypesChangeStatusChangePriorityAssignToAddTagRemoveTagAddReplyAddNoteChangeDepartment"
+msgstr "Define macro actions as a JSON array. Supported action types: change_status, change_priority, assign_to, add_tag, remove_tag, add_reply, add_note, change_department."
+
+msgid "wordpressStrings.delete"
+msgstr "Delete"
+
+msgid "wordpressStrings.department"
+msgstr "Department"
+
+msgid "wordpressStrings.departmentChanged"
+msgstr "Department changed"
+
+msgid "wordpressStrings.departmentCreatedSuccessfully"
+msgstr "Department created successfully."
+
+msgid "wordpressStrings.departmentDeletedSuccessfully"
+msgstr "Department deleted successfully."
+
+msgid "wordpressStrings.departmentIsActive"
+msgstr "Department is active"
+
+msgid "wordpressStrings.departmentUpdatedSuccessfully"
+msgstr "Department updated successfully."
+
+msgid "wordpressStrings.departmentUpdated"
+msgstr "Department updated."
+
+msgid "wordpressStrings.departments"
+msgstr "Departments"
+
+msgid "wordpressStrings.describeYourIssueInDetail"
+msgstr "Describe your issue in detail..."
+
+msgid "wordpressStrings.description"
+msgstr "Description"
+
+msgid "wordpressStrings.descriptionIsRequired"
+msgstr "Description is required."
+
+msgid "wordpressStrings.description9b6f3f"
+msgstr "Description:"
+
+msgid "wordpressStrings.details"
+msgstr "Details"
+
+msgid "wordpressStrings.dueInPercentS"
+msgstr "Due in {value}"
+
+msgid "wordpressStrings.edit"
+msgstr "Edit"
+
+msgid "wordpressStrings.editAutomation"
+msgstr "Edit Automation"
+
+msgid "wordpressStrings.editCannedResponse"
+msgstr "Edit Canned Response"
+
+msgid "wordpressStrings.editDepartment"
+msgstr "Edit Department"
+
+msgid "wordpressStrings.editEscalationRule"
+msgstr "Edit Escalation Rule"
+
+msgid "wordpressStrings.editMacro"
+msgstr "Edit Macro"
+
+msgid "wordpressStrings.editSlaPolicy"
+msgstr "Edit SLA Policy"
+
+msgid "wordpressStrings.editTag"
+msgstr "Edit Tag"
+
+msgid "wordpressStrings.emailAddress"
+msgstr "Email Address"
+
+msgid "wordpressStrings.emailNotifications"
+msgstr "Email Notifications"
+
+msgid "wordpressStrings.enableInboundEmail"
+msgstr "Enable Inbound Email"
+
+msgid "wordpressStrings.encryption"
+msgstr "Encryption"
+
+msgid "wordpressStrings.enterActionsAsAJsonArrayEachActionShouldHaveTypeAndValueKeys"
+msgstr "Enter actions as a JSON array. Each action should have \\\"type\\\" and \\\"value\\\" keys."
+
+msgid "wordpressStrings.enterConditionsAsAJsonArrayEachConditionShouldHaveFieldOperatorAndValueKeys"
+msgstr "Enter conditions as a JSON array. Each condition should have \\\"field\\\", \\\"operator\\\", and \\\"value\\\" keys."
+
+msgid "wordpressStrings.escalated"
+msgstr "ÙÙØµØ¹ÙÙØ¯"
+
+msgid "wordpressStrings.escalatedSettings"
+msgstr "Escalated Settings"
+
+msgid "wordpressStrings.escalationRules"
+msgstr "Escalation Rules"
+
+msgid "wordpressStrings.escalationRuleCreatedSuccessfully"
+msgstr "Escalation rule created successfully."
+
+msgid "wordpressStrings.escalationRuleDeletedSuccessfully"
+msgstr "Escalation rule deleted successfully."
+
+msgid "wordpressStrings.escalationRuleUpdatedSuccessfully"
+msgstr "Escalation rule updated successfully."
+
+msgid "wordpressStrings.everyFiveMinutesEscalated"
+msgstr "Every Five Minutes (Escalated)"
+
+msgid "wordpressStrings.everyMinuteEscalated"
+msgstr "Every Minute (Escalated)"
+
+msgid "wordpressStrings.expirationDate"
+msgstr "Expiration Date"
+
+msgid "wordpressStrings.expires"
+msgstr "Expires"
+
+msgid "wordpressStrings.expiryDateMustBeInTheFuture"
+msgstr "Expiry date must be in the future."
+
+msgid "wordpressStrings.failedToCreateApiToken"
+msgstr "Failed to create API token."
+
+msgid "wordpressStrings.failedToCreateAutomation"
+msgstr "Failed to create automation."
+
+msgid "wordpressStrings.failedToCreateNote"
+msgstr "Failed to create note."
+
+msgid "wordpressStrings.failedToCreateReply"
+msgstr "Failed to create reply."
+
+msgid "wordpressStrings.failedToCreateTicket"
+msgstr "Failed to create ticket."
+
+msgid "wordpressStrings.failedToDeleteTicket"
+msgstr "Failed to delete ticket."
+
+msgid "wordpressStrings.failedToRevokeApiToken"
+msgstr "Failed to revoke API token."
+
+msgid "wordpressStrings.fillOutTheFormBelowToCreateASupportTicketYouWillReceiveALinkToTrackYourRequest"
+msgstr "Fill out the form below to create a support ticket. You will receive a link to track your request."
+
+msgid "wordpressStrings.filter"
+msgstr "Filter"
+
+msgid "wordpressStrings.filterByStatus"
+msgstr "Filter by status"
+
+msgid "wordpressStrings.firstResponseHrs"
+msgstr "First Response (hrs)"
+
+msgid "wordpressStrings.firstResponseBreaches"
+msgstr "First Response Breaches"
+
+msgid "wordpressStrings.firstResponse"
+msgstr "First Response:"
+
+msgid "wordpressStrings.firstResponseSlaBreached"
+msgstr "First response SLA breached"
+
+msgid "wordpressStrings.followers"
+msgstr "Followers"
+
+msgid "wordpressStrings.followingTicket"
+msgstr "Following ticket."
+
+msgid "wordpressStrings.fromEmail"
+msgstr "From Email"
+
+msgid "wordpressStrings.fromName"
+msgstr "From Name"
+
+msgid "wordpressStrings.fromPercentS"
+msgstr "From: {value}"
+
+msgid "wordpressStrings.fullAccessAllAbilities"
+msgstr "Full access (all abilities)"
+
+msgid "wordpressStrings.general"
+msgstr "General"
+
+msgid "wordpressStrings.guest"
+msgstr "Guest"
+
+msgid "wordpressStrings.guestTickets"
+msgstr "Guest Tickets"
+
+msgid "wordpressStrings.guestTicketsAreDisabled"
+msgstr "Guest tickets are disabled."
+
+msgid "wordpressStrings.guestTicketsAreNotAvailable"
+msgstr "Guest tickets are not available."
+
+msgid "wordpressStrings.high"
+msgstr "ÙØ±ØªÙØ¹"
+
+msgid "wordpressStrings.hoursSinceAssigned"
+msgstr "Hours Since Assigned"
+
+msgid "wordpressStrings.hoursSinceCreated"
+msgstr "Hours Since Created"
+
+msgid "wordpressStrings.hoursSinceUpdated"
+msgstr "Hours Since Updated"
+
+msgid "wordpressStrings.howWasYourExperience"
+msgstr "How was your experience?"
+
+msgid "wordpressStrings.imapPort"
+msgstr "IMAP Port"
+
+msgid "wordpressStrings.imapServer"
+msgstr "IMAP Server"
+
+msgid "wordpressStrings.ifUncheckedOnlyYouCanUseThisCannedResponse"
+msgstr "If unchecked, only you can use this canned response."
+
+msgid "wordpressStrings.ifUncheckedOnlyYouCanUseThisMacro"
+msgstr "If unchecked, only you can use this macro."
+
+msgid "wordpressStrings.inProgress"
+msgstr "ÙÙØ¯ Ø§ÙØªÙÙÙØ°"
+
+msgid "wordpressStrings.inboundEmail"
+msgstr "Inbound Email"
+
+msgid "wordpressStrings.internalNote"
+msgstr "Internal Note"
+
+msgid "wordpressStrings.internalNoteAddedSuccessfully"
+msgstr "Internal note added successfully."
+
+msgid "wordpressStrings.internalNoteAdded"
+msgstr "Internal note added."
+
+msgid "wordpressStrings.invalidEmailAddress"
+msgstr "Invalid email address."
+
+msgid "wordpressStrings.invalidOrExpiredApiToken"
+msgstr "Invalid or expired API token."
+
+msgid "wordpressStrings.invalidPriorityValue"
+msgstr "Invalid priority value."
+
+msgid "wordpressStrings.invalidRating"
+msgstr "Invalid rating."
+
+msgid "wordpressStrings.invalidRequest"
+msgstr "Invalid request."
+
+msgid "wordpressStrings.invalidStatusValue"
+msgstr "Invalid status value."
+
+msgid "wordpressStrings.jsonArrayOfActionsSupportedTypesPercentS"
+msgstr "JSON array of actions. Supported types: {value}"
+
+msgid "wordpressStrings.jsonArrayOfConditionsSupportedFieldsPercentS"
+msgstr "JSON array of conditions. Supported fields: {value}"
+
+msgid "wordpressStrings.johnDoe"
+msgstr "John Doe"
+
+msgid "wordpressStrings.last30Days"
+msgstr "Last 30 Days"
+
+msgid "wordpressStrings.lastRun"
+msgstr "Last Run"
+
+msgid "wordpressStrings.lastUsed"
+msgstr "Last Used"
+
+msgid "wordpressStrings.leaveBlankForATokenThatNeverExpires"
+msgstr "Leave blank for a token that never expires."
+
+msgid "wordpressStrings.leaveBlankToAutoGenerateFromName"
+msgstr "Leave blank to auto-generate from name."
+
+msgid "wordpressStrings.light"
+msgstr "Light"
+
+msgid "wordpressStrings.low"
+msgstr "ÙÙØ®ÙØ¶"
+
+msgid "wordpressStrings.lowerNumbersExecuteFirst"
+msgstr "Lower numbers execute first."
+
+msgid "wordpressStrings.macroIdIsRequired"
+msgstr "Macro ID is required."
+
+msgid "wordpressStrings.macroAppliedSuccessfully"
+msgstr "Macro applied successfully."
+
+msgid "wordpressStrings.macroCreatedSuccessfully"
+msgstr "Macro created successfully."
+
+msgid "wordpressStrings.macroDeletedSuccessfully"
+msgstr "Macro deleted successfully."
+
+msgid "wordpressStrings.macroUpdatedSuccessfully"
+msgstr "Macro updated successfully."
+
+msgid "wordpressStrings.macros"
+msgstr "Macros"
+
+msgid "wordpressStrings.maintenance"
+msgstr "Maintenance"
+
+msgid "wordpressStrings.makeSureToCopyThisTokenNowYouWillNotBeAbleToSeeItAgain"
+msgstr "Make sure to copy this token now. You will not be able to see it again!"
+
+msgid "wordpressStrings.maxAttachmentsPerReply"
+msgstr "Max Attachments Per Reply"
+
+msgid "wordpressStrings.maxFileSizeKb"
+msgstr "Max File Size (KB)"
+
+msgid "wordpressStrings.maximumFileSizeForAttachmentsInKilobytes1024010Mb"
+msgstr "Maximum file size for attachments in kilobytes (10240 = 10 MB)."
+
+msgid "wordpressStrings.medium"
+msgstr "ÙØªÙØ³Ø·"
+
+msgid "wordpressStrings.myTickets"
+msgstr "My Tickets"
+
+msgid "wordpressStrings.nA"
+msgstr "N/A"
+
+msgid "wordpressStrings.name"
+msgstr "Name"
+
+msgid "wordpressStrings.never"
+msgstr "Never"
+
+msgid "wordpressStrings.newReplyOnTicket"
+msgstr "New reply on ticket"
+
+msgid "wordpressStrings.newTicketCreated"
+msgstr "New ticket created"
+
+msgid "wordpressStrings.next"
+msgstr "Next"
+
+msgid "wordpressStrings.no"
+msgstr "No"
+
+msgid "wordpressStrings.noApiTokensFound"
+msgstr "No API tokens found."
+
+msgid "wordpressStrings.noResponse"
+msgstr "No Response"
+
+msgid "wordpressStrings.noSlaPoliciesFound"
+msgstr "No SLA policies found."
+
+msgid "wordpressStrings.noActivityRecorded"
+msgstr "No activity recorded."
+
+msgid "wordpressStrings.noAutomationsFound"
+msgstr "No automations found."
+
+msgid "wordpressStrings.noCannedResponsesFound"
+msgstr "No canned responses found."
+
+msgid "wordpressStrings.noDataAvailable"
+msgstr "No data available."
+
+msgid "wordpressStrings.noDepartmentsFound"
+msgstr "No departments found."
+
+msgid "wordpressStrings.noEscalationRulesFound"
+msgstr "No escalation rules found."
+
+msgid "wordpressStrings.noFollowers"
+msgstr "No followers."
+
+msgid "wordpressStrings.noMacrosFound"
+msgstr "No macros found."
+
+msgid "wordpressStrings.noRepliesYet"
+msgstr "No replies yet."
+
+msgid "wordpressStrings.noTagsFound"
+msgstr "No tags found."
+
+msgid "wordpressStrings.noTicketSpecified"
+msgstr "No ticket specified."
+
+msgid "wordpressStrings.noTicketsFound"
+msgstr "No tickets found."
+
+msgid "wordpressStrings.none6eef66"
+msgstr "None"
+
+msgid "wordpressStrings.noteAdded"
+msgstr "Note added"
+
+msgid "wordpressStrings.noteBodyIsRequired"
+msgstr "Note body is required."
+
+msgid "wordpressStrings.notifications"
+msgstr "Notifications"
+
+msgid "wordpressStrings.numberOfDaysAfterWhichResolvedTicketsAreAutomaticallyClosed"
+msgstr "Number of days after which resolved tickets are automatically closed."
+
+msgid "wordpressStrings.open"
+msgstr "ÙÙØªÙØ­"
+
+msgid "wordpressStrings.openTickets"
+msgstr "Open Tickets"
+
+msgid "wordpressStrings.openedByPercent1SPercent2SAgo"
+msgstr "Opened by {arg1} {arg2} ago"
+
+msgid "wordpressStrings.options"
+msgstr "Options"
+
+msgid "wordpressStrings.order"
+msgstr "Order"
+
+msgid "wordpressStrings.overdueByPercentS"
+msgstr "Overdue by {value}"
+
+msgid "wordpressStrings.panelTheme"
+msgstr "Panel Theme"
+
+msgid "wordpressStrings.password"
+msgstr "Password"
+
+msgid "wordpressStrings.percentage"
+msgstr "Percentage"
+
+msgid "wordpressStrings.permissionDenied"
+msgstr "Permission denied."
+
+msgid "wordpressStrings.pleaseDescribeYourIssueInDetail"
+msgstr "Please describe your issue in detail..."
+
+msgid "wordpressStrings.pleaseLogInToCreateATicket"
+msgstr "Please log in to create a ticket."
+
+msgid "wordpressStrings.pleaseLogInToViewTickets"
+msgstr "Please log in to view tickets."
+
+msgid "wordpressStrings.pleaseLogInToViewYourTickets"
+msgstr "Please log in to view your tickets."
+
+msgid "wordpressStrings.pleaseRateTheSupportYouReceivedForThisTicket"
+msgstr "Please rate the support you received for this ticket."
+
+msgid "wordpressStrings.policyIsActive"
+msgstr "Policy is active"
+
+msgid "wordpressStrings.policy"
+msgstr "Policy:"
+
+msgid "wordpressStrings.position"
+msgstr "Position"
+
+msgid "wordpressStrings.poweredByEscalated"
+msgstr "Powered by Escalated"
+
+msgid "wordpressStrings.prefixForTicketReferencesEGEsc00001"
+msgstr "Prefix for ticket references (e.g., ESC-00001)."
+
+msgid "wordpressStrings.preview"
+msgstr "Preview"
+
+msgid "wordpressStrings.previous"
+msgstr "Previous"
+
+msgid "wordpressStrings.priority"
+msgstr "Priority"
+
+msgid "wordpressStrings.priorityBased"
+msgstr "Priority Based"
+
+msgid "wordpressStrings.priorityChanged"
+msgstr "Priority changed"
+
+msgid "wordpressStrings.priorityUpdatedSuccessfully"
+msgstr "Priority updated successfully."
+
+msgid "wordpressStrings.priorityUpdated"
+msgstr "Priority updated."
+
+msgid "wordpressStrings.priority01eb22"
+msgstr "Priority:"
+
+msgid "wordpressStrings.priorityPercentS"
+msgstr "Priority: {value}"
+
+msgid "wordpressStrings.rePercent1SPercent2S"
+msgstr "Re: [{arg1}] {arg2}"
+
+msgid "wordpressStrings.readReports"
+msgstr "Read reports"
+
+msgid "wordpressStrings.readTickets"
+msgstr "Read tickets"
+
+msgid "wordpressStrings.ref"
+msgstr "Ref:"
+
+msgid "wordpressStrings.reference"
+msgstr "Reference"
+
+msgid "wordpressStrings.referencePercentS"
+msgstr "Reference: {value}"
+
+msgid "wordpressStrings.reopened"
+msgstr "Ø£ÙØ¹ÙØ¯ ÙØªØ­Ù"
+
+msgid "wordpressStrings.replied"
+msgstr "Replied"
+
+msgid "wordpressStrings.reply"
+msgstr "Reply"
+
+msgid "wordpressStrings.replyAddedSuccessfully"
+msgstr "Reply added successfully."
+
+msgid "wordpressStrings.replyBodyIsRequired"
+msgstr "Reply body is required."
+
+msgid "wordpressStrings.replySent"
+msgstr "Reply sent."
+
+msgid "wordpressStrings.reports"
+msgstr "Reports"
+
+msgid "wordpressStrings.requester"
+msgstr "Requester"
+
+msgid "wordpressStrings.resolutionHrs"
+msgstr "Resolution (hrs)"
+
+msgid "wordpressStrings.resolutionBreaches"
+msgstr "Resolution Breaches"
+
+msgid "wordpressStrings.resolutionDue"
+msgstr "Resolution Due:"
+
+msgid "wordpressStrings.resolutionSlaBreached"
+msgstr "Resolution SLA breached"
+
+msgid "wordpressStrings.resolved"
+msgstr "ØªÙ Ø§ÙØ­Ù"
+
+msgid "wordpressStrings.resolved5a8b9c"
+msgstr "Resolved:"
+
+msgid "wordpressStrings.revoke"
+msgstr "Revoke"
+
+msgid "wordpressStrings.ruleIsActive"
+msgstr "Rule is active"
+
+msgid "wordpressStrings.slaAutomation"
+msgstr "SLA & Automation"
+
+msgid "wordpressStrings.slaBreach"
+msgstr "SLA Breach"
+
+msgid "wordpressStrings.slaComplianceRate"
+msgstr "SLA Compliance Rate"
+
+msgid "wordpressStrings.slaInformation"
+msgstr "SLA Information"
+
+msgid "wordpressStrings.slaPolicies"
+msgstr "SLA Policies"
+
+msgid "wordpressStrings.slaTargetsHours"
+msgstr "SLA Targets (Hours)"
+
+msgid "wordpressStrings.slaWarningMinutes"
+msgstr "SLA Warning (minutes)"
+
+msgid "wordpressStrings.slaBreacha012b6"
+msgstr "SLA breach"
+
+msgid "wordpressStrings.slaBreached"
+msgstr "SLA breached"
+
+msgid "wordpressStrings.slaPolicyCreatedSuccessfully"
+msgstr "SLA policy created successfully."
+
+msgid "wordpressStrings.slaPolicyDeletedSuccessfully"
+msgstr "SLA policy deleted successfully."
+
+msgid "wordpressStrings.slaPolicyUpdatedSuccessfully"
+msgstr "SLA policy updated successfully."
+
+msgid "wordpressStrings.slaWarningApproachingDeadline"
+msgstr "SLA warning (approaching deadline)"
+
+msgid "wordpressStrings.ssl"
+msgstr "SSL"
+
+msgid "wordpressStrings.saveSettings"
+msgstr "Save Settings"
+
+msgid "wordpressStrings.searchTickets"
+msgstr "Search tickets..."
+
+msgid "wordpressStrings.secretKeyUsedToSignWebhookPayloads"
+msgstr "Secret key used to sign webhook payloads."
+
+msgid "wordpressStrings.securityCheckFailed"
+msgstr "Security check failed."
+
+msgid "wordpressStrings.sendReply"
+msgstr "Send Reply"
+
+msgid "wordpressStrings.sendAWarningNotificationThisManyMinutesBeforeSlaBreach"
+msgstr "Send a warning notification this many minutes before SLA breach."
+
+msgid "wordpressStrings.setTicketType"
+msgstr "Set Ticket Type"
+
+msgid "wordpressStrings.setAsDefaultPolicy"
+msgstr "Set as default policy"
+
+msgid "wordpressStrings.settings"
+msgstr "Settings"
+
+msgid "wordpressStrings.settingsSavedSuccessfully"
+msgstr "Settings saved successfully."
+
+msgid "wordpressStrings.shared"
+msgstr "Shared"
+
+msgid "wordpressStrings.sharedWithAllAgents"
+msgstr "Shared with all agents"
+
+msgid "wordpressStrings.showPoweredByEscalatedFooterOnCustomerPortalPages"
+msgstr "Show \\\"Powered by Escalated\\\" footer on customer portal pages"
+
+msgid "wordpressStrings.slug"
+msgstr "Slug"
+
+msgid "wordpressStrings.sortOrder"
+msgstr "Sort Order"
+
+msgid "wordpressStrings.status"
+msgstr "Status"
+
+msgid "wordpressStrings.statusChange"
+msgstr "Status Change"
+
+msgid "wordpressStrings.statusChanged"
+msgstr "Status changed"
+
+msgid "wordpressStrings.statusUpdatedSuccessfully"
+msgstr "Status updated successfully."
+
+msgid "wordpressStrings.statusUpdated"
+msgstr "Status updated."
+
+msgid "wordpressStrings.status11dc9e"
+msgstr "Status:"
+
+msgid "wordpressStrings.subject"
+msgstr "Subject"
+
+msgid "wordpressStrings.subjectContains"
+msgstr "Subject Contains"
+
+msgid "wordpressStrings.subjectAndDescriptionAreRequired"
+msgstr "Subject and description are required."
+
+msgid "wordpressStrings.subjectIsRequired"
+msgstr "Subject is required."
+
+msgid "wordpressStrings.subjectPercentS"
+msgstr "Subject: {value}"
+
+msgid "wordpressStrings.submitRating"
+msgstr "Submit Rating"
+
+msgid "wordpressStrings.submitRequest"
+msgstr "Submit Request"
+
+msgid "wordpressStrings.submitTicket"
+msgstr "Submit Ticket"
+
+msgid "wordpressStrings.submitASupportRequest"
+msgstr "Submit a Support Request"
+
+msgid "wordpressStrings.support"
+msgstr "Support"
+
+msgid "wordpressStrings.system"
+msgstr "System"
+
+msgid "wordpressStrings.tls"
+msgstr "TLS"
+
+msgid "wordpressStrings.tagAdded"
+msgstr "Tag added"
+
+msgid "wordpressStrings.tagCreatedSuccessfully"
+msgstr "Tag created successfully."
+
+msgid "wordpressStrings.tagDeletedSuccessfully"
+msgstr "Tag deleted successfully."
+
+msgid "wordpressStrings.tagRemoved"
+msgstr "Tag removed"
+
+msgid "wordpressStrings.tagUpdatedSuccessfully"
+msgstr "Tag updated successfully."
+
+msgid "wordpressStrings.tags"
+msgstr "Tags"
+
+msgid "wordpressStrings.tagsUpdatedSuccessfully"
+msgstr "Tags updated successfully."
+
+msgid "wordpressStrings.tagsUpdated"
+msgstr "Tags updated."
+
+msgid "wordpressStrings.tellUsMoreAboutYourExperience"
+msgstr "Tell us more about your experience..."
+
+msgid "wordpressStrings.thankYouForYourFeedback"
+msgstr "Thank you for your feedback!"
+
+msgid "wordpressStrings.thisTicketIsClosedNoFurtherRepliesCanBeAdded"
+msgstr "This ticket is closed. No further replies can be added."
+
+msgid "wordpressStrings.ticketReferencePrefix"
+msgstr "Ticket Reference Prefix"
+
+msgid "wordpressStrings.ticketType"
+msgstr "Ticket Type"
+
+msgid "wordpressStrings.ticketAssignedSuccessfully"
+msgstr "Ticket assigned successfully."
+
+msgid "wordpressStrings.ticketAssignedToAgent"
+msgstr "Ticket assigned to agent"
+
+msgid "wordpressStrings.ticketClosed"
+msgstr "Ticket closed."
+
+msgid "wordpressStrings.ticketCreatedSuccessfully"
+msgstr "Ticket created successfully."
+
+msgid "wordpressStrings.ticketDeletedSuccessfully"
+msgstr "Ticket deleted successfully."
+
+msgid "wordpressStrings.ticketNotFound"
+msgstr "Ticket not found."
+
+msgid "wordpressStrings.tickets"
+msgstr "Tickets"
+
+msgid "wordpressStrings.ticketsByDepartment"
+msgstr "Tickets by Department"
+
+msgid "wordpressStrings.ticketsByPriority"
+msgstr "Tickets by Priority"
+
+msgid "wordpressStrings.ticketsByStatus"
+msgstr "Tickets by Status"
+
+msgid "wordpressStrings.timeBased"
+msgstr "Time Based"
+
+msgid "wordpressStrings.title"
+msgstr "Title"
+
+msgid "wordpressStrings.token"
+msgstr "Token"
+
+msgid "wordpressStrings.tokenName"
+msgstr "Token Name"
+
+msgid "wordpressStrings.tokenNameIsRequired"
+msgstr "Token name is required."
+
+msgid "wordpressStrings.topAgentsByTicketCount"
+msgstr "Top Agents by Ticket Count"
+
+msgid "wordpressStrings.totalTickets"
+msgstr "Total Tickets"
+
+msgid "wordpressStrings.trigger"
+msgstr "Trigger"
+
+msgid "wordpressStrings.triggerType"
+msgstr "Trigger Type"
+
+msgid "wordpressStrings.typeYourReplyHere"
+msgstr "Type your reply here..."
+
+msgid "wordpressStrings.urlToSendWebhookNotificationsForTicketEvents"
+msgstr "URL to send webhook notifications for ticket events."
+
+msgid "wordpressStrings.unassignede57016"
+msgstr "ØºÙØ± ÙØ¹ÙÙÙÙ"
+
+msgid "wordpressStrings.unauthorized"
+msgstr "Unauthorized."
+
+msgid "wordpressStrings.unfollowedTicket"
+msgstr "Unfollowed ticket."
+
+msgid "wordpressStrings.unknown"
+msgstr "Unknown"
+
+msgid "wordpressStrings.update"
+msgstr "Update"
+
+msgid "wordpressStrings.updateAutomation"
+msgstr "Update Automation"
+
+msgid "wordpressStrings.updateDepartment"
+msgstr "Update Department"
+
+msgid "wordpressStrings.updateMacro"
+msgstr "Update Macro"
+
+msgid "wordpressStrings.updatePolicy"
+msgstr "Update Policy"
+
+msgid "wordpressStrings.updateResponse"
+msgstr "Update Response"
+
+msgid "wordpressStrings.updateRule"
+msgstr "Update Rule"
+
+msgid "wordpressStrings.updateTag"
+msgstr "Update Tag"
+
+msgid "wordpressStrings.updateTags"
+msgstr "Update Tags"
+
+msgid "wordpressStrings.updated"
+msgstr "Updated:"
+
+msgid "wordpressStrings.urgent"
+msgstr "Ø¹Ø§Ø¬Ù"
+
+msgid "wordpressStrings.user"
+msgstr "User"
+
+msgid "wordpressStrings.userAssociatedWithThisTokenNoLongerExists"
+msgstr "User associated with this token no longer exists."
+
+msgid "wordpressStrings.userIsNotAnAgent"
+msgstr "User is not an agent."
+
+msgid "wordpressStrings.userNotFound"
+msgstr "User not found."
+
+msgid "wordpressStrings.username"
+msgstr "Username"
+
+msgid "wordpressStrings.viewTicketPercentS"
+msgstr "View ticket: {value}"
+
+msgid "wordpressStrings.visibility"
+msgstr "Visibility"
+
+msgid "wordpressStrings.waitingOnAgent"
+msgstr "Ø¨Ø§ÙØªØ¸Ø§Ø± Ø§ÙÙÙÙÙ"
+
+msgid "wordpressStrings.waitingOnCustomer"
+msgstr "Ø¨Ø§ÙØªØ¸Ø§Ø± Ø§ÙØ¹ÙÙÙ"
+
+msgid "wordpressStrings.webhookSecret"
+msgstr "Webhook Secret"
+
+msgid "wordpressStrings.webhookUrl"
+msgstr "Webhook URL"
+
+msgid "wordpressStrings.yes"
+msgstr "Yes"
+
+msgid "wordpressStrings.youAreViewingThisTicketAsAGuestBookmarkThisPageToAccessYourTicketLater"
+msgstr "You are viewing this ticket as a guest. Bookmark this page to access your ticket later."
+
+msgid "wordpressStrings.youCanAttachUpTo5FilesMax10MbEach"
+msgstr "You can attach up to 5 files. Max 10 MB each."
+
+msgid "wordpressStrings.youDoNotHavePermissionToManageApiTokens"
+msgstr "You do not have permission to manage API tokens."
+
+msgid "wordpressStrings.youHaveNoTicketsYet"
+msgstr "You have no tickets yet."
+
+msgid "wordpressStrings.yourName"
+msgstr "Your Name"
+
+msgid "wordpressStrings.yourRating"
+msgstr "Your Rating"
+
+msgid "wordpressStrings.yourNewApiToken"
+msgstr "Your new API token:"
+
+msgid "wordpressStrings.yourReply"
+msgstr "Your reply"
+
+msgid "wordpressStrings.percent1SNewTicketPercent2S"
+msgstr "[{arg1}] New Ticket: {arg2}"
+
+msgid "wordpressStrings.internalNotee358aa"
+msgstr "[Internal Note]"
+
+msgid "wordpressStrings.ago"
+msgstr "ago"
+
+msgid "wordpressStrings.eGBillingSupportGeneral"
+msgstr "e.g., Billing, Support, General"
+
+msgid "wordpressStrings.eGMyIntegration"
+msgstr "e.g., My Integration"
+
+msgid "wordpressStrings.youExampleCom"
+msgstr "you@example.com"
