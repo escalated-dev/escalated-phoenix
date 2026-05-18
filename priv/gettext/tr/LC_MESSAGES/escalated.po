@@ -1,0 +1,5550 @@
+# Escalated locale catalog — auto-generated, do not edit manually.
+# locale: tr, domain: escalated
+msgid ""
+msgstr ""
+"Project-Id-Version: escalated-locale 0.1.0\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "nav.admin"
+msgstr "Yonetim"
+
+msgid "nav.adminBadge"
+msgstr "ADMIN"
+
+msgid "nav.agentPanel"
+msgstr "Temsilci Paneli"
+
+msgid "nav.backToApp"
+msgstr "Uygulamaya Don"
+
+msgid "nav.myTickets"
+msgstr "Taleplerim"
+
+msgid "nav.dashboard"
+msgstr "Kontrol Paneli"
+
+msgid "nav.tickets"
+msgstr "Talepler"
+
+msgid "nav.reports"
+msgstr "Raporlar"
+
+msgid "nav.departments"
+msgstr "Departmanlar"
+
+msgid "nav.slaPolicies"
+msgstr "SLA Politikalari"
+
+msgid "nav.escalationRules"
+msgstr "Eskalasyon Kurallari"
+
+msgid "nav.tags"
+msgstr "Etiketler"
+
+msgid "nav.cannedResponses"
+msgstr "Hazir Yanitlar"
+
+msgid "nav.macros"
+msgstr "Makrolar"
+
+msgid "nav.apiTokens"
+msgstr "API Tokenleri"
+
+msgid "nav.plugins"
+msgstr "Eklentiler"
+
+msgid "nav.settings"
+msgstr "Ayarlar"
+
+msgid "status.open"
+msgstr "Acik"
+
+msgid "status.inProgress"
+msgstr "Devam Ediyor"
+
+msgid "status.waitingOnCustomer"
+msgstr "Musteri Bekleniyor"
+
+msgid "status.waitingOnAgent"
+msgstr "Temsilci Bekleniyor"
+
+msgid "status.escalated"
+msgstr "Eskale Edildi"
+
+msgid "status.resolved"
+msgstr "Cozuldu"
+
+msgid "status.closed"
+msgstr "Kapatildi"
+
+msgid "status.reopened"
+msgstr "Yeniden Acildi"
+
+msgid "status.snoozed"
+msgstr "Ertelendi"
+
+msgid "status.unsnoozed"
+msgstr "Erteleme kaldırıldı"
+
+msgid "status.live"
+msgstr "Canlı"
+
+msgid "priority.low"
+msgstr "Dusuk"
+
+msgid "priority.medium"
+msgstr "Orta"
+
+msgid "priority.high"
+msgstr "Yuksek"
+
+msgid "priority.urgent"
+msgstr "Acil"
+
+msgid "priority.critical"
+msgstr "Kritik"
+
+msgid "activity.statusChanged"
+msgstr "durumu degistirdi"
+
+msgid "activity.assigned"
+msgstr "talep atadi"
+
+msgid "activity.unassigned"
+msgstr "talep atamasini kaldirdi"
+
+msgid "activity.priorityChanged"
+msgstr "onceligi degistirdi"
+
+msgid "activity.tagAdded"
+msgstr "etiket ekledi"
+
+msgid "activity.tagRemoved"
+msgstr "etiket kaldirdi"
+
+msgid "activity.escalated"
+msgstr "talebi eskale etti"
+
+msgid "activity.slaBreached"
+msgstr "SLA ihlal edildi"
+
+msgid "activity.replied"
+msgstr "yanit verdi"
+
+msgid "activity.noteAdded"
+msgstr "not ekledi"
+
+msgid "activity.departmentChanged"
+msgstr "departmani degistirdi"
+
+msgid "activity.reopened"
+msgstr "talebi yeniden acti"
+
+msgid "activity.resolved"
+msgstr "talebi cozdu"
+
+msgid "activity.closed"
+msgstr "talebi kapatti"
+
+msgid "activity.system"
+msgstr "Sistem"
+
+msgid "activity.noActivity"
+msgstr "Henuz etkinlik yok."
+
+msgid "activity.to"
+msgstr "olarak"
+
+msgid "activity.assignedTo"
+msgstr "atanan"
+
+msgid "activity.snoozed"
+msgstr "Ertelendi"
+
+msgid "activity.unsnoozed"
+msgstr "Erteleme kaldirildi"
+
+msgid "activity.ticketSplit"
+msgstr "Destek talebi bolundu"
+
+msgid "ticket.reference"
+msgstr "Referans"
+
+msgid "ticket.subject"
+msgstr "Konu"
+
+msgid "ticket.requester"
+msgstr "Talep Eden"
+
+msgid "ticket.status"
+msgstr "Durum"
+
+msgid "ticket.priority"
+msgstr "Oncelik"
+
+msgid "ticket.assignee"
+msgstr "Atanan"
+
+msgid "ticket.lastReply"
+msgstr "Son Yanit"
+
+msgid "ticket.unknown"
+msgstr "Bilinmiyor"
+
+msgid "ticket.unassigned"
+msgstr "Atanmamis"
+
+msgid "ticket.noTickets"
+msgstr "Talep bulunamadi."
+
+msgid "ticket.details"
+msgstr "Detaylar"
+
+msgid "ticket.department"
+msgstr "Departman"
+
+msgid "ticket.created"
+msgstr "Olusturulma"
+
+msgid "ticket.activity"
+msgstr "Etkinlik"
+
+msgid "ticket.conversation"
+msgstr "Gorusme"
+
+msgid "ticket.by"
+msgstr "tarafindan"
+
+msgid "ticket.assignToMe"
+msgstr "Bana Ata"
+
+msgid "ticket.closeTicket"
+msgstr "Talebi Kapat"
+
+msgid "ticket.reopen"
+msgstr "Yeniden Ac"
+
+msgid "ticket.allTickets"
+msgstr "Tum Talepler"
+
+msgid "ticket.ticketQueue"
+msgstr "Talep Kuyrugu"
+
+msgid "ticket.myTickets"
+msgstr "Taleplerim"
+
+msgid "ticket.newTicket"
+msgstr "Yeni Talep"
+
+msgid "ticket.createTicket"
+msgstr "Talep Olustur"
+
+msgid "ticket.submitTicket"
+msgstr "Talep Gonder"
+
+msgid "ticket.noReplies"
+msgstr "Henuz yanit yok."
+
+msgid "ticket.ticketClosedNoReplies"
+msgstr "Bu talep kapatildi. Daha fazla yanit eklenemez."
+
+msgid "ticket.replySent"
+msgstr "Yanıt gönderildi."
+
+msgid "ticket.noteAdded"
+msgstr "Not eklendi."
+
+msgid "ticket.assigned"
+msgstr "Talep atandı."
+
+msgid "ticket.statusUpdated"
+msgstr "Durum güncellendi."
+
+msgid "ticket.priorityUpdated"
+msgstr "Öncelik güncellendi."
+
+msgid "ticket.tagsUpdated"
+msgstr "Etiketler güncellendi."
+
+msgid "ticket.departmentUpdated"
+msgstr "Departman güncellendi."
+
+msgid "ticket.macroApplied"
+msgstr "\"{name}\" makrosu uygulandı."
+
+msgid "ticket.following"
+msgstr "Talebi takip ediyorsunuz."
+
+msgid "ticket.unfollowed"
+msgstr "Talep takibi bırakıldı."
+
+msgid "ticket.onlyInternalNotesPinned"
+msgstr "Yalnızca dahili notlar sabitlenebilir."
+
+msgid "ticket.updated"
+msgstr "Talep güncellendi."
+
+msgid "ticket.closed"
+msgstr "Talep kapatıldı."
+
+msgid "ticket.reopened"
+msgstr "Talep yeniden açıldı."
+
+msgid "ticket.customersCannotClose"
+msgstr "Müşteriler talepleri kapatamaz."
+
+msgid "ticket.notePinned"
+msgstr "Not sabitlendi."
+
+msgid "ticket.noteUnpinned"
+msgstr "Not sabitleme kaldirildi."
+
+msgid "ticket.pinNotesOnly"
+msgstr "Yalnizca dahili notlar sabitlenebilir."
+
+msgid "ticket.customerCloseForbidden"
+msgstr "Musteriler destek taleplerini kapatamazlar."
+
+msgid "bulk.ticketsSelected"
+msgstr "{count} talep secildi"
+
+msgid "bulk.statusPlaceholder"
+msgstr "Durum..."
+
+msgid "bulk.priorityPlaceholder"
+msgstr "Oncelik..."
+
+msgid "bulk.assignPlaceholder"
+msgstr "Ata..."
+
+msgid "bulk.departmentPlaceholder"
+msgstr "Departman..."
+
+msgid "bulk.delete"
+msgstr "Sil"
+
+msgid "bulk.deselectAll"
+msgstr "Secimi Kaldir"
+
+msgid "bulk.updated"
+msgstr "{count} talep güncellendi."
+
+msgid "filter.searchTickets"
+msgstr "Talep ara..."
+
+msgid "filter.allStatuses"
+msgstr "Tum Durumlar"
+
+msgid "filter.allPriorities"
+msgstr "Tum Oncelikler"
+
+msgid "filter.allAgents"
+msgstr "Tum Temsilciler"
+
+msgid "filter.allDepartments"
+msgstr "Tum Departmanlar"
+
+msgid "filter.following"
+msgstr "Takip Edilen"
+
+msgid "quickFilter.myTickets"
+msgstr "Taleplerim"
+
+msgid "quickFilter.unassigned"
+msgstr "Atanmamis"
+
+msgid "quickFilter.urgentPlus"
+msgstr "Acil+"
+
+msgid "quickFilter.slaBreaching"
+msgstr "SLA Ihlali"
+
+msgid "quickFilter.following"
+msgstr "Takip Edilen"
+
+msgid "reply.reply"
+msgstr "Yanitla"
+
+msgid "reply.internalNote"
+msgstr "Dahili Not"
+
+msgid "reply.noteVisibility"
+msgstr "Bu not yalnizca temsilciler tarafindan gorulur."
+
+msgid "reply.placeholder"
+msgstr "Yanitinizi yazin..."
+
+msgid "reply.cannedResponses"
+msgstr "Hazir yanitlar..."
+
+msgid "reply.addNote"
+msgstr "Not Ekle"
+
+msgid "reply.sendReply"
+msgstr "Yanit Gonder"
+
+msgid "reply.pinned"
+msgstr "Sabitlenmis"
+
+msgid "reply.unpin"
+msgstr "Sabitlemeyi Kaldir"
+
+msgid "reply.pin"
+msgstr "Sabitle"
+
+msgid "reply.writeInternalNote"
+msgstr "Dahili not yazin..."
+
+msgid "rating.customerRating"
+msgstr "Musteri Degerlendirmesi"
+
+msgid "rating.howWasExperience"
+msgstr "Deneyiminiz nasil oldu?"
+
+msgid "rating.terrible"
+msgstr "Cok Kotu"
+
+msgid "rating.poor"
+msgstr "Kotu"
+
+msgid "rating.okay"
+msgstr "Normal"
+
+msgid "rating.good"
+msgstr "Iyi"
+
+msgid "rating.excellent"
+msgstr "Mukemmel"
+
+msgid "rating.feedbackPlaceholder"
+msgstr "Ek geri bildiriminiz var mi? (istege bagli)"
+
+msgid "rating.thankYou"
+msgstr "Geri bildiriminiz icin tesekkurler!"
+
+msgid "rating.submitRating"
+msgstr "Degerlendirme Gonder"
+
+msgid "rating.customerSatisfaction"
+msgstr "Musteri Memnuniyeti"
+
+msgid "rating.onlyResolvedClosed"
+msgstr "Yalnızca çözülmüş veya kapatılmış talepleri değerlendirebilirsiniz."
+
+msgid "rating.alreadyRated"
+msgstr "Bu talep zaten değerlendirilmiş."
+
+msgid "rating.thanks"
+msgstr "Geri bildiriminiz için teşekkürler!"
+
+msgid "keyboard.title"
+msgstr "Klavye Kisayollari"
+
+msgid "keyboard.listView"
+msgstr "Liste Gorunumu"
+
+msgid "keyboard.detailView"
+msgstr "Detay Gorunumu"
+
+msgid "keyboard.global"
+msgstr "Genel"
+
+msgid "keyboard.moveDown"
+msgstr "Asagi git"
+
+msgid "keyboard.moveUp"
+msgstr "Yukari git"
+
+msgid "keyboard.toggleSelect"
+msgstr "Secimi degistir"
+
+msgid "keyboard.openTicket"
+msgstr "Talebi ac"
+
+msgid "keyboard.reply"
+msgstr "Yanitla"
+
+msgid "keyboard.internalNote"
+msgstr "Dahili not"
+
+msgid "keyboard.changeStatus"
+msgstr "Durumu degistir"
+
+msgid "keyboard.changePriority"
+msgstr "Onceligi degistir"
+
+msgid "keyboard.followUnfollow"
+msgstr "Takip et/Birak"
+
+msgid "keyboard.showHelp"
+msgstr "Bu yardimi goster"
+
+msgid "keyboard.escToClose"
+msgstr "Kapatmak icin Esc'ye basin"
+
+msgid "sla.overdue"
+msgstr "Gecikti"
+
+msgid "sla.breached"
+msgstr "SLA Ihlal Edildi"
+
+msgid "sla.firstResponse"
+msgstr "Ilk Yanit"
+
+msgid "sla.resolution"
+msgstr "Cozum"
+
+msgid "follow.following"
+msgstr "Takip Ediliyor"
+
+msgid "follow.follow"
+msgstr "Takip Et"
+
+msgid "file.dropOrBrowse"
+msgstr "Dosyalari buraya birakin veya {link}"
+
+msgid "file.browse"
+msgstr "gozatin"
+
+msgid "macro.applyMacro"
+msgstr "Makro Uygula"
+
+msgid "macro.macros"
+msgstr "Makrolar"
+
+msgid "macro.noMacros"
+msgstr "Kullanilabilir makro yok"
+
+msgid "macro.created"
+msgstr "Makro oluşturuldu."
+
+msgid "macro.updated"
+msgstr "Makro güncellendi."
+
+msgid "macro.deleted"
+msgstr "Makro silindi."
+
+msgid "form.name"
+msgstr "Ad"
+
+msgid "form.description"
+msgstr "Aciklama"
+
+msgid "form.slug"
+msgstr "Slug"
+
+msgid "form.autoGenerated"
+msgstr "Bos birakilirsa otomatik olusturulur"
+
+msgid "form.active"
+msgstr "Aktif"
+
+msgid "form.update"
+msgstr "Guncelle"
+
+msgid "form.create"
+msgstr "Olustur"
+
+msgid "form.save"
+msgstr "Kaydet"
+
+msgid "form.cancel"
+msgstr "Iptal"
+
+msgid "form.edit"
+msgstr "Duzenle"
+
+msgid "form.delete"
+msgstr "Sil"
+
+msgid "form.actions"
+msgstr "Eylemler"
+
+msgid "form.order"
+msgstr "Sira"
+
+msgid "form.value"
+msgstr "Deger"
+
+msgid "form.yes"
+msgstr "Evet"
+
+msgid "form.no"
+msgstr "Hayir"
+
+msgid "form.confirm"
+msgstr "Onayla"
+
+msgid "form.none"
+msgstr "Yok"
+
+msgid "form.general"
+msgstr "Genel"
+
+msgid "form.shared"
+msgstr "Paylasilan"
+
+msgid "form.private"
+msgstr "Ozel"
+
+msgid "form.color"
+msgstr "Renk"
+
+msgid "form.title"
+msgstr "Baslik"
+
+msgid "form.copy"
+msgstr "Kopyala"
+
+msgid "form.dismiss"
+msgstr "Kapat"
+
+msgid "form.saved"
+msgstr "Kaydedildi."
+
+msgid "form.saving"
+msgstr "Kaydediliyor..."
+
+msgid "form.creating"
+msgstr "Olusturuluyor..."
+
+msgid "form.submitting"
+msgstr "Gonderiliyor..."
+
+msgid "form.sending"
+msgstr "Gonderiliyor..."
+
+msgid "form.uploading"
+msgstr "Yukleniyor..."
+
+msgid "form.copied"
+msgstr "Kopyalandi!"
+
+msgid "form.subject"
+msgstr "Konu"
+
+msgid "form.priority"
+msgstr "Oncelik"
+
+msgid "form.department"
+msgstr "Departman"
+
+msgid "form.attachments"
+msgstr "Ekler"
+
+msgid "presence.alsoViewing"
+msgstr "Ayrica goruntuleyenler: {names}"
+
+msgid "pinnedNotes.title"
+msgstr "Sabitlenmis Notlar"
+
+msgid "pinnedNotes.unpin"
+msgstr "Sabitlemeyi Kaldir"
+
+msgid "admin.settings.title"
+msgstr "Ayarlar"
+
+msgid "admin.settings.general"
+msgstr "Genel"
+
+msgid "admin.settings.guestTickets"
+msgstr "Misafir Talepleri"
+
+msgid "admin.settings.guestTicketsDesc"
+msgstr "Ziyaretcilerin giris yapmadan talep gondermesine izin ver"
+
+msgid "admin.settings.allowCustomerClose"
+msgstr "Musterinin Kapatmasina Izin Ver"
+
+msgid "admin.settings.allowCustomerCloseDesc"
+msgstr "Musterilerin kendi taleplerini kapatmasina izin ver"
+
+msgid "admin.settings.autoClose"
+msgstr "Cozulen talepleri otomatik kapat"
+
+msgid "admin.settings.autoCloseDesc"
+msgstr "Cozumden sonra otomatik kapanmaya kadar gecen gun (0 devre disi birakmak icin)"
+
+msgid "admin.settings.days"
+msgstr "gun"
+
+msgid "admin.settings.limits"
+msgstr "Limitler"
+
+msgid "admin.settings.maxAttachments"
+msgstr "Yanit basina maks. ek"
+
+msgid "admin.settings.maxAttachmentSize"
+msgstr "Maks. ek boyutu"
+
+msgid "admin.settings.tickets"
+msgstr "Talepler"
+
+msgid "admin.settings.referencePrefix"
+msgstr "Referans Oneki"
+
+msgid "admin.settings.referencePrefixDesc"
+msgstr "Talep referanslari icin onek (orn. ESC, ESC-00001 uretir)"
+
+msgid "admin.settings.inboundEmail"
+msgstr "Gelen E-posta"
+
+msgid "admin.settings.inboundEmailDesc"
+msgstr "E-posta ile talep olusturma ve yanitlamaya izin ver"
+
+msgid "admin.settings.emailProvider"
+msgstr "E-posta Saglayici"
+
+msgid "admin.settings.emailProviderDesc"
+msgstr "Gelen e-postalarin nasil alinacagi"
+
+msgid "admin.settings.supportEmail"
+msgstr "Destek E-posta Adresi"
+
+msgid "admin.settings.supportEmailDesc"
+msgstr "Musterilerin e-posta gonderecegi adres (orn. support@example.com)"
+
+msgid "admin.settings.signingKey"
+msgstr "Imzalama Anahtari"
+
+msgid "admin.settings.webhookUrl"
+msgstr "Webhook URL"
+
+msgid "admin.settings.mailgunWebhookDesc"
+msgstr "Bu URL'yi Mailgun panelinizde yapilandirin"
+
+msgid "admin.settings.inboundToken"
+msgstr "Gelen Token"
+
+msgid "admin.settings.postmarkWebhookDesc"
+msgstr "Bu URL'yi Postmark sunucu ayarlarinizda yapilandirin"
+
+msgid "admin.settings.region"
+msgstr "Bolge"
+
+msgid "admin.settings.topicArn"
+msgstr "Topic ARN"
+
+msgid "admin.settings.sesWebhookDesc"
+msgstr "Bu URL'yi SNS abonelik uç noktasi olarak yapilandirin"
+
+msgid "admin.settings.host"
+msgstr "Sunucu"
+
+msgid "admin.settings.port"
+msgstr "Port"
+
+msgid "admin.settings.encryption"
+msgstr "Sifreleme"
+
+msgid "admin.settings.username"
+msgstr "Kullanici Adi"
+
+msgid "admin.settings.password"
+msgstr "Sifre"
+
+msgid "admin.settings.mailbox"
+msgstr "Posta Kutusu"
+
+msgid "admin.settings.saveSettings"
+msgstr "Ayarlari Kaydet"
+
+msgid "admin.settings.updated"
+msgstr "Ayarlar basariyla guncellendi."
+
+msgid "admin.reports.title"
+msgstr "Raporlar"
+
+msgid "admin.reports.lastDays"
+msgstr "Son {count} gun"
+
+msgid "admin.reports.totalTickets"
+msgstr "Toplam Talep"
+
+msgid "admin.reports.resolved"
+msgstr "Cozuldu"
+
+msgid "admin.reports.avgFirstResponse"
+msgstr "Ort. Ilk Yanit"
+
+msgid "admin.reports.slaBreaches"
+msgstr "SLA Ihlalleri"
+
+msgid "admin.reports.byStatus"
+msgstr "Duruma Gore"
+
+msgid "admin.reports.byPriority"
+msgstr "Oncelik Gore"
+
+msgid "admin.reports.noData"
+msgstr "Bu donem icin talep verisi yok"
+
+msgid "admin.reports.noRatings"
+msgstr "Bu donem icin degerlendirme yok"
+
+msgid "admin.reports.ratingsCount"
+msgstr "({count} degerlendirme)"
+
+msgid "admin.reports.advancedReports"
+msgstr "Gelismis Raporlar"
+
+msgid "admin.reports.slaTrends"
+msgstr "SLA Ihlal Egilimi"
+
+msgid "admin.reports.responseTimes"
+msgstr "Ilk Yanit Suresi Analizi"
+
+msgid "admin.reports.resolutionTimes"
+msgstr "Cozum Suresi Analizi"
+
+msgid "admin.reports.agentRanking"
+msgstr "Temsilci Performans Siralamasi"
+
+msgid "admin.reports.agentDetail"
+msgstr "Temsilci Detayli Analizi"
+
+msgid "admin.reports.cohorts"
+msgstr "Kohort Analizi"
+
+msgid "admin.reports.comparison"
+msgstr "Donem Karsilastirmasi"
+
+msgid "admin.reports.overview"
+msgstr "Genel Bakis"
+
+msgid "admin.reports.agents"
+msgstr "Temsilciler"
+
+msgid "admin.reports.sla"
+msgstr "SLA"
+
+msgid "admin.reports.csat"
+msgstr "CSAT"
+
+msgid "admin.reports.export"
+msgstr "Disa Aktar"
+
+msgid "admin.reports.exportCsv"
+msgstr "CSV Olarak Aktar"
+
+msgid "admin.reports.exportJson"
+msgstr "JSON Olarak Aktar"
+
+msgid "admin.reports.periodCustom"
+msgstr "Ozel"
+
+msgid "admin.reports.periodApply"
+msgstr "Uygula"
+
+msgid "admin.reports.periodStart"
+msgstr "Baslangic"
+
+msgid "admin.reports.periodEnd"
+msgstr "Bitis"
+
+msgid "admin.reports.totalBreaches"
+msgstr "Toplam Ihlal"
+
+msgid "admin.reports.breachRate"
+msgstr "Ihlal Orani"
+
+msgid "admin.reports.frtBreaches"
+msgstr "FRT Ihlalleri"
+
+msgid "admin.reports.resolutionBreachesLabel"
+msgstr "Cozum Ihlalleri"
+
+msgid "admin.reports.breachCountOverTime"
+msgstr "Zaman Icinde Ihlal Sayisi"
+
+msgid "admin.reports.frtVsResolution"
+msgstr "Ilk Yanit vs Cozum Ihlalleri"
+
+msgid "admin.reports.breachByDepartment"
+msgstr "Departmana Gore Ihlal Orani"
+
+msgid "admin.reports.breachByPriority"
+msgstr "Oncelik Gore Ihlal Orani"
+
+msgid "admin.reports.atRisk"
+msgstr "Risk Altinda - SLA Ihlaline Yaklasiliyor"
+
+msgid "admin.reports.critical"
+msgstr "Kritik"
+
+msgid "admin.reports.warning"
+msgstr "Uyari"
+
+msgid "admin.reports.watch"
+msgstr "Izleme"
+
+msgid "admin.reports.hoursRemaining"
+msgstr "{count} saat kaldi"
+
+msgid "admin.reports.noAtRisk"
+msgstr "Su anda risk altinda talep yok."
+
+msgid "admin.reports.avgFrt"
+msgstr "Ort. FRT"
+
+msgid "admin.reports.medianFrt"
+msgstr "Medyan FRT"
+
+msgid "admin.reports.p90Frt"
+msgstr "P90 FRT"
+
+msgid "admin.reports.underTarget"
+msgstr "Hedef Altinda"
+
+msgid "admin.reports.frtDistribution"
+msgstr "FRT Dagilimi"
+
+msgid "admin.reports.avgFrtTrend"
+msgstr "Ort. FRT Egilimi"
+
+msgid "admin.reports.frtByDepartment"
+msgstr "Departmana Gore FRT"
+
+msgid "admin.reports.frtByPriority"
+msgstr "Oncelik Gore FRT"
+
+msgid "admin.reports.frtByAgent"
+msgstr "Temsilciye Gore FRT"
+
+msgid "admin.reports.avgResolution"
+msgstr "Ort. Cozum"
+
+msgid "admin.reports.medianResolution"
+msgstr "Medyan Cozum"
+
+msgid "admin.reports.p90Resolution"
+msgstr "P90 Cozum"
+
+msgid "admin.reports.resolutionDistribution"
+msgstr "Cozum Suresi Dagilimi"
+
+msgid "admin.reports.resolutionTrend"
+msgstr "Ort. Cozum Suresi Egilimi"
+
+msgid "admin.reports.resolutionByDepartment"
+msgstr "Departmana Gore Cozum"
+
+msgid "admin.reports.resolutionByChannel"
+msgstr "Kanala Gore Cozum"
+
+msgid "admin.reports.resolutionByAgent"
+msgstr "Temsilciye Gore Cozum Suresi"
+
+msgid "admin.reports.compositeScore"
+msgstr "Puan"
+
+msgid "admin.reports.resolutionRate"
+msgstr "Cozum %"
+
+msgid "admin.reports.volume"
+msgstr "Hacim"
+
+msgid "admin.reports.trend"
+msgstr "Egilim"
+
+msgid "admin.reports.topPerformers"
+msgstr "En Iyiler"
+
+msgid "admin.reports.needsAttention"
+msgstr "Dikkat Gerekiyor"
+
+msgid "admin.reports.backToRankings"
+msgstr "Siralamaya Don"
+
+msgid "admin.reports.responsePercentiles"
+msgstr "Yanit Suresi Yuzdelikleri"
+
+msgid "admin.reports.productivity"
+msgstr "Verimlilik"
+
+msgid "admin.reports.workloadOverTime"
+msgstr "Zaman Icinde Is Yuku"
+
+msgid "admin.reports.csatBreakdown"
+msgstr "CSAT Detayi"
+
+msgid "admin.reports.byTag"
+msgstr "Etikete Gore"
+
+msgid "admin.reports.byDepartment"
+msgstr "Departmana Gore"
+
+msgid "admin.reports.byChannel"
+msgstr "Kanala Gore"
+
+msgid "admin.reports.byType"
+msgstr "Ture Gore"
+
+msgid "admin.reports.noCohortData"
+msgstr "Bu kohort turu icin veri yok."
+
+msgid "admin.reports.currentPeriod"
+msgstr "Mevcut Donem"
+
+msgid "admin.reports.previousPeriod"
+msgstr "Onceki Donem"
+
+msgid "admin.reports.vsPrevious"
+msgstr "onceki doneme kiyasla"
+
+msgid "admin.reports.pctChange"
+msgstr "% degisim"
+
+msgid "admin.reports.slaCompliance"
+msgstr "SLA Uyumu"
+
+msgid "admin.reports.noAgentData"
+msgstr "Bu donem icin temsilci verisi yok."
+
+msgid "admin.reports.avg"
+msgstr "Ort."
+
+msgid "admin.reports.median"
+msgstr "Medyan"
+
+msgid "admin.reports.agent"
+msgstr "Temsilci"
+
+msgid "admin.reports.back"
+msgstr "Geri"
+
+msgid "admin.departments.title"
+msgstr "Departmanlar"
+
+msgid "admin.departments.add"
+msgstr "Departman Ekle"
+
+msgid "admin.departments.editTitle"
+msgstr "Departmani Duzenle"
+
+msgid "admin.departments.newTitle"
+msgstr "Yeni Departman"
+
+msgid "admin.departments.tickets"
+msgstr "Talepler"
+
+msgid "admin.departments.agents"
+msgstr "Temsilciler"
+
+msgid "admin.departments.noDepartments"
+msgstr "Henuz departman yok"
+
+msgid "admin.departments.noDepartmentsDesc"
+msgstr "Talepleri duzenlemek icin ilk departmaninizi olusturun"
+
+msgid "admin.departments.confirmDelete"
+msgstr "Bu departmani silinsin mi?"
+
+msgid "admin.slaPolicies.title"
+msgstr "SLA Politikalari"
+
+msgid "admin.slaPolicies.add"
+msgstr "Politika Ekle"
+
+msgid "admin.slaPolicies.editTitle"
+msgstr "SLA Politikasini Duzenle"
+
+msgid "admin.slaPolicies.newTitle"
+msgstr "Yeni SLA Politikasi"
+
+msgid "admin.slaPolicies.default"
+msgstr "Varsayilan"
+
+msgid "admin.slaPolicies.businessHours"
+msgstr "Calisma Saatleri"
+
+msgid "admin.slaPolicies.businessHoursOnly"
+msgstr "Yalnizca calisma saatleri"
+
+msgid "admin.slaPolicies.defaultPolicy"
+msgstr "Varsayilan politika"
+
+msgid "admin.slaPolicies.firstResponseHours"
+msgstr "Ilk Yanit Saatleri (oncelik gore)"
+
+msgid "admin.slaPolicies.resolutionHours"
+msgstr "Cozum Saatleri (oncelik gore)"
+
+msgid "admin.slaPolicies.noPolicies"
+msgstr "Henuz SLA politikasi yok"
+
+msgid "admin.slaPolicies.noPoliciesDesc"
+msgstr "Yanit ve cozum suresi hedeflerini tanimlayin"
+
+msgid "admin.slaPolicies.confirmDelete"
+msgstr "Bu SLA politikasi silinsin mi?"
+
+msgid "admin.escalationRules.title"
+msgstr "Eskalasyon Kurallari"
+
+msgid "admin.escalationRules.add"
+msgstr "Kural Ekle"
+
+msgid "admin.escalationRules.editTitle"
+msgstr "Eskalasyon Kuralini Duzenle"
+
+msgid "admin.escalationRules.newTitle"
+msgstr "Yeni Eskalasyon Kurali"
+
+msgid "admin.escalationRules.trigger"
+msgstr "Tetikleyici"
+
+msgid "admin.escalationRules.triggerType"
+msgstr "Tetikleyici Turu"
+
+msgid "admin.escalationRules.timeBased"
+msgstr "Zamana Dayali"
+
+msgid "admin.escalationRules.slaBreach"
+msgstr "SLA Ihlali"
+
+msgid "admin.escalationRules.priorityBased"
+msgstr "Oncelik Dayali"
+
+msgid "admin.escalationRules.conditions"
+msgstr "Kosullar"
+
+msgid "admin.escalationRules.addShort"
+msgstr "+ Ekle"
+
+msgid "admin.escalationRules.status"
+msgstr "Durum"
+
+msgid "admin.escalationRules.priority"
+msgstr "Oncelik"
+
+msgid "admin.escalationRules.assignment"
+msgstr "Atama"
+
+msgid "admin.escalationRules.ageHours"
+msgstr "Yas (saat)"
+
+msgid "admin.escalationRules.noResponseHours"
+msgstr "Yanit Yok (saat)"
+
+msgid "admin.escalationRules.slaBreached"
+msgstr "SLA Ihlal Edildi"
+
+msgid "admin.escalationRules.escalate"
+msgstr "Eskale Et"
+
+msgid "admin.escalationRules.changePriority"
+msgstr "Onceligi Degistir"
+
+msgid "admin.escalationRules.assignTo"
+msgstr "Ata"
+
+msgid "admin.escalationRules.changeDepartment"
+msgstr "Departmani Degistir"
+
+msgid "admin.escalationRules.noRules"
+msgstr "Henuz eskalasyon kurali yok"
+
+msgid "admin.escalationRules.noRulesDesc"
+msgstr "Gecikis talepler icin otomatik eskalasyon ayarlayin"
+
+msgid "admin.escalationRules.confirmDelete"
+msgstr "Bu eskalasyon kurali silinsin mi?"
+
+msgid "admin.cannedResponses.title"
+msgstr "Hazir Yanitlar"
+
+msgid "admin.cannedResponses.add"
+msgstr "Yanit Ekle"
+
+msgid "admin.cannedResponses.titlePlaceholder"
+msgstr "Baslik"
+
+msgid "admin.cannedResponses.bodyPlaceholder"
+msgstr "Yanit metni..."
+
+msgid "admin.cannedResponses.categoryPlaceholder"
+msgstr "Kategori (istege bagli)"
+
+msgid "admin.cannedResponses.noResponses"
+msgstr "Henuz hazir yanit yok"
+
+msgid "admin.cannedResponses.noResponsesDesc"
+msgstr "Yaygin yanitlar icin yeniden kullanilabilir sablonlar olusturun"
+
+msgid "admin.cannedResponses.confirmDelete"
+msgstr "Bu hazir yanit silinsin mi?"
+
+msgid "admin.tags.title"
+msgstr "Etiketler"
+
+msgid "admin.tags.add"
+msgstr "Etiket Ekle"
+
+msgid "admin.tags.noTags"
+msgstr "Henuz etiket yok"
+
+msgid "admin.tags.noTagsDesc"
+msgstr "Talepleri kategorilendirmek ve filtrelemek icin etiketler olusturun"
+
+msgid "admin.tags.confirmDelete"
+msgstr "Bu etiket silinsin mi?"
+
+msgid "admin.macros.title"
+msgstr "Makrolar"
+
+msgid "admin.macros.subtitle"
+msgstr "Makrolar taleplerdeki tekrarlayan islemleri otomatiklestirir."
+
+msgid "admin.macros.createMacro"
+msgstr "Makro Olustur"
+
+msgid "admin.macros.updateMacro"
+msgstr "Makro Guncelle"
+
+msgid "admin.macros.sharedLabel"
+msgstr "Tum temsilcilerle paylasilan"
+
+msgid "admin.macros.addAction"
+msgstr "+ Eylem Ekle"
+
+msgid "admin.macros.noActions"
+msgstr "Henuz eylem yok. Bu makronun ne yaptigini tanimlamak icin eylemler ekleyin."
+
+msgid "admin.macros.setStatus"
+msgstr "Durumu Ayarla"
+
+msgid "admin.macros.setPriority"
+msgstr "Onceligi Ayarla"
+
+msgid "admin.macros.assignTo"
+msgstr "Ata"
+
+msgid "admin.macros.addTags"
+msgstr "Etiket Ekle"
+
+msgid "admin.macros.moveToDepartment"
+msgstr "Departmana Tasi"
+
+msgid "admin.macros.sendReply"
+msgstr "Yanit Gonder"
+
+msgid "admin.macros.addInternalNote"
+msgstr "Dahili Not Ekle"
+
+msgid "admin.macros.selectStatus"
+msgstr "Durum secin..."
+
+msgid "admin.macros.selectPriority"
+msgstr "Oncelik secin..."
+
+msgid "admin.macros.agentPlaceholder"
+msgstr "Temsilci ID veya e-posta"
+
+msgid "admin.macros.tagsPlaceholder"
+msgstr "Virgulla ayrilmis etiket adlari"
+
+msgid "admin.macros.departmentPlaceholder"
+msgstr "Departman ID veya adi"
+
+msgid "admin.macros.replyPlaceholder"
+msgstr "Yanit mesaji..."
+
+msgid "admin.macros.notePlaceholder"
+msgstr "Not icerigi..."
+
+msgid "admin.macros.noMacros"
+msgstr "Henuz makro yok"
+
+msgid "admin.macros.noMacrosDesc"
+msgstr "Tekrarlayan talep islemlerini otomatiklestirmek icin makrolar olusturun"
+
+msgid "admin.macros.creator"
+msgstr "Olusturan"
+
+msgid "admin.macros.confirmDelete"
+msgstr "Bu makro silinsin mi? Bu islem geri alinamaz."
+
+msgid "admin.apiTokens.title"
+msgstr "API Tokenleri"
+
+msgid "admin.apiTokens.subtitle"
+msgstr "Masaustu uygulamalari ve dis entegrasyonlar icin API tokenlerini yonetin."
+
+msgid "admin.apiTokens.createToken"
+msgstr "Token Olustur"
+
+msgid "admin.apiTokens.apiDisabled"
+msgstr "REST API su anda devre disi. Etkinlestirmek icin .env dosyanizda ESCALATED_API_ENABLED=true ayarlayin."
+
+msgid "admin.apiTokens.tokenCreated"
+msgstr "Token olusturuldu! Simdi kopyalayin — tekrar gosterilmeyecek."
+
+msgid "admin.apiTokens.newToken"
+msgstr "Yeni API Tokeni"
+
+msgid "admin.apiTokens.tokenName"
+msgstr "Token Adi"
+
+msgid "admin.apiTokens.tokenNamePlaceholder"
+msgstr "orn. Masaustu Uygulama - Is Laptopi"
+
+msgid "admin.apiTokens.user"
+msgstr "Kullanici"
+
+msgid "admin.apiTokens.selectUser"
+msgstr "Kullanici secin..."
+
+msgid "admin.apiTokens.abilities"
+msgstr "Yetkiler"
+
+msgid "admin.apiTokens.expiresIn"
+msgstr "Gecerlilik Suresi (gun)"
+
+msgid "admin.apiTokens.noExpiration"
+msgstr "Suresiz icin bos birakin"
+
+msgid "admin.apiTokens.lastUsed"
+msgstr "Son Kullanim"
+
+msgid "admin.apiTokens.expires"
+msgstr "Gecerlilik"
+
+msgid "admin.apiTokens.never"
+msgstr "Hic"
+
+msgid "admin.apiTokens.expired"
+msgstr "Suresi Dolmus"
+
+msgid "admin.apiTokens.revoke"
+msgstr "Iptal Et"
+
+msgid "admin.apiTokens.noTokens"
+msgstr "Henuz API tokeni olusturulmadi."
+
+msgid "admin.apiTokens.confirmRevoke"
+msgstr "Bu tokeni iptal etmek istediginizden emin misiniz? Bu islem geri alinamaz."
+
+msgid "admin.plugins.title"
+msgstr "Eklentiler"
+
+msgid "admin.plugins.upload"
+msgstr "Eklenti Yukle"
+
+msgid "admin.plugins.pluginZip"
+msgstr "Eklenti ZIP Dosyasi"
+
+msgid "admin.plugins.installed"
+msgstr "Kurulu Eklentiler"
+
+msgid "admin.plugins.noPlugins"
+msgstr "Kurulu eklenti yok"
+
+msgid "admin.plugins.noPluginsAlt"
+msgstr "Henuz eklenti kurulmadi."
+
+msgid "admin.plugins.noPluginsDesc"
+msgstr "Escalated'i ozel islevlerle genisletmek icin bir eklenti ZIP'i yukleyin."
+
+msgid "admin.plugins.active"
+msgstr "Aktif"
+
+msgid "admin.plugins.inactive"
+msgstr "Devre Disi"
+
+msgid "admin.plugins.installedDate"
+msgstr "{date} tarihinde kuruldu"
+
+msgid "admin.plugins.menuItems"
+msgstr "{count} menu ogesi"
+
+msgid "admin.plugins.widgets"
+msgstr "{count} widget"
+
+msgid "admin.plugins.pageComponents"
+msgstr "{count} sayfa bileseni"
+
+msgid "admin.plugins.confirmDelete"
+msgstr "Bu eklentiyi silmek istediginizden emin misiniz? Bu islem geri alinamaz."
+
+msgid "admin.cannedResponse.created"
+msgstr "Hazir yanit olusturuldu."
+
+msgid "admin.cannedResponse.updated"
+msgstr "Hazir yanit guncellendi."
+
+msgid "admin.cannedResponse.deleted"
+msgstr "Hazir yanit silindi."
+
+msgid "admin.department.created"
+msgstr "Departman olusturuldu."
+
+msgid "admin.department.updated"
+msgstr "Departman guncellendi."
+
+msgid "admin.department.deleted"
+msgstr "Departman silindi."
+
+msgid "admin.tag.created"
+msgstr "Etiket olusturuldu."
+
+msgid "admin.tag.updated"
+msgstr "Etiket guncellendi."
+
+msgid "admin.tag.deleted"
+msgstr "Etiket silindi."
+
+msgid "admin.macro.created"
+msgstr "Makro olusturuldu."
+
+msgid "admin.macro.updated"
+msgstr "Makro guncellendi."
+
+msgid "admin.macro.deleted"
+msgstr "Makro silindi."
+
+msgid "admin.escalationRule.created"
+msgstr "Eskalasyon kurali olusturuldu."
+
+msgid "admin.escalationRule.updated"
+msgstr "Eskalasyon kurali guncellendi."
+
+msgid "admin.escalationRule.deleted"
+msgstr "Eskalasyon kurali silindi."
+
+msgid "admin.slaPolicy.created"
+msgstr "SLA Politikasi olusturuldu."
+
+msgid "admin.slaPolicy.updated"
+msgstr "SLA Politikasi guncellendi."
+
+msgid "admin.slaPolicy.deleted"
+msgstr "SLA Politikasi silindi."
+
+msgid "admin.plugin.uploaded"
+msgstr "Eklenti basariyla yuklendi. Simdi etkinlestirebilirsiniz."
+
+msgid "admin.plugin.uploadFailed"
+msgstr "Eklenti yuklemesi basarisiz: {error}"
+
+msgid "admin.plugin.activated"
+msgstr "Eklenti basariyla etkinlestirildi."
+
+msgid "admin.plugin.activateFailed"
+msgstr "Eklenti etkinlestirme basarisiz: {error}"
+
+msgid "admin.plugin.deactivated"
+msgstr "Eklenti basariyla devre disi birakildi."
+
+msgid "admin.plugin.deactivateFailed"
+msgstr "Eklenti devre disi birakma basarisiz: {error}"
+
+msgid "admin.plugin.composerDelete"
+msgstr "Composer eklentileri silinemez. Paketi Composer uzerinden kaldirin."
+
+msgid "admin.plugin.deleted"
+msgstr "Eklenti basariyla silindi."
+
+msgid "admin.plugin.deleteFailed"
+msgstr "Eklenti silme basarisiz: {error}"
+
+msgid "admin.departmentCreated"
+msgstr "Departman olusturuldu."
+
+msgid "admin.departmentUpdated"
+msgstr "Departman guncellendi."
+
+msgid "admin.departmentDeleted"
+msgstr "Departman silindi."
+
+msgid "admin.slaPolicyCreated"
+msgstr "SLA Politikasi olusturuldu."
+
+msgid "admin.slaPolicyUpdated"
+msgstr "SLA Politikasi guncellendi."
+
+msgid "admin.slaPolicyDeleted"
+msgstr "SLA Politikasi silindi."
+
+msgid "admin.ruleCreated"
+msgstr "Kural olusturuldu."
+
+msgid "admin.ruleUpdated"
+msgstr "Kural guncellendi."
+
+msgid "admin.ruleDeleted"
+msgstr "Kural silindi."
+
+msgid "admin.cannedResponseCreated"
+msgstr "Hazir yanit olusturuldu."
+
+msgid "admin.cannedResponseUpdated"
+msgstr "Hazir yanit guncellendi."
+
+msgid "admin.cannedResponseDeleted"
+msgstr "Hazir yanit silindi."
+
+msgid "admin.macroCreated"
+msgstr "Makro olusturuldu."
+
+msgid "admin.macroUpdated"
+msgstr "Makro guncellendi."
+
+msgid "admin.macroDeleted"
+msgstr "Makro silindi."
+
+msgid "admin.tagCreated"
+msgstr "Etiket olusturuldu."
+
+msgid "admin.tagUpdated"
+msgstr "Etiket guncellendi."
+
+msgid "admin.tagDeleted"
+msgstr "Etiket silindi."
+
+msgid "admin.settingsUpdated"
+msgstr "Ayarlar guncellendi."
+
+msgid "import.title"
+msgstr "Veri Aktar"
+
+msgid "import.description"
+msgstr "Talepleri, kisileri ve gecmisi baska bir yardim masasi platformundan aktarin."
+
+msgid "import.noAdapters"
+msgstr "Icerik aktarma adaptoru kurulu degil."
+
+msgid "import.connect"
+msgstr "{platform} ile baglan"
+
+msgid "import.testConnection"
+msgstr "Baglanti Testi"
+
+msgid "import.testing"
+msgstr "Test ediliyor..."
+
+msgid "import.connected"
+msgstr "Basariyla baglandi"
+
+msgid "import.fieldMapping"
+msgstr "Alan Esleme"
+
+msgid "import.skipEntity"
+msgstr "{type} aktarimini atla"
+
+msgid "import.review"
+msgstr "Aktarimi Incele"
+
+msgid "import.start"
+msgstr "Aktarimi Baslat"
+
+msgid "import.starting"
+msgstr "Baslatiliyor..."
+
+msgid "import.progress"
+msgstr "Aktarim Ilerlemesi"
+
+msgid "import.pause"
+msgstr "Duraklat"
+
+msgid "import.resume"
+msgstr "Devam Et"
+
+msgid "import.cancel"
+msgstr "Iptal"
+
+msgid "import.paused"
+msgstr "Aktarim duraklatildi."
+
+msgid "import.resumed"
+msgstr "Aktarim devam etti."
+
+msgid "import.cancelled"
+msgstr "Aktarim iptal edildi."
+
+msgid "import.completed"
+msgstr "Aktarim basariyla tamamlandi."
+
+msgid "import.history"
+msgstr "Aktarim Gecmisi"
+
+msgid "import.suppressionNotice"
+msgstr "Aktarim sirasinda bildirimler ve otomasyonlar askiya alinir."
+
+msgid "import.recentErrors"
+msgstr "Son Hatalar"
+
+msgid "agent.dashboard"
+msgstr "Temsilci Paneli"
+
+msgid "agent.openTickets"
+msgstr "Acik Talepler"
+
+msgid "agent.myAssigned"
+msgstr "Bana Atanan"
+
+msgid "agent.unassigned"
+msgstr "Atanmamis"
+
+msgid "agent.slaBreached"
+msgstr "SLA Ihlal Edildi"
+
+msgid "agent.resolvedToday"
+msgstr "Bugun Cozuldu"
+
+msgid "agent.needsAttention"
+msgstr "Dikkat Gerekiyor"
+
+msgid "agent.slaBreaching"
+msgstr "SLA Ihlali"
+
+msgid "agent.unassignedUrgent"
+msgstr "Atanmamis Acil"
+
+msgid "agent.recentTickets"
+msgstr "Son Talepler"
+
+msgid "agent.noRecentTickets"
+msgstr "Son talep yok"
+
+msgid "agent.myPerformance"
+msgstr "Performansim"
+
+msgid "agent.resolvedThisWeek"
+msgstr "Bu Hafta Cozuldu"
+
+msgid "guest.submitTitle"
+msgstr "Talep Gonder"
+
+msgid "guest.submitHeading"
+msgstr "Destek Talebi Gonderin"
+
+msgid "guest.submitDesc"
+msgstr "Hesap gerekmez. Talebinizi takip etmeniz icin bir baglanti verecegiz."
+
+msgid "guest.signInLink"
+msgstr "Zaten hesabiniz var mi? Giris yapin"
+
+msgid "guest.yourName"
+msgstr "Adiniz"
+
+msgid "guest.emailAddress"
+msgstr "E-posta Adresi"
+
+msgid "guest.bookmarkTitle"
+msgstr "Bu sayfayi kaydedin"
+
+msgid "guest.bookmarkDesc"
+msgstr "Bu, talebi goruntulemeniz ve yanitlamaniz icin ozel baglantinizdir."
+
+msgid "guest.copyLink"
+msgstr "Baglantiyi Kopyala"
+
+msgid "guest.writeReply"
+msgstr "Yanitinizi yazin..."
+
+msgid "guest.created"
+msgstr "Talep oluşturuldu. Talep durumunuzu kontrol etmek için bu bağlantıyı kaydedin."
+
+msgid "guest.ticketClosed"
+msgstr "Bu talep kapatılmış."
+
+msgid "guest.replySent"
+msgstr "Yanit gonderildi."
+
+msgid "customer.replies"
+msgstr "Yanitlar"
+
+msgid "customer.reply"
+msgstr "Yanitla"
+
+msgid "chat.live"
+msgstr "Canli"
+
+msgid "chat.chatWithUs"
+msgstr "Bizimle sohbet edin"
+
+msgid "chat.startChat"
+msgstr "Sohbet Baslat"
+
+msgid "chat.endChat"
+msgstr "Sohbeti Bitir"
+
+msgid "chat.endConfirm"
+msgstr "Bu sohbet bitirilsin mi?"
+
+msgid "chat.transfer"
+msgstr "Aktar"
+
+msgid "chat.typing"
+msgstr "{name} yaziyor..."
+
+msgid "chat.chattingWith"
+msgstr "{name} ile sohbet ediyorsunuz"
+
+msgid "chat.noAgents"
+msgstr "Musait temsilci yok"
+
+msgid "chat.queuePosition"
+msgstr "Sirada #{position}. sisiniz"
+
+msgid "chat.placeholder"
+msgstr "Bir mesaj yazin..."
+
+msgid "chat.note"
+msgstr "Not"
+
+msgid "chat.emptyState"
+msgstr "Sohbet basladi — mesajlar bekleniyor"
+
+msgid "chat.newMessages"
+msgstr "Yeni mesajlar"
+
+msgid "chat.activeChats"
+msgstr "Aktif Sohbetler"
+
+msgid "chat.noActiveChats"
+msgstr "Aktif sohbet yok"
+
+msgid "chat.openPanel"
+msgstr "Sohbet panelini ac"
+
+msgid "chat.closePanel"
+msgstr "Sohbet panelini kapat"
+
+msgid "chat.noChatsWaiting"
+msgstr "Bekleyen sohbet yok"
+
+msgid "chat.customer"
+msgstr "Musteri"
+
+msgid "chat.department"
+msgstr "Departman"
+
+msgid "chat.firstMessage"
+msgstr "Ilk Mesaj"
+
+msgid "chat.waitTime"
+msgstr "Bekleme Suresi"
+
+msgid "chat.accept"
+msgstr "Kabul Et"
+
+msgid "chat.agents"
+msgstr "Temsilciler"
+
+msgid "chat.departments"
+msgstr "Departmanlar"
+
+msgid "chat.howWasExperience"
+msgstr "Deneyiminiz nasil oldu?"
+
+msgid "chat.startNewChat"
+msgstr "Yeni Sohbet Baslat"
+
+msgid "chat.close"
+msgstr "Kapat"
+
+msgid "chat.chatEnded"
+msgstr "Sohbet Sona Erdi"
+
+msgid "chat.thankYou"
+msgstr "Geri bildiriminiz icin tesekkurler!"
+
+msgid "chat.submitRating"
+msgstr "Degerlendirme Gonder"
+
+msgid "chat.liveChats"
+msgstr "Canli Sohbetler"
+
+msgid "common.changeStatus"
+msgstr "Durumu Degistir..."
+
+msgid "common.changePriority"
+msgstr "Onceligi Degistir..."
+
+msgid "common.kb"
+msgstr "KB"
+
+msgid "common.upload"
+msgstr "Yukle"
+
+msgid "common.accessDenied"
+msgstr "Erisim reddedildi."
+
+msgid "common.notFound"
+msgstr "Kaynak bulunamadi."
+
+msgid "workflows.title"
+msgstr "Is Akislari"
+
+msgid "workflows.create"
+msgstr "Is Akisi Olustur"
+
+msgid "workflows.edit"
+msgstr "Is Akisini Duzenle"
+
+msgid "workflows.deleteConfirm"
+msgstr "Bu is akisi silinsin mi? Bu islem geri alinamaz."
+
+msgid "workflows.noWorkflows"
+msgstr "Henuz is akisi yok"
+
+msgid "workflows.noWorkflowsDesc"
+msgstr "Kosullar ve eylemlerle olay tabanli otomasyonlar olusturun"
+
+msgid "workflows.name"
+msgstr "Is Akisi Adi"
+
+msgid "workflows.description"
+msgstr "Aciklama"
+
+msgid "workflows.active"
+msgstr "Aktif"
+
+msgid "workflows.save"
+msgstr "Is Akisini Kaydet"
+
+msgid "workflows.cancel"
+msgstr "Iptal"
+
+msgid "workflows.viewLogs"
+msgstr "Gunlukleri Gor"
+
+msgid "workflows.lastTriggered"
+msgstr "Son Tetikleme"
+
+msgid "workflows.triggerCount"
+msgstr "Calismalar"
+
+msgid "workflows.trigger.title"
+msgstr "Tetikleme Olayi"
+
+msgid "workflows.trigger.description"
+msgstr "Bu oldugunda..."
+
+msgid "workflows.trigger.ticketCreated"
+msgstr "Talep Olusturuldu"
+
+msgid "workflows.trigger.ticketCreatedDesc"
+msgstr "Yeni bir talep gonderildiginde"
+
+msgid "workflows.trigger.ticketUpdated"
+msgstr "Talep Guncellendi"
+
+msgid "workflows.trigger.ticketUpdatedDesc"
+msgstr "Talep alani degistirildiginde"
+
+msgid "workflows.trigger.replyAdded"
+msgstr "Yanit Eklendi"
+
+msgid "workflows.trigger.replyAddedDesc"
+msgstr "Bir talebe yanit gonderildiginde"
+
+msgid "workflows.trigger.statusChanged"
+msgstr "Durum Degisti"
+
+msgid "workflows.trigger.statusChangedDesc"
+msgstr "Talep durumu guncellendiginde"
+
+msgid "workflows.trigger.ticketAssigned"
+msgstr "Talep Atandi"
+
+msgid "workflows.trigger.ticketAssignedDesc"
+msgstr "Bir talep temsilciye atandiginda"
+
+msgid "workflows.trigger.ticketEscalated"
+msgstr "Talep Eskale Edildi"
+
+msgid "workflows.trigger.ticketEscalatedDesc"
+msgstr "Bir talep eskale edildiginde"
+
+msgid "workflows.trigger.slaBreached"
+msgstr "SLA Ihlal Edildi"
+
+msgid "workflows.trigger.slaBreachedDesc"
+msgstr "Bir SLA hedefi ihlal edildiginde"
+
+msgid "workflows.trigger.slaWarning"
+msgstr "SLA Uyarisi"
+
+msgid "workflows.trigger.slaWarningDesc"
+msgstr "Bir SLA hedefine yaklastiginda"
+
+msgid "workflows.trigger.chatStarted"
+msgstr "Sohbet Basladi"
+
+msgid "workflows.trigger.chatStartedDesc"
+msgstr "Canli sohbet oturumu basladiginda"
+
+msgid "workflows.trigger.chatEnded"
+msgstr "Sohbet Sona Erdi"
+
+msgid "workflows.trigger.chatEndedDesc"
+msgstr "Canli sohbet oturumu bittiginde"
+
+msgid "workflows.conditions.title"
+msgstr "Kosullar"
+
+msgid "workflows.conditions.description"
+msgstr "Yalnizca bu kosullar karsilandiginda..."
+
+msgid "workflows.conditions.optional"
+msgstr "istege bagli"
+
+msgid "workflows.conditions.matchAll"
+msgstr "Tum kosullar (VE)"
+
+msgid "workflows.conditions.matchAny"
+msgstr "Herhangi bir kosul (VEYA)"
+
+msgid "workflows.conditions.addCondition"
+msgstr "Kosul Ekle"
+
+msgid "workflows.conditions.preview"
+msgstr "Onizleme"
+
+msgid "workflows.conditions.field.status"
+msgstr "Durum"
+
+msgid "workflows.conditions.field.priority"
+msgstr "Oncelik"
+
+msgid "workflows.conditions.field.type"
+msgstr "Tur"
+
+msgid "workflows.conditions.field.channel"
+msgstr "Kanal"
+
+msgid "workflows.conditions.field.tags"
+msgstr "Etiketler"
+
+msgid "workflows.conditions.field.department"
+msgstr "Departman"
+
+msgid "workflows.conditions.field.assignedAgent"
+msgstr "Atanmis Temsilci"
+
+msgid "workflows.conditions.field.subject"
+msgstr "Konu"
+
+msgid "workflows.conditions.field.hoursSinceCreated"
+msgstr "Olusturmadan Bu Yana Saat"
+
+msgid "workflows.conditions.field.hoursSinceUpdated"
+msgstr "Guncellemeden Bu Yana Saat"
+
+msgid "workflows.conditions.field.replyCount"
+msgstr "Yanit Sayisi"
+
+msgid "workflows.conditions.field.customField"
+msgstr "Ozel Alan"
+
+msgid "workflows.conditions.operator.equals"
+msgstr "esittir"
+
+msgid "workflows.conditions.operator.notEquals"
+msgstr "esit degildir"
+
+msgid "workflows.conditions.operator.contains"
+msgstr "icerir"
+
+msgid "workflows.conditions.operator.in"
+msgstr "icinde"
+
+msgid "workflows.conditions.operator.greaterThan"
+msgstr "buyuktur"
+
+msgid "workflows.conditions.operator.lessThan"
+msgstr "kucuktur"
+
+msgid "workflows.conditions.operator.isEmpty"
+msgstr "bostur"
+
+msgid "workflows.conditions.operator.matches"
+msgstr "eslesir"
+
+msgid "workflows.actions.title"
+msgstr "Eylemler"
+
+msgid "workflows.actions.description"
+msgstr "Sonra bunu yap..."
+
+msgid "workflows.actions.addAction"
+msgstr "Eylem Ekle"
+
+msgid "workflows.actions.assignAgent"
+msgstr "Temsilci Ata"
+
+msgid "workflows.actions.assignAgentDesc"
+msgstr "Talebi bir temsilciye ata"
+
+msgid "workflows.actions.changeStatus"
+msgstr "Durumu Degistir"
+
+msgid "workflows.actions.changeStatusDesc"
+msgstr "Talep durumunu guncelle"
+
+msgid "workflows.actions.changePriority"
+msgstr "Onceligi Degistir"
+
+msgid "workflows.actions.changePriorityDesc"
+msgstr "Talep onceligi guncelle"
+
+msgid "workflows.actions.addTag"
+msgstr "Etiket Ekle"
+
+msgid "workflows.actions.addTagDesc"
+msgstr "Talebe etiket ekle"
+
+msgid "workflows.actions.removeTag"
+msgstr "Etiket Kaldir"
+
+msgid "workflows.actions.removeTagDesc"
+msgstr "Talepten etiket kaldir"
+
+msgid "workflows.actions.moveDepartment"
+msgstr "Departman Degistir"
+
+msgid "workflows.actions.moveDepartmentDesc"
+msgstr "Talebi baska departmana tasi"
+
+msgid "workflows.actions.addNote"
+msgstr "Dahili Not Ekle"
+
+msgid "workflows.actions.addNoteDesc"
+msgstr "Talebe dahili not ekle"
+
+msgid "workflows.actions.sendEmail"
+msgstr "E-posta Bildirimi Gonder"
+
+msgid "workflows.actions.sendEmailDesc"
+msgstr "E-posta bildirimi gonder"
+
+msgid "workflows.actions.sendWebhook"
+msgstr "Webhook Gonder"
+
+msgid "workflows.actions.sendWebhookDesc"
+msgstr "Dis URL'ye veri gonder"
+
+msgid "workflows.actions.delay"
+msgstr "Gecikme"
+
+msgid "workflows.actions.delayDesc"
+msgstr "Devam etmeden once bekle"
+
+msgid "workflows.actions.delayMessage"
+msgstr "{duration} {unit} bekle, sonra devam et..."
+
+msgid "workflows.actions.applyMacro"
+msgstr "Makro Uygula"
+
+msgid "workflows.actions.applyMacroDesc"
+msgstr "Mevcut bir makro uygula"
+
+msgid "workflows.actions.closeTicket"
+msgstr "Talebi Kapat"
+
+msgid "workflows.actions.closeTicketDesc"
+msgstr "Talebi hemen kapat"
+
+msgid "workflows.actions.snooze"
+msgstr "Ertele"
+
+msgid "workflows.actions.snoozeDesc"
+msgstr "Talebi bir sure ertele"
+
+msgid "workflows.actions.specificAgent"
+msgstr "Belirli temsilci"
+
+msgid "workflows.actions.leastBusy"
+msgstr "En az mesgul temsilci"
+
+msgid "workflows.actions.roundRobin"
+msgstr "Sirayla dagitim"
+
+msgid "workflows.actions.notConfigured"
+msgstr "Yapilandirilmadi"
+
+msgid "workflows.logs.title"
+msgstr "Is Akisi Calisma Gunlukleri"
+
+msgid "workflows.logs.description"
+msgstr "Is akisi calismalarini izleyin ve sorunlari arayin"
+
+msgid "workflows.logs.noLogs"
+msgstr "Henuz calisma gunlugu yok"
+
+msgid "workflows.logs.noLogsDesc"
+msgstr "Is akislari tetiklendiginde gunlukler gorunur"
+
+msgid "workflows.logs.timestamp"
+msgstr "Zaman Damgasi"
+
+msgid "workflows.logs.workflow"
+msgstr "Is Akisi"
+
+msgid "workflows.logs.ticket"
+msgstr "Talep"
+
+msgid "workflows.logs.event"
+msgstr "Olay"
+
+msgid "workflows.logs.matched"
+msgstr "Eslesti"
+
+msgid "workflows.logs.actionsExecuted"
+msgstr "Eylemler"
+
+msgid "workflows.logs.duration"
+msgstr "Sure"
+
+msgid "workflows.logs.status"
+msgstr "Durum"
+
+msgid "workflows.logs.success"
+msgstr "Basarili"
+
+msgid "workflows.logs.failed"
+msgstr "Basarisiz"
+
+msgid "workflows.logs.skipped"
+msgstr "Atlandi"
+
+msgid "workflows.logs.actionDetails"
+msgstr "Eylem Eylem Calisma Detayi"
+
+msgid "workflows.logs.allWorkflows"
+msgstr "Tum Is Akislari"
+
+msgid "workflows.logs.from"
+msgstr "Baslangic"
+
+msgid "workflows.logs.to"
+msgstr "Bitis"
+
+msgid "workflows.variables.insert"
+msgstr "Degisken Ekle"
+
+msgid "workflows.variables.ticketReference"
+msgstr "Talep Referansi"
+
+msgid "workflows.variables.ticketSubject"
+msgstr "Talep Konusu"
+
+msgid "workflows.variables.ticketStatus"
+msgstr "Talep Durumu"
+
+msgid "workflows.variables.agentName"
+msgstr "Temsilci Adi"
+
+msgid "workflows.variables.requesterName"
+msgstr "Talep Eden Adi"
+
+msgid "workflows.variables.requesterEmail"
+msgstr "Talep Eden E-postasi"
+
+msgid "workflows.variables.departmentName"
+msgstr "Departman Adi"
+
+msgid "workflows.builder.step"
+msgstr "Adim"
+
+msgid "workflows.builder.triggerStep"
+msgstr "Adim 1: Tetikleme Olayi"
+
+msgid "workflows.builder.conditionsStep"
+msgstr "Adim 2: Kosullar"
+
+msgid "workflows.builder.actionsStep"
+msgstr "Adim 3: Eylemler"
+
+msgid "workflows.builder.saving"
+msgstr "Kaydediliyor..."
+
+msgid "workflows.builder.update"
+msgstr "Is Akisini Guncelle"
+
+msgid "workflows.builder.create"
+msgstr "Is Akisi Olustur"
+
+msgid "commands.install.installing"
+msgstr "Escalated kuruluyor..."
+
+msgid "commands.install.publishingConfig"
+msgstr "Yapılandırma yayınlanıyor"
+
+msgid "commands.install.publishingMigrations"
+msgstr "Geçişler yayınlanıyor"
+
+msgid "commands.install.migrationsAlreadyPublished"
+msgstr "{count} Escalated geçişi zaten yayımlanmış; atlanıyor. Değiştirmek için --force ile yeniden çalıştırın."
+
+msgid "commands.install.publishingViews"
+msgstr "E-posta görünümleri yayınlanıyor"
+
+msgid "commands.install.installingNpm"
+msgstr "npm paketi kuruluyor"
+
+msgid "commands.install.npmManual"
+msgstr "npm paketi otomatik olarak kurulamadı. Manuel olarak çalıştırın:"
+
+msgid "commands.install.userModelNotFound"
+msgstr "User modeli bulunamadı. Manuel olarak yapılandırmanız gerekecek."
+
+msgid "commands.install.userModelAlreadyConfigured"
+msgstr "User modeli zaten Ticketable arayüzünü uyguluyor."
+
+msgid "commands.install.userModelConfirm"
+msgstr "User modelinizi otomatik olarak Ticketable arayüzünü uygulayacak şekilde yapılandırmak ister misiniz?"
+
+msgid "commands.install.userModelConfigured"
+msgstr "User modeli başarıyla yapılandırıldı."
+
+msgid "commands.install.userModelFailed"
+msgstr "User modeli otomatik olarak yapılandırılamadı: {error}"
+
+msgid "commands.install.success"
+msgstr "Escalated başarıyla kuruldu!"
+
+msgid "commands.install.nextSteps"
+msgstr "Sonraki adımlar:"
+
+msgid "commands.install.stepTicketable"
+msgstr "User modelinize Ticketable arayüzünü uygulayın:"
+
+msgid "commands.install.stepGates"
+msgstr "AuthServiceProvider içinde yetkilendirme kapılarını tanımlayın:"
+
+msgid "commands.install.stepMigrate"
+msgstr "Geçişleri çalıştırın:"
+
+msgid "commands.install.stepTailwind"
+msgstr "Tailwind içerik yapılandırmanıza Escalated sayfalarını ekleyin:"
+
+msgid "commands.install.stepInertia"
+msgstr "app.ts dosyanıza Inertia sayfa çözümleyicisini ve eklentisini ekleyin:"
+
+msgid "commands.install.stepVisit"
+msgstr "Müşteri portalını görmek için /support adresini ziyaret edin"
+
+msgid "commands.install.createInitializer"
+msgstr "config/initializers/escalated.rb"
+
+msgid "commands.install.copyMigrations"
+msgstr "Migrasyon dosyalari kopyalandi. Uygulamak icin `rails db{migrate}` calistirin."
+
+msgid "commands.install.injectUserModel"
+msgstr "app/models/user.rb (Escalated rol metodlari)"
+
+msgid "commands.install.injectSkip"
+msgstr "User modeline enjekte edilemedi: {error}"
+
+msgid "commands.install.injectManual"
+msgstr "Bu metodlari User modelinize manuel olarak ekleyin:"
+
+msgid "commands.install.injectAgent"
+msgstr "escalated_agent? - destek temsilcileri icin true dondurur"
+
+msgid "commands.install.injectAdmin"
+msgstr "escalated_admin? - destek yoneticileri icin true dondurur"
+
+msgid "commands.install.injectAgentsScope"
+msgstr "self.escalated_agents - tum temsilcileri donduren kapsam"
+
+msgid "commands.install.step1"
+msgstr "1. `rails db{migrate}` calistirin"
+
+msgid "commands.install.step2"
+msgstr "2. config/initializers/escalated.rb yapilandirin"
+
+msgid "commands.install.step3"
+msgstr "3. User modeline escalated_agent? ve escalated_admin? metodlarini ekleyin"
+
+msgid "commands.install.step4"
+msgstr "4. Vue bilesenlerini kurun: vendor/escalated/resources/js/ kaynagindan kopyalayin"
+
+msgid "commands.install.step5"
+msgstr "5. Escalated sayfalarini icermesi icin Inertia sayfa cozucuyu ayarlayin"
+
+msgid "commands.install.runningMigrations"
+msgstr "Geçişler çalıştırılıyor"
+
+msgid "commands.install.seedingPermissions"
+msgstr "İzinler ve roller ekiliyor"
+
+msgid "commands.install.runMigrationsConfirm"
+msgstr "Geçişleri şimdi çalıştır ve varsayılan izinleri oluştur?"
+
+msgid "commands.install.stepSeed"
+msgstr "Varsayılan izinleri ve rolleri ekle:"
+
+msgid "commands.guestNotEnabled"
+msgstr "Misafir destek talepleri etkin degil."
+
+msgid "commands.ticketNotFound"
+msgstr "Destek talebi bulunamadi."
+
+msgid "emails.newTicket.heading"
+msgstr "Yeni destek talebi"
+
+msgid "emails.newTicket.intro"
+msgstr "Yeni bir destek talebi oluşturuldu."
+
+msgid "emails.newTicket.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.newTicket.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.newTicket.priorityLabel"
+msgstr "Öncelik"
+
+msgid "emails.newTicket.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.newTicket.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.assigned.heading"
+msgstr "Size bir talep atandı"
+
+msgid "emails.assigned.intro"
+msgstr "Bir destek talebi size atandı."
+
+msgid "emails.assigned.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.assigned.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.assigned.priorityLabel"
+msgstr "Öncelik"
+
+msgid "emails.assigned.statusLabel"
+msgstr "Durum"
+
+msgid "emails.assigned.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.assigned.closing"
+msgstr "Lütfen en kısa sürede inceleyin ve yanıtlayın."
+
+msgid "emails.assigned.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.reply.heading"
+msgstr "{reference} için yeni yanıt"
+
+msgid "emails.reply.intro"
+msgstr "Destek talebinize yeni bir yanıt eklendi."
+
+msgid "emails.reply.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.reply.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.reply.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.resolved.heading"
+msgstr "Talep çözüldü"
+
+msgid "emails.resolved.intro"
+msgstr "Destek talebiniz çözüldü."
+
+msgid "emails.resolved.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.resolved.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.resolved.reopenNote"
+msgstr "Daha fazla yardıma ihtiyacınız varsa bu talebi yeniden açabilirsiniz."
+
+msgid "emails.resolved.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.resolved.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.statusChanged.heading"
+msgstr "Talep durumu güncellendi"
+
+msgid "emails.statusChanged.intro"
+msgstr "Destek talebinizin durumu güncellendi."
+
+msgid "emails.statusChanged.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.statusChanged.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.statusChanged.previousStatusLabel"
+msgstr "Önceki durum"
+
+msgid "emails.statusChanged.newStatusLabel"
+msgstr "Yeni durum"
+
+msgid "emails.statusChanged.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.statusChanged.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.escalated.heading"
+msgstr "Talep yükseltildi"
+
+msgid "emails.escalated.intro"
+msgstr "Bir destek talebi yükseltildi."
+
+msgid "emails.escalated.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.escalated.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.escalated.priorityLabel"
+msgstr "Öncelik"
+
+msgid "emails.escalated.reasonLabel"
+msgstr "Neden"
+
+msgid "emails.escalated.attentionNote"
+msgstr "Acil müdahale gereklidir."
+
+msgid "emails.escalated.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.escalated.thanks"
+msgstr "Teşekkürler"
+
+msgid "emails.slaBreach.heading"
+msgstr "SLA ihlali uyarısı"
+
+msgid "emails.slaBreach.intro"
+msgstr "Bir destek talebinde SLA ihlal edildi."
+
+msgid "emails.slaBreach.referenceLabel"
+msgstr "Referans"
+
+msgid "emails.slaBreach.subjectLabel"
+msgstr "Konu"
+
+msgid "emails.slaBreach.priorityLabel"
+msgstr "Öncelik"
+
+msgid "emails.slaBreach.breachTypeLabel"
+msgstr "İhlal türü"
+
+msgid "emails.slaBreach.firstResponse"
+msgstr "İlk yanıt"
+
+msgid "emails.slaBreach.resolution"
+msgstr "Çözüm"
+
+msgid "emails.slaBreach.attentionNote"
+msgstr "Acil müdahale gereklidir."
+
+msgid "emails.slaBreach.button"
+msgstr "Talebi görüntüle"
+
+msgid "emails.slaBreach.thanks"
+msgstr "Teşekkürler"
+
+msgid "activityType.statusChanged"
+msgstr "Durum değiştirildi"
+
+msgid "activityType.assigned"
+msgstr "Atandı"
+
+msgid "activityType.unassigned"
+msgstr "Atama kaldırıldı"
+
+msgid "activityType.priorityChanged"
+msgstr "Öncelik değiştirildi"
+
+msgid "activityType.tagAdded"
+msgstr "Etiket eklendi"
+
+msgid "activityType.tagRemoved"
+msgstr "Etiket kaldırıldı"
+
+msgid "activityType.escalated"
+msgstr "Yükseltildi"
+
+msgid "activityType.slaBreached"
+msgstr "SLA ihlal edildi"
+
+msgid "activityType.replied"
+msgstr "Yanıtlandı"
+
+msgid "activityType.noteAdded"
+msgstr "Not eklendi"
+
+msgid "activityType.departmentChanged"
+msgstr "Departman değiştirildi"
+
+msgid "activityType.reopened"
+msgstr "Yeniden açıldı"
+
+msgid "activityType.resolved"
+msgstr "Çözüldü"
+
+msgid "activityType.closed"
+msgstr "Kapatıldı"
+
+msgid "activityType.snoozed"
+msgstr "Ertelendi"
+
+msgid "activityType.unsnoozed"
+msgstr "Erteleme kaldırıldı"
+
+msgid "activityType.ticketSplit"
+msgstr "Talep bölündü"
+
+msgid "cannedResponse.created"
+msgstr "Hazır yanıt oluşturuldu."
+
+msgid "cannedResponse.updated"
+msgstr "Hazır yanıt güncellendi."
+
+msgid "cannedResponse.deleted"
+msgstr "Hazır yanıt silindi."
+
+msgid "department.created"
+msgstr "Departman oluşturuldu."
+
+msgid "department.updated"
+msgstr "Departman güncellendi."
+
+msgid "department.deleted"
+msgstr "Departman silindi."
+
+msgid "tag.created"
+msgstr "Etiket oluşturuldu."
+
+msgid "tag.updated"
+msgstr "Etiket güncellendi."
+
+msgid "tag.deleted"
+msgstr "Etiket silindi."
+
+msgid "escalationRule.created"
+msgstr "Kural oluşturuldu."
+
+msgid "escalationRule.updated"
+msgstr "Kural güncellendi."
+
+msgid "escalationRule.deleted"
+msgstr "Kural silindi."
+
+msgid "slaPolicy.created"
+msgstr "SLA politikası oluşturuldu."
+
+msgid "slaPolicy.updated"
+msgstr "SLA politikası güncellendi."
+
+msgid "slaPolicy.deleted"
+msgstr "SLA politikası silindi."
+
+msgid "settings.updated"
+msgstr "Ayarlar güncellendi."
+
+msgid "plugin.uploaded"
+msgstr "Eklenti başarıyla yüklendi. Artık etkinleştirebilirsiniz."
+
+msgid "plugin.uploadFailed"
+msgstr "Eklenti yüklenemedi: {error}"
+
+msgid "plugin.activated"
+msgstr "Eklenti başarıyla etkinleştirildi."
+
+msgid "plugin.activateFailed"
+msgstr "Eklenti etkinleştirilemedi: {error}"
+
+msgid "plugin.deactivated"
+msgstr "Eklenti başarıyla devre dışı bırakıldı."
+
+msgid "plugin.deactivateFailed"
+msgstr "Eklenti devre dışı bırakılamadı: {error}"
+
+msgid "plugin.composerDelete"
+msgstr "Composer eklentileri silinemez. Paketi Composer üzerinden kaldırın."
+
+msgid "plugin.deleted"
+msgstr "Eklenti başarıyla silindi."
+
+msgid "plugin.deleteFailed"
+msgstr "Eklenti silinemedi: {error}"
+
+msgid "middleware.notAdmin"
+msgstr "Destek yöneticisi olarak yetkiniz yok."
+
+msgid "middleware.notAgent"
+msgstr "Destek temsilcisi olarak yetkiniz yok."
+
+msgid "middleware.notAuthorized"
+msgstr "Bu islemi gerceklestirme yetkiniz yok."
+
+msgid "middleware.notFound"
+msgstr "Istenen kaynak bulunamadi."
+
+msgid "inboundEmail.disabled"
+msgstr "Gelen e-posta devre dışı."
+
+msgid "inboundEmail.unknownAdapter"
+msgstr "Bilinmeyen adaptör."
+
+msgid "inboundEmail.invalidSignature"
+msgstr "Geçersiz imza."
+
+msgid "inboundEmail.processingFailed"
+msgstr "İşleme başarısız oldu."
+
+msgid "notifications.newTicket.subject"
+msgstr "[{reference}] Yeni talep: {subject}"
+
+msgid "notifications.newTicket.line1"
+msgstr "Yeni bir destek talebi oluşturuldu."
+
+msgid "notifications.newTicket.subjectLine"
+msgstr "**Konu:** {subject}"
+
+msgid "notifications.newTicket.priorityLine"
+msgstr "**Öncelik:** {priority}"
+
+msgid "notifications.newTicket.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.newTicket.closing"
+msgstr "Destek sistemimizi kullandığınız için teşekkürler."
+
+msgid "notifications.ticketAssigned.subject"
+msgstr "[{reference}] Size bir talep atandı"
+
+msgid "notifications.ticketAssigned.line1"
+msgstr "Bir talep size atandı."
+
+msgid "notifications.ticketAssigned.subjectLine"
+msgstr "**Konu:** {subject}"
+
+msgid "notifications.ticketAssigned.priorityLine"
+msgstr "**Öncelik:** {priority}"
+
+msgid "notifications.ticketAssigned.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.ticketAssigned.closing"
+msgstr "Lütfen en kısa sürede inceleyin ve yanıtlayın."
+
+msgid "notifications.ticketReply.subject"
+msgstr "Re: [{reference}] {subject}"
+
+msgid "notifications.ticketReply.line1"
+msgstr "Talebinize yeni bir yanıt eklendi."
+
+msgid "notifications.ticketReply.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.ticketReply.closing"
+msgstr "Destek sistemimizi kullandığınız için teşekkürler."
+
+msgid "notifications.ticketResolved.subject"
+msgstr "[{reference}] Talep çözüldü"
+
+msgid "notifications.ticketResolved.line1"
+msgstr "Destek talebiniz çözüldü."
+
+msgid "notifications.ticketResolved.subjectLine"
+msgstr "**Konu:** {subject}"
+
+msgid "notifications.ticketResolved.reopenLine"
+msgstr "Daha fazla yardıma ihtiyacınız varsa bu talebi yeniden açabilirsiniz."
+
+msgid "notifications.ticketResolved.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.ticketResolved.closing"
+msgstr "Destek sistemimizi kullandığınız için teşekkürler."
+
+msgid "notifications.ticketStatusChanged.subject"
+msgstr "[{reference}] Durum güncellendi: {status}"
+
+msgid "notifications.ticketStatusChanged.line1"
+msgstr "Talebinizin durumu güncellendi."
+
+msgid "notifications.ticketStatusChanged.fromLine"
+msgstr "**Önceki:** {status}"
+
+msgid "notifications.ticketStatusChanged.toLine"
+msgstr "**Yeni:** {status}"
+
+msgid "notifications.ticketStatusChanged.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.ticketStatusChanged.closing"
+msgstr "Destek sistemimizi kullandığınız için teşekkürler."
+
+msgid "notifications.slaBreach.subject"
+msgstr "[SLA İhlali] [{reference}] {type} SLA ihlal edildi"
+
+msgid "notifications.slaBreach.typeFirstResponse"
+msgstr "İlk yanıt"
+
+msgid "notifications.slaBreach.typeResolution"
+msgstr "Çözüm"
+
+msgid "notifications.slaBreach.line1"
+msgstr "{reference} talebinde SLA ihlal edildi."
+
+msgid "notifications.slaBreach.typeLine"
+msgstr "**Tür:** {type} SLA"
+
+msgid "notifications.slaBreach.subjectLine"
+msgstr "**Konu:** {subject}"
+
+msgid "notifications.slaBreach.priorityLine"
+msgstr "**Öncelik:** {priority}"
+
+msgid "notifications.slaBreach.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.slaBreach.closing"
+msgstr "Acil müdahale gereklidir."
+
+msgid "notifications.ticketEscalated.subject"
+msgstr "[Yükseltildi] [{reference}] {subject}"
+
+msgid "notifications.ticketEscalated.line1"
+msgstr "Bir talep yükseltildi."
+
+msgid "notifications.ticketEscalated.subjectLine"
+msgstr "**Konu:** {subject}"
+
+msgid "notifications.ticketEscalated.priorityLine"
+msgstr "**Öncelik:** {priority}"
+
+msgid "notifications.ticketEscalated.reasonLine"
+msgstr "**Neden:** {reason}"
+
+msgid "notifications.ticketEscalated.action"
+msgstr "Talebi görüntüle"
+
+msgid "notifications.ticketEscalated.closing"
+msgstr "Acil müdahale gereklidir."
+
+msgid "inbound.unknownAdapter"
+msgstr "Bilinmeyen adaptor: {adapter}"
+
+msgid "inbound.verificationFailed"
+msgstr "Dogrulama basarisiz"
+
+msgid "inbound.internalError"
+msgstr "Dahili hata"
+
+msgid "inbound.disabled"
+msgstr "Gelen e-posta devre disi"
+
+msgid "inbound.invalidSignature"
+msgstr "Gecersiz imza."
+
+msgid "inbound.processingFailed"
+msgstr "Isleme basarisiz."
+
+msgid "mailer.newTicket"
+msgstr "[{reference}] Destek talebi olusturuldu: {subject}"
+
+msgid "mailer.reply"
+msgstr "Re: [{reference}] {subject}"
+
+msgid "mailer.assigned"
+msgstr "[{reference}] Destek talebi atandi: {subject}"
+
+msgid "mailer.statusUpdated"
+msgstr "[{reference}] Durum guncellendi: {status}"
+
+msgid "mailer.slaBreach"
+msgstr "[SLA IHLALI] [{reference}] {subject}"
+
+msgid "mailer.escalated"
+msgstr "[ESKALASYON] [{reference}] {subject}"
+
+msgid "mailer.resolved"
+msgstr "[{reference}] Destek talebi cozuldu: {subject}"
+
+msgid "validation.nameRequired"
+msgstr "Ad gereklidir."
+
+msgid "validation.emailRequired"
+msgstr "E-posta gereklidir."
+
+msgid "validation.subjectRequired"
+msgstr "Konu gereklidir."
+
+msgid "validation.descriptionRequired"
+msgstr "Aciklama gereklidir."
+
+msgid "filament.actions.applyMacro.label"
+msgstr "Apply Macro"
+
+msgid "filament.actions.applyMacro.macroField"
+msgstr "Macro"
+
+msgid "filament.actions.applyMacro.success"
+msgstr "Macro '{name}' applied successfully"
+
+msgid "filament.actions.assignTicket.label"
+msgstr "Assign"
+
+msgid "filament.actions.assignTicket.agentField"
+msgstr "Agent"
+
+msgid "filament.actions.assignTicket.success"
+msgstr "Ticket assigned successfully"
+
+msgid "filament.actions.changePriority.label"
+msgstr "Change Priority"
+
+msgid "filament.actions.changePriority.newPriorityField"
+msgstr "New Priority"
+
+msgid "filament.actions.changePriority.success"
+msgstr "Priority updated successfully"
+
+msgid "filament.actions.changeStatus.label"
+msgstr "Change Status"
+
+msgid "filament.actions.changeStatus.newStatusField"
+msgstr "New Status"
+
+msgid "filament.actions.changeStatus.success"
+msgstr "Status updated successfully"
+
+msgid "filament.actions.followTicket.follow"
+msgstr "Follow"
+
+msgid "filament.actions.followTicket.unfollow"
+msgstr "Unfollow"
+
+msgid "filament.actions.followTicket.nowFollowing"
+msgstr "Now following ticket"
+
+msgid "filament.actions.followTicket.unfollowed"
+msgstr "Unfollowed ticket"
+
+msgid "filament.actions.pinReply.pin"
+msgstr "Pin"
+
+msgid "filament.actions.pinReply.unpin"
+msgstr "Unpin"
+
+msgid "filament.actions.pinReply.pinned"
+msgstr "Reply pinned"
+
+msgid "filament.actions.pinReply.unpinned"
+msgstr "Reply unpinned"
+
+msgid "filament.pages.dashboard.title"
+msgstr "Support Dashboard"
+
+msgid "filament.pages.managePlugins.title"
+msgstr "Plugins"
+
+msgid "filament.pages.managePlugins.uploadPlugin"
+msgstr "Upload Plugin"
+
+msgid "filament.pages.managePlugins.pluginZipFile"
+msgstr "Plugin ZIP File"
+
+msgid "filament.pages.managePlugins.uploadHelperText"
+msgstr "Upload a plugin ZIP archive containing a valid plugin.json manifest."
+
+msgid "filament.pages.managePlugins.uploadSuccessTitle"
+msgstr "Plugin uploaded successfully"
+
+msgid "filament.pages.managePlugins.uploadSuccessBody"
+msgstr "The plugin has been extracted and is ready to activate."
+
+msgid "filament.pages.managePlugins.uploadFailedTitle"
+msgstr "Plugin upload failed"
+
+msgid "filament.pages.managePlugins.activate"
+msgstr "Activate"
+
+msgid "filament.pages.managePlugins.activateHeading"
+msgstr "Activate Plugin"
+
+msgid "filament.pages.managePlugins.activateDescription"
+msgstr "Are you sure you want to activate \"{name}\"? This will load the plugin and register its hooks."
+
+msgid "filament.pages.managePlugins.activatedTitle"
+msgstr "Plugin activated"
+
+msgid "filament.pages.managePlugins.activatedBody"
+msgstr "\"{name}\" has been activated successfully."
+
+msgid "filament.pages.managePlugins.activationFailedTitle"
+msgstr "Activation failed"
+
+msgid "filament.pages.managePlugins.deactivate"
+msgstr "Deactivate"
+
+msgid "filament.pages.managePlugins.deactivateHeading"
+msgstr "Deactivate Plugin"
+
+msgid "filament.pages.managePlugins.deactivateDescription"
+msgstr "Are you sure you want to deactivate \"{name}\"? Its hooks and extensions will be unregistered."
+
+msgid "filament.pages.managePlugins.deactivatedTitle"
+msgstr "Plugin deactivated"
+
+msgid "filament.pages.managePlugins.deactivatedBody"
+msgstr "\"{name}\" has been deactivated."
+
+msgid "filament.pages.managePlugins.deactivationFailedTitle"
+msgstr "Deactivation failed"
+
+msgid "filament.pages.managePlugins.delete"
+msgstr "Delete"
+
+msgid "filament.pages.managePlugins.deleteHeading"
+msgstr "Delete Plugin"
+
+msgid "filament.pages.managePlugins.deleteDescription"
+msgstr "Are you sure you want to permanently delete \"{name}\"? This will remove all plugin files and cannot be undone."
+
+msgid "filament.pages.managePlugins.deleteConfirm"
+msgstr "Yes, delete plugin"
+
+msgid "filament.pages.managePlugins.deletedTitle"
+msgstr "Plugin deleted"
+
+msgid "filament.pages.managePlugins.deletedBody"
+msgstr "\"{name}\" has been removed."
+
+msgid "filament.pages.managePlugins.deletionFailedTitle"
+msgstr "Deletion failed"
+
+msgid "filament.pages.managePlugins.columnPlugin"
+msgstr "Plugin"
+
+msgid "filament.pages.managePlugins.columnVersion"
+msgstr "Version"
+
+msgid "filament.pages.managePlugins.columnAuthor"
+msgstr "Author"
+
+msgid "filament.pages.managePlugins.columnSource"
+msgstr "Source"
+
+msgid "filament.pages.managePlugins.columnStatus"
+msgstr "Status"
+
+msgid "filament.pages.managePlugins.columnActivated"
+msgstr "Activated"
+
+msgid "filament.pages.managePlugins.columnDeactivated"
+msgstr "Deactivated"
+
+msgid "filament.pages.managePlugins.placeholderNever"
+msgstr "Never"
+
+msgid "filament.pages.managePlugins.emptyHeading"
+msgstr "No plugins installed"
+
+msgid "filament.pages.managePlugins.emptyDescription"
+msgstr "Upload a plugin ZIP file or install one via Composer to get started."
+
+msgid "filament.pages.managePlugins.totalPlugins"
+msgstr "Total Plugins"
+
+msgid "filament.pages.managePlugins.active"
+msgstr "Active"
+
+msgid "filament.pages.managePlugins.inactive"
+msgstr "Inactive"
+
+msgid "filament.pages.reports.title"
+msgstr "Reports"
+
+msgid "filament.pages.reports.dateFrom"
+msgstr "From"
+
+msgid "filament.pages.reports.dateTo"
+msgstr "To"
+
+msgid "filament.pages.reports.totalTickets"
+msgstr "Total Tickets"
+
+msgid "filament.pages.reports.resolved"
+msgstr "Resolved"
+
+msgid "filament.pages.reports.resolutionRate"
+msgstr "Resolution Rate"
+
+msgid "filament.pages.reports.avgResponse"
+msgstr "Avg Response"
+
+msgid "filament.pages.reports.avgResolution"
+msgstr "Avg Resolution"
+
+msgid "filament.pages.reports.csatAverage"
+msgstr "CSAT Average"
+
+msgid "filament.pages.reports.ticketsByDepartment"
+msgstr "Tickets by Department"
+
+msgid "filament.pages.reports.ticketsOverTime"
+msgstr "Tickets Over Time"
+
+msgid "filament.pages.reports.noData"
+msgstr "No data for selected period."
+
+msgid "filament.pages.settings.title"
+msgstr "Support Settings"
+
+msgid "filament.pages.settings.general"
+msgstr "General"
+
+msgid "filament.pages.settings.generalDescription"
+msgstr "Configure general ticket system behavior."
+
+msgid "filament.pages.settings.ticketReferencePrefix"
+msgstr "Ticket Reference Prefix"
+
+msgid "filament.pages.settings.ticketReferencePrefixHelper"
+msgstr "Prefix for ticket reference numbers (e.g., ESC-00001)."
+
+msgid "filament.pages.settings.allowGuestTickets"
+msgstr "Allow Guest Tickets"
+
+msgid "filament.pages.settings.allowGuestTicketsHelper"
+msgstr "Allow unauthenticated users to submit tickets."
+
+msgid "filament.pages.settings.allowCustomerClose"
+msgstr "Allow Customer Close"
+
+msgid "filament.pages.settings.allowCustomerCloseHelper"
+msgstr "Allow customers to close their own tickets."
+
+msgid "filament.pages.settings.autoClose"
+msgstr "Auto-Close"
+
+msgid "filament.pages.settings.autoCloseDescription"
+msgstr "Automatically close resolved tickets after a specified period."
+
+msgid "filament.pages.settings.autoCloseDays"
+msgstr "Auto-Close Resolved After (days)"
+
+msgid "filament.pages.settings.autoCloseDaysHelper"
+msgstr "Number of days after resolution before a ticket is automatically closed."
+
+msgid "filament.pages.settings.attachments"
+msgstr "Attachments"
+
+msgid "filament.pages.settings.attachmentsDescription"
+msgstr "Configure attachment limits for tickets and replies."
+
+msgid "filament.pages.settings.maxAttachments"
+msgstr "Max Attachments per Reply"
+
+msgid "filament.pages.settings.maxAttachmentSize"
+msgstr "Max Attachment Size"
+
+msgid "filament.pages.settings.maxAttachmentSizeHelper"
+msgstr "Maximum file size in kilobytes (1024 KB = 1 MB)."
+
+msgid "filament.pages.settings.saveSuccess"
+msgstr "Settings saved successfully"
+
+msgid "filament.pages.settings.saveButton"
+msgstr "Save Settings"
+
+msgid "filament.pages.settings.branding"
+msgstr "Branding"
+
+msgid "filament.pages.settings.brandingDescription"
+msgstr "Configure attribution and branding options."
+
+msgid "filament.pages.settings.showPoweredBy"
+msgstr "Show \"Powered by Escalated\""
+
+msgid "filament.pages.settings.showPoweredByHelper"
+msgstr "Display attribution badge in the support portal footer."
+
+msgid "filament.widgets.csatOverview.heading"
+msgstr "Customer Satisfaction"
+
+msgid "filament.widgets.csatOverview.averageRating"
+msgstr "Average Rating"
+
+msgid "filament.widgets.csatOverview.overallAverage"
+msgstr "Overall average"
+
+msgid "filament.widgets.csatOverview.totalRatings"
+msgstr "Total Ratings"
+
+msgid "filament.widgets.csatOverview.allTime"
+msgstr "All time"
+
+msgid "filament.widgets.csatOverview.satisfactionRate"
+msgstr "Satisfaction Rate"
+
+msgid "filament.widgets.csatOverview.fourFiveStar"
+msgstr "4 and 5 star ratings"
+
+msgid "filament.widgets.recentTickets.heading"
+msgstr "Recent Tickets"
+
+msgid "filament.widgets.recentTickets.columnRef"
+msgstr "Ref"
+
+msgid "filament.widgets.recentTickets.columnAgent"
+msgstr "Agent"
+
+msgid "filament.widgets.recentTickets.columnCreated"
+msgstr "Created"
+
+msgid "filament.widgets.recentTickets.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.slaBreach.heading"
+msgstr "SLA Breach Alerts"
+
+msgid "filament.widgets.slaBreach.columnRef"
+msgstr "Ref"
+
+msgid "filament.widgets.slaBreach.columnAgent"
+msgstr "Agent"
+
+msgid "filament.widgets.slaBreach.columnResponse"
+msgstr "Response"
+
+msgid "filament.widgets.slaBreach.columnResolution"
+msgstr "Resolution"
+
+msgid "filament.widgets.slaBreach.columnResolutionDue"
+msgstr "Resolution Due"
+
+msgid "filament.widgets.slaBreach.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.slaBreach.emptyHeading"
+msgstr "No SLA Breaches"
+
+msgid "filament.widgets.slaBreach.emptyDescription"
+msgstr "All tickets are within SLA targets."
+
+msgid "filament.widgets.ticketsByPriority.heading"
+msgstr "Tickets by Priority"
+
+msgid "filament.widgets.ticketsByPriority.openTickets"
+msgstr "Open Tickets"
+
+msgid "filament.widgets.ticketsByStatus.heading"
+msgstr "Tickets by Status"
+
+msgid "filament.widgets.stats.myOpenTickets"
+msgstr "My Open Tickets"
+
+msgid "filament.widgets.stats.assignedToYou"
+msgstr "Assigned to you"
+
+msgid "filament.widgets.stats.unassigned"
+msgstr "Unassigned"
+
+msgid "filament.widgets.stats.awaitingAssignment"
+msgstr "Awaiting assignment"
+
+msgid "filament.widgets.stats.totalOpen"
+msgstr "Total Open"
+
+msgid "filament.widgets.stats.allOpenTickets"
+msgstr "All open tickets"
+
+msgid "filament.widgets.stats.slaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.widgets.stats.breachedSlaDescription"
+msgstr "Breached response or resolution SLA"
+
+msgid "filament.widgets.stats.resolvedToday"
+msgstr "Resolved Today"
+
+msgid "filament.widgets.stats.resolvedTodayDescription"
+msgstr "Resolved in the last 24 hours"
+
+msgid "filament.widgets.stats.avgCsat30d"
+msgstr "Avg CSAT (30d)"
+
+msgid "filament.widgets.stats.avgCsatDescription"
+msgstr "Average customer satisfaction"
+
+msgid "filament.resources.ticket.sectionDetails"
+msgstr "Details"
+
+msgid "filament.resources.ticket.fieldSubject"
+msgstr "Subject"
+
+msgid "filament.resources.ticket.fieldDescription"
+msgstr "Description"
+
+msgid "filament.resources.ticket.fieldDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.fieldAssignedAgent"
+msgstr "Assigned Agent"
+
+msgid "filament.resources.ticket.columnReference"
+msgstr "Reference"
+
+msgid "filament.resources.ticket.columnDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.columnAssignedTo"
+msgstr "Assigned To"
+
+msgid "filament.resources.ticket.columnRequester"
+msgstr "Requester"
+
+msgid "filament.resources.ticket.columnSla"
+msgstr "SLA"
+
+msgid "filament.resources.ticket.defaultUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.filterDepartment"
+msgstr "Department"
+
+msgid "filament.resources.ticket.filterAssignedAgent"
+msgstr "Assigned Agent"
+
+msgid "filament.resources.ticket.filterSlaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.resources.ticket.filterUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.bulkAssignAgent"
+msgstr "Assign Agent"
+
+msgid "filament.resources.ticket.bulkChangeStatus"
+msgstr "Change Status"
+
+msgid "filament.resources.ticket.bulkChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.ticket.bulkAddTags"
+msgstr "Add Tags"
+
+msgid "filament.resources.ticket.bulkClose"
+msgstr "Close"
+
+msgid "filament.resources.ticket.tabAll"
+msgstr "All Tickets"
+
+msgid "filament.resources.ticket.tabMyTickets"
+msgstr "My Tickets"
+
+msgid "filament.resources.ticket.tabUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.ticket.tabUrgent"
+msgstr "Urgent"
+
+msgid "filament.resources.ticket.tabSlaBreaching"
+msgstr "SLA Breaching"
+
+msgid "filament.resources.ticket.sectionTicketInfo"
+msgstr "Ticket Information"
+
+msgid "filament.resources.ticket.fieldReference"
+msgstr "Reference"
+
+msgid "filament.resources.ticket.fieldChannel"
+msgstr "Channel"
+
+msgid "filament.resources.ticket.sectionConversation"
+msgstr "Conversation"
+
+msgid "filament.resources.ticket.defaultNone"
+msgstr "None"
+
+msgid "filament.resources.ticket.fieldRequester"
+msgstr "Requester"
+
+msgid "filament.resources.ticket.fieldRequesterEmail"
+msgstr "Requester Email"
+
+msgid "filament.resources.ticket.sectionSla"
+msgstr "SLA"
+
+msgid "filament.resources.ticket.fieldSlaPolicy"
+msgstr "SLA Policy"
+
+msgid "filament.resources.ticket.defaultNoPolicy"
+msgstr "No policy"
+
+msgid "filament.resources.ticket.fieldFirstResponseDue"
+msgstr "First Response Due"
+
+msgid "filament.resources.ticket.fieldFirstResponseAt"
+msgstr "First Response At"
+
+msgid "filament.resources.ticket.placeholderNotResponded"
+msgstr "Not yet responded"
+
+msgid "filament.resources.ticket.fieldResolutionDue"
+msgstr "Resolution Due"
+
+msgid "filament.resources.ticket.fieldResponseBreached"
+msgstr "Response Breached"
+
+msgid "filament.resources.ticket.fieldResolutionBreached"
+msgstr "Resolution Breached"
+
+msgid "filament.resources.ticket.sectionTags"
+msgstr "Tags"
+
+msgid "filament.resources.ticket.sectionSatisfaction"
+msgstr "Satisfaction Rating"
+
+msgid "filament.resources.ticket.sectionTimestamps"
+msgstr "Timestamps"
+
+msgid "filament.resources.ticket.fieldCreated"
+msgstr "Created"
+
+msgid "filament.resources.ticket.fieldUpdated"
+msgstr "Updated"
+
+msgid "filament.resources.ticket.fieldResolvedAt"
+msgstr "Resolved At"
+
+msgid "filament.resources.ticket.placeholderNotResolved"
+msgstr "Not resolved"
+
+msgid "filament.resources.ticket.fieldClosedAt"
+msgstr "Closed At"
+
+msgid "filament.resources.ticket.placeholderNotClosed"
+msgstr "Not closed"
+
+msgid "filament.resources.ticket.actionReply"
+msgstr "Reply"
+
+msgid "filament.resources.ticket.actionAddNote"
+msgstr "Add Note"
+
+msgid "filament.resources.ticket.fieldInternalNote"
+msgstr "Internal Note"
+
+msgid "filament.resources.ticket.notificationReplySent"
+msgstr "Reply sent"
+
+msgid "filament.resources.ticket.notificationNoteAdded"
+msgstr "Internal note added"
+
+msgid "filament.resources.ticket.notificationAssigned"
+msgstr "Ticket assigned"
+
+msgid "filament.resources.ticket.actionStatus"
+msgstr "Status"
+
+msgid "filament.resources.ticket.notificationStatusUpdated"
+msgstr "Status updated"
+
+msgid "filament.resources.ticket.actionPriority"
+msgstr "Priority"
+
+msgid "filament.resources.ticket.notificationPriorityUpdated"
+msgstr "Priority updated"
+
+msgid "filament.resources.ticket.notificationMacroApplied"
+msgstr "Macro '{name}' applied"
+
+msgid "filament.resources.ticket.actionResolve"
+msgstr "Resolve"
+
+msgid "filament.resources.ticket.notificationResolved"
+msgstr "Ticket resolved"
+
+msgid "filament.resources.ticket.actionClose"
+msgstr "Close"
+
+msgid "filament.resources.ticket.notificationClosed"
+msgstr "Ticket closed"
+
+msgid "filament.resources.ticket.actionReopen"
+msgstr "Reopen"
+
+msgid "filament.resources.ticket.notificationReopened"
+msgstr "Ticket reopened"
+
+msgid "filament.resources.ticket.notificationFollowing"
+msgstr "Following ticket"
+
+msgid "filament.resources.ticket.notificationUnfollowed"
+msgstr "Unfollowed ticket"
+
+msgid "filament.resources.replies.title"
+msgstr "Replies & Notes"
+
+msgid "filament.resources.replies.fieldMessage"
+msgstr "Message"
+
+msgid "filament.resources.replies.fieldInternalNote"
+msgstr "Internal Note"
+
+msgid "filament.resources.replies.internalNoteHelper"
+msgstr "Internal notes are only visible to agents."
+
+msgid "filament.resources.replies.columnAuthor"
+msgstr "Author"
+
+msgid "filament.resources.replies.defaultSystem"
+msgstr "System"
+
+msgid "filament.resources.replies.columnMessage"
+msgstr "Message"
+
+msgid "filament.resources.replies.columnInternal"
+msgstr "Internal"
+
+msgid "filament.resources.replies.columnPinned"
+msgstr "Pinned"
+
+msgid "filament.resources.replies.columnDate"
+msgstr "Date"
+
+msgid "filament.resources.replies.filterType"
+msgstr "Type"
+
+msgid "filament.resources.replies.filterAll"
+msgstr "All"
+
+msgid "filament.resources.replies.filterInternalOnly"
+msgstr "Internal Notes Only"
+
+msgid "filament.resources.replies.filterPublicOnly"
+msgstr "Public Replies Only"
+
+msgid "filament.resources.replies.filterPinned"
+msgstr "Pinned"
+
+msgid "filament.resources.replies.filterPinnedOnly"
+msgstr "Pinned Only"
+
+msgid "filament.resources.replies.filterNotPinned"
+msgstr "Not Pinned"
+
+msgid "filament.resources.replies.actionAddReply"
+msgstr "Add Reply"
+
+msgid "filament.resources.replies.fieldReply"
+msgstr "Reply"
+
+msgid "filament.resources.replies.actionAddNote"
+msgstr "Add Note"
+
+msgid "filament.resources.replies.actionPin"
+msgstr "Pin"
+
+msgid "filament.resources.replies.actionUnpin"
+msgstr "Unpin"
+
+msgid "filament.resources.activities.title"
+msgstr "Activity Log"
+
+msgid "filament.resources.activities.columnActivity"
+msgstr "Activity"
+
+msgid "filament.resources.activities.columnBy"
+msgstr "By"
+
+msgid "filament.resources.activities.defaultSystem"
+msgstr "System"
+
+msgid "filament.resources.activities.columnDetails"
+msgstr "Details"
+
+msgid "filament.resources.activities.columnDate"
+msgstr "Date"
+
+msgid "filament.resources.followers.title"
+msgstr "Followers"
+
+msgid "filament.resources.followers.columnName"
+msgstr "Name"
+
+msgid "filament.resources.followers.columnEmail"
+msgstr "Email"
+
+msgid "filament.resources.followers.columnFollowingSince"
+msgstr "Following Since"
+
+msgid "filament.resources.followers.actionAddFollower"
+msgstr "Add Follower"
+
+msgid "filament.resources.followers.fieldUser"
+msgstr "User"
+
+msgid "filament.resources.followers.actionRemove"
+msgstr "Remove"
+
+msgid "filament.resources.cannedResponse.fieldResponseBody"
+msgstr "Response Body"
+
+msgid "filament.resources.cannedResponse.fieldShared"
+msgstr "Shared"
+
+msgid "filament.resources.cannedResponse.sharedHelper"
+msgstr "Shared responses are visible to all agents."
+
+msgid "filament.resources.cannedResponse.columnCreatedBy"
+msgstr "Created By"
+
+msgid "filament.resources.department.navigationLabel"
+msgstr "Departments"
+
+msgid "filament.resources.department.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.department.fieldAgents"
+msgstr "Agents"
+
+msgid "filament.resources.department.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.department.columnAgents"
+msgstr "Agents"
+
+msgid "filament.resources.department.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.resources.department.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.sectionRuleDetails"
+msgstr "Rule Details"
+
+msgid "filament.resources.escalationRule.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.sectionConditions"
+msgstr "Conditions"
+
+msgid "filament.resources.escalationRule.conditionsDescription"
+msgstr "Define the conditions that must be met for this rule to trigger."
+
+msgid "filament.resources.escalationRule.conditionFieldStatus"
+msgstr "Status"
+
+msgid "filament.resources.escalationRule.conditionFieldPriority"
+msgstr "Priority"
+
+msgid "filament.resources.escalationRule.conditionFieldAssignment"
+msgstr "Assignment"
+
+msgid "filament.resources.escalationRule.conditionFieldAgeHours"
+msgstr "Age (hours)"
+
+msgid "filament.resources.escalationRule.conditionFieldNoResponseHours"
+msgstr "No Response (hours)"
+
+msgid "filament.resources.escalationRule.conditionFieldSlaBreached"
+msgstr "SLA Breached"
+
+msgid "filament.resources.escalationRule.conditionFieldDepartment"
+msgstr "Department"
+
+msgid "filament.resources.escalationRule.conditionValueUnassigned"
+msgstr "Unassigned"
+
+msgid "filament.resources.escalationRule.conditionValueAssigned"
+msgstr "Assigned"
+
+msgid "filament.resources.escalationRule.conditionValueYes"
+msgstr "Yes"
+
+msgid "filament.resources.escalationRule.fieldHours"
+msgstr "Hours"
+
+msgid "filament.resources.escalationRule.addCondition"
+msgstr "Add Condition"
+
+msgid "filament.resources.escalationRule.sectionActions"
+msgstr "Actions"
+
+msgid "filament.resources.escalationRule.actionsDescription"
+msgstr "Define the actions to execute when conditions are met."
+
+msgid "filament.resources.escalationRule.actionEscalate"
+msgstr "Escalate Ticket"
+
+msgid "filament.resources.escalationRule.actionChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.escalationRule.actionAssignTo"
+msgstr "Assign To Agent"
+
+msgid "filament.resources.escalationRule.actionChangeDepartment"
+msgstr "Change Department"
+
+msgid "filament.resources.escalationRule.addAction"
+msgstr "Add Action"
+
+msgid "filament.resources.escalationRule.columnOrder"
+msgstr "#"
+
+msgid "filament.resources.escalationRule.columnTrigger"
+msgstr "Trigger"
+
+msgid "filament.resources.escalationRule.columnConditions"
+msgstr "Conditions"
+
+msgid "filament.resources.escalationRule.columnActions"
+msgstr "Actions"
+
+msgid "filament.resources.escalationRule.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.escalationRule.toggleDeactivate"
+msgstr "Deactivate"
+
+msgid "filament.resources.escalationRule.toggleActivate"
+msgstr "Activate"
+
+msgid "filament.resources.escalationRule.conditionCount"
+msgstr "{count} condition(s)"
+
+msgid "filament.resources.escalationRule.actionCount"
+msgstr "{count} action(s)"
+
+msgid "filament.resources.escalationRule.zeroConditions"
+msgstr "0 conditions"
+
+msgid "filament.resources.escalationRule.zeroActions"
+msgstr "0 actions"
+
+msgid "filament.resources.macro.sectionMacroDetails"
+msgstr "Macro Details"
+
+msgid "filament.resources.macro.fieldShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.sharedHelper"
+msgstr "Shared macros are visible to all agents."
+
+msgid "filament.resources.macro.sectionActions"
+msgstr "Actions"
+
+msgid "filament.resources.macro.actionsDescription"
+msgstr "Define the actions this macro will perform when applied to a ticket."
+
+msgid "filament.resources.macro.actionChangeStatus"
+msgstr "Change Status"
+
+msgid "filament.resources.macro.actionChangePriority"
+msgstr "Change Priority"
+
+msgid "filament.resources.macro.actionAssignAgent"
+msgstr "Assign Agent"
+
+msgid "filament.resources.macro.actionAddTags"
+msgstr "Add Tags"
+
+msgid "filament.resources.macro.actionChangeDepartment"
+msgstr "Change Department"
+
+msgid "filament.resources.macro.actionAddReply"
+msgstr "Add Reply"
+
+msgid "filament.resources.macro.actionAddNote"
+msgstr "Add Internal Note"
+
+msgid "filament.resources.macro.fieldValue"
+msgstr "Value"
+
+msgid "filament.resources.macro.fieldTags"
+msgstr "Tags"
+
+msgid "filament.resources.macro.fieldMessage"
+msgstr "Message"
+
+msgid "filament.resources.macro.addAction"
+msgstr "Add Action"
+
+msgid "filament.resources.macro.columnOrder"
+msgstr "#"
+
+msgid "filament.resources.macro.columnActions"
+msgstr "Actions"
+
+msgid "filament.resources.macro.columnCreatedBy"
+msgstr "Created By"
+
+msgid "filament.resources.macro.columnShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.filterShared"
+msgstr "Shared"
+
+msgid "filament.resources.macro.actionCount"
+msgstr "{count} action(s)"
+
+msgid "filament.resources.macro.zeroActions"
+msgstr "0 actions"
+
+msgid "filament.resources.slaPolicy.modelLabel"
+msgstr "SLA Policy"
+
+msgid "filament.resources.slaPolicy.pluralModelLabel"
+msgstr "SLA Policies"
+
+msgid "filament.resources.slaPolicy.sectionPolicyDetails"
+msgstr "Policy Details"
+
+msgid "filament.resources.slaPolicy.fieldDefaultPolicy"
+msgstr "Default Policy"
+
+msgid "filament.resources.slaPolicy.defaultPolicyHelper"
+msgstr "The default policy is applied to new tickets automatically."
+
+msgid "filament.resources.slaPolicy.fieldBusinessHours"
+msgstr "Business Hours Only"
+
+msgid "filament.resources.slaPolicy.businessHoursHelper"
+msgstr "Count only business hours toward SLA deadlines."
+
+msgid "filament.resources.slaPolicy.fieldActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.sectionFirstResponse"
+msgstr "First Response Time (hours)"
+
+msgid "filament.resources.slaPolicy.firstResponseDescription"
+msgstr "Maximum hours for the first agent response, by priority level."
+
+msgid "filament.resources.slaPolicy.sectionResolution"
+msgstr "Resolution Time (hours)"
+
+msgid "filament.resources.slaPolicy.resolutionDescription"
+msgstr "Maximum hours for full ticket resolution, by priority level."
+
+msgid "filament.resources.slaPolicy.columnDefault"
+msgstr "Default"
+
+msgid "filament.resources.slaPolicy.columnBusinessHours"
+msgstr "Business Hours"
+
+msgid "filament.resources.slaPolicy.columnActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.resources.slaPolicy.filterActive"
+msgstr "Active"
+
+msgid "filament.resources.slaPolicy.filterDefault"
+msgstr "Default"
+
+msgid "filament.resources.tag.columnColor"
+msgstr "Color"
+
+msgid "filament.resources.tag.columnTickets"
+msgstr "Tickets"
+
+msgid "filament.livewire.conversation.pinnedNotes"
+msgstr "Pinned Notes"
+
+msgid "filament.livewire.conversation.system"
+msgstr "System"
+
+msgid "filament.livewire.conversation.internalNoteBadge"
+msgstr "Internal Note"
+
+msgid "filament.livewire.conversation.pinnedBadge"
+msgstr "Pinned"
+
+msgid "filament.livewire.conversation.noReplies"
+msgstr "No replies yet. Start the conversation below."
+
+msgid "filament.livewire.conversation.addInternalNote"
+msgstr "Add Internal Note"
+
+msgid "filament.livewire.conversation.reply"
+msgstr "Reply"
+
+msgid "filament.livewire.conversation.noteVisibleToAgents"
+msgstr "This note is only visible to agents"
+
+msgid "filament.livewire.conversation.replyVisibleToCustomer"
+msgstr "This reply will be visible to the customer"
+
+msgid "filament.livewire.conversation.addNoteButton"
+msgstr "Add Note"
+
+msgid "filament.livewire.conversation.sendReplyButton"
+msgstr "Send Reply"
+
+msgid "filament.livewire.conversation.insertCannedResponse"
+msgstr "Insert Canned Response"
+
+msgid "filament.livewire.conversation.selectCannedResponse"
+msgstr "Select a canned response..."
+
+msgid "filament.livewire.conversation.typeReply"
+msgstr "Type your reply..."
+
+msgid "filament.livewire.conversation.internalNoteLabel"
+msgstr "Internal Note"
+
+msgid "filament.livewire.conversation.internalNoteHelper"
+msgstr "Internal notes are only visible to agents."
+
+msgid "filament.livewire.conversation.notificationNoteAdded"
+msgstr "Internal note added"
+
+msgid "filament.livewire.conversation.notificationReplySent"
+msgstr "Reply sent"
+
+msgid "filament.livewire.conversation.notePinned"
+msgstr "Note pinned"
+
+msgid "filament.livewire.conversation.noteUnpinned"
+msgstr "Note unpinned"
+
+msgid "filament.livewire.rating.noRating"
+msgstr "No rating submitted yet"
+
+msgid "djangoStrings.open"
+msgstr "Acik"
+
+msgid "djangoStrings.inProgress"
+msgstr "Devam ediyor"
+
+msgid "djangoStrings.waitingOnCustomer"
+msgstr "Musteri bekleniyor"
+
+msgid "djangoStrings.waitingOnAgent"
+msgstr "Temsilci bekleniyor"
+
+msgid "djangoStrings.escalated"
+msgstr "Eskalasyon yapildi"
+
+msgid "djangoStrings.resolved"
+msgstr "Cozuldu"
+
+msgid "djangoStrings.closed"
+msgstr "Kapatildi"
+
+msgid "djangoStrings.reopened"
+msgstr "Yeniden acildi"
+
+msgid "djangoStrings.low"
+msgstr "Dusuk"
+
+msgid "djangoStrings.medium"
+msgstr "Orta"
+
+msgid "djangoStrings.high"
+msgstr "Yuksek"
+
+msgid "djangoStrings.urgent"
+msgstr "Acil"
+
+msgid "djangoStrings.critical"
+msgstr "Kritik"
+
+msgid "djangoStrings.reply"
+msgstr "Yanit"
+
+msgid "djangoStrings.internalNote"
+msgstr "Dahili not"
+
+msgid "djangoStrings.system"
+msgstr "Sistem"
+
+msgid "djangoStrings.created"
+msgstr "Olusturuldu"
+
+msgid "djangoStrings.statusChanged"
+msgstr "Durum degisti"
+
+msgid "djangoStrings.priorityChanged"
+msgstr "Oncelik degisti"
+
+msgid "djangoStrings.assigned"
+msgstr "Atandi"
+
+msgid "djangoStrings.unassigned"
+msgstr "Atanmamis"
+
+msgid "djangoStrings.replyAdded"
+msgstr "Yanit eklendi"
+
+msgid "djangoStrings.noteAdded"
+msgstr "Not eklendi"
+
+msgid "djangoStrings.tagAdded"
+msgstr "Etiket eklendi"
+
+msgid "djangoStrings.tagRemoved"
+msgstr "Etiket kaldirildi"
+
+msgid "djangoStrings.departmentChanged"
+msgstr "Departman degisti"
+
+msgid "djangoStrings.slaBreached"
+msgstr "SLA ihlal edildi"
+
+msgid "djangoStrings.attachmentAdded"
+msgstr "Ek eklendi"
+
+msgid "djangoStrings.merged"
+msgstr "Birlestirildi"
+
+msgid "djangoStrings.slaBreach"
+msgstr "SLA ihlali"
+
+msgid "djangoStrings.priorityChange"
+msgstr "Priority Change"
+
+msgid "djangoStrings.noResponse"
+msgstr "No Response"
+
+msgid "djangoStrings.customerReply"
+msgstr "Customer Reply"
+
+msgid "djangoStrings.timeBased"
+msgstr "Time Based"
+
+msgid "djangoStrings.pending"
+msgstr "Pending"
+
+msgid "djangoStrings.processed"
+msgstr "Processed"
+
+msgid "djangoStrings.failed"
+msgstr "Failed"
+
+msgid "djangoStrings.spam"
+msgstr "Spam"
+
+msgid "djangoStrings.slaPolicy"
+msgstr "SLA Politikasi"
+
+msgid "djangoStrings.slaPolicies"
+msgstr "SLA Politikalari"
+
+msgid "djangoStrings.ticketActivities"
+msgstr "Ticket activities"
+
+msgid "djangoStrings.mapOfPriorityToHoursEGLow24Medium8High4Urgent1Critical05"
+msgstr "Map of priority to hours, e.g. {\\\"low\\\": 24, \\\"medium\\\": 8, \\\"high\\\": 4, \\\"urgent\\\": 1, \\\"critical\\\": 0.5}"
+
+msgid "djangoStrings.mapOfPriorityToHoursEGLow72Medium24High8Urgent4Critical2"
+msgstr "Map of priority to hours, e.g. {\\\"low\\\": 72, \\\"medium\\\": 24, \\\"high\\\": 8, \\\"urgent\\\": 4, \\\"critical\\\": 2}"
+
+msgid "djangoStrings.uniqueTokenForGuestTicketAccess"
+msgstr "Unique token for guest ticket access"
+
+msgid "djangoStrings.jsonConditionsThatMustBeMetForTheRuleToFire"
+msgstr "JSON conditions that must be met for the rule to fire"
+
+msgid "djangoStrings.jsonActionsToTakeWhenTheRuleFiresEGAssignNotifyChangePriority"
+msgstr "JSON actions to take when the rule fires (e.g., assign, notify, change priority)"
+
+msgid "djangoStrings.fileSizeInBytes"
+msgstr "File size in bytes"
+
+msgid "djangoStrings.jsonArrayOfActionsEGTypeSetStatusValueOpen"
+msgstr "JSON array of actions, e.g. [{\\\"type\\\": \\\"set_status\\\", \\\"value\\\": \\\"open\\\"}]"
+
+msgid "djangoStrings.ratingFrom1To5"
+msgstr "Rating from 1 to 5"
+
+msgid "djangoStrings.youDoNotHavePermissionToAccessTheAgentDashboard"
+msgstr "You do not have permission to access the agent dashboard."
+
+msgid "djangoStrings.youDoNotHavePermissionToAccessTheAdminArea"
+msgstr "You do not have permission to access the admin area."
+
+msgid "djangoStrings.methodNotAllowed"
+msgstr "Method not allowed"
+
+msgid "djangoStrings.ticketNotFound"
+msgstr "Destek talebi bulunamadi"
+
+msgid "djangoStrings.agentAccessRequired"
+msgstr "Agent access required."
+
+msgid "djangoStrings.adminAccessRequired"
+msgstr "Admin access required."
+
+msgid "djangoStrings.subjectIsRequired"
+msgstr "Konu gereklidir."
+
+msgid "djangoStrings.descriptionIsRequired"
+msgstr "Aciklama gereklidir."
+
+msgid "djangoStrings.youCannotViewThisTicket"
+msgstr "You cannot view this ticket."
+
+msgid "djangoStrings.youCannotReplyToThisTicket"
+msgstr "You cannot reply to this ticket."
+
+msgid "djangoStrings.youCannotCloseThisTicket"
+msgstr "You cannot close this ticket."
+
+msgid "djangoStrings.youCannotReopenThisTicket"
+msgstr "You cannot reopen this ticket."
+
+msgid "djangoStrings.youCanOnlyRateResolvedOrClosedTickets"
+msgstr "You can only rate resolved or closed tickets."
+
+msgid "djangoStrings.thisTicketHasAlreadyBeenRated"
+msgstr "This ticket has already been rated."
+
+msgid "djangoStrings.ratingMustBeBetween1And5"
+msgstr "Rating must be between 1 and 5."
+
+msgid "djangoStrings.invalidRatingValue"
+msgstr "Invalid rating value."
+
+msgid "djangoStrings.youCannotUpdateThisTicket"
+msgstr "You cannot update this ticket."
+
+msgid "djangoStrings.agentNotFound"
+msgstr "Agent not found"
+
+msgid "djangoStrings.invalidStatus"
+msgstr "Invalid status."
+
+msgid "djangoStrings.invalidPriority"
+msgstr "Invalid priority."
+
+msgid "djangoStrings.onlyInternalNotesCanBePinned"
+msgstr "Only internal notes can be pinned."
+
+msgid "djangoStrings.macroNotFound"
+msgstr "Macro not found"
+
+msgid "djangoStrings.replyNotFound"
+msgstr "Reply not found"
+
+msgid "djangoStrings.guestTicketsAreNotEnabled"
+msgstr "Guest tickets are not enabled."
+
+msgid "djangoStrings.nameIsRequired"
+msgstr "Ad gereklidir."
+
+msgid "djangoStrings.emailIsRequired"
+msgstr "E-posta gereklidir."
+
+msgid "djangoStrings.ticketNotFoundee570b"
+msgstr "Destek talebi bulunamadi."
+
+msgid "djangoStrings.thisTicketIsClosed"
+msgstr "Bu destek talebi kapatilmistir."
+
+msgid "djangoStrings.departmentNotFound"
+msgstr "Department not found"
+
+msgid "djangoStrings.slaPolicyNotFound"
+msgstr "SLA Policy not found"
+
+msgid "djangoStrings.escalationRuleNotFound"
+msgstr "Escalation rule not found"
+
+msgid "djangoStrings.tagNotFound"
+msgstr "Tag not found"
+
+msgid "djangoStrings.cannedResponseNotFound"
+msgstr "Canned response not found"
+
+msgid "djangoStrings.titleIsRequired"
+msgstr "Baslik gereklidir."
+
+msgid "djangoStrings.inboundEmailProcessingIsDisabled"
+msgstr "Inbound email processing is disabled."
+
+msgid "djangoStrings.requestVerificationFailed"
+msgstr "Request verification failed."
+
+msgid "djangoStrings.newTicketPercentSubjectS"
+msgstr "Yeni destek talebi: {subject}"
+
+msgid "djangoStrings.newReplyOnPercentSubjectS"
+msgstr "New reply on: {subject}"
+
+msgid "djangoStrings.customerReplyOnPercentSubjectS"
+msgstr "Customer reply on: {subject}"
+
+msgid "djangoStrings.ticketAssignedToYouPercentSubjectS"
+msgstr "Ticket assigned to you: {subject}"
+
+msgid "djangoStrings.statusUpdatedPercentSubjectS"
+msgstr "Status updated: {subject}"
+
+msgid "djangoStrings.percentBreachTypeSPercentSubjectS"
+msgstr "{breach_type}: {subject}"
+
+msgid "djangoStrings.checkAllOpenTicketsForSlaBreachesAndSendWarnings"
+msgstr "Check all open tickets for SLA breaches and send warnings."
+
+msgid "djangoStrings.minutesBeforeSlaDeadlineToTriggerWarningDefault30"
+msgstr "Minutes before SLA deadline to trigger warning (default: 30)"
+
+msgid "djangoStrings.checkingSlaDeadlinesForAllOpenTickets"
+msgstr "Checking SLA deadlines for all open tickets..."
+
+msgid "djangoStrings.slaCheckCompletePercentBreachedDBreachesDetectedPercentWarnedDWarningsSent"
+msgstr "SLA check complete: %(breached)d breaches detected, %(warned)d warnings sent."
+
+msgid "djangoStrings.autoCloseTicketsThatHaveBeenResolvedForAConfigurableNumberOfDays"
+msgstr "Auto-close tickets that have been resolved for a configurable number of days."
+
+msgid "djangoStrings.daysAfterResolutionToAutoCloseOverridesSetting"
+msgstr "Days after resolution to auto-close (overrides setting)"
+
+msgid "djangoStrings.showWhatWouldBeClosedWithoutMakingChanges"
+msgstr "Show what would be closed without making changes"
+
+msgid "djangoStrings.dryRunWouldClosePercentCountDTicketsResolvedMoreThanPercentDaysDDaysAgo"
+msgstr "[DRY RUN] Would close %(count)d tickets resolved more than %(days)d days ago."
+
+msgid "djangoStrings.noResolvedTicketsToAutoClose"
+msgstr "No resolved tickets to auto-close."
+
+msgid "djangoStrings.autoClosedPercentCountDTicketsThatWereResolvedMoreThanPercentDaysDDaysAgo"
+msgstr "Auto-closed %(count)d tickets that were resolved more than %(days)d days ago."
+
+msgid "djangoStrings.evaluateAllActiveEscalationRulesAgainstOpenTickets"
+msgstr "Evaluate all active escalation rules against open tickets."
+
+msgid "djangoStrings.evaluatingEscalationRules"
+msgstr "Evaluating escalation rules..."
+
+msgid "djangoStrings.escalationEvaluationCompletePercentCountDActionsTaken"
+msgstr "Escalation evaluation complete: %(count)d actions taken."
+
+msgid "djangoStrings.newSupportTicketCreated"
+msgstr "Yeni destek talebi olusturuldu"
+
+msgid "djangoStrings.yourSupportTicketHasBeenCreatedSuccessfully"
+msgstr "Your support ticket has been created successfully."
+
+msgid "djangoStrings.reference"
+msgstr "Referans:"
+
+msgid "djangoStrings.subject"
+msgstr "Konu:"
+
+msgid "djangoStrings.priority"
+msgstr "Oncelik:"
+
+msgid "djangoStrings.status"
+msgstr "Durum:"
+
+msgid "djangoStrings.description"
+msgstr "Aciklama:"
+
+msgid "djangoStrings.ourTeamWillReviewYourTicketShortlyYouWillReceiveUpdatesAsYourTicketProgresses"
+msgstr "Our team will review your ticket shortly. You will receive updates as your ticket progresses."
+
+msgid "djangoStrings.thisIsAnAutomatedMessageFromTheSupportSystemPleaseDoNotReplyDirectlyToThisEmail"
+msgstr "This is an automated message from the support system. Please do not reply directly to this email."
+
+msgid "djangoStrings.newReplyOnTicket"
+msgstr "New Reply on Ticket"
+
+msgid "djangoStrings.aNewReplyHasBeenAdded"
+msgstr "A new reply has been added:"
+
+msgid "djangoStrings.logInToYourAccountToViewTheFullConversationAndRespond"
+msgstr "Log in to your account to view the full conversation and respond."
+
+msgid "djangoStrings.ticketAssignedToYou"
+msgstr "Size atanan destek talebi"
+
+msgid "djangoStrings.aSupportTicketHasBeenAssignedToYou"
+msgstr "Bir destek talebi size atandi."
+
+msgid "djangoStrings.department"
+msgstr "Departman:"
+
+msgid "djangoStrings.pleaseReviewAndRespondToThisTicketAtYourEarliestConvenience"
+msgstr "Please review and respond to this ticket at your earliest convenience."
+
+msgid "djangoStrings.thisIsAnAutomatedMessageFromTheSupportSystem"
+msgstr "This is an automated message from the support system."
+
+msgid "djangoStrings.ticketStatusUpdated"
+msgstr "Durum guncellendi"
+
+msgid "djangoStrings.logInToYourAccountToViewTheFullDetailsOfYourTicket"
+msgstr "Log in to your account to view the full details of your ticket."
+
+msgid "djangoStrings.slaBreachAlert"
+msgstr "SLA ihlal uyarisi"
+
+msgid "djangoStrings.breachType"
+msgstr "Ihlal turu:"
+
+msgid "djangoStrings.assignedTo"
+msgstr "Atanan:"
+
+msgid "djangoStrings.immediateActionIsRequired"
+msgstr "Immediate action is required."
+
+msgid "djangoStrings.pleaseReviewThisTicketAndTakeAppropriateAction"
+msgstr "Please review this ticket and take appropriate action."
+
+msgid "djangoStrings.thisIsAnAutomatedSlaMonitoringAlertFromTheSupportSystem"
+msgstr "This is an automated SLA monitoring alert from the support system."
+
+msgid "djangoStrings.ticketEscalated"
+msgstr "Eskalasyon yapildi"
+
+msgid "djangoStrings.reason"
+msgstr "Neden:"
+
+msgid "djangoStrings.thisTicketRequiresImmediateAttentionPleaseReviewAndTakeAction"
+msgstr "This ticket requires immediate attention. Please review and take action."
+
+msgid "djangoStrings.thisIsAnAutomatedEscalationAlertFromTheSupportSystem"
+msgstr "This is an automated escalation alert from the support system."
+
+msgid "djangoStrings.ticketResolved"
+msgstr "Destek talebi cozuldu"
+
+msgid "djangoStrings.ifYouBelieveThisIssueIsNotFullyResolvedYouCanReopenTheTicketByLoggingIntoYourAccount"
+msgstr "If you believe this issue is not fully resolved, you can reopen the ticket by logging into your account."
+
+msgid "djangoStrings.thankYouForReachingOutToUsWeHopeWeWereAbleToHelp"
+msgstr "Thank you for reaching out to us. We hope we were able to help!"
+
+msgid "djangoStrings.escalatedSupport"
+msgstr "Escalated Destek"
+
+msgid "wordpressStrings.percent1SOfPercent2S"
+msgstr "{arg1} of {arg2}"
+
+msgid "wordpressStrings.percent1SRepliedToTicketPercent2S"
+msgstr "{arg1} replied to ticket {arg2}:"
+
+msgid "wordpressStrings.percentSItem"
+msgstr "{value} item"
+
+msgid "wordpressStrings.percentSItems"
+msgstr "{value} items"
+
+msgid "wordpressStrings.percentSTicket"
+msgstr "{value} ticket"
+
+msgid "wordpressStrings.percentSTickets"
+msgstr "{value} tickets"
+
+msgid "wordpressStrings.expired"
+msgstr "(Expired)"
+
+msgid "wordpressStrings.noSubject"
+msgstr "(No Subject)"
+
+msgid "wordpressStrings.none"
+msgstr "-- None --"
+
+msgid "wordpressStrings.selectDepartment"
+msgstr "-- Select Department --"
+
+msgid "wordpressStrings.unassigned"
+msgstr "-- Unassigned --"
+
+msgid "wordpressStrings.aDescriptiveNameToIdentifyThisToken"
+msgstr "A descriptive name to identify this token."
+
+msgid "wordpressStrings.aNewSupportTicketHasBeenSubmittedOnPercentS"
+msgstr "A new support ticket has been submitted on {value}."
+
+msgid "wordpressStrings.apiWebhooks"
+msgstr "API & Webhooks"
+
+msgid "wordpressStrings.apiTokens"
+msgstr "API Tokens"
+
+msgid "wordpressStrings.apiTokenCreatedSuccessfully"
+msgstr "API token created successfully."
+
+msgid "wordpressStrings.apiTokenCreatedSuccessfullyStoreThisTokenSecurelyItWillNotBeShownAgain"
+msgstr "API token created successfully. Store this token securely - it will not be shown again."
+
+msgid "wordpressStrings.apiTokenDeletedSuccessfully"
+msgstr "API token deleted successfully."
+
+msgid "wordpressStrings.apiTokenNotFound"
+msgstr "API token not found."
+
+msgid "wordpressStrings.apiTokenRevokedSuccessfully"
+msgstr "API token revoked successfully."
+
+msgid "wordpressStrings.abilities"
+msgstr "Abilities"
+
+msgid "wordpressStrings.actionCompleted"
+msgstr "Action completed."
+
+msgid "wordpressStrings.actions"
+msgstr "Actions"
+
+msgid "wordpressStrings.actionsa2603e"
+msgstr "Actions #"
+
+msgid "wordpressStrings.actionsJson"
+msgstr "Actions (JSON)"
+
+msgid "wordpressStrings.active"
+msgstr "Active"
+
+msgid "wordpressStrings.activityLogRetentionDays"
+msgstr "Activity Log Retention (days)"
+
+msgid "wordpressStrings.activityTimeline"
+msgstr "Activity Timeline"
+
+msgid "wordpressStrings.activityLogEntriesOlderThanThisWillBeAutomaticallyDeletedSetTo0ToKeepForever"
+msgstr "Activity log entries older than this will be automatically deleted. Set to 0 to keep forever."
+
+msgid "wordpressStrings.addAutomation"
+msgstr "Add Automation"
+
+msgid "wordpressStrings.addDepartment"
+msgstr "Add Department"
+
+msgid "wordpressStrings.addInternalNote"
+msgstr "Add Internal Note"
+
+msgid "wordpressStrings.addMacro"
+msgstr "Add Macro"
+
+msgid "wordpressStrings.addNewAutomation"
+msgstr "Add New Automation"
+
+msgid "wordpressStrings.addNewCannedResponse"
+msgstr "Add New Canned Response"
+
+msgid "wordpressStrings.addNewDepartment"
+msgstr "Add New Department"
+
+msgid "wordpressStrings.addNewEscalationRule"
+msgstr "Add New Escalation Rule"
+
+msgid "wordpressStrings.addNewMacro"
+msgstr "Add New Macro"
+
+msgid "wordpressStrings.addNewSlaPolicy"
+msgstr "Add New SLA Policy"
+
+msgid "wordpressStrings.addNewTag"
+msgstr "Add New Tag"
+
+msgid "wordpressStrings.addNote"
+msgstr "Add Note"
+
+msgid "wordpressStrings.addPolicy"
+msgstr "Add Policy"
+
+msgid "wordpressStrings.addReply"
+msgstr "Add Reply"
+
+msgid "wordpressStrings.addResponse"
+msgstr "Add Response"
+
+msgid "wordpressStrings.addRule"
+msgstr "Add Rule"
+
+msgid "wordpressStrings.addTag"
+msgstr "Add Tag"
+
+msgid "wordpressStrings.agent"
+msgstr "Agent"
+
+msgid "wordpressStrings.agentNotFound"
+msgstr "Agent not found."
+
+msgid "wordpressStrings.agents"
+msgstr "Agents"
+
+msgid "wordpressStrings.allAgents"
+msgstr "All Agents"
+
+msgid "wordpressStrings.allDepartments"
+msgstr "All Departments"
+
+msgid "wordpressStrings.allPriorities"
+msgstr "All Priorities"
+
+msgid "wordpressStrings.allStatuses"
+msgstr "All Statuses"
+
+msgid "wordpressStrings.allFieldsAreRequired"
+msgstr "All fields are required."
+
+msgid "wordpressStrings.allowGuestsNonLoggedInUsersToSubmitTickets"
+msgstr "Allow guests (non-logged-in users) to submit tickets"
+
+msgid "wordpressStrings.allowTicketCreationAndRepliesViaEmail"
+msgstr "Allow ticket creation and replies via email"
+
+msgid "wordpressStrings.anErrorOccurred"
+msgstr "An error occurred."
+
+msgid "wordpressStrings.anErrorOccurredPleaseTryAgain"
+msgstr "An error occurred. Please try again."
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisSlaPolicy"
+msgstr "Are you sure you want to delete this SLA policy?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisAutomation"
+msgstr "Are you sure you want to delete this automation?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisCannedResponse"
+msgstr "Are you sure you want to delete this canned response?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisDepartment"
+msgstr "Are you sure you want to delete this department?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisMacro"
+msgstr "Are you sure you want to delete this macro?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisRule"
+msgstr "Are you sure you want to delete this rule?"
+
+msgid "wordpressStrings.areYouSureYouWantToDeleteThisTag"
+msgstr "Are you sure you want to delete this tag?"
+
+msgid "wordpressStrings.areYouSureYouWantToRevokeThisToken"
+msgstr "Are you sure you want to revoke this token?"
+
+msgid "wordpressStrings.assignToAgent"
+msgstr "Assign to Agent"
+
+msgid "wordpressStrings.assigned"
+msgstr "Atandi"
+
+msgid "wordpressStrings.assignedUnassigned"
+msgstr "Assigned / Unassigned"
+
+msgid "wordpressStrings.assignee"
+msgstr "Assignee"
+
+msgid "wordpressStrings.assignmentUpdated"
+msgstr "Assignment updated."
+
+msgid "wordpressStrings.attachments"
+msgstr "Attachments"
+
+msgid "wordpressStrings.attachments425a85"
+msgstr "Attachments:"
+
+msgid "wordpressStrings.authenticationRequired"
+msgstr "Authentication required."
+
+msgid "wordpressStrings.author"
+msgstr "Author"
+
+msgid "wordpressStrings.autoFollowsSystemPreference"
+msgstr "Auto (follows system preference)"
+
+msgid "wordpressStrings.autoClose"
+msgstr "Auto-Close"
+
+msgid "wordpressStrings.autoCloseAfterDays"
+msgstr "Auto-Close After (days)"
+
+msgid "wordpressStrings.automaticallyCloseResolvedTicketsAfterAPeriodOfInactivity"
+msgstr "Automatically close resolved tickets after a period of inactivity"
+
+msgid "wordpressStrings.automationCreatedSuccessfully"
+msgstr "Automation created successfully."
+
+msgid "wordpressStrings.automationDeletedSuccessfully"
+msgstr "Automation deleted successfully."
+
+msgid "wordpressStrings.automationIsActive"
+msgstr "Automation is active"
+
+msgid "wordpressStrings.automationNotFound"
+msgstr "Automation not found."
+
+msgid "wordpressStrings.automationUpdatedSuccessfully"
+msgstr "Automation updated successfully."
+
+msgid "wordpressStrings.automations"
+msgstr "Automations"
+
+msgid "wordpressStrings.avgFirstResponse"
+msgstr "Avg. First Response"
+
+msgid "wordpressStrings.avgResolutionTime"
+msgstr "Avg. Resolution Time"
+
+msgid "wordpressStrings.backToMyTickets"
+msgstr "Back to My Tickets"
+
+msgid "wordpressStrings.body"
+msgstr "Body"
+
+msgid "wordpressStrings.briefSummaryOfYourIssue"
+msgstr "Brief summary of your issue"
+
+msgid "wordpressStrings.businessHours"
+msgstr "Business Hours"
+
+msgid "wordpressStrings.calculateSlaDuringBusinessHoursOnly"
+msgstr "Calculate SLA during business hours only"
+
+msgid "wordpressStrings.cancel"
+msgstr "Cancel"
+
+msgid "wordpressStrings.cannedResponses"
+msgstr "Canned Responses"
+
+msgid "wordpressStrings.cannedResponseCreatedSuccessfully"
+msgstr "Canned response created successfully."
+
+msgid "wordpressStrings.cannedResponseDeletedSuccessfully"
+msgstr "Canned response deleted successfully."
+
+msgid "wordpressStrings.cannedResponseUpdatedSuccessfully"
+msgstr "Canned response updated successfully."
+
+msgid "wordpressStrings.cannotTransitionFromPercent1SToPercent2S"
+msgstr "Cannot transition from \\\"{arg1}\\\" to \\\"{arg2}\\\"."
+
+msgid "wordpressStrings.category"
+msgstr "Category"
+
+msgid "wordpressStrings.changePriority"
+msgstr "Change Priority"
+
+msgid "wordpressStrings.changeStatus"
+msgstr "Change Status"
+
+msgid "wordpressStrings.chooseTheColorThemeForTheEscalatedAdminPanel"
+msgstr "Choose the color theme for the Escalated admin panel."
+
+msgid "wordpressStrings.clear"
+msgstr "Clear"
+
+msgid "wordpressStrings.closeTicket"
+msgstr "Close Ticket"
+
+msgid "wordpressStrings.closed"
+msgstr "Kapatildi"
+
+msgid "wordpressStrings.closede23070"
+msgstr "Closed:"
+
+msgid "wordpressStrings.color"
+msgstr "Color"
+
+msgid "wordpressStrings.commentsOptional"
+msgstr "Comments (optional)"
+
+msgid "wordpressStrings.conditions"
+msgstr "Conditions"
+
+msgid "wordpressStrings.conditionsJson"
+msgstr "Conditions (JSON)"
+
+msgid "wordpressStrings.conversation"
+msgstr "Conversation"
+
+msgid "wordpressStrings.count"
+msgstr "Count"
+
+msgid "wordpressStrings.createNewTicket"
+msgstr "Create New Ticket"
+
+msgid "wordpressStrings.createNewToken"
+msgstr "Create New Token"
+
+msgid "wordpressStrings.createToken"
+msgstr "Create Token"
+
+msgid "wordpressStrings.createYourFirstTicket"
+msgstr "Create Your First Ticket"
+
+msgid "wordpressStrings.createANewTicket"
+msgstr "Create a New Ticket"
+
+msgid "wordpressStrings.createReplies"
+msgstr "Create replies"
+
+msgid "wordpressStrings.createUpdateTickets"
+msgstr "Create/update tickets"
+
+msgid "wordpressStrings.created"
+msgstr "Created"
+
+msgid "wordpressStrings.createdBy"
+msgstr "Created By"
+
+msgid "wordpressStrings.created0c78da"
+msgstr "Created:"
+
+msgid "wordpressStrings.critical"
+msgstr "Kritik"
+
+msgid "wordpressStrings.dark"
+msgstr "Dark"
+
+msgid "wordpressStrings.date"
+msgstr "Date"
+
+msgid "wordpressStrings.default"
+msgstr "Default"
+
+msgid "wordpressStrings.defaultPriority"
+msgstr "Default Priority"
+
+msgid "wordpressStrings.defineMacroActionsAsAJsonArraySupportedActionTypesChangeStatusChangePriorityAssignToAddTagRemoveTagAddReplyAddNoteChangeDepartment"
+msgstr "Define macro actions as a JSON array. Supported action types: change_status, change_priority, assign_to, add_tag, remove_tag, add_reply, add_note, change_department."
+
+msgid "wordpressStrings.delete"
+msgstr "Delete"
+
+msgid "wordpressStrings.department"
+msgstr "Department"
+
+msgid "wordpressStrings.departmentChanged"
+msgstr "Department changed"
+
+msgid "wordpressStrings.departmentCreatedSuccessfully"
+msgstr "Department created successfully."
+
+msgid "wordpressStrings.departmentDeletedSuccessfully"
+msgstr "Department deleted successfully."
+
+msgid "wordpressStrings.departmentIsActive"
+msgstr "Department is active"
+
+msgid "wordpressStrings.departmentUpdatedSuccessfully"
+msgstr "Department updated successfully."
+
+msgid "wordpressStrings.departmentUpdated"
+msgstr "Department updated."
+
+msgid "wordpressStrings.departments"
+msgstr "Departments"
+
+msgid "wordpressStrings.describeYourIssueInDetail"
+msgstr "Describe your issue in detail..."
+
+msgid "wordpressStrings.description"
+msgstr "Description"
+
+msgid "wordpressStrings.descriptionIsRequired"
+msgstr "Description is required."
+
+msgid "wordpressStrings.description9b6f3f"
+msgstr "Description:"
+
+msgid "wordpressStrings.details"
+msgstr "Details"
+
+msgid "wordpressStrings.dueInPercentS"
+msgstr "Due in {value}"
+
+msgid "wordpressStrings.edit"
+msgstr "Edit"
+
+msgid "wordpressStrings.editAutomation"
+msgstr "Edit Automation"
+
+msgid "wordpressStrings.editCannedResponse"
+msgstr "Edit Canned Response"
+
+msgid "wordpressStrings.editDepartment"
+msgstr "Edit Department"
+
+msgid "wordpressStrings.editEscalationRule"
+msgstr "Edit Escalation Rule"
+
+msgid "wordpressStrings.editMacro"
+msgstr "Edit Macro"
+
+msgid "wordpressStrings.editSlaPolicy"
+msgstr "Edit SLA Policy"
+
+msgid "wordpressStrings.editTag"
+msgstr "Edit Tag"
+
+msgid "wordpressStrings.emailAddress"
+msgstr "Email Address"
+
+msgid "wordpressStrings.emailNotifications"
+msgstr "Email Notifications"
+
+msgid "wordpressStrings.enableInboundEmail"
+msgstr "Enable Inbound Email"
+
+msgid "wordpressStrings.encryption"
+msgstr "Encryption"
+
+msgid "wordpressStrings.enterActionsAsAJsonArrayEachActionShouldHaveTypeAndValueKeys"
+msgstr "Enter actions as a JSON array. Each action should have \\\"type\\\" and \\\"value\\\" keys."
+
+msgid "wordpressStrings.enterConditionsAsAJsonArrayEachConditionShouldHaveFieldOperatorAndValueKeys"
+msgstr "Enter conditions as a JSON array. Each condition should have \\\"field\\\", \\\"operator\\\", and \\\"value\\\" keys."
+
+msgid "wordpressStrings.escalated"
+msgstr "Eskalasyon yapildi"
+
+msgid "wordpressStrings.escalatedSettings"
+msgstr "Escalated Settings"
+
+msgid "wordpressStrings.escalationRules"
+msgstr "Escalation Rules"
+
+msgid "wordpressStrings.escalationRuleCreatedSuccessfully"
+msgstr "Escalation rule created successfully."
+
+msgid "wordpressStrings.escalationRuleDeletedSuccessfully"
+msgstr "Escalation rule deleted successfully."
+
+msgid "wordpressStrings.escalationRuleUpdatedSuccessfully"
+msgstr "Escalation rule updated successfully."
+
+msgid "wordpressStrings.everyFiveMinutesEscalated"
+msgstr "Every Five Minutes (Escalated)"
+
+msgid "wordpressStrings.everyMinuteEscalated"
+msgstr "Every Minute (Escalated)"
+
+msgid "wordpressStrings.expirationDate"
+msgstr "Expiration Date"
+
+msgid "wordpressStrings.expires"
+msgstr "Expires"
+
+msgid "wordpressStrings.expiryDateMustBeInTheFuture"
+msgstr "Expiry date must be in the future."
+
+msgid "wordpressStrings.failedToCreateApiToken"
+msgstr "Failed to create API token."
+
+msgid "wordpressStrings.failedToCreateAutomation"
+msgstr "Failed to create automation."
+
+msgid "wordpressStrings.failedToCreateNote"
+msgstr "Failed to create note."
+
+msgid "wordpressStrings.failedToCreateReply"
+msgstr "Failed to create reply."
+
+msgid "wordpressStrings.failedToCreateTicket"
+msgstr "Failed to create ticket."
+
+msgid "wordpressStrings.failedToDeleteTicket"
+msgstr "Failed to delete ticket."
+
+msgid "wordpressStrings.failedToRevokeApiToken"
+msgstr "Failed to revoke API token."
+
+msgid "wordpressStrings.fillOutTheFormBelowToCreateASupportTicketYouWillReceiveALinkToTrackYourRequest"
+msgstr "Fill out the form below to create a support ticket. You will receive a link to track your request."
+
+msgid "wordpressStrings.filter"
+msgstr "Filter"
+
+msgid "wordpressStrings.filterByStatus"
+msgstr "Filter by status"
+
+msgid "wordpressStrings.firstResponseHrs"
+msgstr "First Response (hrs)"
+
+msgid "wordpressStrings.firstResponseBreaches"
+msgstr "First Response Breaches"
+
+msgid "wordpressStrings.firstResponse"
+msgstr "First Response:"
+
+msgid "wordpressStrings.firstResponseSlaBreached"
+msgstr "First response SLA breached"
+
+msgid "wordpressStrings.followers"
+msgstr "Followers"
+
+msgid "wordpressStrings.followingTicket"
+msgstr "Following ticket."
+
+msgid "wordpressStrings.fromEmail"
+msgstr "From Email"
+
+msgid "wordpressStrings.fromName"
+msgstr "From Name"
+
+msgid "wordpressStrings.fromPercentS"
+msgstr "From: {value}"
+
+msgid "wordpressStrings.fullAccessAllAbilities"
+msgstr "Full access (all abilities)"
+
+msgid "wordpressStrings.general"
+msgstr "General"
+
+msgid "wordpressStrings.guest"
+msgstr "Guest"
+
+msgid "wordpressStrings.guestTickets"
+msgstr "Guest Tickets"
+
+msgid "wordpressStrings.guestTicketsAreDisabled"
+msgstr "Guest tickets are disabled."
+
+msgid "wordpressStrings.guestTicketsAreNotAvailable"
+msgstr "Guest tickets are not available."
+
+msgid "wordpressStrings.high"
+msgstr "Yuksek"
+
+msgid "wordpressStrings.hoursSinceAssigned"
+msgstr "Hours Since Assigned"
+
+msgid "wordpressStrings.hoursSinceCreated"
+msgstr "Hours Since Created"
+
+msgid "wordpressStrings.hoursSinceUpdated"
+msgstr "Hours Since Updated"
+
+msgid "wordpressStrings.howWasYourExperience"
+msgstr "How was your experience?"
+
+msgid "wordpressStrings.imapPort"
+msgstr "IMAP Port"
+
+msgid "wordpressStrings.imapServer"
+msgstr "IMAP Server"
+
+msgid "wordpressStrings.ifUncheckedOnlyYouCanUseThisCannedResponse"
+msgstr "If unchecked, only you can use this canned response."
+
+msgid "wordpressStrings.ifUncheckedOnlyYouCanUseThisMacro"
+msgstr "If unchecked, only you can use this macro."
+
+msgid "wordpressStrings.inProgress"
+msgstr "Devam ediyor"
+
+msgid "wordpressStrings.inboundEmail"
+msgstr "Inbound Email"
+
+msgid "wordpressStrings.internalNote"
+msgstr "Internal Note"
+
+msgid "wordpressStrings.internalNoteAddedSuccessfully"
+msgstr "Internal note added successfully."
+
+msgid "wordpressStrings.internalNoteAdded"
+msgstr "Internal note added."
+
+msgid "wordpressStrings.invalidEmailAddress"
+msgstr "Invalid email address."
+
+msgid "wordpressStrings.invalidOrExpiredApiToken"
+msgstr "Invalid or expired API token."
+
+msgid "wordpressStrings.invalidPriorityValue"
+msgstr "Invalid priority value."
+
+msgid "wordpressStrings.invalidRating"
+msgstr "Invalid rating."
+
+msgid "wordpressStrings.invalidRequest"
+msgstr "Invalid request."
+
+msgid "wordpressStrings.invalidStatusValue"
+msgstr "Invalid status value."
+
+msgid "wordpressStrings.jsonArrayOfActionsSupportedTypesPercentS"
+msgstr "JSON array of actions. Supported types: {value}"
+
+msgid "wordpressStrings.jsonArrayOfConditionsSupportedFieldsPercentS"
+msgstr "JSON array of conditions. Supported fields: {value}"
+
+msgid "wordpressStrings.johnDoe"
+msgstr "John Doe"
+
+msgid "wordpressStrings.last30Days"
+msgstr "Last 30 Days"
+
+msgid "wordpressStrings.lastRun"
+msgstr "Last Run"
+
+msgid "wordpressStrings.lastUsed"
+msgstr "Last Used"
+
+msgid "wordpressStrings.leaveBlankForATokenThatNeverExpires"
+msgstr "Leave blank for a token that never expires."
+
+msgid "wordpressStrings.leaveBlankToAutoGenerateFromName"
+msgstr "Leave blank to auto-generate from name."
+
+msgid "wordpressStrings.light"
+msgstr "Light"
+
+msgid "wordpressStrings.low"
+msgstr "Dusuk"
+
+msgid "wordpressStrings.lowerNumbersExecuteFirst"
+msgstr "Lower numbers execute first."
+
+msgid "wordpressStrings.macroIdIsRequired"
+msgstr "Macro ID is required."
+
+msgid "wordpressStrings.macroAppliedSuccessfully"
+msgstr "Macro applied successfully."
+
+msgid "wordpressStrings.macroCreatedSuccessfully"
+msgstr "Macro created successfully."
+
+msgid "wordpressStrings.macroDeletedSuccessfully"
+msgstr "Macro deleted successfully."
+
+msgid "wordpressStrings.macroUpdatedSuccessfully"
+msgstr "Macro updated successfully."
+
+msgid "wordpressStrings.macros"
+msgstr "Macros"
+
+msgid "wordpressStrings.maintenance"
+msgstr "Maintenance"
+
+msgid "wordpressStrings.makeSureToCopyThisTokenNowYouWillNotBeAbleToSeeItAgain"
+msgstr "Make sure to copy this token now. You will not be able to see it again!"
+
+msgid "wordpressStrings.maxAttachmentsPerReply"
+msgstr "Max Attachments Per Reply"
+
+msgid "wordpressStrings.maxFileSizeKb"
+msgstr "Max File Size (KB)"
+
+msgid "wordpressStrings.maximumFileSizeForAttachmentsInKilobytes1024010Mb"
+msgstr "Maximum file size for attachments in kilobytes (10240 = 10 MB)."
+
+msgid "wordpressStrings.medium"
+msgstr "Orta"
+
+msgid "wordpressStrings.myTickets"
+msgstr "My Tickets"
+
+msgid "wordpressStrings.nA"
+msgstr "N/A"
+
+msgid "wordpressStrings.name"
+msgstr "Name"
+
+msgid "wordpressStrings.never"
+msgstr "Never"
+
+msgid "wordpressStrings.newReplyOnTicket"
+msgstr "New reply on ticket"
+
+msgid "wordpressStrings.newTicketCreated"
+msgstr "New ticket created"
+
+msgid "wordpressStrings.next"
+msgstr "Next"
+
+msgid "wordpressStrings.no"
+msgstr "No"
+
+msgid "wordpressStrings.noApiTokensFound"
+msgstr "No API tokens found."
+
+msgid "wordpressStrings.noResponse"
+msgstr "No Response"
+
+msgid "wordpressStrings.noSlaPoliciesFound"
+msgstr "No SLA policies found."
+
+msgid "wordpressStrings.noActivityRecorded"
+msgstr "No activity recorded."
+
+msgid "wordpressStrings.noAutomationsFound"
+msgstr "No automations found."
+
+msgid "wordpressStrings.noCannedResponsesFound"
+msgstr "No canned responses found."
+
+msgid "wordpressStrings.noDataAvailable"
+msgstr "No data available."
+
+msgid "wordpressStrings.noDepartmentsFound"
+msgstr "No departments found."
+
+msgid "wordpressStrings.noEscalationRulesFound"
+msgstr "No escalation rules found."
+
+msgid "wordpressStrings.noFollowers"
+msgstr "No followers."
+
+msgid "wordpressStrings.noMacrosFound"
+msgstr "No macros found."
+
+msgid "wordpressStrings.noRepliesYet"
+msgstr "No replies yet."
+
+msgid "wordpressStrings.noTagsFound"
+msgstr "No tags found."
+
+msgid "wordpressStrings.noTicketSpecified"
+msgstr "No ticket specified."
+
+msgid "wordpressStrings.noTicketsFound"
+msgstr "No tickets found."
+
+msgid "wordpressStrings.none6eef66"
+msgstr "None"
+
+msgid "wordpressStrings.noteAdded"
+msgstr "Note added"
+
+msgid "wordpressStrings.noteBodyIsRequired"
+msgstr "Note body is required."
+
+msgid "wordpressStrings.notifications"
+msgstr "Notifications"
+
+msgid "wordpressStrings.numberOfDaysAfterWhichResolvedTicketsAreAutomaticallyClosed"
+msgstr "Number of days after which resolved tickets are automatically closed."
+
+msgid "wordpressStrings.open"
+msgstr "Acik"
+
+msgid "wordpressStrings.openTickets"
+msgstr "Open Tickets"
+
+msgid "wordpressStrings.openedByPercent1SPercent2SAgo"
+msgstr "Opened by {arg1} {arg2} ago"
+
+msgid "wordpressStrings.options"
+msgstr "Options"
+
+msgid "wordpressStrings.order"
+msgstr "Order"
+
+msgid "wordpressStrings.overdueByPercentS"
+msgstr "Overdue by {value}"
+
+msgid "wordpressStrings.panelTheme"
+msgstr "Panel Theme"
+
+msgid "wordpressStrings.password"
+msgstr "Password"
+
+msgid "wordpressStrings.percentage"
+msgstr "Percentage"
+
+msgid "wordpressStrings.permissionDenied"
+msgstr "Permission denied."
+
+msgid "wordpressStrings.pleaseDescribeYourIssueInDetail"
+msgstr "Please describe your issue in detail..."
+
+msgid "wordpressStrings.pleaseLogInToCreateATicket"
+msgstr "Please log in to create a ticket."
+
+msgid "wordpressStrings.pleaseLogInToViewTickets"
+msgstr "Please log in to view tickets."
+
+msgid "wordpressStrings.pleaseLogInToViewYourTickets"
+msgstr "Please log in to view your tickets."
+
+msgid "wordpressStrings.pleaseRateTheSupportYouReceivedForThisTicket"
+msgstr "Please rate the support you received for this ticket."
+
+msgid "wordpressStrings.policyIsActive"
+msgstr "Policy is active"
+
+msgid "wordpressStrings.policy"
+msgstr "Policy:"
+
+msgid "wordpressStrings.position"
+msgstr "Position"
+
+msgid "wordpressStrings.poweredByEscalated"
+msgstr "Powered by Escalated"
+
+msgid "wordpressStrings.prefixForTicketReferencesEGEsc00001"
+msgstr "Prefix for ticket references (e.g., ESC-00001)."
+
+msgid "wordpressStrings.preview"
+msgstr "Preview"
+
+msgid "wordpressStrings.previous"
+msgstr "Previous"
+
+msgid "wordpressStrings.priority"
+msgstr "Priority"
+
+msgid "wordpressStrings.priorityBased"
+msgstr "Priority Based"
+
+msgid "wordpressStrings.priorityChanged"
+msgstr "Priority changed"
+
+msgid "wordpressStrings.priorityUpdatedSuccessfully"
+msgstr "Priority updated successfully."
+
+msgid "wordpressStrings.priorityUpdated"
+msgstr "Priority updated."
+
+msgid "wordpressStrings.priority01eb22"
+msgstr "Priority:"
+
+msgid "wordpressStrings.priorityPercentS"
+msgstr "Priority: {value}"
+
+msgid "wordpressStrings.rePercent1SPercent2S"
+msgstr "Re: [{arg1}] {arg2}"
+
+msgid "wordpressStrings.readReports"
+msgstr "Read reports"
+
+msgid "wordpressStrings.readTickets"
+msgstr "Read tickets"
+
+msgid "wordpressStrings.ref"
+msgstr "Ref:"
+
+msgid "wordpressStrings.reference"
+msgstr "Reference"
+
+msgid "wordpressStrings.referencePercentS"
+msgstr "Reference: {value}"
+
+msgid "wordpressStrings.reopened"
+msgstr "Yeniden acildi"
+
+msgid "wordpressStrings.replied"
+msgstr "Replied"
+
+msgid "wordpressStrings.reply"
+msgstr "Reply"
+
+msgid "wordpressStrings.replyAddedSuccessfully"
+msgstr "Reply added successfully."
+
+msgid "wordpressStrings.replyBodyIsRequired"
+msgstr "Reply body is required."
+
+msgid "wordpressStrings.replySent"
+msgstr "Reply sent."
+
+msgid "wordpressStrings.reports"
+msgstr "Reports"
+
+msgid "wordpressStrings.requester"
+msgstr "Requester"
+
+msgid "wordpressStrings.resolutionHrs"
+msgstr "Resolution (hrs)"
+
+msgid "wordpressStrings.resolutionBreaches"
+msgstr "Resolution Breaches"
+
+msgid "wordpressStrings.resolutionDue"
+msgstr "Resolution Due:"
+
+msgid "wordpressStrings.resolutionSlaBreached"
+msgstr "Resolution SLA breached"
+
+msgid "wordpressStrings.resolved"
+msgstr "Cozuldu"
+
+msgid "wordpressStrings.resolved5a8b9c"
+msgstr "Resolved:"
+
+msgid "wordpressStrings.revoke"
+msgstr "Revoke"
+
+msgid "wordpressStrings.ruleIsActive"
+msgstr "Rule is active"
+
+msgid "wordpressStrings.slaAutomation"
+msgstr "SLA & Automation"
+
+msgid "wordpressStrings.slaBreach"
+msgstr "SLA Breach"
+
+msgid "wordpressStrings.slaComplianceRate"
+msgstr "SLA Compliance Rate"
+
+msgid "wordpressStrings.slaInformation"
+msgstr "SLA Information"
+
+msgid "wordpressStrings.slaPolicies"
+msgstr "SLA Policies"
+
+msgid "wordpressStrings.slaTargetsHours"
+msgstr "SLA Targets (Hours)"
+
+msgid "wordpressStrings.slaWarningMinutes"
+msgstr "SLA Warning (minutes)"
+
+msgid "wordpressStrings.slaBreacha012b6"
+msgstr "SLA breach"
+
+msgid "wordpressStrings.slaBreached"
+msgstr "SLA breached"
+
+msgid "wordpressStrings.slaPolicyCreatedSuccessfully"
+msgstr "SLA policy created successfully."
+
+msgid "wordpressStrings.slaPolicyDeletedSuccessfully"
+msgstr "SLA policy deleted successfully."
+
+msgid "wordpressStrings.slaPolicyUpdatedSuccessfully"
+msgstr "SLA policy updated successfully."
+
+msgid "wordpressStrings.slaWarningApproachingDeadline"
+msgstr "SLA warning (approaching deadline)"
+
+msgid "wordpressStrings.ssl"
+msgstr "SSL"
+
+msgid "wordpressStrings.saveSettings"
+msgstr "Save Settings"
+
+msgid "wordpressStrings.searchTickets"
+msgstr "Search tickets..."
+
+msgid "wordpressStrings.secretKeyUsedToSignWebhookPayloads"
+msgstr "Secret key used to sign webhook payloads."
+
+msgid "wordpressStrings.securityCheckFailed"
+msgstr "Security check failed."
+
+msgid "wordpressStrings.sendReply"
+msgstr "Send Reply"
+
+msgid "wordpressStrings.sendAWarningNotificationThisManyMinutesBeforeSlaBreach"
+msgstr "Send a warning notification this many minutes before SLA breach."
+
+msgid "wordpressStrings.setTicketType"
+msgstr "Set Ticket Type"
+
+msgid "wordpressStrings.setAsDefaultPolicy"
+msgstr "Set as default policy"
+
+msgid "wordpressStrings.settings"
+msgstr "Settings"
+
+msgid "wordpressStrings.settingsSavedSuccessfully"
+msgstr "Settings saved successfully."
+
+msgid "wordpressStrings.shared"
+msgstr "Shared"
+
+msgid "wordpressStrings.sharedWithAllAgents"
+msgstr "Shared with all agents"
+
+msgid "wordpressStrings.showPoweredByEscalatedFooterOnCustomerPortalPages"
+msgstr "Show \\\"Powered by Escalated\\\" footer on customer portal pages"
+
+msgid "wordpressStrings.slug"
+msgstr "Slug"
+
+msgid "wordpressStrings.sortOrder"
+msgstr "Sort Order"
+
+msgid "wordpressStrings.status"
+msgstr "Status"
+
+msgid "wordpressStrings.statusChange"
+msgstr "Status Change"
+
+msgid "wordpressStrings.statusChanged"
+msgstr "Status changed"
+
+msgid "wordpressStrings.statusUpdatedSuccessfully"
+msgstr "Status updated successfully."
+
+msgid "wordpressStrings.statusUpdated"
+msgstr "Status updated."
+
+msgid "wordpressStrings.status11dc9e"
+msgstr "Status:"
+
+msgid "wordpressStrings.subject"
+msgstr "Subject"
+
+msgid "wordpressStrings.subjectContains"
+msgstr "Subject Contains"
+
+msgid "wordpressStrings.subjectAndDescriptionAreRequired"
+msgstr "Subject and description are required."
+
+msgid "wordpressStrings.subjectIsRequired"
+msgstr "Subject is required."
+
+msgid "wordpressStrings.subjectPercentS"
+msgstr "Subject: {value}"
+
+msgid "wordpressStrings.submitRating"
+msgstr "Submit Rating"
+
+msgid "wordpressStrings.submitRequest"
+msgstr "Submit Request"
+
+msgid "wordpressStrings.submitTicket"
+msgstr "Submit Ticket"
+
+msgid "wordpressStrings.submitASupportRequest"
+msgstr "Submit a Support Request"
+
+msgid "wordpressStrings.support"
+msgstr "Support"
+
+msgid "wordpressStrings.system"
+msgstr "System"
+
+msgid "wordpressStrings.tls"
+msgstr "TLS"
+
+msgid "wordpressStrings.tagAdded"
+msgstr "Tag added"
+
+msgid "wordpressStrings.tagCreatedSuccessfully"
+msgstr "Tag created successfully."
+
+msgid "wordpressStrings.tagDeletedSuccessfully"
+msgstr "Tag deleted successfully."
+
+msgid "wordpressStrings.tagRemoved"
+msgstr "Tag removed"
+
+msgid "wordpressStrings.tagUpdatedSuccessfully"
+msgstr "Tag updated successfully."
+
+msgid "wordpressStrings.tags"
+msgstr "Tags"
+
+msgid "wordpressStrings.tagsUpdatedSuccessfully"
+msgstr "Tags updated successfully."
+
+msgid "wordpressStrings.tagsUpdated"
+msgstr "Tags updated."
+
+msgid "wordpressStrings.tellUsMoreAboutYourExperience"
+msgstr "Tell us more about your experience..."
+
+msgid "wordpressStrings.thankYouForYourFeedback"
+msgstr "Thank you for your feedback!"
+
+msgid "wordpressStrings.thisTicketIsClosedNoFurtherRepliesCanBeAdded"
+msgstr "This ticket is closed. No further replies can be added."
+
+msgid "wordpressStrings.ticketReferencePrefix"
+msgstr "Ticket Reference Prefix"
+
+msgid "wordpressStrings.ticketType"
+msgstr "Ticket Type"
+
+msgid "wordpressStrings.ticketAssignedSuccessfully"
+msgstr "Ticket assigned successfully."
+
+msgid "wordpressStrings.ticketAssignedToAgent"
+msgstr "Ticket assigned to agent"
+
+msgid "wordpressStrings.ticketClosed"
+msgstr "Ticket closed."
+
+msgid "wordpressStrings.ticketCreatedSuccessfully"
+msgstr "Ticket created successfully."
+
+msgid "wordpressStrings.ticketDeletedSuccessfully"
+msgstr "Ticket deleted successfully."
+
+msgid "wordpressStrings.ticketNotFound"
+msgstr "Ticket not found."
+
+msgid "wordpressStrings.tickets"
+msgstr "Tickets"
+
+msgid "wordpressStrings.ticketsByDepartment"
+msgstr "Tickets by Department"
+
+msgid "wordpressStrings.ticketsByPriority"
+msgstr "Tickets by Priority"
+
+msgid "wordpressStrings.ticketsByStatus"
+msgstr "Tickets by Status"
+
+msgid "wordpressStrings.timeBased"
+msgstr "Time Based"
+
+msgid "wordpressStrings.title"
+msgstr "Title"
+
+msgid "wordpressStrings.token"
+msgstr "Token"
+
+msgid "wordpressStrings.tokenName"
+msgstr "Token Name"
+
+msgid "wordpressStrings.tokenNameIsRequired"
+msgstr "Token name is required."
+
+msgid "wordpressStrings.topAgentsByTicketCount"
+msgstr "Top Agents by Ticket Count"
+
+msgid "wordpressStrings.totalTickets"
+msgstr "Total Tickets"
+
+msgid "wordpressStrings.trigger"
+msgstr "Trigger"
+
+msgid "wordpressStrings.triggerType"
+msgstr "Trigger Type"
+
+msgid "wordpressStrings.typeYourReplyHere"
+msgstr "Type your reply here..."
+
+msgid "wordpressStrings.urlToSendWebhookNotificationsForTicketEvents"
+msgstr "URL to send webhook notifications for ticket events."
+
+msgid "wordpressStrings.unassignede57016"
+msgstr "Atanmamis"
+
+msgid "wordpressStrings.unauthorized"
+msgstr "Unauthorized."
+
+msgid "wordpressStrings.unfollowedTicket"
+msgstr "Unfollowed ticket."
+
+msgid "wordpressStrings.unknown"
+msgstr "Unknown"
+
+msgid "wordpressStrings.update"
+msgstr "Update"
+
+msgid "wordpressStrings.updateAutomation"
+msgstr "Update Automation"
+
+msgid "wordpressStrings.updateDepartment"
+msgstr "Update Department"
+
+msgid "wordpressStrings.updateMacro"
+msgstr "Update Macro"
+
+msgid "wordpressStrings.updatePolicy"
+msgstr "Update Policy"
+
+msgid "wordpressStrings.updateResponse"
+msgstr "Update Response"
+
+msgid "wordpressStrings.updateRule"
+msgstr "Update Rule"
+
+msgid "wordpressStrings.updateTag"
+msgstr "Update Tag"
+
+msgid "wordpressStrings.updateTags"
+msgstr "Update Tags"
+
+msgid "wordpressStrings.updated"
+msgstr "Updated:"
+
+msgid "wordpressStrings.urgent"
+msgstr "Acil"
+
+msgid "wordpressStrings.user"
+msgstr "User"
+
+msgid "wordpressStrings.userAssociatedWithThisTokenNoLongerExists"
+msgstr "User associated with this token no longer exists."
+
+msgid "wordpressStrings.userIsNotAnAgent"
+msgstr "User is not an agent."
+
+msgid "wordpressStrings.userNotFound"
+msgstr "User not found."
+
+msgid "wordpressStrings.username"
+msgstr "Username"
+
+msgid "wordpressStrings.viewTicketPercentS"
+msgstr "View ticket: {value}"
+
+msgid "wordpressStrings.visibility"
+msgstr "Visibility"
+
+msgid "wordpressStrings.waitingOnAgent"
+msgstr "Temsilci bekleniyor"
+
+msgid "wordpressStrings.waitingOnCustomer"
+msgstr "Musteri bekleniyor"
+
+msgid "wordpressStrings.webhookSecret"
+msgstr "Webhook Secret"
+
+msgid "wordpressStrings.webhookUrl"
+msgstr "Webhook URL"
+
+msgid "wordpressStrings.yes"
+msgstr "Yes"
+
+msgid "wordpressStrings.youAreViewingThisTicketAsAGuestBookmarkThisPageToAccessYourTicketLater"
+msgstr "You are viewing this ticket as a guest. Bookmark this page to access your ticket later."
+
+msgid "wordpressStrings.youCanAttachUpTo5FilesMax10MbEach"
+msgstr "You can attach up to 5 files. Max 10 MB each."
+
+msgid "wordpressStrings.youDoNotHavePermissionToManageApiTokens"
+msgstr "You do not have permission to manage API tokens."
+
+msgid "wordpressStrings.youHaveNoTicketsYet"
+msgstr "You have no tickets yet."
+
+msgid "wordpressStrings.yourName"
+msgstr "Your Name"
+
+msgid "wordpressStrings.yourRating"
+msgstr "Your Rating"
+
+msgid "wordpressStrings.yourNewApiToken"
+msgstr "Your new API token:"
+
+msgid "wordpressStrings.yourReply"
+msgstr "Your reply"
+
+msgid "wordpressStrings.percent1SNewTicketPercent2S"
+msgstr "[{arg1}] New Ticket: {arg2}"
+
+msgid "wordpressStrings.internalNotee358aa"
+msgstr "[Internal Note]"
+
+msgid "wordpressStrings.ago"
+msgstr "ago"
+
+msgid "wordpressStrings.eGBillingSupportGeneral"
+msgstr "e.g., Billing, Support, General"
+
+msgid "wordpressStrings.eGMyIntegration"
+msgstr "e.g., My Integration"
+
+msgid "wordpressStrings.youExampleCom"
+msgstr "you@example.com"

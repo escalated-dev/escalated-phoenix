@@ -37,9 +37,11 @@ defmodule Escalated.MixProject do
       {:plug, "~> 1.14"},
       {:gettext, "~> 0.24"},
 
-      # Translations are shipped centrally as a Hex package
-      # so every Escalated host plugin stays in lockstep.
-      {:escalated_locale, "~> 0.1"},
+      # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
+      # from escalated-dev/escalated-locale. Once that Hex package is actually
+      # published (publish.yml needs HEX_API_KEY configured), re-add:
+      #   {:escalated_locale, "~> 0.1"}
+      # and drop the vendored .po files.
 
       # Dev/test
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
