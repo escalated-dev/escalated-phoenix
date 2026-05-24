@@ -116,30 +116,37 @@ defmodule Escalated.Services.Newsletter.Renderer do
     view = view_in_browser_url(delivery)
 
     Regex.replace(~r/(<a\s[^>]*\bhref=)("|')(.*?)\2/i, html, fn full, prefix, quote, href ->
-      cond do
-        href == "" or String.starts_with?(href, "#") ->
-          full
-
-        true ->
-          scheme = href |> String.split(":", parts: 2) |> hd() |> String.downcase()
-
-          cond do
-            scheme not in @allowed_schemes ->
-              "#{prefix}#{quote}##{quote}"
-
-            scheme in ["mailto", "tel"] ->
-              full
-
-            String.starts_with?(href, unsub) or String.starts_with?(href, view) ->
-              full
-
-            true ->
-              encoded = Base.url_encode64(href, padding: false)
-              tracked = "#{base_url()}/escalated/n/c/#{delivery.tracking_token}?u=#{encoded}"
-              "#{prefix}#{quote}#{tracked}#{quote}"
-          end
-      end
+      rewrite_one_link(full, prefix, quote, href, unsub, view, delivery)
     end)
+  end
+
+  defp rewrite_one_link(full, _prefix, _quote, "", _unsub, _view, _delivery), do: full
+
+  defp rewrite_one_link(full, prefix, quote, href, unsub, view, delivery) do
+    if String.starts_with?(href, "#") do
+      full
+    else
+      scheme = href |> String.split(":", parts: 2) |> hd() |> String.downcase()
+      classify_and_rewrite(full, prefix, quote, href, scheme, unsub, view, delivery)
+    end
+  end
+
+  defp classify_and_rewrite(_full, prefix, quote, _href, scheme, _unsub, _view, _delivery)
+       when scheme not in @allowed_schemes,
+       do: "#{prefix}#{quote}##{quote}"
+
+  defp classify_and_rewrite(full, _prefix, _quote, _href, scheme, _unsub, _view, _delivery)
+       when scheme in ["mailto", "tel"],
+       do: full
+
+  defp classify_and_rewrite(full, prefix, quote, href, _scheme, unsub, view, delivery) do
+    if String.starts_with?(href, unsub) or String.starts_with?(href, view) do
+      full
+    else
+      encoded = Base.url_encode64(href, padding: false)
+      tracked = "#{base_url()}/escalated/n/c/#{delivery.tracking_token}?u=#{encoded}"
+      "#{prefix}#{quote}#{tracked}#{quote}"
+    end
   end
 
   defp inject_pixel(html, delivery) do
