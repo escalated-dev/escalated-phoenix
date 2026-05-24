@@ -46,9 +46,11 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :from_email, :string, null: false, size: 320
       add :from_name, :string
       add :reply_to, :string, size: 320
+
       add :target_list_id,
           references("#{@prefix}newsletter_lists", on_delete: :restrict),
           null: false
+
       add :template_id, references("#{@prefix}newsletter_templates", on_delete: :nilify_all)
       add :theme, :string, size: 64
       add :body_markdown, :text
@@ -75,6 +77,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :newsletter_id,
           references("#{@prefix}newsletters", on_delete: :delete_all),
           null: false
+
       add :contact_id, references("#{@prefix}contacts", on_delete: :delete_all), null: false
       add :email_at_send, :string, null: false, size: 320
       add :status, :string, null: false, default: "pending", size: 16
