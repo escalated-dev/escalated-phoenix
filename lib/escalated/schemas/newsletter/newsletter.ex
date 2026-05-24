@@ -31,11 +31,25 @@ defmodule Escalated.Schemas.Newsletter.Newsletter do
   def changeset(newsletter, attrs) do
     newsletter
     |> cast(attrs, [
-      :subject, :from_email, :from_name, :reply_to,
-      :target_list_id, :template_id, :theme, :body_markdown,
-      :status, :scheduled_at, :sent_at, :created_by, :sent_by,
-      :summary_total, :summary_sent, :summary_opened,
-      :summary_clicked, :summary_bounced, :summary_complained
+      :subject,
+      :from_email,
+      :from_name,
+      :reply_to,
+      :target_list_id,
+      :template_id,
+      :theme,
+      :body_markdown,
+      :status,
+      :scheduled_at,
+      :sent_at,
+      :created_by,
+      :sent_by,
+      :summary_total,
+      :summary_sent,
+      :summary_opened,
+      :summary_clicked,
+      :summary_bounced,
+      :summary_complained
     ])
     |> validate_required([:subject, :from_email, :target_list_id, :status])
     |> validate_inclusion(:status, @statuses)

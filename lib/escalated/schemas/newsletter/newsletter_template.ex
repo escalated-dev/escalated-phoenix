@@ -15,7 +15,14 @@ defmodule Escalated.Schemas.Newsletter.NewsletterTemplate do
 
   def changeset(tpl, attrs) do
     tpl
-    |> cast(attrs, [:name, :theme, :subject_template, :body_markdown, :merge_fields_schema, :created_by])
+    |> cast(attrs, [
+      :name,
+      :theme,
+      :subject_template,
+      :body_markdown,
+      :merge_fields_schema,
+      :created_by
+    ])
     |> validate_required([:name, :theme, :body_markdown])
   end
 end

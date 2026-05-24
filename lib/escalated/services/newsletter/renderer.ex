@@ -20,13 +20,14 @@ defmodule Escalated.Services.Newsletter.Renderer do
       |> markdown_to_html()
       |> resolve_merge_fields(contact, delivery)
 
-    themed = render_theme(theme_slug, %{
-      subject: newsletter.subject,
-      body: body,
-      unsubscribe_url: unsubscribe_url(delivery),
-      view_in_browser_url: view_in_browser_url(delivery),
-      brand: brand()
-    })
+    themed =
+      render_theme(theme_slug, %{
+        subject: newsletter.subject,
+        body: body,
+        unsubscribe_url: unsubscribe_url(delivery),
+        view_in_browser_url: view_in_browser_url(delivery),
+        brand: brand()
+      })
 
     if tracking_enabled?() do
       themed
@@ -42,7 +43,9 @@ defmodule Escalated.Services.Newsletter.Renderer do
 
   # ----
 
-  defp base_url, do: String.trim_trailing(Application.get_env(:escalated, :app_url, "http://localhost"), "/")
+  defp base_url,
+    do: String.trim_trailing(Application.get_env(:escalated, :app_url, "http://localhost"), "/")
+
   defp default_theme, do: Application.get_env(:escalated, :newsletter_default_theme, "default")
   defp tracking_enabled?, do: Application.get_env(:escalated, :newsletter_tracking_enabled, true)
 
@@ -57,7 +60,9 @@ defmodule Escalated.Services.Newsletter.Renderer do
 
   defp markdown_to_html(md) do
     case Application.get_env(:escalated, :newsletter_markdown_renderer) do
-      fun when is_function(fun, 1) -> fun.(md)
+      fun when is_function(fun, 1) ->
+        fun.(md)
+
       _ ->
         escaped = md |> to_string() |> Plug.HTML.html_escape()
         "<p>" <> String.replace(escaped, ~r/\n{2,}/, "</p><p>") <> "</p>"
@@ -71,22 +76,27 @@ defmodule Escalated.Services.Newsletter.Renderer do
   end
 
   defp resolve_path("contact.name", contact, _d), do: to_string(Map.get(contact, :name) || "")
+
   defp resolve_path("contact.first_name", contact, _d) do
     case (Map.get(contact, :name) || "") |> to_string() |> String.split(" ", parts: 2) do
       [first | _] -> first
       _ -> ""
     end
   end
+
   defp resolve_path("contact.email", contact, _d), do: to_string(Map.get(contact, :email) || "")
   defp resolve_path("unsubscribe_url", _c, d), do: unsubscribe_url(d)
   defp resolve_path("view_in_browser_url", _c, d), do: view_in_browser_url(d)
+
   defp resolve_path("contact.metadata." <> key, contact, _d) do
     meta = Map.get(contact, :metadata) || %{}
+
     case Map.get(meta, key) do
       nil -> ""
       v -> to_string(v)
     end
   end
+
   defp resolve_path(_, _, _), do: ""
 
   defp render_theme(slug, assigns) do
@@ -112,10 +122,17 @@ defmodule Escalated.Services.Newsletter.Renderer do
 
         true ->
           scheme = href |> String.split(":", parts: 2) |> hd() |> String.downcase()
+
           cond do
-            scheme not in @allowed_schemes -> "#{prefix}#{quote}##{quote}"
-            scheme in ["mailto", "tel"] -> full
-            String.starts_with?(href, unsub) or String.starts_with?(href, view) -> full
+            scheme not in @allowed_schemes ->
+              "#{prefix}#{quote}##{quote}"
+
+            scheme in ["mailto", "tel"] ->
+              full
+
+            String.starts_with?(href, unsub) or String.starts_with?(href, view) ->
+              full
+
             true ->
               encoded = Base.url_encode64(href, padding: false)
               tracked = "#{base_url()}/escalated/n/c/#{delivery.tracking_token}?u=#{encoded}"
@@ -128,6 +145,7 @@ defmodule Escalated.Services.Newsletter.Renderer do
   defp inject_pixel(html, delivery) do
     url = "#{base_url()}/escalated/n/o/#{delivery.tracking_token}.gif"
     pixel = "<img src=\"#{Plug.HTML.html_escape(url)}\" width=\"1\" height=\"1\" alt=\"\" />"
+
     if String.contains?(html, "</body>") do
       String.replace(html, "</body>", "#{pixel}</body>")
     else

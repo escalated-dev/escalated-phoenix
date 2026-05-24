@@ -25,10 +25,21 @@ defmodule Escalated.Schemas.Newsletter.NewsletterDelivery do
   def changeset(delivery, attrs) do
     delivery
     |> cast(attrs, [
-      :newsletter_id, :contact_id, :email_at_send, :status,
-      :tracking_token, :sent_at, :opened_at, :last_clicked_at,
-      :clicks_count, :bounce_reason, :failure_reason,
-      :attempt_count, :claimed_at, :is_test, :created_at
+      :newsletter_id,
+      :contact_id,
+      :email_at_send,
+      :status,
+      :tracking_token,
+      :sent_at,
+      :opened_at,
+      :last_clicked_at,
+      :clicks_count,
+      :bounce_reason,
+      :failure_reason,
+      :attempt_count,
+      :claimed_at,
+      :is_test,
+      :created_at
     ])
     |> validate_required([:newsletter_id, :contact_id, :email_at_send, :tracking_token])
     |> validate_inclusion(:status, @statuses)
