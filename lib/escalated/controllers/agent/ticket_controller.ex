@@ -163,7 +163,8 @@ defmodule Escalated.Controllers.Agent.TicketController do
     user = conn.assigns[:current_user]
 
     with ticket when not is_nil(ticket) <- TicketService.find(reference),
-         {:ok, _updated} <- AssignmentService.assign(ticket, String.to_integer(agent_id), actor_id: user.id) do
+         {:ok, _updated} <-
+           AssignmentService.assign(ticket, String.to_integer(agent_id), actor_id: user.id) do
       conn
       |> put_flash(:info, "Ticket assigned.")
       |> redirect(to: agent_ticket_path(conn, ticket))
