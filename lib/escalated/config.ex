@@ -103,5 +103,6 @@ defmodule Escalated.Config do
   @doc """
   Returns true if feedback on knowledge base articles is enabled.
   """
-  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}), do: val == true
+  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}),
+    do: val == true
 end

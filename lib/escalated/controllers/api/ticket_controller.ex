@@ -52,7 +52,10 @@ defmodule Escalated.Controllers.Api.TicketController do
 
         data =
           ticket_json(ticket)
-          |> Map.put(:custom_actions, serialize_custom_actions(ticket, conn.assigns[:current_user]))
+          |> Map.put(
+            :custom_actions,
+            serialize_custom_actions(ticket, conn.assigns[:current_user])
+          )
 
         json(conn, %{data: data})
     end
@@ -170,8 +173,10 @@ defmodule Escalated.Controllers.Api.TicketController do
       department_id: t.department_id,
       sla_breached: t.sla_breached,
       attachments: serialize_attachments(t),
-      sla_first_response_due_at: t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
-      sla_resolution_due_at: t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
+      sla_first_response_due_at:
+        t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
+      sla_resolution_due_at:
+        t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
       created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
       updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
     }

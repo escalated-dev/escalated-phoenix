@@ -31,8 +31,17 @@ defmodule Escalated.Controllers.Agent.TicketController do
 
       ticket ->
         ticket = repo.preload(ticket, :attachments)
-        replies = repo.all(from(r in Reply, where: r.ticket_id == ^ticket.id) |> Reply.chronological()) |> repo.preload(:attachments)
-        activities = repo.all(from(a in Escalated.Schemas.TicketActivity, where: a.ticket_id == ^ticket.id) |> Escalated.Schemas.TicketActivity.reverse_chronological() |> limit(50))
+
+        replies =
+          repo.all(from(r in Reply, where: r.ticket_id == ^ticket.id) |> Reply.chronological())
+          |> repo.preload(:attachments)
+
+        activities =
+          repo.all(
+            from(a in Escalated.Schemas.TicketActivity, where: a.ticket_id == ^ticket.id)
+            |> Escalated.Schemas.TicketActivity.reverse_chronological()
+            |> limit(50)
+          )
 
         UIRenderer.render_page(conn, "Escalated/Agent/Tickets/Show", %{
           ticket: ticket_detail_json(ticket),
@@ -71,7 +80,9 @@ defmodule Escalated.Controllers.Agent.TicketController do
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
       :disabled ->
-        conn |> put_status(403) |> Phoenix.Controller.json(%{error: "Custom action is not enabled"})
+        conn
+        |> put_status(403)
+        |> Phoenix.Controller.json(%{error: "Custom action is not enabled"})
 
       _ ->
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Custom action not found"})
@@ -82,13 +93,17 @@ defmodule Escalated.Controllers.Agent.TicketController do
     user = conn.assigns[:current_user]
 
     with ticket when not is_nil(ticket) <- TicketService.find(reference),
-         {:ok, _reply} <- TicketService.reply(ticket, %{body: body, author_id: user.id, is_internal: false}) do
+         {:ok, _reply} <-
+           TicketService.reply(ticket, %{body: body, author_id: user.id, is_internal: false}) do
       conn
       |> put_flash(:info, "Reply sent.")
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -96,13 +111,17 @@ defmodule Escalated.Controllers.Agent.TicketController do
     user = conn.assigns[:current_user]
 
     with ticket when not is_nil(ticket) <- TicketService.find(reference),
-         {:ok, _reply} <- TicketService.reply(ticket, %{body: body, author_id: user.id, is_internal: true}) do
+         {:ok, _reply} <-
+           TicketService.reply(ticket, %{body: body, author_id: user.id, is_internal: true}) do
       conn
       |> put_flash(:info, "Note added.")
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -115,8 +134,11 @@ defmodule Escalated.Controllers.Agent.TicketController do
       |> put_flash(:info, "Status updated to #{new_status}.")
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -129,8 +151,11 @@ defmodule Escalated.Controllers.Agent.TicketController do
       |> put_flash(:info, "Priority updated to #{new_priority}.")
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -143,8 +168,11 @@ defmodule Escalated.Controllers.Agent.TicketController do
       |> put_flash(:info, "Ticket assigned.")
       |> redirect(to: agent_ticket_path(conn, ticket))
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -160,9 +188,14 @@ defmodule Escalated.Controllers.Agent.TicketController do
         ticket: ticket_list_json(updated)
       })
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, :invalid_format} -> conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Invalid datetime format"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, :invalid_format} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Invalid datetime format"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -177,8 +210,11 @@ defmodule Escalated.Controllers.Agent.TicketController do
         ticket: ticket_list_json(updated)
       })
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -189,7 +225,9 @@ defmodule Escalated.Controllers.Agent.TicketController do
     with ticket when not is_nil(ticket) <- TicketService.find(reference),
          reply when not is_nil(reply) <- repo.get(Reply, reply_id),
          true <- reply.ticket_id == ticket.id,
-         opts <- [actor_id: user.id] ++ if(params["subject"], do: [subject: params["subject"]], else: []),
+         opts <-
+           [actor_id: user.id] ++
+             if(params["subject"], do: [subject: params["subject"]], else: []),
          {:ok, new_ticket} <- TicketService.split_ticket(ticket, reply, opts) do
       conn
       |> put_status(201)
@@ -198,9 +236,16 @@ defmodule Escalated.Controllers.Agent.TicketController do
         ticket: ticket_list_json(new_ticket)
       })
     else
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket or reply not found"})
-      false -> conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Reply does not belong to this ticket"})
-      {:error, changeset} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket or reply not found"})
+
+      false ->
+        conn
+        |> put_status(422)
+        |> Phoenix.Controller.json(%{error: "Reply does not belong to this ticket"})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -258,8 +303,10 @@ defmodule Escalated.Controllers.Agent.TicketController do
       ticket_type: t.ticket_type,
       metadata: t.metadata,
       attachments: serialize_attachments(t),
-      sla_first_response_due_at: t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
-      sla_resolution_due_at: t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
+      sla_first_response_due_at:
+        t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
+      sla_resolution_due_at:
+        t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
       first_response_at: t.first_response_at && DateTime.to_iso8601(t.first_response_at),
       resolved_at: t.resolved_at && DateTime.to_iso8601(t.resolved_at)
     })
