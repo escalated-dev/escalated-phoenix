@@ -5,7 +5,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Services.{TicketService, AssignmentService}
+  alias Escalated.Services.{TicketService, AssignmentService, TicketActionRegistry}
   alias Escalated.Schemas.{Ticket, Reply, Attachment}
   alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
@@ -38,9 +38,43 @@ defmodule Escalated.Controllers.Agent.TicketController do
           ticket: ticket_detail_json(ticket),
           replies: Enum.map(replies, &reply_json/1),
           activities: Enum.map(activities, &activity_json/1),
+          customActions: serialize_custom_actions(ticket, conn.assigns[:current_user]),
           statuses: Ticket.statuses(),
           priorities: Ticket.priorities()
         })
+    end
+  end
+
+  def custom_action(conn, %{"reference" => reference, "action" => action_key} = params) do
+    user = conn.assigns[:current_user]
+
+    with ticket when not is_nil(ticket) <- TicketService.find(reference),
+         action when not is_nil(action) <- TicketActionRegistry.find(action_key),
+         true <- TicketActionRegistry.visible?(action, ticket, user) || :not_visible,
+         true <- TicketActionRegistry.enabled?(action, ticket, user) || :disabled do
+      TicketService.reply(ticket, %{
+        body: ~s(Custom action "#{action_key}" was triggered.),
+        author_id: user.id,
+        is_internal: true
+      })
+
+      Escalated.Broadcasting.custom_action_triggered(
+        ticket,
+        action_key,
+        user.id,
+        Map.get(params, "payload", %{}),
+        TicketActionRegistry.metadata(action, ticket, user)
+      )
+
+      conn
+      |> put_flash(:info, "Custom action dispatched.")
+      |> redirect(to: agent_ticket_path(conn, ticket))
+    else
+      :disabled ->
+        conn |> put_status(403) |> Phoenix.Controller.json(%{error: "Custom action is not enabled"})
+
+      _ ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Custom action not found"})
     end
   end
 
@@ -175,6 +209,18 @@ defmodule Escalated.Controllers.Agent.TicketController do
   defp agent_ticket_path(conn, ticket) do
     prefix = Escalated.config(:route_prefix, "/support")
     "#{prefix}/agent/tickets/#{ticket.reference}"
+  end
+
+  defp serialize_custom_actions(ticket, user) do
+    prefix = Escalated.config(:route_prefix, "/support")
+
+    TicketActionRegistry.for_ticket(ticket, user)
+    |> Enum.map(fn action ->
+      Map.merge(action, %{
+        url: "#{prefix}/agent/tickets/#{ticket.reference}/actions/#{action.key}",
+        method: "post"
+      })
+    end)
   end
 
   defp atomize_filters(params) do

@@ -5,7 +5,7 @@ defmodule Escalated.Controllers.Api.TicketController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
-  alias Escalated.Services.{TicketService, AssignmentService}
+  alias Escalated.Services.{TicketService, AssignmentService, TicketActionRegistry}
   alias Escalated.Schemas.Attachment
   alias Escalated.Serializers.TicketSerializer
 
@@ -49,7 +49,40 @@ defmodule Escalated.Controllers.Api.TicketController do
 
       ticket ->
         ticket = repo.preload(ticket, :attachments)
-        json(conn, %{data: ticket_json(ticket)})
+
+        data =
+          ticket_json(ticket)
+          |> Map.put(:custom_actions, serialize_custom_actions(ticket, conn.assigns[:current_user]))
+
+        json(conn, %{data: data})
+    end
+  end
+
+  def custom_action(conn, %{"reference" => reference, "action" => action_key} = params) do
+    user = conn.assigns[:current_user]
+
+    with ticket when not is_nil(ticket) <- TicketService.find(reference),
+         action when not is_nil(action) <- TicketActionRegistry.find(action_key),
+         true <- TicketActionRegistry.visible?(action, ticket, user) || :not_visible,
+         true <- TicketActionRegistry.enabled?(action, ticket, user) || :disabled do
+      TicketService.reply(ticket, %{
+        body: ~s(Custom action "#{action_key}" was triggered.),
+        author_id: user && user.id,
+        is_internal: true
+      })
+
+      Escalated.Broadcasting.custom_action_triggered(
+        ticket,
+        action_key,
+        user && user.id,
+        Map.get(params, "payload", %{}),
+        TicketActionRegistry.metadata(action, ticket, user)
+      )
+
+      json(conn, %{message: "Custom action dispatched.", action: action_key})
+    else
+      :disabled -> conn |> put_status(403) |> json(%{error: "Custom action is not enabled"})
+      _ -> conn |> put_status(404) |> json(%{error: "Custom action not found"})
     end
   end
 
@@ -144,6 +177,18 @@ defmodule Escalated.Controllers.Api.TicketController do
     }
     |> Map.merge(TicketSerializer.computed_fields(t))
     |> Map.merge(TicketSerializer.detail_fields(t))
+  end
+
+  defp serialize_custom_actions(ticket, user) do
+    prefix = Escalated.config(:api_prefix, "/support/api/v1")
+
+    TicketActionRegistry.for_ticket(ticket, user)
+    |> Enum.map(fn action ->
+      Map.merge(action, %{
+        url: "#{prefix}/tickets/#{ticket.reference}/actions/#{action.key}",
+        method: "post"
+      })
+    end)
   end
 
   defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do

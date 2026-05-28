@@ -31,6 +31,7 @@ defmodule Escalated.Config do
       }
     },
     notification_channels: [:email],
+    custom_actions: [],
     broadcasting_enabled: false,
     pubsub_server: nil,
     knowledge_base_enabled: false,
