@@ -5,8 +5,10 @@ defmodule Escalated.Schemas.AgentProfile do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}agent_profiles" do
-    field :user_id, :integer
+    field :user_id, @user_id_type
     field :display_name, :string
     field :role, :string, default: "agent"
     field :is_active, :boolean, default: true

@@ -1,6 +1,8 @@
 defmodule Escalated.Repo.Migrations.CreateEscalatedTables do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def up do
@@ -51,8 +53,8 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedTables do
       add :status, :string, default: "open", null: false
       add :priority, :string, default: "medium", null: false
       add :ticket_type, :string
-      add :assigned_to, :integer
-      add :requester_id, :integer
+      add :assigned_to, UserKey.migration_type()
+      add :requester_id, UserKey.migration_type()
       add :requester_type, :string
       add :guest_name, :string
       add :guest_email, :string
@@ -88,7 +90,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedTables do
       add :is_internal, :boolean, default: false
       add :is_system, :boolean, default: false
       add :is_pinned, :boolean, default: false
-      add :author_id, :integer
+      add :author_id, UserKey.migration_type()
 
       add :ticket_id, references("#{@prefix}tickets", on_delete: :delete_all), null: false
 
@@ -102,7 +104,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedTables do
     create table("#{@prefix}ticket_activities") do
       add :action, :string, null: false
       add :description, :text
-      add :causer_id, :integer
+      add :causer_id, UserKey.migration_type()
       add :details, :map, default: %{}
 
       add :ticket_id, references("#{@prefix}tickets", on_delete: :delete_all), null: false
@@ -122,7 +124,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedTables do
 
     # Agent Profiles
     create table("#{@prefix}agent_profiles") do
-      add :user_id, :integer, null: false
+      add :user_id, UserKey.migration_type(), null: false
       add :display_name, :string
       add :role, :string, default: "agent"
       add :is_active, :boolean, default: true

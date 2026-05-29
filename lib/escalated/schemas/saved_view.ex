@@ -9,10 +9,12 @@ defmodule Escalated.Schemas.SavedView do
   import Ecto.Changeset
   import Ecto.Query
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}saved_views" do
     field :name, :string
     field :filters, :map, default: %{}
-    field :user_id, :integer
+    field :user_id, @user_id_type
     field :is_shared, :boolean, default: false
     field :position, :integer, default: 0
 

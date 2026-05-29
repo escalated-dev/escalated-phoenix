@@ -5,8 +5,10 @@ defmodule Escalated.Schemas.TwoFactor do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}two_factors" do
-    field :user_id, :integer
+    field :user_id, @user_id_type
     field :method, :string, default: "totp"
     field :secret, :string
     field :recovery_codes, {:array, :string}
@@ -25,6 +27,7 @@ defmodule Escalated.Schemas.TwoFactor do
 
   @doc "Use a recovery code; returns {true, updated_codes} or {false, codes}"
   def use_recovery_code(%__MODULE__{recovery_codes: nil}, _code), do: {false, nil}
+
   def use_recovery_code(%__MODULE__{recovery_codes: codes}, code) do
     if code in codes do
       {true, List.delete(codes, code)}

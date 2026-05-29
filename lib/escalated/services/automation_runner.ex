@@ -37,11 +37,14 @@ defmodule Escalated.Services.AutomationRunner do
 
     Enum.reduce(automations, 0, fn automation, acc ->
       case run_one(automation, repo) do
-        {:ok, n} -> acc + n
+        {:ok, n} ->
+          acc + n
+
         {:error, reason} ->
           Logger.warning(
             "Automation ##{automation.id} (#{automation.name}) failed: #{inspect(reason)}"
           )
+
           acc
       end
     end)
@@ -137,11 +140,20 @@ defmodule Escalated.Services.AutomationRunner do
   # Unknown field — skip silently for forward-compat.
   defp apply_condition(query, _), do: query
 
-  defp apply_time_op(query, field, :lt, threshold), do: where(query, [t], field(t, ^field) < ^threshold)
-  defp apply_time_op(query, field, :lte, threshold), do: where(query, [t], field(t, ^field) <= ^threshold)
-  defp apply_time_op(query, field, :gt, threshold), do: where(query, [t], field(t, ^field) > ^threshold)
-  defp apply_time_op(query, field, :gte, threshold), do: where(query, [t], field(t, ^field) >= ^threshold)
-  defp apply_time_op(query, field, :eq, threshold), do: where(query, [t], field(t, ^field) == ^threshold)
+  defp apply_time_op(query, field, :lt, threshold),
+    do: where(query, [t], field(t, ^field) < ^threshold)
+
+  defp apply_time_op(query, field, :lte, threshold),
+    do: where(query, [t], field(t, ^field) <= ^threshold)
+
+  defp apply_time_op(query, field, :gt, threshold),
+    do: where(query, [t], field(t, ^field) > ^threshold)
+
+  defp apply_time_op(query, field, :gte, threshold),
+    do: where(query, [t], field(t, ^field) >= ^threshold)
+
+  defp apply_time_op(query, field, :eq, threshold),
+    do: where(query, [t], field(t, ^field) == ^threshold)
 
   defp execute_actions(%Automation{actions: actions, id: aid}, %Ticket{} = ticket, repo) do
     Enum.each(actions || [], fn action ->
@@ -170,7 +182,7 @@ defmodule Escalated.Services.AutomationRunner do
 
   defp run_action(%{"type" => "assign", "value" => v}, ticket, _aid, repo) do
     ticket
-    |> Ticket.changeset(%{assigned_to: to_int(v)})
+    |> Ticket.changeset(%{assigned_to: v})
     |> repo.update()
   end
 

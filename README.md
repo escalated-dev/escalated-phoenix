@@ -75,6 +75,7 @@ config :escalated,
 | `user_schema` | *required* | Your User schema module |
 | `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
 | `table_prefix` | `"escalated_"` | Database table name prefix |
+| `user_key_type` | `:integer` | Column type for host-user references: `:integer` (default), `:binary_id` (UUID), or `:string`. Set to match your `user_schema` primary key so UUID/string-keyed apps migrate cleanly. |
 | `ui_enabled` | `true` | Mount Inertia.js UI routes |
 | `api_enabled` | `false` | Mount JSON API routes |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |

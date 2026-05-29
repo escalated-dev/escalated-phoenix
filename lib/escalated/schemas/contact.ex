@@ -14,10 +14,12 @@ defmodule Escalated.Schemas.Contact do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}contacts" do
     field :email, :string
     field :name, :string
-    field :user_id, :integer
+    field :user_id, @user_id_type
     field :metadata, :map, default: %{}
 
     has_many :tickets, Escalated.Schemas.Ticket
@@ -36,6 +38,7 @@ defmodule Escalated.Schemas.Contact do
   """
   @spec normalize_email(String.t() | nil) :: String.t()
   def normalize_email(nil), do: ""
+
   def normalize_email(email) when is_binary(email) do
     email |> String.trim() |> String.downcase()
   end
@@ -52,11 +55,14 @@ defmodule Escalated.Schemas.Contact do
   @spec decide_action(map() | struct() | nil, String.t() | nil) ::
           :create | :update_name | :return_existing
   def decide_action(nil, _incoming_name), do: :create
+
   def decide_action(existing, incoming_name) do
     existing_name = Map.get(existing, :name) || ""
+
     cond do
       existing_name == "" and is_binary(incoming_name) and incoming_name != "" ->
         :update_name
+
       true ->
         :return_existing
     end

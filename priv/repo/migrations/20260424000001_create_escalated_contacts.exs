@@ -10,13 +10,15 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedContacts do
   """
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
     create table("#{@prefix}contacts") do
       add :email, :string, size: 320, null: false
       add :name, :string
-      add :user_id, :integer
+      add :user_id, UserKey.migration_type()
       add :metadata, :map, default: %{}, null: false
 
       timestamps(type: :utc_datetime)

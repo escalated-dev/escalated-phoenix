@@ -6,10 +6,12 @@ defmodule Escalated.Schemas.TicketActivity do
   import Ecto.Changeset
   import Ecto.Query
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_activities" do
     field :action, :string
     field :description, :string
-    field :causer_id, :integer
+    field :causer_id, @user_id_type
     field :details, :map, default: %{}
 
     belongs_to :ticket, Escalated.Schemas.Ticket

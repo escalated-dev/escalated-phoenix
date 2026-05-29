@@ -6,12 +6,14 @@ defmodule Escalated.Schemas.Reply do
   import Ecto.Changeset
   import Ecto.Query
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}replies" do
     field :body, :string
     field :is_internal, :boolean, default: false
     field :is_system, :boolean, default: false
     field :is_pinned, :boolean, default: false
-    field :author_id, :integer
+    field :author_id, @user_id_type
 
     belongs_to :ticket, Escalated.Schemas.Ticket
     has_many :attachments, Escalated.Schemas.Attachment

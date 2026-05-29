@@ -1,6 +1,8 @@
 defmodule Escalated.Repo.Migrations.AddLiveChatSupport do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
@@ -17,7 +19,7 @@ defmodule Escalated.Repo.Migrations.AddLiveChatSupport do
     create table("#{@prefix}chat_sessions") do
       add :ticket_id, references("#{@prefix}tickets", on_delete: :delete_all), null: false
       add :status, :string, size: 32, default: "waiting"
-      add :agent_id, :integer
+      add :agent_id, UserKey.migration_type()
       add :visitor_user_agent, :string
       add :visitor_ip, :string, size: 45
       add :visitor_page_url, :string
@@ -37,7 +39,7 @@ defmodule Escalated.Repo.Migrations.AddLiveChatSupport do
       add :name, :string, null: false
       add :strategy, :string, size: 32, default: "round_robin"
       add :department_id, references("#{@prefix}departments", on_delete: :nilify_all)
-      add :agent_ids, {:array, :integer}, default: []
+      add :agent_ids, {:array, UserKey.migration_type()}, default: []
       add :priority, :integer, default: 0
       add :max_concurrent_chats, :integer, default: 5
       add :is_active, :boolean, default: true
