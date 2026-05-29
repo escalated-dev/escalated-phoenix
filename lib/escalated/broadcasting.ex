@@ -99,6 +99,21 @@ defmodule Escalated.Broadcasting do
   end
 
   @doc """
+  Broadcasts a custom ticket action being triggered.
+  """
+  def custom_action_triggered(ticket, action_key, user_id, payload, metadata) do
+    broadcast_ticket_event("ticket:custom_action_triggered", %{
+      ticket_id: ticket.id,
+      reference: ticket.reference,
+      action: action_key,
+      user_id: user_id,
+      payload: payload,
+      metadata: metadata,
+      assigned_to: ticket.assigned_to
+    })
+  end
+
+  @doc """
   Broadcasts a ticket assignment event.
   """
   def ticket_assigned(ticket, agent_id) do

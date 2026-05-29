@@ -56,6 +56,7 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/status", TicketController, :status
           patch "/tickets/:reference/priority", TicketController, :priority
           post "/tickets/:reference/assign", TicketController, :assign
+          post "/tickets/:reference/actions/:action", TicketController, :custom_action
 
           resources "/saved-views", SavedViewController, except: [:new, :edit]
           post "/tickets/:reference/snooze", TicketController, :snooze
@@ -155,6 +156,7 @@ defmodule Escalated.Router do
             patch "/tickets/:reference/status", TicketController, :status
             patch "/tickets/:reference/priority", TicketController, :priority
             post "/tickets/:reference/assign", TicketController, :assign
+            post "/tickets/:reference/actions/:action", TicketController, :custom_action
           end
         end
       end

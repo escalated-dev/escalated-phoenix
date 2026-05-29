@@ -162,6 +162,44 @@ The service resolves inbound messages to existing tickets via, in order: canonic
 
 See the [inbound email docs](https://docs.escalated.dev/inbound-email) for provider setup, the response shape, and a ready-to-paste curl test recipe.
 
+## Custom Ticket Actions
+
+Host applications can add custom buttons to the agent ticket screen and react to
+clicks by subscribing to the broadcast event. Register actions under the
+`:custom_actions` config key:
+
+```elixir
+config :escalated,
+  custom_actions: [
+    %{
+      key: "sync-crm",
+      label: "Sync CRM",
+      variant: "primary",
+      confirmation: "Sync this ticket to the CRM?",
+      metadata: %{icon: "refresh-cw"},
+      # visible / enabled may be a boolean or fn(ticket, user) -> boolean
+      enabled: fn ticket, _user -> ticket.status in ["open", "in_progress"] end
+    }
+  ]
+```
+
+Visible actions are exposed on the agent ticket show as `customActions` and on
+the API ticket detail response as `custom_actions` (each with a `url` and
+`method`). Triggering one (`POST /support/agent/tickets/:reference/actions/:action`
+or the API equivalent) validates the action is visible (404) and enabled (403),
+records an internal note for auditability, and broadcasts
+`ticket:custom_action_triggered`:
+
+```elixir
+Escalated.Broadcasting.subscribe_ticket(ticket_id)
+
+# In your LiveView / GenServer handle_info:
+def handle_info(%{event: "ticket:custom_action_triggered", payload: payload}, socket) do
+  # payload.action, payload.user_id, payload.payload, payload.metadata
+  {:noreply, socket}
+end
+```
+
 ## Usage
 
 ### Creating Tickets Programmatically

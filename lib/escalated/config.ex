@@ -31,6 +31,7 @@ defmodule Escalated.Config do
       }
     },
     notification_channels: [:email],
+    custom_actions: [],
     broadcasting_enabled: false,
     pubsub_server: nil,
     knowledge_base_enabled: false,
@@ -102,5 +103,6 @@ defmodule Escalated.Config do
   @doc """
   Returns true if feedback on knowledge base articles is enabled.
   """
-  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}), do: val == true
+  def knowledge_base_feedback_enabled?(%__MODULE__{knowledge_base_feedback_enabled: val}),
+    do: val == true
 end
