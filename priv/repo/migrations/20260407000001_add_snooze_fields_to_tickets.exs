@@ -13,8 +13,8 @@ defmodule Escalated.Repo.Migrations.AddSnoozeFieldsToTickets do
     end
 
     create index("#{@prefix}tickets", [:snoozed_until],
-      where: "snoozed_until IS NOT NULL",
-      name: "#{@prefix}tickets_snoozed_until_index"
-    )
+             where: "snoozed_until IS NOT NULL",
+             name: "#{@prefix}tickets_snoozed_until_index"
+           )
   end
 end
