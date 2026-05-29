@@ -1,6 +1,8 @@
 defmodule Escalated.Repo.Migrations.AddParityGapTables do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
@@ -104,7 +106,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       add :entity_type, :string, null: false
       add :entity_id, :integer
       add :performer_type, :string
-      add :performer_id, :integer
+      add :performer_id, UserKey.migration_type()
       add :old_values, :map
       add :new_values, :map
       add :ip_address, :string, size: 45
@@ -145,7 +147,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
 
     # Two Factors
     create table("#{@prefix}two_factors") do
-      add :user_id, :integer, null: false
+      add :user_id, UserKey.migration_type(), null: false
       add :method, :string, default: "totp"
       add :secret, :string
       add :recovery_codes, {:array, :string}

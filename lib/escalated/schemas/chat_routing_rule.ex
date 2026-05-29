@@ -11,11 +11,12 @@ defmodule Escalated.Schemas.ChatRoutingRule do
   import Ecto.Query
 
   @strategies ~w(round_robin least_active department)
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}chat_routing_rules" do
     field :name, :string
     field :strategy, :string, default: "round_robin"
-    field :agent_ids, {:array, :integer}, default: []
+    field :agent_ids, {:array, @user_id_type}, default: []
     field :priority, :integer, default: 0
     field :max_concurrent_chats, :integer, default: 5
     field :is_active, :boolean, default: true
@@ -31,8 +32,13 @@ defmodule Escalated.Schemas.ChatRoutingRule do
   def changeset(rule, attrs) do
     rule
     |> cast(attrs, [
-      :name, :strategy, :department_id, :agent_ids,
-      :priority, :max_concurrent_chats, :is_active
+      :name,
+      :strategy,
+      :department_id,
+      :agent_ids,
+      :priority,
+      :max_concurrent_chats,
+      :is_active
     ])
     |> validate_required([:name])
     |> validate_inclusion(:strategy, @strategies)

@@ -11,10 +11,11 @@ defmodule Escalated.Schemas.ChatSession do
   import Ecto.Query
 
   @statuses ~w(waiting active ended abandoned)
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}chat_sessions" do
     field :status, :string, default: "waiting"
-    field :agent_id, :integer
+    field :agent_id, @user_id_type
     field :visitor_user_agent, :string
     field :visitor_ip, :string
     field :visitor_page_url, :string
@@ -33,9 +34,15 @@ defmodule Escalated.Schemas.ChatSession do
   def changeset(session, attrs) do
     session
     |> cast(attrs, [
-      :status, :agent_id, :ticket_id,
-      :visitor_user_agent, :visitor_ip, :visitor_page_url,
-      :agent_joined_at, :last_activity_at, :ended_at
+      :status,
+      :agent_id,
+      :ticket_id,
+      :visitor_user_agent,
+      :visitor_ip,
+      :visitor_page_url,
+      :agent_joined_at,
+      :last_activity_at,
+      :ended_at
     ])
     |> validate_required([:ticket_id])
     |> validate_inclusion(:status, @statuses)

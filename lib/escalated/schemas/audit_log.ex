@@ -6,12 +6,14 @@ defmodule Escalated.Schemas.AuditLog do
   import Ecto.Changeset
   import Ecto.Query
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}audit_logs" do
     field :action, :string
     field :entity_type, :string
     field :entity_id, :integer
     field :performer_type, :string
-    field :performer_id, :integer
+    field :performer_id, @user_id_type
     field :old_values, :map
     field :new_values, :map
     field :ip_address, :string

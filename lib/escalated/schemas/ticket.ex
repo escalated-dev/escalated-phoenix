@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.Ticket do
   @statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated resolved closed reopened snoozed live)
   @priorities ~w(low medium high urgent critical)
   @ticket_types ~w(question problem incident task)
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}tickets" do
     field :reference, :string
@@ -17,8 +18,8 @@ defmodule Escalated.Schemas.Ticket do
     field :status, :string, default: "open"
     field :priority, :string, default: "medium"
     field :ticket_type, :string
-    field :assigned_to, :integer
-    field :requester_id, :integer
+    field :assigned_to, @user_id_type
+    field :requester_id, @user_id_type
     field :requester_type, :string
     field :guest_name, :string
     field :guest_email, :string
@@ -34,7 +35,7 @@ defmodule Escalated.Schemas.Ticket do
 
     # Snooze fields
     field :snoozed_until, :utc_datetime
-    field :snoozed_by, :integer
+    field :snoozed_by, @user_id_type
     field :status_before_snooze, :string
 
     # SLA fields
@@ -53,7 +54,8 @@ defmodule Escalated.Schemas.Ticket do
     has_many :attachments, Escalated.Schemas.Attachment
 
     many_to_many :tags, Escalated.Schemas.Tag,
-      join_through: "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_tags",
+      join_through:
+        "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_tags",
       on_replace: :delete
 
     timestamps(type: :utc_datetime)
@@ -67,14 +69,33 @@ defmodule Escalated.Schemas.Ticket do
   def changeset(ticket, attrs) do
     ticket
     |> cast(attrs, [
-      :subject, :description, :status, :priority, :ticket_type,
-      :assigned_to, :requester_id, :requester_type,
-      :guest_name, :guest_email, :guest_token, :contact_id,
-      :department_id, :sla_policy_id, :metadata,
-      :snoozed_until, :snoozed_by, :status_before_snooze,
-      :sla_breached, :sla_first_response_due_at, :sla_resolution_due_at,
-      :first_response_at, :resolved_at, :closed_at,
-      :channel, :chat_ended_at, :chat_metadata
+      :subject,
+      :description,
+      :status,
+      :priority,
+      :ticket_type,
+      :assigned_to,
+      :requester_id,
+      :requester_type,
+      :guest_name,
+      :guest_email,
+      :guest_token,
+      :contact_id,
+      :department_id,
+      :sla_policy_id,
+      :metadata,
+      :snoozed_until,
+      :snoozed_by,
+      :status_before_snooze,
+      :sla_breached,
+      :sla_first_response_due_at,
+      :sla_resolution_due_at,
+      :first_response_at,
+      :resolved_at,
+      :closed_at,
+      :channel,
+      :chat_ended_at,
+      :chat_metadata
     ])
     |> validate_required([:subject, :description])
     |> validate_length(:subject, max: 255)

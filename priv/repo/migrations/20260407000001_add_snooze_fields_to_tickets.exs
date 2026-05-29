@@ -1,12 +1,14 @@
 defmodule Escalated.Repo.Migrations.AddSnoozeFieldsToTickets do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
     alter table("#{@prefix}tickets") do
       add :snoozed_until, :utc_datetime
-      add :snoozed_by, :integer
+      add :snoozed_by, UserKey.migration_type()
       add :status_before_snooze, :string
     end
 

@@ -96,7 +96,7 @@ defmodule Escalated.Services.MacroService do
   defp run_action(%{"type" => "assign", "value" => v}, ticket, _agent_id, _mid, repo) do
     {:ok, t} =
       ticket
-      |> Ticket.changeset(%{assigned_to: to_int(v)})
+      |> Ticket.changeset(%{assigned_to: v})
       |> repo.update()
 
     t
@@ -150,8 +150,4 @@ defmodule Escalated.Services.MacroService do
     })
     |> repo.insert()
   end
-
-  defp to_int(v) when is_integer(v), do: v
-  defp to_int(v) when is_binary(v), do: String.to_integer(v)
-  defp to_int(_), do: 0
 end

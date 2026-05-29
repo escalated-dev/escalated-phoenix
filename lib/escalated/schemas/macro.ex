@@ -10,6 +10,8 @@ defmodule Escalated.Schemas.Macro do
   import Ecto.Changeset
   import Ecto.Query
 
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
+
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}macros" do
     field :name, :string
     field :description, :string
@@ -18,7 +20,7 @@ defmodule Escalated.Schemas.Macro do
     # If true, all agents see and can apply.
     field :is_shared, :boolean, default: true
     # Host-app user id of the creator. Null only for system-seeded macros.
-    field :created_by, :integer
+    field :created_by, @user_id_type
 
     timestamps(type: :utc_datetime)
   end

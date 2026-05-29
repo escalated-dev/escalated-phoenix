@@ -1,6 +1,8 @@
 defmodule Escalated.Repo.Migrations.CreateEscalatedSkillsManagement do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
@@ -31,7 +33,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedSkillsManagement do
     create unique_index("#{@prefix}skill_routing_departments", [:skill_id, :department_id])
 
     create table("#{@prefix}agent_skills") do
-      add :user_id, :integer, null: false
+      add :user_id, UserKey.migration_type(), null: false
       add :skill_id, references("#{@prefix}skills", on_delete: :delete_all), null: false
       add :proficiency, :integer, null: false, default: 3
 

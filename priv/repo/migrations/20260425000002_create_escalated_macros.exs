@@ -1,6 +1,8 @@
 defmodule Escalated.Repo.Migrations.CreateEscalatedMacros do
   use Ecto.Migration
 
+  alias Escalated.UserKey
+
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   def change do
@@ -9,7 +11,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedMacros do
       add :description, :text
       add :actions, {:array, :map}, default: []
       add :is_shared, :boolean, null: false, default: true
-      add :created_by, :integer
+      add :created_by, UserKey.migration_type()
 
       timestamps(type: :utc_datetime)
     end
