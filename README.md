@@ -83,6 +83,46 @@ config :escalated,
 | `default_priority` | `:medium` | Default ticket priority |
 | `allow_customer_close` | `true` | Allow customers to close their tickets |
 | `sla` | `%{enabled: true, ...}` | SLA configuration map |
+| `ticket_subjects` | `%{types: [], resolver: nil}` | Allowlisted host subject types and resolver for attach/API + UI serialization |
+
+## Ticket subjects
+
+A ticket has a **requester** (who raised it) and a **subject line** (free text). Tickets can also be *about* host-app entities — a Project, Customer, asset — that are not people. Attach them as ticket **subjects** so agents see what the ticket concerns and can jump into your app.
+
+Implement the `Escalated.TicketSubject` behaviour on any host struct and register a resolver:
+
+```elixir
+defmodule MyApp.Projects.Project do
+  @behaviour Escalated.TicketSubject
+
+  def ticket_subject_title(project), do: project.name
+  def ticket_subject_subtitle(project), do: "Project · #{project.account}"
+  def ticket_subject_url(project), do: Routes.project_url(MyAppWeb.Endpoint, :show, project)
+  def ticket_subject_color(_), do: "#2563eb"
+  def ticket_subject_icon(_), do: "folder"
+end
+
+# config/config.exs
+config :escalated,
+  ticket_subjects: [
+    types: ["project", "customer"],
+    resolver: &MyApp.TicketSubjects.resolve/2
+  ]
+```
+
+Attach, detach, or sync from application code:
+
+```elixir
+Escalated.Services.TicketSubjectService.attach_subject(ticket, "project", "prj_9f1c", role: "project")
+Escalated.Services.TicketSubjectService.detach_subject(ticket, "project", "prj_9f1c")
+Escalated.Services.TicketSubjectService.sync_subjects(ticket, [{"project", "b", "primary"}, {"customer", "c"}])
+```
+
+Each link is serialized on ticket detail JSON as
+`{ type, id, role, title, subtitle, url, color, icon, missing }`.
+Admin routes `POST` / `DELETE` … `/admin/tickets/:reference/subjects` accept only allowlisted types and require the resolver to return a struct.
+
+`subject_id` is stored as a string (not `Escalated.UserKey`) so integer, UUID, and custom string host keys all work.
 
 ## Database Setup
 

@@ -52,6 +52,7 @@ defmodule Escalated.Schemas.Ticket do
     has_many :replies, Escalated.Schemas.Reply
     has_many :activities, Escalated.Schemas.TicketActivity
     has_many :attachments, Escalated.Schemas.Attachment
+    has_many :ticket_subjects, Escalated.Schemas.TicketSubject
 
     many_to_many :tags, Escalated.Schemas.Tag,
       join_through:
