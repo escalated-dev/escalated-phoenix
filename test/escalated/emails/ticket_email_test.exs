@@ -173,6 +173,22 @@ defmodule Escalated.Emails.TicketEmailTest do
       assert email.html_body =~ "Powered by Escalated"
     end
 
+    test "escapes user-controlled fields in HTML body" do
+      ticket = %Ticket{
+        @ticket
+        | reference: ~S|ESC-"><script>alert(1)</script>|,
+          subject: ~S|<img src=x onerror="alert(1)">|,
+          description: ~S|<script>alert("owned")</script>|
+      }
+
+      email = TicketEmail.new_ticket_email(ticket, "user@example.com")
+
+      refute email.html_body =~ "<script>"
+      refute email.html_body =~ "<img src=x"
+      assert email.html_body =~ "&lt;script&gt;alert(&quot;owned&quot;)&lt;/script&gt;"
+      assert email.html_body =~ "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;"
+    end
+
     test "allows subject override" do
       email = TicketEmail.new_ticket_email(@ticket, "user@example.com", subject: "Custom subject")
       assert email.subject == "Custom subject"
@@ -198,6 +214,15 @@ defmodule Escalated.Emails.TicketEmailTest do
     test "builds email with reply body in text" do
       email = TicketEmail.reply_email(@ticket, @reply, "user@example.com")
       assert email.text_body =~ "We are looking into this issue."
+    end
+
+    test "escapes reply body in HTML body" do
+      reply = %Reply{@reply | body: ~S|<a href="javascript:alert(1)">click</a>|}
+
+      email = TicketEmail.reply_email(@ticket, reply, "user@example.com")
+
+      refute email.html_body =~ ~S|<a href="javascript:alert(1)">|
+      assert email.html_body =~ ~S|&lt;a href=&quot;javascript:alert(1)&quot;&gt;click&lt;/a&gt;|
     end
   end
 end

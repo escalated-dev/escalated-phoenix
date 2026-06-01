@@ -170,6 +170,12 @@ defmodule Escalated.Emails.TicketEmail do
   end
 
   defp render_html(:new_ticket, assigns) do
+    reference = html_escape(assigns.ticket.reference)
+    subject = html_escape(assigns.ticket.subject)
+    description = html_escape(assigns.ticket.description)
+    accent_color = html_escape(assigns.branding.accent_color)
+    footer_text = html_escape(assigns.branding.footer_text)
+
     """
     <!DOCTYPE html>
     <html>
@@ -177,11 +183,11 @@ defmodule Escalated.Emails.TicketEmail do
     <body style="font-family: -apple-system, sans-serif; margin: 0; padding: 0;">
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         #{logo_html(assigns.branding)}
-        <h2 style="color: #{assigns.branding.accent_color};">[#{assigns.ticket.reference}] #{assigns.ticket.subject}</h2>
+        <h2 style="color: #{accent_color};">[#{reference}] #{subject}</h2>
         <div style="padding: 16px; background: #f9fafb; border-radius: 8px; margin: 16px 0;">
-          #{assigns.ticket.description}
+          #{description}
         </div>
-        <p style="color: #6b7280; font-size: 12px;">#{assigns.branding.footer_text}</p>
+        <p style="color: #6b7280; font-size: 12px;">#{footer_text}</p>
       </div>
     </body>
     </html>
@@ -189,6 +195,12 @@ defmodule Escalated.Emails.TicketEmail do
   end
 
   defp render_html(:reply, assigns) do
+    reference = html_escape(assigns.ticket.reference)
+    subject = html_escape(assigns.ticket.subject)
+    body = html_escape(assigns.reply.body)
+    accent_color = html_escape(assigns.branding.accent_color)
+    footer_text = html_escape(assigns.branding.footer_text)
+
     """
     <!DOCTYPE html>
     <html>
@@ -196,11 +208,11 @@ defmodule Escalated.Emails.TicketEmail do
     <body style="font-family: -apple-system, sans-serif; margin: 0; padding: 0;">
       <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         #{logo_html(assigns.branding)}
-        <h2 style="color: #{assigns.branding.accent_color};">Re: [#{assigns.ticket.reference}] #{assigns.ticket.subject}</h2>
+        <h2 style="color: #{accent_color};">Re: [#{reference}] #{subject}</h2>
         <div style="padding: 16px; background: #f9fafb; border-radius: 8px; margin: 16px 0;">
-          #{assigns.reply.body}
+          #{body}
         </div>
-        <p style="color: #6b7280; font-size: 12px;">#{assigns.branding.footer_text}</p>
+        <p style="color: #6b7280; font-size: 12px;">#{footer_text}</p>
       </div>
     </body>
     </html>
@@ -232,6 +244,18 @@ defmodule Escalated.Emails.TicketEmail do
   defp logo_html(%{logo_url: nil}), do: ""
 
   defp logo_html(%{logo_url: url}) do
-    ~s(<img src="#{url}" alt="Logo" style="max-height: 40px; margin-bottom: 16px;" />)
+    ~s(<img src="#{html_escape(url)}" alt="Logo" style="max-height: 40px; margin-bottom: 16px;" />)
+  end
+
+  defp html_escape(nil), do: ""
+
+  defp html_escape(value) do
+    value
+    |> to_string()
+    |> String.replace("&", "&amp;")
+    |> String.replace("<", "&lt;")
+    |> String.replace(">", "&gt;")
+    |> String.replace(~s("), "&quot;")
+    |> String.replace("'", "&#39;")
   end
 end
