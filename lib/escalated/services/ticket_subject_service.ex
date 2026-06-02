@@ -1,4 +1,5 @@
 defmodule Escalated.Services.TicketSubjectService do
+  # credo:disable-for-this-file Credo.Check.Design.AliasUsage
   @moduledoc """
   Attach, detach, sync, and list ticket subjects (host entities a ticket is about).
   """

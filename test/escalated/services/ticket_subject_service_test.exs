@@ -1,4 +1,5 @@
 defmodule Escalated.Services.TicketSubjectServiceTest do
+  # credo:disable-for-this-file Credo.Check.Design.AliasUsage
   use ExUnit.Case, async: false
   use Escalated.DataCase
 

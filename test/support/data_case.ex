@@ -1,4 +1,5 @@
 defmodule Escalated.DataCase do
+  # credo:disable-for-this-file Credo.Check.Design.AliasUsage
   @moduledoc false
   use ExUnit.CaseTemplate
 
