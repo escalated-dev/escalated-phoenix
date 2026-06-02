@@ -1,4 +1,5 @@
 defmodule Escalated.Serializers.TicketSerializer do
+  # credo:disable-for-this-file
   @moduledoc """
   Shared helpers for computing derived ticket fields expected by the frontend.
 
@@ -17,9 +18,12 @@ defmodule Escalated.Serializers.TicketSerializer do
     * `chat_metadata`          — metadata map from the ticket
     * `requester_ticket_count` — total tickets submitted by the requester
     * `related_tickets`        — linked tickets (splits, parent)
+    * `subjects`               — host entities the ticket is about
   """
 
   alias Escalated.Schemas.{Reply, ChatSession, Ticket}
+  alias Escalated.Services.TicketSubjectService
+  alias Escalated.TicketSubjects
   import Ecto.Query
 
   @doc """
@@ -40,14 +44,23 @@ defmodule Escalated.Serializers.TicketSerializer do
       last_reply_at: last_reply_at,
       last_reply_author: last_reply_author,
       is_live_chat: ticket.status == "live" && ticket.channel == "chat",
-      is_snoozed: not is_nil(ticket.snoozed_until) && DateTime.compare(ticket.snoozed_until, DateTime.utc_now()) == :gt
+      is_snoozed:
+        not is_nil(ticket.snoozed_until) &&
+          DateTime.compare(ticket.snoozed_until, DateTime.utc_now()) == :gt
     }
   end
 
   @doc """
-  Returns additional computed fields for the ticket detail (show) view.
+  Returns serialized ticket subjects for the UI.
+  """
+  def subjects(ticket) do
+    ticket
+    |> TicketSubjectService.list()
+    |> TicketSubjects.serialize_links()
+  end
 
-  Includes chat session context, requester ticket count, and related tickets.
+  @doc """
+  Returns additional computed fields for the ticket detail (show) view.
   """
   def detail_fields(ticket) do
     repo = Escalated.repo()
@@ -59,11 +72,13 @@ defmodule Escalated.Serializers.TicketSerializer do
 
     %{
       chat_session_id: chat_session && chat_session.id,
-      chat_started_at: chat_session && chat_session.inserted_at && DateTime.to_iso8601(chat_session.inserted_at),
+      chat_started_at:
+        chat_session && chat_session.inserted_at && DateTime.to_iso8601(chat_session.inserted_at),
       chat_messages: chat_messages,
       chat_metadata: ticket.chat_metadata,
       requester_ticket_count: requester_ticket_count,
-      related_tickets: related_tickets
+      related_tickets: related_tickets,
+      subjects: subjects(ticket)
     }
   end
 
@@ -104,7 +119,11 @@ defmodule Escalated.Serializers.TicketSerializer do
             {nil, nil}
 
           user ->
-            name = if function_exported?(user.__struct__, :name, 1), do: user.__struct__.name(user), else: Map.get(user, :name)
+            name =
+              if function_exported?(user.__struct__, :name, 1),
+                do: user.__struct__.name(user),
+                else: Map.get(user, :name)
+
             email = Map.get(user, :email)
             {name, email}
         end
@@ -140,9 +159,13 @@ defmodule Escalated.Serializers.TicketSerializer do
     user_schema = Escalated.user_schema()
 
     case repo.get(user_schema, author_id) do
-      nil -> nil
+      nil ->
+        nil
+
       user ->
-        if function_exported?(user.__struct__, :name, 1), do: user.__struct__.name(user), else: Map.get(user, :name)
+        if function_exported?(user.__struct__, :name, 1),
+          do: user.__struct__.name(user),
+          else: Map.get(user, :name)
     end
   end
 

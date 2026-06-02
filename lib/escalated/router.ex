@@ -90,6 +90,8 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/priority", TicketController, :priority
           post "/tickets/:reference/assign", TicketController, :assign
           patch "/tickets/:reference/tags", TicketController, :tags
+          post "/tickets/:reference/subjects", TicketSubjectController, :create
+          delete "/tickets/:reference/subjects/:id", TicketSubjectController, :delete
           patch "/tickets/:reference/department", TicketController, :department
           post "/tickets/:reference/snooze", TicketController, :snooze
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
