@@ -50,13 +50,23 @@ defmodule Escalated.Services.WorkflowEngine do
   end
   defp evaluate_single(_, _), do: false
 
-  defp resolve_field("status", t), do: Map.get(t, :status)
-  defp resolve_field("priority", t), do: Map.get(t, :priority)
-  defp resolve_field("subject", t), do: Map.get(t, :subject)
-  defp resolve_field("description", t), do: Map.get(t, :description)
-  defp resolve_field("channel", t), do: Map.get(t, :channel)
-  defp resolve_field("ticket_type", t), do: Map.get(t, :ticket_type)
-  defp resolve_field("assigned_to", t), do: Map.get(t, :assigned_to)
+  defp resolve_field(field, t) when is_binary(field) and is_map(t) do
+    case Map.fetch(t, field) do
+      {:ok, value} ->
+        value
+
+      :error ->
+        atom =
+          try do
+            String.to_existing_atom(field)
+          rescue
+            ArgumentError -> nil
+          end
+
+        if atom, do: Map.get(t, atom), else: nil
+    end
+  end
+
   defp resolve_field(_, _), do: nil
 
   defp apply_operator("equals", a, e), do: a == e

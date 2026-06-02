@@ -84,6 +84,11 @@ defmodule Escalated.Schemas.ContactTest do
   describe "TicketService.create wire-up" do
     @describetag :integration
 
+    setup _ do
+      Escalated.DataCase.setup_sandbox(%{async: false})
+      :ok
+    end
+
     test "with guest_email dedupes repeat submitters onto one Contact" do
       attrs1 = %{
         subject: "First",
@@ -100,13 +105,10 @@ defmodule Escalated.Schemas.ContactTest do
         channel: "web"
       }
 
-      with {:ok, t1} <- Escalated.Services.TicketService.create(attrs1),
-           {:ok, t2} <- Escalated.Services.TicketService.create(attrs2) do
-        assert t1.contact_id == t2.contact_id
-        refute is_nil(t1.contact_id)
-      else
-        _ -> :ok
-      end
+      {:ok, t1} = Escalated.Services.TicketService.create(attrs1)
+      {:ok, t2} = Escalated.Services.TicketService.create(attrs2)
+      assert t1.contact_id == t2.contact_id
+      refute is_nil(t1.contact_id)
     end
   end
 
