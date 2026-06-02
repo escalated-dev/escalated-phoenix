@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterList do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   @kinds ~w(static dynamic)
 
@@ -14,7 +15,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterList do
     field :description, :string
     field :kind, :string
     field :filter_json, :map
-    field :created_by, :integer
+    field :created_by, @user_id_type
 
     has_many :members, Escalated.Schemas.Newsletter.NewsletterListMember, foreign_key: :list_id
 
