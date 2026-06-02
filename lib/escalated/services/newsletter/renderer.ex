@@ -103,7 +103,11 @@ defmodule Escalated.Services.Newsletter.Renderer do
     themes_dir = themes_dir()
     path = Path.join(themes_dir, "#{slug}.html.eex")
     path = if File.exists?(path), do: path, else: Path.join(themes_dir, "default.html.eex")
-    EEx.eval_file(path, assigns: assigns)
+    body = assigns.body
+
+    path
+    |> EEx.eval_file(assigns: Map.put(assigns, :body, ""))
+    |> String.replace("<!--ESCALATED_BODY-->", body)
   end
 
   defp themes_dir do

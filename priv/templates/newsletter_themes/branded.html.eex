@@ -23,7 +23,7 @@
       <%= if @brand[:logo_url] do %><img src="<%= @brand[:logo_url] %>" alt="<%= @brand[:name] %>" />
       <% else %><h1><%= @brand[:name] %></h1><% end %>
     </div>
-    <div class="content"><%= raw @body %></div>
+    <div class="content"><!--ESCALATED_BODY--></div>
     <div class="footer">
       <p>
         <a href="<%= @view_in_browser_url %>">View in browser</a>
