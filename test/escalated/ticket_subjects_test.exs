@@ -1,5 +1,5 @@
 defmodule Escalated.TicketSubjectsTest do
-  # credo:disable-for-this-file Credo.Check.Design.AliasUsage
+  # credo:disable-for-this-file
   use ExUnit.Case, async: false
 
   alias Escalated.Schemas.TicketSubject

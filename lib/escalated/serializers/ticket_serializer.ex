@@ -1,5 +1,5 @@
 defmodule Escalated.Serializers.TicketSerializer do
-  # credo:disable-for-this-file Credo.Check.Design.AliasUsage
+  # credo:disable-for-this-file
   @moduledoc """
   Shared helpers for computing derived ticket fields expected by the frontend.
 
