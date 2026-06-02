@@ -34,7 +34,10 @@ defmodule Escalated.Plugs.ShareInertiaData do
         route_prefix: config.route_prefix,
         allow_customer_close: config.allow_customer_close,
         priorities: Escalated.Schemas.Ticket.priorities(),
-        statuses: Escalated.Schemas.Ticket.statuses()
+        statuses: Escalated.Schemas.Ticket.statuses(),
+        features: %{
+          newsletters: newsletters_enabled?()
+        }
       },
       auth: %{
         user:
@@ -51,5 +54,9 @@ defmodule Escalated.Plugs.ShareInertiaData do
     }
 
     Plug.Conn.assign(conn, :inertia_shared, shared)
+  end
+
+  defp newsletters_enabled? do
+    Application.get_env(:escalated, :enable_newsletters, false) in [true, "true", 1, "1"]
   end
 end
