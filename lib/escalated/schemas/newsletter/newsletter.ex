@@ -1,6 +1,7 @@
 defmodule Escalated.Schemas.Newsletter.Newsletter do
   use Ecto.Schema
   import Ecto.Changeset
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   @statuses ~w(draft scheduled sending sent paused failed)
 
@@ -16,8 +17,8 @@ defmodule Escalated.Schemas.Newsletter.Newsletter do
     field :status, :string, default: "draft"
     field :scheduled_at, :utc_datetime
     field :sent_at, :utc_datetime
-    field :created_by, :integer
-    field :sent_by, :integer
+    field :created_by, @user_id_type
+    field :sent_by, @user_id_type
     field :summary_total, :integer, default: 0
     field :summary_sent, :integer, default: 0
     field :summary_opened, :integer, default: 0

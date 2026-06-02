@@ -9,7 +9,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :description, :text
       add :kind, :string, null: false, size: 16
       add :filter_json, :map
-      add :created_by, :integer
+      add :created_by, Escalated.UserKey.migration_type()
 
       timestamps(type: :utc_datetime)
     end
@@ -21,7 +21,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :list_id, references("#{@prefix}newsletter_lists", on_delete: :delete_all), null: false
       add :contact_id, references("#{@prefix}contacts", on_delete: :delete_all), null: false
       add :added_at, :utc_datetime, null: false, default: fragment("NOW()")
-      add :added_by, :integer
+      add :added_by, Escalated.UserKey.migration_type()
     end
 
     create unique_index("#{@prefix}newsletter_list_members", [:list_id, :contact_id])
@@ -33,7 +33,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :subject_template, :string, size: 998
       add :body_markdown, :text, null: false
       add :merge_fields_schema, :map
-      add :created_by, :integer
+      add :created_by, Escalated.UserKey.migration_type()
 
       timestamps(type: :utc_datetime)
     end
@@ -57,8 +57,8 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :status, :string, null: false, default: "draft", size: 16
       add :scheduled_at, :utc_datetime
       add :sent_at, :utc_datetime
-      add :created_by, :integer
-      add :sent_by, :integer
+      add :created_by, Escalated.UserKey.migration_type()
+      add :sent_by, Escalated.UserKey.migration_type()
       add :summary_total, :integer, null: false, default: 0
       add :summary_sent, :integer, null: false, default: 0
       add :summary_opened, :integer, null: false, default: 0

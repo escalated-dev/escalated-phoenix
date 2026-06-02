@@ -1,6 +1,7 @@
 defmodule Escalated.Schemas.Newsletter.NewsletterTemplate do
   use Ecto.Schema
   import Ecto.Changeset
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}newsletter_templates" do
     field :name, :string
@@ -8,7 +9,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterTemplate do
     field :subject_template, :string
     field :body_markdown, :string
     field :merge_fields_schema, :map
-    field :created_by, :integer
+    field :created_by, @user_id_type
 
     timestamps(type: :utc_datetime)
   end
