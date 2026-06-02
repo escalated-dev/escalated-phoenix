@@ -21,6 +21,7 @@ defmodule Escalated.Schemas.Contact do
     field :name, :string
     field :user_id, @user_id_type
     field :metadata, :map, default: %{}
+    field :marketing_opt_out_at, :utc_datetime
 
     has_many :tickets, Escalated.Schemas.Ticket
 
@@ -75,7 +76,7 @@ defmodule Escalated.Schemas.Contact do
   @doc false
   def changeset(contact, attrs) do
     contact
-    |> cast(attrs, [:email, :name, :user_id, :metadata])
+    |> cast(attrs, [:email, :name, :user_id, :metadata, :marketing_opt_out_at])
     |> validate_required([:email])
     |> update_change(:email, &normalize_email/1)
     |> validate_length(:email, max: 320)
