@@ -26,19 +26,26 @@ defmodule Escalated.Plugs.ShareInertiaData do
     end
   end
 
+  @doc false
+  def escalated_props(user, config) do
+    %{
+      route_prefix: config.route_prefix,
+      allow_customer_close: config.allow_customer_close,
+      priorities: Escalated.Schemas.Ticket.priorities(),
+      statuses: Escalated.Schemas.Ticket.statuses(),
+      is_admin: Escalated.Permissions.admin?(user),
+      permissions: Escalated.Permissions.list_slugs_for_user(user),
+      features: %{
+        newsletters: newsletters_enabled?()
+      }
+    }
+  end
+
   defp share_data(conn, config) do
     user = conn.assigns[:current_user]
 
     shared = %{
-      escalated: %{
-        route_prefix: config.route_prefix,
-        allow_customer_close: config.allow_customer_close,
-        priorities: Escalated.Schemas.Ticket.priorities(),
-        statuses: Escalated.Schemas.Ticket.statuses(),
-        features: %{
-          newsletters: newsletters_enabled?()
-        }
-      },
+      escalated: escalated_props(user, config),
       auth: %{
         user:
           if user do
