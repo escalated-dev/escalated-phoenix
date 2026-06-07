@@ -35,7 +35,7 @@ defmodule Escalated.MixProject do
       {:jason, "~> 1.4"},
       {:inertia_phoenix, "~> 0.4", optional: true},
       {:plug, "~> 1.14"},
-      {:gettext, "~> 0.24"},
+      {:gettext, "~> 1.0"},
 
       # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
       # from escalated-dev/escalated-locale. Once that Hex package is actually
