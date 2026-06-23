@@ -15,14 +15,14 @@ defmodule Escalated.Plugs.ShareInertiaData do
   def call(conn, _opts) do
     config = Escalated.configuration()
 
-    unless Escalated.Config.ui_enabled?(config) do
-      conn
-    else
+    if Escalated.Config.ui_enabled?(config) do
       if Code.ensure_loaded?(InertiaPhoenix) do
         share_data(conn, config)
       else
         conn
       end
+    else
+      conn
     end
   end
 

@@ -52,19 +52,23 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
       if sending_status?(data.status) and not NH.mail_configured?() do
         NH.bad_request(conn, %{from_email: ["Outbound mail is not configured."]})
       else
-        attrs = Map.put(data, :created_by, NH.user_id(conn))
-
-        case Escalated.repo().insert(Newsletter.changeset(%Newsletter{}, attrs)) do
-          {:ok, newsletter} ->
-            if data.status == "sending", do: Planner.plan(newsletter)
-            NH.redirect(conn, "#{NH.newsletters_base()}/#{newsletter.id}")
-
-          {:error, cs} ->
-            NH.bad_request(conn, format_changeset(cs))
-        end
+        persist_newsletter(conn, data)
       end
     else
       {:error, errors} -> NH.bad_request(conn, errors)
+    end
+  end
+
+  defp persist_newsletter(conn, data) do
+    attrs = Map.put(data, :created_by, NH.user_id(conn))
+
+    case Escalated.repo().insert(Newsletter.changeset(%Newsletter{}, attrs)) do
+      {:ok, newsletter} ->
+        if data.status == "sending", do: Planner.plan(newsletter)
+        NH.redirect(conn, "#{NH.newsletters_base()}/#{newsletter.id}")
+
+      {:error, cs} ->
+        NH.bad_request(conn, format_changeset(cs))
     end
   end
 

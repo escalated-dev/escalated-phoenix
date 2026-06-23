@@ -11,13 +11,13 @@ defmodule Mix.Tasks.Escalated.Newsletters.Dispatch do
   def run(_args) do
     Mix.Task.run("app.start")
 
-    unless newsletters_enabled?() do
-      Mix.shell().info("Newsletter feature disabled — skipping.")
-      :ok
-    else
+    if newsletters_enabled?() do
       plan_due_scheduled()
       Dispatcher.dispatch_batch()
       Mix.shell().info("Escalated: newsletter dispatch tick complete.")
+    else
+      Mix.shell().info("Newsletter feature disabled — skipping.")
+      :ok
     end
   end
 

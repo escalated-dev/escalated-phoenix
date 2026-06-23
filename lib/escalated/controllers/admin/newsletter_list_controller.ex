@@ -156,37 +156,7 @@ defmodule Escalated.Controllers.Admin.NewsletterListController do
         path
         |> File.read!()
         |> String.split(~r/\r?\n/, trim: true)
-        |> Enum.count(fn row ->
-          [email | _] = String.split(row, ",", parts: 2)
-
-          if NH.valid_email?(email) do
-            email = Contact.normalize_email(email)
-
-            contact =
-              case repo.get_by(Contact, email: email) do
-                nil ->
-                  {:ok, c} = repo.insert(Contact.changeset(%Contact{}, %{email: email, name: ""}))
-                  c
-
-                c ->
-                  c
-              end
-
-            repo.insert(
-              NewsletterListMember.changeset(%NewsletterListMember{}, %{
-                list_id: list.id,
-                contact_id: contact.id,
-                added_by: NH.user_id(conn),
-                added_at: DateTime.utc_now() |> DateTime.truncate(:second)
-              }),
-              on_conflict: :nothing
-            )
-
-            true
-          else
-            false
-          end
-        end)
+        |> Enum.count(&import_csv_row(repo, list, conn, &1))
 
       conn
       |> put_flash(:info, "Imported #{count} contacts")
@@ -194,6 +164,38 @@ defmodule Escalated.Controllers.Admin.NewsletterListController do
     else
       %NewsletterList{} -> NH.abort422(conn, "Only static lists support CSV import")
       _ -> NH.bad_request(conn, %{"file" => ["is required"]})
+    end
+  end
+
+  defp import_csv_row(repo, list, conn, row) do
+    [email | _] = String.split(row, ",", parts: 2)
+
+    if NH.valid_email?(email) do
+      email = Contact.normalize_email(email)
+
+      contact =
+        case repo.get_by(Contact, email: email) do
+          nil ->
+            {:ok, c} = repo.insert(Contact.changeset(%Contact{}, %{email: email, name: ""}))
+            c
+
+          c ->
+            c
+        end
+
+      repo.insert(
+        NewsletterListMember.changeset(%NewsletterListMember{}, %{
+          list_id: list.id,
+          contact_id: contact.id,
+          added_by: NH.user_id(conn),
+          added_at: DateTime.utc_now() |> DateTime.truncate(:second)
+        }),
+        on_conflict: :nothing
+      )
+
+      true
+    else
+      false
     end
   end
 

@@ -50,24 +50,7 @@ defmodule Escalated.Services.Newsletter.Planner do
           |> MapSet.new(&String.downcase/1)
 
         rows =
-          Enum.flat_map(contacts, fn contact ->
-            if String.downcase(contact.email) in sendable do
-              [
-                %{
-                  newsletter_id: newsletter.id,
-                  contact_id: contact.id,
-                  email_at_send: contact.email,
-                  status: "pending",
-                  tracking_token: tracking_token(),
-                  attempt_count: 0,
-                  is_test: false,
-                  created_at: now
-                }
-              ]
-            else
-              []
-            end
-          end)
+          Enum.flat_map(contacts, &delivery_row(&1, sendable, newsletter.id, now))
 
         Enum.chunk_every(rows, 500)
         |> Enum.each(fn chunk ->
@@ -81,6 +64,25 @@ defmodule Escalated.Services.Newsletter.Planner do
       end
 
       :ok
+    end
+  end
+
+  defp delivery_row(contact, sendable, newsletter_id, now) do
+    if String.downcase(contact.email) in sendable do
+      [
+        %{
+          newsletter_id: newsletter_id,
+          contact_id: contact.id,
+          email_at_send: contact.email,
+          status: "pending",
+          tracking_token: tracking_token(),
+          attempt_count: 0,
+          is_test: false,
+          created_at: now
+        }
+      ]
+    else
+      []
     end
   end
 

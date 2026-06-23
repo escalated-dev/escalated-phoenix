@@ -96,33 +96,34 @@ defmodule Escalated.Controllers.Webhooks.NewsletterEspWebhookController do
   def sendgrid(conn, params) do
     events = if is_list(params), do: params, else: params["_json"] || []
 
-    for event <- List.wrap(events) do
-      token =
-        NH.token_from_message_id(to_string(event["smtp-id"] || event["sg_message_id"] || ""))
-
-      case event["event"] do
-        "open" ->
-          Tracker.record_open(token)
-
-        "click" ->
-          Tracker.record_click(token, to_string(event["url"] || ""))
-
-        "bounce" ->
-          type = if event["type"] == "blocked", do: "hard", else: "soft"
-          Tracker.record_bounce(token, type, event["reason"])
-
-        "dropped" ->
-          Tracker.record_bounce(token, "hard", event["reason"])
-
-        "spamreport" ->
-          Tracker.record_complaint(token)
-
-        _ ->
-          :ok
-      end
-    end
+    for event <- List.wrap(events), do: handle_sendgrid_event(event)
 
     json(conn, %{ok: true})
+  end
+
+  defp handle_sendgrid_event(event) do
+    token = NH.token_from_message_id(to_string(event["smtp-id"] || event["sg_message_id"] || ""))
+
+    case event["event"] do
+      "open" ->
+        Tracker.record_open(token)
+
+      "click" ->
+        Tracker.record_click(token, to_string(event["url"] || ""))
+
+      "bounce" ->
+        type = if event["type"] == "blocked", do: "hard", else: "soft"
+        Tracker.record_bounce(token, type, event["reason"])
+
+      "dropped" ->
+        Tracker.record_bounce(token, "hard", event["reason"])
+
+      "spamreport" ->
+        Tracker.record_complaint(token)
+
+      _ ->
+        :ok
+    end
   end
 
   defp bounce_type(type) do
