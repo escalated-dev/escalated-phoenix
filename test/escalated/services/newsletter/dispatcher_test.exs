@@ -34,7 +34,15 @@ defmodule Escalated.Services.Newsletter.DispatcherTest do
     Application.put_env(:escalated, :newsletter_batch_size, 2)
     newsletter = setup_campaign!(repo, 5)
     Dispatcher.dispatch_batch()
-    sent_count = repo.aggregate(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id and d.status == "sent"), :count)
+
+    sent_count =
+      repo.aggregate(
+        from(d in NewsletterDelivery,
+          where: d.newsletter_id == ^newsletter.id and d.status == "sent"
+        ),
+        :count
+      )
+
     assert sent_count == 2
     assert :atomics.get(sent_counter, 1) == 2
   end

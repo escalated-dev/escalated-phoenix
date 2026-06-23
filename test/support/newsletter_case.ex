@@ -42,12 +42,21 @@ defmodule Escalated.NewsletterCase do
 
   def insert_contact!(repo, attrs \\ %{}) do
     defaults = %{email: "user#{System.unique_integer()}@example.com", name: "User"}
-    {:ok, c} = repo.insert(Escalated.Schemas.Contact.changeset(%Escalated.Schemas.Contact{}, Map.merge(defaults, attrs)))
+
+    {:ok, c} =
+      repo.insert(
+        Escalated.Schemas.Contact.changeset(
+          %Escalated.Schemas.Contact{},
+          Map.merge(defaults, attrs)
+        )
+      )
+
     c
   end
 
   def insert_list!(repo, attrs \\ %{}) do
     defaults = %{name: "List", kind: "static", filter_json: %{"rules" => []}}
+
     {:ok, l} =
       repo.insert(
         Escalated.Schemas.Newsletter.NewsletterList.changeset(
@@ -55,12 +64,20 @@ defmodule Escalated.NewsletterCase do
           Map.merge(defaults, attrs)
         )
       )
+
     l
   end
 
   def insert_newsletter!(repo, attrs \\ %{}) do
     list = insert_list!(repo)
-    defaults = %{subject: "Hi", from_email: "sender@example.com", target_list_id: list.id, status: "draft"}
+
+    defaults = %{
+      subject: "Hi",
+      from_email: "sender@example.com",
+      target_list_id: list.id,
+      status: "draft"
+    }
+
     {:ok, n} =
       repo.insert(
         Escalated.Schemas.Newsletter.Newsletter.changeset(
@@ -68,6 +85,7 @@ defmodule Escalated.NewsletterCase do
           Map.merge(defaults, attrs)
         )
       )
+
     n
   end
 end
