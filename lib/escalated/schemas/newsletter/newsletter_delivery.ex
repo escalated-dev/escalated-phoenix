@@ -18,6 +18,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterDelivery do
     field :failure_reason, :string
     field :attempt_count, :integer, default: 0
     field :claimed_at, :utc_datetime
+    field :next_attempt_at, :utc_datetime
     field :is_test, :boolean, default: false
     field :created_at, :utc_datetime
   end
@@ -38,6 +39,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterDelivery do
       :failure_reason,
       :attempt_count,
       :claimed_at,
+      :next_attempt_at,
       :is_test,
       :created_at
     ])

@@ -66,11 +66,13 @@ defmodule Escalated.Schemas.ContactTest do
     end
 
     test "accepts optional name and metadata" do
-      changeset = Contact.changeset(%Contact{}, %{
-        email: "alice@example.com",
-        name: "Alice",
-        metadata: %{"source" => "widget"}
-      })
+      changeset =
+        Contact.changeset(%Contact{}, %{
+          email: "alice@example.com",
+          name: "Alice",
+          metadata: %{"source" => "widget"}
+        })
+
       assert changeset.valid?
     end
   end
@@ -84,6 +86,11 @@ defmodule Escalated.Schemas.ContactTest do
   describe "TicketService.create wire-up" do
     @describetag :integration
 
+    setup _ do
+      Escalated.DataCase.setup_sandbox(%{async: false})
+      :ok
+    end
+
     test "with guest_email dedupes repeat submitters onto one Contact" do
       attrs1 = %{
         subject: "First",
@@ -92,6 +99,7 @@ defmodule Escalated.Schemas.ContactTest do
         guest_email: "alice@example.com",
         channel: "web"
       }
+
       attrs2 = %{
         subject: "Second",
         description: "body",
@@ -100,13 +108,10 @@ defmodule Escalated.Schemas.ContactTest do
         channel: "web"
       }
 
-      with {:ok, t1} <- Escalated.Services.TicketService.create(attrs1),
-           {:ok, t2} <- Escalated.Services.TicketService.create(attrs2) do
-        assert t1.contact_id == t2.contact_id
-        refute is_nil(t1.contact_id)
-      else
-        _ -> :ok
-      end
+      {:ok, t1} = Escalated.Services.TicketService.create(attrs1)
+      {:ok, t2} = Escalated.Services.TicketService.create(attrs2)
+      assert t1.contact_id == t2.contact_id
+      refute is_nil(t1.contact_id)
     end
   end
 

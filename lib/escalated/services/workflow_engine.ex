@@ -12,22 +12,29 @@ defmodule Escalated.Services.WorkflowEngine do
   def evaluate_conditions(%{"all" => conditions}, ticket) when is_list(conditions) do
     Enum.all?(conditions, &evaluate_single(&1, ticket))
   end
+
   def evaluate_conditions(%{"any" => conditions}, ticket) when is_list(conditions) do
     Enum.any?(conditions, &evaluate_single(&1, ticket))
   end
+
   def evaluate_conditions(conditions, ticket) when is_list(conditions) do
     Enum.all?(conditions, &evaluate_single(&1, ticket))
   end
+
   def evaluate_conditions(condition, ticket) when is_map(condition) do
     evaluate_single(condition, ticket)
   end
+
   def evaluate_conditions(_, _), do: false
 
   def dry_run(conditions, actions, ticket) do
     matched = evaluate_conditions(conditions, ticket)
-    previews = Enum.map(actions, fn a ->
-      %{type: a["type"], value: interpolate(a["value"] || "", ticket), would_execute: matched}
-    end)
+
+    previews =
+      Enum.map(actions, fn a ->
+        %{type: a["type"], value: interpolate(a["value"] || "", ticket), would_execute: matched}
+      end)
+
     %{matched: matched, actions: previews}
   end
 
@@ -42,21 +49,33 @@ defmodule Escalated.Services.WorkflowEngine do
       end
     end)
   end
+
   def interpolate(text, _), do: to_string(text)
 
   defp evaluate_single(%{"field" => field, "operator" => op, "value" => expected}, ticket) do
     actual = resolve_field(field, ticket)
     apply_operator(op, to_string(actual), to_string(expected))
   end
+
   defp evaluate_single(_, _), do: false
 
-  defp resolve_field("status", t), do: Map.get(t, :status)
-  defp resolve_field("priority", t), do: Map.get(t, :priority)
-  defp resolve_field("subject", t), do: Map.get(t, :subject)
-  defp resolve_field("description", t), do: Map.get(t, :description)
-  defp resolve_field("channel", t), do: Map.get(t, :channel)
-  defp resolve_field("ticket_type", t), do: Map.get(t, :ticket_type)
-  defp resolve_field("assigned_to", t), do: Map.get(t, :assigned_to)
+  defp resolve_field(field, t) when is_binary(field) and is_map(t) do
+    case Map.fetch(t, field) do
+      {:ok, value} ->
+        value
+
+      :error ->
+        atom =
+          try do
+            String.to_existing_atom(field)
+          rescue
+            ArgumentError -> nil
+          end
+
+        if atom, do: Map.get(t, atom), else: nil
+    end
+  end
+
   defp resolve_field(_, _), do: nil
 
   defp apply_operator("equals", a, e), do: a == e

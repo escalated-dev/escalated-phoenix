@@ -15,27 +15,37 @@ defmodule Escalated.Plugs.ShareInertiaData do
   def call(conn, _opts) do
     config = Escalated.configuration()
 
-    unless Escalated.Config.ui_enabled?(config) do
-      conn
-    else
+    if Escalated.Config.ui_enabled?(config) do
       if Code.ensure_loaded?(InertiaPhoenix) do
         share_data(conn, config)
       else
         conn
       end
+    else
+      conn
     end
+  end
+
+  @doc false
+  def escalated_props(user, config) do
+    %{
+      route_prefix: config.route_prefix,
+      allow_customer_close: config.allow_customer_close,
+      priorities: Escalated.Schemas.Ticket.priorities(),
+      statuses: Escalated.Schemas.Ticket.statuses(),
+      is_admin: Escalated.Permissions.admin?(user),
+      permissions: Escalated.Permissions.list_slugs_for_user(user),
+      features: %{
+        newsletters: newsletters_enabled?()
+      }
+    }
   end
 
   defp share_data(conn, config) do
     user = conn.assigns[:current_user]
 
     shared = %{
-      escalated: %{
-        route_prefix: config.route_prefix,
-        allow_customer_close: config.allow_customer_close,
-        priorities: Escalated.Schemas.Ticket.priorities(),
-        statuses: Escalated.Schemas.Ticket.statuses()
-      },
+      escalated: escalated_props(user, config),
       auth: %{
         user:
           if user do
@@ -51,5 +61,9 @@ defmodule Escalated.Plugs.ShareInertiaData do
     }
 
     Plug.Conn.assign(conn, :inertia_shared, shared)
+  end
+
+  defp newsletters_enabled? do
+    Application.get_env(:escalated, :enable_newsletters, false) in [true, "true", 1, "1"]
   end
 end

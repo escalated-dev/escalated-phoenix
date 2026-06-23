@@ -122,6 +122,66 @@ defmodule Escalated.Router do
 
           get "/settings/public-tickets", SettingsController, :public_tickets
           put "/settings/public-tickets", SettingsController, :update_public_tickets
+
+          if Application.compile_env(:escalated, :enable_newsletters, false) do
+            # Newsletter admin (static paths before :newsletter catch-all)
+            get "/newsletters", NewsletterController, :index
+            get "/newsletters/new", NewsletterController, :create
+            post "/newsletters", NewsletterController, :store
+            post "/newsletters/preview", NewsletterController, :preview
+            post "/newsletters/test", NewsletterController, :test_send
+
+            get "/newsletters/lists", NewsletterListController, :index
+            get "/newsletters/lists/new", NewsletterListController, :create
+            post "/newsletters/lists", NewsletterListController, :store
+            get "/newsletters/lists/:list", NewsletterListController, :show
+            put "/newsletters/lists/:list", NewsletterListController, :update
+            delete "/newsletters/lists/:list", NewsletterListController, :delete
+            post "/newsletters/lists/:list/members", NewsletterListController, :add_member
+
+            delete "/newsletters/lists/:list/members/:contact_id",
+                   NewsletterListController,
+                   :remove_member
+
+            post "/newsletters/lists/:list/import", NewsletterListController, :import_csv
+
+            get "/newsletters/templates", NewsletterTemplateController, :index
+            get "/newsletters/templates/new", NewsletterTemplateController, :create
+            post "/newsletters/templates", NewsletterTemplateController, :store
+            get "/newsletters/templates/:template", NewsletterTemplateController, :show
+            put "/newsletters/templates/:template", NewsletterTemplateController, :update
+            delete "/newsletters/templates/:template", NewsletterTemplateController, :delete
+
+            get "/newsletters/settings", NewsletterSettingsController, :show
+            put "/newsletters/settings", NewsletterSettingsController, :update
+
+            get "/newsletters/:newsletter", NewsletterController, :show
+            get "/newsletters/:newsletter/edit", NewsletterController, :edit
+            put "/newsletters/:newsletter", NewsletterController, :update
+            delete "/newsletters/:newsletter", NewsletterController, :delete
+          end
+        end
+
+        if Application.compile_env(:escalated, :enable_newsletters, false) do
+          scope "/escalated", Escalated.Controllers.Public, as: :newsletter_public do
+            pipe_through Escalated.Plugs.EnsureNewslettersEnabled
+
+            get "/n/o/:token", NewsletterTrackingController, :open
+            get "/n/c/:token", NewsletterTrackingController, :click
+            get "/n/u/:token", NewsletterTrackingController, :unsubscribe_show
+            post "/n/u/:token", NewsletterTrackingController, :unsubscribe_store
+            get "/n/v/:token", NewsletterTrackingController, :view
+          end
+
+          scope "/escalated/webhooks/newsletter", Escalated.Controllers.Webhooks,
+            as: :newsletter_webhooks do
+            pipe_through Escalated.Plugs.EnsureNewslettersEnabled
+
+            post "/postmark", NewsletterEspWebhookController, :postmark
+            post "/mailgun", NewsletterEspWebhookController, :mailgun
+            post "/ses", NewsletterEspWebhookController, :ses
+            post "/sendgrid", NewsletterEspWebhookController, :sendgrid
+          end
         end
 
         # Widget routes (public, rate-limited)

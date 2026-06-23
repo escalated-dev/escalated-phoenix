@@ -11,9 +11,12 @@ defmodule Escalated.Schemas.Newsletter.NewsletterListMember do
   end
 
   def changeset(member, attrs) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
     member
     |> cast(attrs, [:list_id, :contact_id, :added_at, :added_by])
     |> validate_required([:list_id, :contact_id])
+    |> put_change(:added_at, attrs[:added_at] || attrs["added_at"] || now)
     |> unique_constraint([:list_id, :contact_id])
   end
 end

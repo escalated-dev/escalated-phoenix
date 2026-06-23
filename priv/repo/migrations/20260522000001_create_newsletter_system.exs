@@ -20,7 +20,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
     create table("#{@prefix}newsletter_list_members") do
       add :list_id, references("#{@prefix}newsletter_lists", on_delete: :delete_all), null: false
       add :contact_id, references("#{@prefix}contacts", on_delete: :delete_all), null: false
-      add :added_at, :utc_datetime, null: false, default: fragment("NOW()")
+      add :added_at, :utc_datetime, null: false
       add :added_by, Escalated.UserKey.migration_type()
     end
 
@@ -91,7 +91,7 @@ defmodule Escalated.Repo.Migrations.CreateNewsletterSystem do
       add :attempt_count, :integer, null: false, default: 0
       add :claimed_at, :utc_datetime
       add :is_test, :boolean, null: false, default: false
-      add :created_at, :utc_datetime, null: false, default: fragment("NOW()")
+      add :created_at, :utc_datetime, null: false
     end
 
     create unique_index("#{@prefix}newsletter_deliveries", [:tracking_token])

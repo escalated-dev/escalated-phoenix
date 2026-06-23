@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.EscalatedSetting do
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}settings" do
     field :key, :string
     field :value, :string
+    field :type, :string
     field :group, :string
 
     timestamps(type: :utc_datetime)
@@ -22,7 +23,7 @@ defmodule Escalated.Schemas.EscalatedSetting do
   @doc false
   def changeset(setting, attrs) do
     setting
-    |> cast(attrs, [:key, :value, :group])
+    |> cast(attrs, [:key, :value, :type, :group])
     |> validate_required([:key])
     |> unique_constraint(:key)
   end
