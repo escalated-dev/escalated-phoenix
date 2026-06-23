@@ -9,11 +9,24 @@ defmodule Escalated.Controllers.Webhooks.NewsletterEspWebhookController do
     token = NH.token_from_message_id(to_string(params["MessageID"] || ""))
 
     case params["RecordType"] do
-      "Open" -> Tracker.record_open(token)
-      "Click" -> Tracker.record_click(token, to_string(params["OriginalLink"] || ""))
-      "Bounce" -> Tracker.record_bounce(token, bounce_type(params["Type"]), to_string(params["Description"] || ""))
-      "SpamComplaint" -> Tracker.record_complaint(token)
-      _ -> :ok
+      "Open" ->
+        Tracker.record_open(token)
+
+      "Click" ->
+        Tracker.record_click(token, to_string(params["OriginalLink"] || ""))
+
+      "Bounce" ->
+        Tracker.record_bounce(
+          token,
+          bounce_type(params["Type"]),
+          to_string(params["Description"] || "")
+        )
+
+      "SpamComplaint" ->
+        Tracker.record_complaint(token)
+
+      _ ->
+        :ok
     end
 
     json(conn, %{ok: true})
@@ -25,16 +38,23 @@ defmodule Escalated.Controllers.Webhooks.NewsletterEspWebhookController do
     token = NH.token_from_message_id(to_string(message_id))
 
     case event do
-      "opened" -> Tracker.record_open(token)
-      "clicked" -> Tracker.record_click(token, to_string(get_in(params, ["event-data", "url"]) || ""))
+      "opened" ->
+        Tracker.record_open(token)
+
+      "clicked" ->
+        Tracker.record_click(token, to_string(get_in(params, ["event-data", "url"]) || ""))
+
       "failed" ->
         severity = get_in(params, ["event-data", "severity"])
         type = if severity == "permanent", do: "hard", else: "soft"
         reason = get_in(params, ["event-data", "delivery-status", "description"]) || ""
         Tracker.record_bounce(token, type, to_string(reason))
 
-      "complained" -> Tracker.record_complaint(token)
-      _ -> :ok
+      "complained" ->
+        Tracker.record_complaint(token)
+
+      _ ->
+        :ok
     end
 
     json(conn, %{ok: true})
@@ -51,14 +71,23 @@ defmodule Escalated.Controllers.Webhooks.NewsletterEspWebhookController do
     token = NH.token_from_message_id(to_string(get_in(message, ["mail", "messageId"]) || ""))
 
     case message["eventType"] do
-      "Open" -> Tracker.record_open(token)
-      "Click" -> Tracker.record_click(token, to_string(get_in(message, ["click", "link"]) || ""))
+      "Open" ->
+        Tracker.record_open(token)
+
+      "Click" ->
+        Tracker.record_click(token, to_string(get_in(message, ["click", "link"]) || ""))
+
       "Bounce" ->
-        type = if get_in(message, ["bounce", "bounceType"]) == "Permanent", do: "hard", else: "soft"
+        type =
+          if get_in(message, ["bounce", "bounceType"]) == "Permanent", do: "hard", else: "soft"
+
         Tracker.record_bounce(token, type, get_in(message, ["bounce", "bounceSubType"]))
 
-      "Complaint" -> Tracker.record_complaint(token)
-      _ -> :ok
+      "Complaint" ->
+        Tracker.record_complaint(token)
+
+      _ ->
+        :ok
     end
 
     json(conn, %{ok: true})
@@ -69,20 +98,27 @@ defmodule Escalated.Controllers.Webhooks.NewsletterEspWebhookController do
 
     for event <- List.wrap(events) do
       token =
-        NH.token_from_message_id(
-          to_string(event["smtp-id"] || event["sg_message_id"] || "")
-        )
+        NH.token_from_message_id(to_string(event["smtp-id"] || event["sg_message_id"] || ""))
 
       case event["event"] do
-        "open" -> Tracker.record_open(token)
-        "click" -> Tracker.record_click(token, to_string(event["url"] || ""))
+        "open" ->
+          Tracker.record_open(token)
+
+        "click" ->
+          Tracker.record_click(token, to_string(event["url"] || ""))
+
         "bounce" ->
           type = if event["type"] == "blocked", do: "hard", else: "soft"
           Tracker.record_bounce(token, type, event["reason"])
 
-        "dropped" -> Tracker.record_bounce(token, "hard", event["reason"])
-        "spamreport" -> Tracker.record_complaint(token)
-        _ -> :ok
+        "dropped" ->
+          Tracker.record_bounce(token, "hard", event["reason"])
+
+        "spamreport" ->
+          Tracker.record_complaint(token)
+
+        _ ->
+          :ok
       end
     end
 

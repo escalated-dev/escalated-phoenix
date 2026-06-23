@@ -14,7 +14,9 @@ defmodule Escalated.Controllers.Admin.NewsletterTemplateController do
     templates =
       Escalated.repo().all(from(t in NewsletterTemplate, order_by: [desc: t.inserted_at]))
 
-    UIRenderer.render_page(conn, "Escalated/Admin/Newsletters/Templates/Index", %{templates: templates})
+    UIRenderer.render_page(conn, "Escalated/Admin/Newsletters/Templates/Index", %{
+      templates: templates
+    })
   end
 
   def create(conn, _params) do

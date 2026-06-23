@@ -142,10 +142,17 @@ defmodule Escalated.Controllers.NewsletterHttp do
     value = param(params, key)
 
     cond do
-      value in [nil, ""] -> {:ok, nil}
-      not is_binary(value) -> {:error, key, "#{key} must be a string"}
-      max && String.length(value) > max -> {:error, key, "#{key} may not be greater than #{max} characters"}
-      true -> {:ok, value}
+      value in [nil, ""] ->
+        {:ok, nil}
+
+      not is_binary(value) ->
+        {:error, key, "#{key} must be a string"}
+
+      max && String.length(value) > max ->
+        {:error, key, "#{key} may not be greater than #{max} characters"}
+
+      true ->
+        {:ok, value}
     end
   end
 
@@ -192,7 +199,9 @@ defmodule Escalated.Controllers.NewsletterHttp do
   end
 
   def assert_one_of(value, key, allowed) do
-    if to_string(value) in allowed, do: {:ok, to_string(value)}, else: {:error, key, "#{key} must be one of #{Enum.join(allowed, ", ")}"}
+    if to_string(value) in allowed,
+      do: {:ok, to_string(value)},
+      else: {:error, key, "#{key} must be one of #{Enum.join(allowed, ", ")}"}
   end
 
   def optional_date_after_now(params, key) do

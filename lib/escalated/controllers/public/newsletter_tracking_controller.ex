@@ -34,7 +34,10 @@ defmodule Escalated.Controllers.Public.NewsletterTrackingController do
 
   def unsubscribe_show(conn, %{"token" => token}) do
     delivery = find_delivery(token)
-    conn |> put_resp_content_type("text/html") |> send_resp(200, unsubscribe_html(token, delivery, false))
+
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_resp(200, unsubscribe_html(token, delivery, false))
   end
 
   def unsubscribe_store(conn, %{"token" => token}) do
@@ -67,7 +70,10 @@ defmodule Escalated.Controllers.Public.NewsletterTrackingController do
       if delivery do
         newsletter = repo.get!(Newsletter, delivery.newsletter_id)
         contact = repo.get!(Contact, delivery.contact_id)
-        template = if newsletter.template_id, do: repo.get(NewsletterTemplate, newsletter.template_id)
+
+        template =
+          if newsletter.template_id, do: repo.get(NewsletterTemplate, newsletter.template_id)
+
         Renderer.render(delivery, newsletter, contact, template)
       else
         "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>Email unavailable</title></head><body><p>This email is no longer available.</p></body></html>"
@@ -106,7 +112,12 @@ defmodule Escalated.Controllers.Public.NewsletterTrackingController do
 
   defp unsubscribe_html(token, delivery, confirmed) do
     email = if delivery, do: delivery.email_at_send, else: nil
-    message = if confirmed, do: "You have been unsubscribed.", else: "Confirm that you want to unsubscribe from marketing emails."
+
+    message =
+      if confirmed,
+        do: "You have been unsubscribed.",
+        else: "Confirm that you want to unsubscribe from marketing emails."
+
     prefix = NH.route_prefix()
 
     """

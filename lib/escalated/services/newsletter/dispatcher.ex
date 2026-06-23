@@ -25,7 +25,10 @@ defmodule Escalated.Services.Newsletter.Dispatcher do
 
   defp reclaim_stuck_rows do
     minutes = config_int(:newsletter_claim_timeout_minutes, 10)
-    cutoff = DateTime.utc_now() |> DateTime.add(-minutes * 60, :second) |> DateTime.truncate(:second)
+
+    cutoff =
+      DateTime.utc_now() |> DateTime.add(-minutes * 60, :second) |> DateTime.truncate(:second)
+
     repo = Escalated.repo()
 
     from(d in NewsletterDelivery,
@@ -182,8 +185,7 @@ defmodule Escalated.Services.Newsletter.Dispatcher do
     for newsletter_id <- sending do
       remaining =
         from(d in NewsletterDelivery,
-          where:
-            d.newsletter_id == ^newsletter_id and d.status in ["pending", "queued"],
+          where: d.newsletter_id == ^newsletter_id and d.status in ["pending", "queued"],
           select: count(d.id)
         )
         |> repo.one()

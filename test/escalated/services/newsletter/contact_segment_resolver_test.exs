@@ -7,10 +7,17 @@ defmodule Escalated.Services.Newsletter.ContactSegmentResolverTest do
   test "resolve_sendable skips opted-out contacts", %{repo: repo} do
     list = insert_list!(repo)
     in_contact = insert_contact!(repo, %{email: "in@example.com"})
-    out_contact = insert_contact!(repo, %{email: "out@example.com", marketing_opt_out_at: DateTime.utc_now()})
+
+    out_contact =
+      insert_contact!(repo, %{email: "out@example.com", marketing_opt_out_at: DateTime.utc_now()})
 
     for c <- [in_contact, out_contact] do
-      repo.insert!(NewsletterListMember.changeset(%NewsletterListMember{}, %{list_id: list.id, contact_id: c.id}))
+      repo.insert!(
+        NewsletterListMember.changeset(%NewsletterListMember{}, %{
+          list_id: list.id,
+          contact_id: c.id
+        })
+      )
     end
 
     assert ContactSegmentResolver.resolve_sendable(list) == [in_contact.id]

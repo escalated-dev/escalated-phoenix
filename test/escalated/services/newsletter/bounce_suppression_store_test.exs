@@ -7,6 +7,7 @@ defmodule Escalated.Services.Newsletter.BounceSuppressionStoreTest do
     BounceSuppressionStore.mark_bounced("Bounce@Example.com")
     assert BounceSuppressionStore.is_bounced?("bounce@example.com")
     BounceSuppressionStore.mark_complained("other@example.com")
+
     assert BounceSuppressionStore.filter_sendable(["other@example.com", "safe@example.com"]) == [
              "safe@example.com"
            ]

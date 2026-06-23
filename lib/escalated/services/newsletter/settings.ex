@@ -77,13 +77,26 @@ defmodule Escalated.Services.Newsletter.Settings do
 
   defp config_fallback(key) do
     case key do
-      "default_from" -> Application.get_env(:escalated, :newsletter_default_from)
-      "default_reply_to" -> Application.get_env(:escalated, :newsletter_default_reply_to)
-      "default_theme" -> Application.get_env(:escalated, :newsletter_default_theme, "default")
-      "rate_limit_per_minute" -> Application.get_env(:escalated, :newsletter_rate_limit_per_minute, 60)
-      "batch_size" -> Application.get_env(:escalated, :newsletter_batch_size, 50)
-      "tracking_enabled" -> Application.get_env(:escalated, :newsletter_tracking_enabled, true)
-      _ -> nil
+      "default_from" ->
+        Application.get_env(:escalated, :newsletter_default_from)
+
+      "default_reply_to" ->
+        Application.get_env(:escalated, :newsletter_default_reply_to)
+
+      "default_theme" ->
+        Application.get_env(:escalated, :newsletter_default_theme, "default")
+
+      "rate_limit_per_minute" ->
+        Application.get_env(:escalated, :newsletter_rate_limit_per_minute, 60)
+
+      "batch_size" ->
+        Application.get_env(:escalated, :newsletter_batch_size, 50)
+
+      "tracking_enabled" ->
+        Application.get_env(:escalated, :newsletter_tracking_enabled, true)
+
+      _ ->
+        nil
     end
   end
 end

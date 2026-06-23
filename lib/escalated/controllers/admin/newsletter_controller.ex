@@ -7,7 +7,14 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
   alias Escalated.Controllers.NewsletterHttp, as: NH
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Contact
-  alias Escalated.Schemas.Newsletter.{Newsletter, NewsletterDelivery, NewsletterList, NewsletterTemplate}
+
+  alias Escalated.Schemas.Newsletter.{
+    Newsletter,
+    NewsletterDelivery,
+    NewsletterList,
+    NewsletterTemplate
+  }
+
   alias Escalated.Services.Newsletter.{Permission, Planner, Renderer, Settings}
 
   def index(conn, params) do
@@ -73,7 +80,13 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
     }
 
     contact = %{id: 0, email: "preview@example.test", name: "Preview User", metadata: %{}}
-    delivery = %{tracking_token: "preview", newsletter_id: 0, contact_id: 0, email_at_send: contact.email}
+
+    delivery = %{
+      tracking_token: "preview",
+      newsletter_id: 0,
+      contact_id: 0,
+      email_at_send: contact.email
+    }
 
     json(conn, %{html: Renderer.render(delivery, newsletter, contact)})
   end
@@ -86,10 +99,25 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
         NH.bad_request(conn, %{from_email: ["Outbound mail is not configured."]})
       else
         user = conn.assigns[:current_user] || %{}
-        contact = %{id: NH.user_id(conn) || 0, email: Map.get(user, :email) || data.from_email, name: Map.get(user, :name) || "Tester", metadata: %{}}
+
+        contact = %{
+          id: NH.user_id(conn) || 0,
+          email: Map.get(user, :email) || data.from_email,
+          name: Map.get(user, :name) || "Tester",
+          metadata: %{}
+        }
+
         newsletter = struct(Newsletter, Map.merge(data, %{id: 0}))
         token = 20 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
-        delivery = %{tracking_token: token, newsletter_id: 0, contact_id: contact.id, email_at_send: contact.email, is_test: true}
+
+        delivery = %{
+          tracking_token: token,
+          newsletter_id: 0,
+          contact_id: contact.id,
+          email_at_send: contact.email,
+          is_test: true
+        }
+
         html = Renderer.render(delivery, newsletter, contact)
 
         mailer = Application.fetch_env!(:escalated, :newsletter_mailer)
@@ -135,7 +163,17 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
         |> repo.all()
         |> Enum.map(fn d ->
           contact = repo.get(Contact, d.contact_id)
-          %{id: d.id, status: d.status, email_at_send: d.email_at_send, contact: %{id: contact && contact.id, name: contact && contact.name, email: contact && contact.email}}
+
+          %{
+            id: d.id,
+            status: d.status,
+            email_at_send: d.email_at_send,
+            contact: %{
+              id: contact && contact.id,
+              name: contact && contact.name,
+              email: contact && contact.email
+            }
+          }
         end)
 
       UIRenderer.render_page(conn, "Escalated/Admin/Newsletters/Show", %{
@@ -157,7 +195,11 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
       if newsletter.status not in ["draft", "scheduled"] do
         NH.abort422(conn, "Only drafts and scheduled newsletters can be edited")
       else
-        UIRenderer.render_page(conn, "Escalated/Admin/Newsletters/Edit", Map.merge(compose_props(), %{newsletter: newsletter}))
+        UIRenderer.render_page(
+          conn,
+          "Escalated/Admin/Newsletters/Edit",
+          Map.merge(compose_props(), %{newsletter: newsletter})
+        )
       end
     else
       _ -> conn |> put_status(404) |> json(%{error: "Newsletter not found"})
@@ -212,7 +254,8 @@ defmodule Escalated.Controllers.Admin.NewsletterController do
       {:template_id, NH.optional_integer(params, "template_id")},
       {:theme, NH.optional_string(params, "theme", 64)},
       {:body_markdown, NH.optional_string(params, "body_markdown")},
-      {:status, NH.assert_one_of(param(params, "status") || "draft", "status", ~w(draft scheduled sending))},
+      {:status,
+       NH.assert_one_of(param(params, "status") || "draft", "status", ~w(draft scheduled sending))},
       {:scheduled_at, NH.optional_date_after_now(params, "scheduled_at")}
     ]
 

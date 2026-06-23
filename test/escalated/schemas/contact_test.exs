@@ -66,11 +66,13 @@ defmodule Escalated.Schemas.ContactTest do
     end
 
     test "accepts optional name and metadata" do
-      changeset = Contact.changeset(%Contact{}, %{
-        email: "alice@example.com",
-        name: "Alice",
-        metadata: %{"source" => "widget"}
-      })
+      changeset =
+        Contact.changeset(%Contact{}, %{
+          email: "alice@example.com",
+          name: "Alice",
+          metadata: %{"source" => "widget"}
+        })
+
       assert changeset.valid?
     end
   end
@@ -97,6 +99,7 @@ defmodule Escalated.Schemas.ContactTest do
         guest_email: "alice@example.com",
         channel: "web"
       }
+
       attrs2 = %{
         subject: "Second",
         description: "body",

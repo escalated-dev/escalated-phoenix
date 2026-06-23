@@ -9,7 +9,9 @@ defmodule Escalated.Services.Newsletter.Planner do
     repo = Escalated.repo()
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    repo.update_all(from(n in Newsletter, where: n.id == ^newsletter.id), set: [status: "sending"])
+    repo.update_all(from(n in Newsletter, where: n.id == ^newsletter.id),
+      set: [status: "sending"]
+    )
 
     list =
       repo.one(

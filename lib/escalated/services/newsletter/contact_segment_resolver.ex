@@ -52,7 +52,10 @@ defmodule Escalated.Services.Newsletter.ContactSegmentResolver do
 
   defp normalize_filter(nil), do: %{"rules" => []}
   defp normalize_filter(%{"rules" => _} = filter), do: filter
-  defp normalize_filter(%{rules: _} = filter), do: Map.new(filter, fn {k, v} -> {to_string(k), v} end)
+
+  defp normalize_filter(%{rules: _} = filter),
+    do: Map.new(filter, fn {k, v} -> {to_string(k), v} end)
+
   defp normalize_filter(_), do: %{"rules" => []}
 
   defp apply_filter(filter) do

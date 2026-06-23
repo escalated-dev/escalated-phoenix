@@ -52,9 +52,25 @@ defmodule Escalated.Services.Newsletter.DispatcherTest do
     Application.put_env(:escalated, :newsletter_batch_size, 50)
     newsletter = setup_campaign!(repo, 5)
     Dispatcher.dispatch_batch()
-    first = repo.aggregate(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id and d.status == "sent"), :count)
+
+    first =
+      repo.aggregate(
+        from(d in NewsletterDelivery,
+          where: d.newsletter_id == ^newsletter.id and d.status == "sent"
+        ),
+        :count
+      )
+
     Dispatcher.dispatch_batch()
-    second = repo.aggregate(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id and d.status == "sent"), :count)
+
+    second =
+      repo.aggregate(
+        from(d in NewsletterDelivery,
+          where: d.newsletter_id == ^newsletter.id and d.status == "sent"
+        ),
+        :count
+      )
+
     assert first == 2
     assert second == 2
   end
@@ -62,7 +78,11 @@ defmodule Escalated.Services.Newsletter.DispatcherTest do
   test "does not claim future next_attempt_at", %{repo: repo} do
     newsletter = setup_campaign!(repo, 1)
     future = DateTime.utc_now() |> DateTime.add(3600, :second)
-    repo.update_all(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id), set: [next_attempt_at: future])
+
+    repo.update_all(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id),
+      set: [next_attempt_at: future]
+    )
+
     Dispatcher.dispatch_batch()
     delivery = repo.one!(from(d in NewsletterDelivery, where: d.newsletter_id == ^newsletter.id))
     assert delivery.status == "pending"
@@ -79,28 +99,32 @@ defmodule Escalated.Services.Newsletter.DispatcherTest do
 
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      repo.insert!(NewsletterDelivery.changeset(%NewsletterDelivery{}, %{
-        newsletter_id: newsletter.id,
-        contact_id: contact.id,
-        email_at_send: contact.email,
-        tracking_token: "tok#{i}#{System.unique_integer()}",
-        status: status,
-        created_at: now
-      }))
+      repo.insert!(
+        NewsletterDelivery.changeset(%NewsletterDelivery{}, %{
+          newsletter_id: newsletter.id,
+          contact_id: contact.id,
+          email_at_send: contact.email,
+          tracking_token: "tok#{i}#{System.unique_integer()}",
+          status: status,
+          created_at: now
+        })
+      )
     end
 
     pending_contact = insert_contact!(repo, %{email: "pending@example.com"})
     future = DateTime.utc_now() |> DateTime.add(3600, :second) |> DateTime.truncate(:second)
 
-    repo.insert!(NewsletterDelivery.changeset(%NewsletterDelivery{}, %{
-      newsletter_id: newsletter.id,
-      contact_id: pending_contact.id,
-      email_at_send: pending_contact.email,
-      tracking_token: "tok-pending#{System.unique_integer()}",
-      status: "pending",
-      next_attempt_at: future,
-      created_at: DateTime.utc_now() |> DateTime.truncate(:second)
-    }))
+    repo.insert!(
+      NewsletterDelivery.changeset(%NewsletterDelivery{}, %{
+        newsletter_id: newsletter.id,
+        contact_id: pending_contact.id,
+        email_at_send: pending_contact.email,
+        tracking_token: "tok-pending#{System.unique_integer()}",
+        status: "pending",
+        next_attempt_at: future,
+        created_at: DateTime.utc_now() |> DateTime.truncate(:second)
+      })
+    )
 
     Dispatcher.dispatch_batch()
     assert repo.get!(Newsletter, newsletter.id).status == "paused"
@@ -122,7 +146,14 @@ defmodule Escalated.Services.Newsletter.DispatcherTest do
     contacts =
       for _ <- 1..count do
         c = insert_contact!(repo)
-        repo.insert!(Escalated.Schemas.Newsletter.NewsletterListMember.changeset(%Escalated.Schemas.Newsletter.NewsletterListMember{}, %{list_id: list.id, contact_id: c.id}))
+
+        repo.insert!(
+          Escalated.Schemas.Newsletter.NewsletterListMember.changeset(
+            %Escalated.Schemas.Newsletter.NewsletterListMember{},
+            %{list_id: list.id, contact_id: c.id}
+          )
+        )
+
         c
       end
 

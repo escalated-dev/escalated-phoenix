@@ -13,7 +13,14 @@ defmodule Escalated.Services.Newsletter.RendererTest do
 
   test "renders merge fields and tracking links" do
     delivery = %{tracking_token: "tok-abc"}
-    newsletter = %{subject: "Hi", body_markdown: "# Hello {{ contact.first_name }}", theme: "default", from_email: "a@b.com"}
+
+    newsletter = %{
+      subject: "Hi",
+      body_markdown: "# Hello {{ contact.first_name }}",
+      theme: "default",
+      from_email: "a@b.com"
+    }
+
     contact = %{name: "Maria Lopez", email: "maria@example.com", metadata: %{}}
 
     newsletter =
@@ -22,6 +29,7 @@ defmodule Escalated.Services.Newsletter.RendererTest do
         :body_markdown,
         "# Hello {{ contact.first_name }}\n\n[Go](https://example.com)"
       )
+
     html = Renderer.render(delivery, newsletter, contact)
 
     assert html =~ "Maria"

@@ -134,7 +134,9 @@ defmodule Escalated.Controllers.Admin.NewsletterListController do
     repo = Escalated.repo()
 
     with %NewsletterList{kind: "static"} = list <- repo.get(NewsletterList, id) do
-      from(m in NewsletterListMember, where: m.list_id == ^list.id and m.contact_id == ^String.to_integer(contact_id))
+      from(m in NewsletterListMember,
+        where: m.list_id == ^list.id and m.contact_id == ^String.to_integer(contact_id)
+      )
       |> repo.delete_all()
 
       NH.redirect(conn, "#{NH.newsletters_base()}/lists/#{list.id}")
@@ -211,7 +213,8 @@ defmodule Escalated.Controllers.Admin.NewsletterListController do
 
   defp validate_update(params) do
     checks = [
-      {:name, if(param(params, "name"), do: NH.required_string(params, "name", 255), else: {:ok, nil})},
+      {:name,
+       if(param(params, "name"), do: NH.required_string(params, "name", 255), else: {:ok, nil})},
       {:description, NH.optional_string(params, "description")},
       {:filter_json, {:ok, filter_json(params)}}
     ]

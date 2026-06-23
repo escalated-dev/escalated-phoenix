@@ -138,7 +138,11 @@ defmodule Escalated.Router do
             put "/newsletters/lists/:list", NewsletterListController, :update
             delete "/newsletters/lists/:list", NewsletterListController, :delete
             post "/newsletters/lists/:list/members", NewsletterListController, :add_member
-            delete "/newsletters/lists/:list/members/:contact_id", NewsletterListController, :remove_member
+
+            delete "/newsletters/lists/:list/members/:contact_id",
+                   NewsletterListController,
+                   :remove_member
+
             post "/newsletters/lists/:list/import", NewsletterListController, :import_csv
 
             get "/newsletters/templates", NewsletterTemplateController, :index
@@ -169,7 +173,8 @@ defmodule Escalated.Router do
             get "/n/v/:token", NewsletterTrackingController, :view
           end
 
-          scope "/escalated/webhooks/newsletter", Escalated.Controllers.Webhooks, as: :newsletter_webhooks do
+          scope "/escalated/webhooks/newsletter", Escalated.Controllers.Webhooks,
+            as: :newsletter_webhooks do
             pipe_through Escalated.Plugs.EnsureNewslettersEnabled
 
             post "/postmark", NewsletterEspWebhookController, :postmark
