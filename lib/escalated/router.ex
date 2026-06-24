@@ -129,6 +129,10 @@ defmodule Escalated.Router do
 
           resources "/skills", SkillController, except: [:show]
 
+          # Knowledge base admin (articles + categories).
+          resources "/kb/categories", ArticleCategoryController, except: [:edit, :new, :show]
+          resources "/kb/articles", ArticleController, except: [:edit, :new]
+
           # Users (host User model: list + grant/revoke admin/agent).
           # Surfaces the host's `users` table for an admin to flip the
           # `is_admin` / `is_agent` columns from the panel.
