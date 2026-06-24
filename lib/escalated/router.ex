@@ -156,6 +156,10 @@ defmodule Escalated.Router do
           get "/settings/csat", CsatSettingsController, :index
           post "/settings/csat", CsatSettingsController, :update
 
+          # Data retention settings + purge preview.
+          get "/settings/data-retention", DataRetentionController, :index
+          post "/settings/data-retention", DataRetentionController, :update
+
           # Time-based admin automations (distinct from event-driven Workflows
           # and agent-applied Macros — see escalated-developer-context).
           resources "/automations", AutomationController, except: [:edit, :new]
