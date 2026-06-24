@@ -106,6 +106,19 @@ defmodule Escalated.Router do
           get "/tickets/:reference/links", TicketLinkController, :index
           post "/tickets/:reference/links", TicketLinkController, :create
           delete "/tickets/:reference/links/:id", TicketLinkController, :delete
+
+          # Side conversations (internal-note / email side-channel threads).
+          get "/tickets/:reference/side-conversations", SideConversationController, :index
+          post "/tickets/:reference/side-conversations", SideConversationController, :create
+
+          post "/tickets/:reference/side-conversations/:id/reply",
+               SideConversationController,
+               :reply
+
+          post "/tickets/:reference/side-conversations/:id/close",
+               SideConversationController,
+               :close
+
           patch "/tickets/:reference/department", TicketController, :department
           post "/tickets/:reference/snooze", TicketController, :snooze
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
