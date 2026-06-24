@@ -101,6 +101,11 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/tags", TicketController, :tags
           post "/tickets/:reference/subjects", TicketSubjectController, :create
           delete "/tickets/:reference/subjects/:id", TicketSubjectController, :delete
+
+          # Typed ticket-to-ticket links (problem/incident, parent/child, related).
+          get "/tickets/:reference/links", TicketLinkController, :index
+          post "/tickets/:reference/links", TicketLinkController, :create
+          delete "/tickets/:reference/links/:id", TicketLinkController, :delete
           patch "/tickets/:reference/department", TicketController, :department
           post "/tickets/:reference/snooze", TicketController, :snooze
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
