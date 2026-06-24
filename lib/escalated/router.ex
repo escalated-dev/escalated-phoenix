@@ -134,6 +134,10 @@ defmodule Escalated.Router do
           resources "/escalation-rules", EscalationRuleController, except: [:edit, :new]
           post "/escalation-rules/run", EscalationRuleController, :run
 
+          # Per-agent ticket capacity (load-aware assignment).
+          get "/capacity", CapacityController, :index
+          patch "/capacity/:id", CapacityController, :update
+
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
