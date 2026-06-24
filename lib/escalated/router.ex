@@ -116,6 +116,11 @@ defmodule Escalated.Router do
           resources "/automations", AutomationController, except: [:edit, :new]
           post "/automations/run", AutomationController, :run
 
+          # Time-based escalation rules (evaluated by
+          # `mix escalated.evaluate_escalations`).
+          resources "/escalation-rules", EscalationRuleController, except: [:edit, :new]
+          post "/escalation-rules/run", EscalationRuleController, :run
+
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
