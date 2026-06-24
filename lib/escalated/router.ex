@@ -35,6 +35,15 @@ defmodule Escalated.Router do
         # Attachment downloads (accessible to any authenticated user)
         get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
 
+        # CSAT rating submission (customer by reference, guest by token).
+        post "/tickets/:reference/rate",
+             Escalated.Controllers.SatisfactionRatingController,
+             :store
+
+        post "/guest/tickets/:token/rate",
+             Escalated.Controllers.SatisfactionRatingController,
+             :store_guest
+
         # Customer routes
         scope "/", Escalated.Controllers.Customer do
           get "/tickets", TicketController, :index
@@ -110,6 +119,10 @@ defmodule Escalated.Router do
 
           get "/settings", SettingsController, :index
           put "/settings", SettingsController, :update
+
+          # CSAT settings (question text, scale, delivery trigger, delay).
+          get "/settings/csat", CsatSettingsController, :index
+          post "/settings/csat", CsatSettingsController, :update
 
           # Time-based admin automations (distinct from event-driven Workflows
           # and agent-applied Macros — see escalated-developer-context).
