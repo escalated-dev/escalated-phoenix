@@ -53,6 +53,16 @@ defmodule Escalated.Router do
           post "/tickets/:reference/reply", TicketController, :reply
         end
 
+        # Customer-facing knowledge base (read + feedback), gated by the
+        # knowledge_base_enabled config via EnsureKbEnabled.
+        scope "/kb", Escalated.Controllers.Customer, as: :kb do
+          pipe_through Escalated.Plugs.EnsureKbEnabled
+
+          get "/", KnowledgeBaseController, :index
+          get "/:slug", KnowledgeBaseController, :show
+          post "/:slug/feedback", KnowledgeBaseController, :feedback
+        end
+
         # Agent routes
         scope "/agent", Escalated.Controllers.Agent, as: :agent do
           pipe_through Escalated.Plugs.EnsureAgent
