@@ -267,6 +267,12 @@ defmodule Escalated.Router do
         # API routes
         if unquote(opts[:api]) || Application.compile_env(:escalated, :api_enabled, false) do
           scope "/api/v1", Escalated.Controllers.Api, as: :api do
+            post "/auth/login", AuthController, :login
+            post "/auth/register", AuthController, :register
+            post "/auth/logout", AuthController, :logout
+            post "/auth/refresh", AuthController, :refresh
+            get "/auth/me", AuthController, :me
+            patch "/auth/profile", AuthController, :profile
             post "/auth/validate", AuthController, :validate
 
             # Public reference endpoints (Flutter app / integrations).
