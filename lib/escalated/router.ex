@@ -275,6 +275,10 @@ defmodule Escalated.Router do
             get "/departments", ResourceController, :departments
             get "/tags", ResourceController, :tags
 
+            # Anonymous (guest) ticket submission + lookup by token.
+            post "/guest/tickets", GuestTicketController, :create
+            get "/guest/tickets/:token", GuestTicketController, :show
+
             get "/tickets", TicketController, :index
             get "/tickets/:reference", TicketController, :show
             post "/tickets", TicketController, :create
