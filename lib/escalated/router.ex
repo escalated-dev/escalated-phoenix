@@ -269,6 +269,12 @@ defmodule Escalated.Router do
           scope "/api/v1", Escalated.Controllers.Api, as: :api do
             post "/auth/validate", AuthController, :validate
 
+            # Public reference endpoints (Flutter app / integrations).
+            get "/kb/articles", ResourceController, :kb_articles
+            get "/kb/categories", ResourceController, :kb_categories
+            get "/departments", ResourceController, :departments
+            get "/tags", ResourceController, :tags
+
             get "/tickets", TicketController, :index
             get "/tickets/:reference", TicketController, :show
             post "/tickets", TicketController, :create
