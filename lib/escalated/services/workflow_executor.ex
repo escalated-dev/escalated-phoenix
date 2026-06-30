@@ -35,7 +35,7 @@ defmodule Escalated.Services.WorkflowExecutor do
   """
 
   alias Escalated.Schemas.{DelayedAction, Tag}
-  alias Escalated.Services.{AssignmentService, TicketService, WorkflowEngine}
+  alias Escalated.Services.{AssignmentService, Followers, TicketService, WorkflowEngine}
   import Ecto.Query
   require Logger
 
@@ -209,6 +209,15 @@ defmodule Escalated.Services.WorkflowExecutor do
   # `dispatch_action` on a delay directly is a usage error.
   defp do_dispatch("delay", _ticket, _value),
     do: {:error, "delay", :handled_in_execute}
+
+  defp do_dispatch("add_follower", _ticket, ""), do: {:error, "add_follower", :blank_value}
+
+  defp do_dispatch("add_follower", ticket, value) do
+    case Followers.add_follower(ticket.id, value) do
+      {:ok, _} -> {:ok, "add_follower"}
+      _ -> {:error, "add_follower", :insert_failed}
+    end
+  end
 
   defp do_dispatch(type, _ticket, _value), do: {:error, type, :unknown}
 
