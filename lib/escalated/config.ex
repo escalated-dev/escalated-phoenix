@@ -32,6 +32,10 @@ defmodule Escalated.Config do
     },
     notification_channels: [:email],
     custom_actions: [],
+    # Host-registered plugin modules implementing `Escalated.Plugins.Plugin`.
+    # Lightweight hook callbacks can also be registered directly under the
+    # `:hooks` / `:filters` application env keys — see `Escalated.Plugins.Hooks`.
+    plugins: [],
     broadcasting_enabled: false,
     pubsub_server: nil,
     knowledge_base_enabled: false,
