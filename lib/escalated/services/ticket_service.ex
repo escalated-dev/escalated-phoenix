@@ -3,7 +3,8 @@ defmodule Escalated.Services.TicketService do
   Core service for ticket operations: create, reply, status transitions, etc.
   """
 
-  alias Escalated.Schemas.{Contact, Ticket, Reply, TicketActivity}
+  alias Escalated.Plugins.Hooks
+  alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
   import Ecto.Query
 
   @doc """
@@ -24,6 +25,7 @@ defmodule Escalated.Services.TicketService do
       {:ok, ticket} ->
         log_activity(ticket, "created", nil, %{})
         maybe_attach_sla(ticket)
+        Hooks.do_action("ticket_created", [ticket])
         {:ok, ticket}
 
       error ->
@@ -44,6 +46,7 @@ defmodule Escalated.Services.TicketService do
 
       is_binary(guest_email) and guest_email != "" ->
         guest_name = Map.get(attrs, :guest_name) || Map.get(attrs, "guest_name")
+
         case find_or_create_contact(guest_email, guest_name, repo) do
           {:ok, %Contact{id: id}} -> Map.put(attrs, :contact_id, id)
           _ -> attrs
@@ -93,12 +96,15 @@ defmodule Escalated.Services.TicketService do
         log_activity(ticket, action, reply.author_id, %{reply_id: reply.id})
 
         # Track first response
-        if !reply.is_internal && is_nil(ticket.first_response_at) && reply.author_id != ticket.requester_id do
+        if !reply.is_internal && is_nil(ticket.first_response_at) &&
+             reply.author_id != ticket.requester_id do
           ticket
           |> Ticket.changeset(%{first_response_at: DateTime.utc_now()})
           |> repo.update()
         end
 
+        reply_hook = if reply.is_internal, do: "internal_note_added", else: "ticket_replied"
+        Hooks.do_action(reply_hook, [reply, ticket])
         {:ok, reply}
 
       error ->
@@ -132,6 +138,8 @@ defmodule Escalated.Services.TicketService do
         details = %{from: ticket.status, to: new_status}
         details = if note, do: Map.put(details, :note, note), else: details
         log_activity(updated, "status_changed", actor_id, details)
+        Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
+        maybe_dispatch_status_hook(updated, new_status)
         {:ok, updated}
 
       error ->
@@ -156,6 +164,7 @@ defmodule Escalated.Services.TicketService do
           to: new_priority
         })
 
+        Hooks.do_action("ticket_priority_changed", [updated, ticket.priority, new_priority])
         {:ok, updated}
 
       error ->
@@ -317,7 +326,11 @@ defmodule Escalated.Services.TicketService do
       requester_type: ticket.requester_type,
       guest_name: ticket.guest_name,
       guest_email: ticket.guest_email,
-      metadata: Map.merge(ticket.metadata || %{}, %{"split_from_ticket_id" => ticket.id, "split_from_reply_id" => reply.id})
+      metadata:
+        Map.merge(ticket.metadata || %{}, %{
+          "split_from_ticket_id" => ticket.id,
+          "split_from_reply_id" => reply.id
+        })
     }
 
     %Ticket{}
@@ -330,7 +343,12 @@ defmodule Escalated.Services.TicketService do
 
         ticket
         |> Ticket.changeset(%{
-          metadata: Map.put(ticket.metadata || %{}, "split_ticket_ids", original_splits ++ [new_ticket.id])
+          metadata:
+            Map.put(
+              ticket.metadata || %{},
+              "split_ticket_ids",
+              original_splits ++ [new_ticket.id]
+            )
         })
         |> repo.update()
 
@@ -416,16 +434,20 @@ defmodule Escalated.Services.TicketService do
   def list(filters \\ %{}) do
     repo = Escalated.repo()
 
-    Ticket
-    |> maybe_filter(:status, filters)
-    |> maybe_filter(:priority, filters)
-    |> maybe_filter(:department_id, filters)
-    |> maybe_filter(:assigned_to, filters)
-    |> maybe_search(filters)
-    |> maybe_unassigned(filters)
-    |> maybe_breached(filters)
-    |> Ticket.recent()
-    |> repo.all()
+    query =
+      Ticket
+      |> maybe_filter(:status, filters)
+      |> maybe_filter(:priority, filters)
+      |> maybe_filter(:department_id, filters)
+      |> maybe_filter(:assigned_to, filters)
+      |> maybe_search(filters)
+      |> maybe_unassigned(filters)
+      |> maybe_breached(filters)
+      |> Ticket.recent()
+
+    query = Hooks.apply_filters("ticket_list_query", query, [filters])
+    tickets = repo.all(query)
+    Hooks.apply_filters("ticket_list_data", tickets, [filters])
   end
 
   @doc """
@@ -441,6 +463,20 @@ defmodule Escalated.Services.TicketService do
   end
 
   # Private helpers
+
+  # Fire the specialized lifecycle hook for terminal/reopen status transitions,
+  # in addition to the generic ticket_status_changed action.
+  defp maybe_dispatch_status_hook(ticket, status) do
+    case status_hook(status) do
+      nil -> :ok
+      hook -> Hooks.do_action(hook, [ticket])
+    end
+  end
+
+  defp status_hook("resolved"), do: "ticket_resolved"
+  defp status_hook("closed"), do: "ticket_closed"
+  defp status_hook("reopened"), do: "ticket_reopened"
+  defp status_hook(_status), do: nil
 
   defp log_activity(ticket, action, causer_id, details) do
     repo = Escalated.repo()
