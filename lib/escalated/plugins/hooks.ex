@@ -28,6 +28,18 @@ defmodule Escalated.Plugins.Hooks do
   Every handler is wrapped so a raising handler is logged and skipped: an action
   error is swallowed, a filter error falls back to the pre-handler value. A bad
   plugin can never crash the host request.
+
+  ## Hooks dispatched by the core services
+
+  Actions (via `Escalated.Services.TicketService` / `AssignmentService`):
+  `ticket_created`, `ticket_replied`, `internal_note_added`,
+  `ticket_status_changed`, `ticket_resolved`, `ticket_closed`,
+  `ticket_reopened`, `ticket_priority_changed`, `ticket_assigned`,
+  `ticket_unassigned`, plus the plugin lifecycle actions `plugin_activated`,
+  `plugin_deactivated`, `plugin_uninstalling` (and their `_{slug}` variants).
+
+  Filters: `ticket_list_query` (the Ecto query before execution) and
+  `ticket_list_data` (the loaded ticket list).
   """
   require Logger
 

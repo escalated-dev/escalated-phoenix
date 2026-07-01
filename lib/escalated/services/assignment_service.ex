@@ -3,6 +3,7 @@ defmodule Escalated.Services.AssignmentService do
   Service for ticket assignment operations: assign, unassign, round-robin, bulk.
   """
 
+  alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.Ticket
   alias Escalated.Services.TicketService
   import Ecto.Query
@@ -20,6 +21,7 @@ defmodule Escalated.Services.AssignmentService do
     |> case do
       {:ok, updated} ->
         log_activity(updated, "assigned", actor_id, %{agent_id: agent_id})
+        Hooks.do_action("ticket_assigned", [updated, agent_id])
         {:ok, updated}
 
       error ->
@@ -41,6 +43,7 @@ defmodule Escalated.Services.AssignmentService do
     |> case do
       {:ok, updated} ->
         log_activity(updated, "unassigned", actor_id, %{previous_agent_id: old_agent_id})
+        Hooks.do_action("ticket_unassigned", [updated, old_agent_id])
         {:ok, updated}
 
       error ->
