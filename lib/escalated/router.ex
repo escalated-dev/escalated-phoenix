@@ -174,6 +174,14 @@ defmodule Escalated.Router do
           get "/capacity", CapacityController, :index
           patch "/capacity/:id", CapacityController, :update
 
+          # Plugins / extensibility (activate/deactivate host-registered
+          # plugin modules; the hook dispatch itself lives in
+          # Escalated.Plugins.Hooks).
+          get "/plugins", PluginController, :index
+          post "/plugins/:slug/activate", PluginController, :activate
+          post "/plugins/:slug/deactivate", PluginController, :deactivate
+          delete "/plugins/:slug", PluginController, :delete
+
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
