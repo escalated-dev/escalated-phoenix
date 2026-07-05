@@ -12,8 +12,12 @@ defmodule Escalated.Controllers.Admin.PluginController do
   alias Escalated.Rendering.UIRenderer
 
   def index(conn, _params) do
+    # can_upload: false — Escalated plugins here are compiled host modules
+    # registered in config, not uploaded ZIPs, so the admin page hides its
+    # upload control (the shared page defaults can_upload to true for Laravel).
     UIRenderer.render_page(conn, "Escalated/Admin/Plugins/Index", %{
-      plugins: Plugins.all()
+      plugins: Plugins.all(),
+      can_upload: false
     })
   end
 
