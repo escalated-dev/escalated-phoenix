@@ -186,6 +186,12 @@ defmodule Escalated.Router do
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
 
+          # Outbound webhooks: CRUD over subscriptions plus the per-webhook
+          # delivery log and a manual delivery retry.
+          resources "/webhooks", WebhookController, only: [:index, :create, :update, :delete]
+          get "/webhooks/:id/deliveries", WebhookController, :deliveries
+          post "/webhook-deliveries/:id/retry", WebhookController, :retry
+
           get "/settings/public-tickets", SettingsController, :public_tickets
           put "/settings/public-tickets", SettingsController, :update_public_tickets
 
