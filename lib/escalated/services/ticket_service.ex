@@ -5,6 +5,7 @@ defmodule Escalated.Services.TicketService do
 
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
+  alias Escalated.Services.WebhookEvents
   import Ecto.Query
 
   @doc """
@@ -26,6 +27,7 @@ defmodule Escalated.Services.TicketService do
         log_activity(ticket, "created", nil, %{})
         maybe_attach_sla(ticket)
         Hooks.do_action("ticket_created", [ticket])
+        WebhookEvents.dispatch("ticket.created", %{ticket: ticket})
         {:ok, ticket}
 
       error ->
@@ -105,6 +107,9 @@ defmodule Escalated.Services.TicketService do
 
         reply_hook = if reply.is_internal, do: "internal_note_added", else: "ticket_replied"
         Hooks.do_action(reply_hook, [reply, ticket])
+
+        webhook_event = if reply.is_internal, do: "note.created", else: "reply.created"
+        WebhookEvents.dispatch(webhook_event, %{ticket: ticket, reply: reply})
         {:ok, reply}
 
       error ->
@@ -139,7 +144,9 @@ defmodule Escalated.Services.TicketService do
         details = if note, do: Map.put(details, :note, note), else: details
         log_activity(updated, "status_changed", actor_id, details)
         Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
+        WebhookEvents.dispatch("ticket.status_changed", %{ticket: updated})
         maybe_dispatch_status_hook(updated, new_status)
+        maybe_dispatch_status_webhook(updated, new_status)
         {:ok, updated}
 
       error ->
@@ -165,6 +172,7 @@ defmodule Escalated.Services.TicketService do
         })
 
         Hooks.do_action("ticket_priority_changed", [updated, ticket.priority, new_priority])
+        WebhookEvents.dispatch("ticket.priority_changed", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -477,6 +485,20 @@ defmodule Escalated.Services.TicketService do
   defp status_hook("closed"), do: "ticket_closed"
   defp status_hook("reopened"), do: "ticket_reopened"
   defp status_hook(_status), do: nil
+
+  # Fire the specialized webhook event for terminal/reopen transitions, in
+  # addition to the generic ticket.status_changed event.
+  defp maybe_dispatch_status_webhook(ticket, status) do
+    case status_webhook_event(status) do
+      nil -> :ok
+      event -> WebhookEvents.dispatch(event, %{ticket: ticket})
+    end
+  end
+
+  defp status_webhook_event("resolved"), do: "ticket.resolved"
+  defp status_webhook_event("closed"), do: "ticket.closed"
+  defp status_webhook_event("reopened"), do: "ticket.reopened"
+  defp status_webhook_event(_status), do: nil
 
   defp log_activity(ticket, action, causer_id, details) do
     repo = Escalated.repo()
