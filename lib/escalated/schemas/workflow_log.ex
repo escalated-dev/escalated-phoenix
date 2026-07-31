@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.WorkflowLog do
     field :conditions_matched, :boolean, default: true
     field :actions_executed, {:array, :map}, default: []
     field :error_message, :string
+    field :status, :string
     field :started_at, :utc_datetime
     field :completed_at, :utc_datetime
 
@@ -21,13 +22,24 @@ defmodule Escalated.Schemas.WorkflowLog do
   @doc false
   def changeset(log, attrs) do
     log
-    |> cast(attrs, [:workflow_id, :ticket_id, :trigger_event, :conditions_matched, :actions_executed, :error_message, :started_at, :completed_at])
+    |> cast(attrs, [
+      :workflow_id,
+      :ticket_id,
+      :trigger_event,
+      :conditions_matched,
+      :actions_executed,
+      :error_message,
+      :status,
+      :started_at,
+      :completed_at
+    ])
     |> validate_required([:workflow_id, :ticket_id, :trigger_event])
   end
 
   @doc "Serialize a workflow log with computed fields expected by the frontend."
   def to_json(%__MODULE__{} = log) do
     actions = log.actions_executed || []
+
     duration_ms =
       if log.started_at && log.completed_at do
         DateTime.diff(log.completed_at, log.started_at, :millisecond)
@@ -47,7 +59,9 @@ defmodule Escalated.Schemas.WorkflowLog do
       actions_executed: length(actions),
       action_details: actions,
       duration_ms: duration_ms,
-      status: if(log.error_message && log.error_message != "", do: "failed", else: "success"),
+      status:
+        log.status ||
+          if(log.error_message && log.error_message != "", do: "failed", else: "success"),
       error_message: log.error_message,
       created_at: log.inserted_at
     }

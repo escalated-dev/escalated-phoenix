@@ -5,8 +5,9 @@ defmodule Escalated.Services.TicketService do
 
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.WebhookEvents
+  alias Escalated.Services.{WebhookEvents, WorkflowRunner}
   import Ecto.Query
+  require Logger
 
   @doc """
   Creates a new ticket.
@@ -28,6 +29,7 @@ defmodule Escalated.Services.TicketService do
         maybe_attach_sla(ticket)
         Hooks.do_action("ticket_created", [ticket])
         WebhookEvents.dispatch("ticket.created", %{ticket: ticket})
+        run_workflows("ticket.created", ticket)
         {:ok, ticket}
 
       error ->
@@ -110,6 +112,13 @@ defmodule Escalated.Services.TicketService do
 
         webhook_event = if reply.is_internal, do: "note.created", else: "reply.created"
         WebhookEvents.dispatch(webhook_event, %{ticket: ticket, reply: reply})
+
+        # Only public replies fire the `reply.created` Workflow trigger;
+        # internal notes have no canonical trigger (and firing on them would
+        # let an `add_note` action recurse). See developer-context
+        # domain-model/workflows-automations-macros.md.
+        unless reply.is_internal, do: run_workflows("reply.created", ticket)
+
         {:ok, reply}
 
       error ->
@@ -147,6 +156,7 @@ defmodule Escalated.Services.TicketService do
         WebhookEvents.dispatch("ticket.status_changed", %{ticket: updated})
         maybe_dispatch_status_hook(updated, new_status)
         maybe_dispatch_status_webhook(updated, new_status)
+        run_workflows("ticket.status_changed", updated)
         {:ok, updated}
 
       error ->
@@ -471,6 +481,44 @@ defmodule Escalated.Services.TicketService do
   end
 
   # Private helpers
+
+  # Fire event-driven Workflows for a ticket lifecycle event.
+  #
+  # Phoenix has no application event bus, so the runner is invoked inline
+  # from the lifecycle site (the canonical "Phoenix uses explicit helpers,
+  # no auto-emit" bridge — see escalated-developer-context
+  # domain-model/workflows-automations-macros.md).
+  #
+  # Two safeguards keep a misbehaving workflow from breaking the mutation
+  # that triggered it:
+  #
+  #   1. Re-entrancy guard. Workflow actions (`add_note`, `change_status`,
+  #      `insert_canned_reply`, ...) mutate the ticket through this same
+  #      service, which would otherwise fire further workflows and could
+  #      loop forever. A process-scoped flag ensures only the top-level
+  #      lifecycle event runs the engine; nested runs are suppressed.
+  #   2. Rescue. Any crash in the engine is logged and swallowed so the
+  #      underlying ticket operation still succeeds.
+  defp run_workflows(trigger_event, %Ticket{} = ticket) do
+    if Process.get(:escalated_workflows_running) do
+      :ok
+    else
+      Process.put(:escalated_workflows_running, true)
+
+      try do
+        WorkflowRunner.run_for_event(trigger_event, ticket)
+      rescue
+        error ->
+          Logger.error(
+            "[TicketService] workflow engine crashed for #{trigger_event} on ticket ##{ticket.id}: #{Exception.message(error)}"
+          )
+      after
+        Process.delete(:escalated_workflows_running)
+      end
+
+      :ok
+    end
+  end
 
   # Fire the specialized lifecycle hook for terminal/reopen status transitions,
   # in addition to the generic ticket_status_changed action.

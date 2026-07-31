@@ -76,6 +76,7 @@ defmodule Escalated.Services.WorkflowRunner do
         {:ok, results} ->
           attrs =
             Map.merge(base_attrs, %{
+              status: "success",
               actions_executed: normalize_results(results),
               completed_at: DateTime.utc_now() |> DateTime.truncate(:second)
             })
@@ -89,6 +90,7 @@ defmodule Escalated.Services.WorkflowRunner do
 
           attrs =
             Map.merge(base_attrs, %{
+              status: "failed",
               error_message: reason,
               completed_at: DateTime.utc_now() |> DateTime.truncate(:second)
             })
@@ -96,7 +98,7 @@ defmodule Escalated.Services.WorkflowRunner do
           {attrs, {:matched_and_failed, reason}}
       end
     else
-      {base_attrs, :unmatched}
+      {Map.put(base_attrs, :status, "skipped"), :unmatched}
     end
   end
 
