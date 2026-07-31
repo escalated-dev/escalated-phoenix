@@ -160,6 +160,11 @@ defmodule Escalated.Router do
           get "/settings/data-retention", DataRetentionController, :index
           post "/settings/data-retention", DataRetentionController, :update
 
+          # Event-driven admin Workflows (fired inline from TicketService on
+          # ticket lifecycle events — distinct from time-based Automations
+          # and agent-applied Macros; see escalated-developer-context).
+          resources "/workflows", WorkflowController, except: [:edit, :new]
+
           # Time-based admin automations (distinct from event-driven Workflows
           # and agent-applied Macros — see escalated-developer-context).
           resources "/automations", AutomationController, except: [:edit, :new]
