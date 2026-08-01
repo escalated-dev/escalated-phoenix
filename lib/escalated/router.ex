@@ -86,6 +86,9 @@ defmodule Escalated.Router do
           get "/macros", MacroController, :index
           post "/tickets/:ticket_id/macros/:macro_id/apply", MacroController, :apply
 
+          # Canned responses visible to this agent (shared + their own).
+          get "/canned-responses", CannedResponseController, :index
+
           # Live chat agent routes
           get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
           post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
@@ -190,6 +193,10 @@ defmodule Escalated.Router do
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).
           resources "/macros", MacroController, except: [:edit, :new]
+
+          # Canned-response library admin CRUD (the agent-facing list lives
+          # in the agent scope above).
+          resources "/canned-responses", CannedResponseController, except: [:edit, :new]
 
           # Outbound webhooks: CRUD over subscriptions plus the per-webhook
           # delivery log and a manual delivery retry.
