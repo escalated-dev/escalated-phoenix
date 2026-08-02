@@ -31,4 +31,15 @@ defmodule Escalated.Services.MentionServiceTest do
   test "extracts username from email" do
     assert MentionService.extract_username_from_email("john@example.com") == "john"
   end
+
+  test "extracts braced display-name mentions" do
+    assert MentionService.extract_mentions("ping @{Jane Doe} please") == ["Jane Doe"]
+  end
+
+  test "extracts braced and simple mentions together without double-counting the braced words" do
+    result = MentionService.extract_mentions("@{Jane Doe} and @bob")
+    assert "Jane Doe" in result
+    assert "bob" in result
+    refute "Jane" in result
+  end
 end

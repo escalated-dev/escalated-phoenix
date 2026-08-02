@@ -5,7 +5,7 @@ defmodule Escalated.Services.TicketService do
 
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.{WebhookEvents, WorkflowRunner}
+  alias Escalated.Services.{MentionService, WebhookEvents, WorkflowRunner}
   import Ecto.Query
   require Logger
 
@@ -109,6 +109,11 @@ defmodule Escalated.Services.TicketService do
 
         reply_hook = if reply.is_internal, do: "internal_note_added", else: "ticket_replied"
         Hooks.do_action(reply_hook, [reply, ticket])
+
+        # @mentions only apply to internal notes — an agent naming a colleague
+        # in a private note. Public replies never mention (they go to the
+        # requester, not other agents). Mirrors the Laravel reference.
+        if reply.is_internal, do: process_mentions(reply, ticket)
 
         webhook_event = if reply.is_internal, do: "note.created", else: "reply.created"
         WebhookEvents.dispatch(webhook_event, %{ticket: ticket, reply: reply})
@@ -518,6 +523,22 @@ defmodule Escalated.Services.TicketService do
 
       :ok
     end
+  end
+
+  # Extract, resolve and record @mentions in an internal note, delegating
+  # delivery to the host via the `agent_mentioned` hook. Rescued so a bad
+  # mention resolution can never break the note insert that triggered it
+  # (same safety contract as `run_workflows/2`).
+  defp process_mentions(reply, ticket) do
+    MentionService.process_reply_mentions(reply, ticket)
+    :ok
+  rescue
+    error ->
+      Logger.error(
+        "[TicketService] mention processing crashed for reply ##{reply.id}: #{Exception.message(error)}"
+      )
+
+      :ok
   end
 
   # Fire the specialized lifecycle hook for terminal/reopen status transitions,
