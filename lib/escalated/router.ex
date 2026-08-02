@@ -152,6 +152,9 @@ defmodule Escalated.Router do
           get "/users", UserController, :index
           patch "/users/:user_id/role", UserController, :update_role
 
+          # @mention autocomplete: matching agents by name/email.
+          get "/agents/search", AgentSearchController, :search
+
           get "/settings", SettingsController, :index
           put "/settings", SettingsController, :update
 
