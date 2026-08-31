@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## Arayüz Oluşturma
 
-Varsayılan olarak, `inertia_phoenix` kurulu olduğunda Escalated sayfaları [Inertia.js](https://github.com/inertiajs/inertia-phoenix) aracılığıyla oluşturur. Inertia mevcut değilse, controller'lar JSON yanıtlarına geri döner.
+Varsayılan olarak, `inertia` kurulu olduğunda Escalated sayfaları [Inertia.js](https://github.com/inertiajs/inertia-phoenix) aracılığıyla oluşturur. Inertia mevcut değilse, controller'lar JSON yanıtlarına geri döner.
 
 Inertia sayfa prop'larını kullanan kendi frontend bileşenlerinizi oluşturabilir veya JSON API'yi doğrudan kullanabilirsiniz.
 

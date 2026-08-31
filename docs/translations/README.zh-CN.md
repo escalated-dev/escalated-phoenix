@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## UI 渲染
 
-默认情况下，当安装了 `inertia_phoenix` 时，Escalated 通过 [Inertia.js](https://github.com/inertiajs/inertia-phoenix) 渲染页面。如果 Inertia 不可用，控制器将回退到 JSON 响应。
+默认情况下，当安装了 `inertia` 时，Escalated 通过 [Inertia.js](https://github.com/inertiajs/inertia-phoenix) 渲染页面。如果 Inertia 不可用，控制器将回退到 JSON 响应。
 
 您可以构建自己的前端组件来消费 Inertia 页面 props，或直接使用 JSON API。
 

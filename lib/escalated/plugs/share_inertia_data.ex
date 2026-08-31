@@ -2,7 +2,7 @@ defmodule Escalated.Plugs.ShareInertiaData do
   @moduledoc """
   Plug that shares common Escalated data with Inertia.js pages.
 
-  Only active when `inertia_phoenix` is loaded and `ui_enabled` is true.
+  Only active when `inertia` is loaded and `ui_enabled` is true.
   Shares the current user, escalated configuration, and flash messages.
   """
   import Plug.Conn
@@ -16,7 +16,7 @@ defmodule Escalated.Plugs.ShareInertiaData do
     config = Escalated.configuration()
 
     if Escalated.Config.ui_enabled?(config) do
-      if Code.ensure_loaded?(InertiaPhoenix) do
+      if Code.ensure_loaded?(Inertia.Controller) do
         share_data(conn, config)
       else
         conn
@@ -44,23 +44,25 @@ defmodule Escalated.Plugs.ShareInertiaData do
   defp share_data(conn, config) do
     user = conn.assigns[:current_user]
 
-    shared = %{
-      escalated: escalated_props(user, config),
-      auth: %{
-        user:
-          if user do
-            %{
-              id: user.id,
-              email: if(Map.has_key?(user, :email), do: user.email, else: nil),
-              name: if(Map.has_key?(user, :name), do: user.name, else: nil)
-            }
-          else
-            nil
-          end
-      }
+    auth = %{
+      user:
+        if user do
+          %{
+            id: user.id,
+            email: if(Map.has_key?(user, :email), do: user.email, else: nil),
+            name: if(Map.has_key?(user, :name), do: user.name, else: nil)
+          }
+        else
+          nil
+        end
     }
 
-    Plug.Conn.assign(conn, :inertia_shared, shared)
+    # assign_prop/3, not Plug.Conn.assign/3. The retired adapter read shared
+    # data out of conn.assigns; `inertia` reads it from conn.private, so an
+    # assign would leave every page missing its shared props with no error.
+    conn
+    |> Inertia.Controller.assign_prop(:escalated, escalated_props(user, config))
+    |> Inertia.Controller.assign_prop(:auth, auth)
   end
 
   defp newsletters_enabled? do

@@ -284,7 +284,19 @@ stats = Escalated.Services.SlaService.stats()
 
 ## UI Rendering
 
-By default, Escalated renders pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) when `inertia_phoenix` is installed. If Inertia is not available, controllers fall back to JSON responses.
+By default, Escalated renders pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) when `inertia` is installed. If Inertia is not available, controllers fall back to JSON responses.
+
+> **Pipeline requirement.** `inertia` reads `assigns.flash` when it builds a response, so your browser pipeline must run `fetch_flash` (and a session) before `Inertia.Plug`:
+>
+> ```elixir
+> pipeline :browser do
+>   plug :fetch_session
+>   plug :fetch_flash
+>   plug Inertia.Plug
+> end
+> ```
+>
+> Escalated previously depended on `inertia_phoenix`, which did not require this. That package is retired (last released 2023) and pinned two vulnerable transitive dependencies, so it was replaced with the officially maintained `inertia` package.
 
 You can build your own frontend components that consume the Inertia page props, or use the JSON API directly.
 

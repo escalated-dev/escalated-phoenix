@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## UIレンダリング
 
-デフォルトでは、`inertia_phoenix` がインストールされている場合、Escalatedは [Inertia.js](https://github.com/inertiajs/inertia-phoenix) を通じてページをレンダリングします。Inertiaが利用できない場合、コントローラーはJSON応答にフォールバックします。
+デフォルトでは、`inertia` がインストールされている場合、Escalatedは [Inertia.js](https://github.com/inertiajs/inertia-phoenix) を通じてページをレンダリングします。Inertiaが利用できない場合、コントローラーはJSON応答にフォールバックします。
 
 Inertiaページのpropsを消費する独自のフロントエンドコンポーネントを構築するか、JSON APIを直接使用できます。
 

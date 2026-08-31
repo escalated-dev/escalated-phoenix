@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## عرض الواجهة
 
-بشكل افتراضي، يعرض Escalated الصفحات عبر [Inertia.js](https://github.com/inertiajs/inertia-phoenix) عند تثبيت `inertia_phoenix`. إذا لم يكن Inertia متاحاً، تعود وحدات التحكم إلى استجابات JSON.
+بشكل افتراضي، يعرض Escalated الصفحات عبر [Inertia.js](https://github.com/inertiajs/inertia-phoenix) عند تثبيت `inertia`. إذا لم يكن Inertia متاحاً، تعود وحدات التحكم إلى استجابات JSON.
 
 يمكنك بناء مكونات الواجهة الأمامية الخاصة بك التي تستهلك خصائص صفحة Inertia، أو استخدام JSON API مباشرة.
 

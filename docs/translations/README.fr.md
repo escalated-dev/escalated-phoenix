@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## Rendu de l'interface
 
-Par défaut, Escalated rend les pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) lorsque `inertia_phoenix` est installé. Si Inertia n'est pas disponible, les contrôleurs renvoient des réponses JSON.
+Par défaut, Escalated rend les pages via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) lorsque `inertia` est installé. Si Inertia n'est pas disponible, les contrôleurs renvoient des réponses JSON.
 
 Vous pouvez construire vos propres composants frontend qui consomment les props de page Inertia, ou utiliser directement l'API JSON.
 

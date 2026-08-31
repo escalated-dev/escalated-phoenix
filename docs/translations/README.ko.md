@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## UI 렌더링
 
-기본적으로 Escalated는 `inertia_phoenix`가 설치되어 있을 때 [Inertia.js](https://github.com/inertiajs/inertia-phoenix)를 통해 페이지를 렌더링합니다. Inertia를 사용할 수 없는 경우 컨트롤러는 JSON 응답으로 폴백합니다.
+기본적으로 Escalated는 `inertia`가 설치되어 있을 때 [Inertia.js](https://github.com/inertiajs/inertia-phoenix)를 통해 페이지를 렌더링합니다. Inertia를 사용할 수 없는 경우 컨트롤러는 JSON 응답으로 폴백합니다.
 
 Inertia 페이지 props를 소비하는 자체 프론트엔드 컴포넌트를 구축하거나 JSON API를 직접 사용할 수 있습니다.
 

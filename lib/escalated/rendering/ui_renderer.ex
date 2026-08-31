@@ -2,7 +2,7 @@ defmodule Escalated.Rendering.UIRenderer do
   @moduledoc """
   Renderer abstraction for Escalated controllers.
 
-  By default uses Inertia.js (via `inertia_phoenix`). Falls back to JSON
+  By default uses Inertia.js (via the `inertia` package). Falls back to JSON
   if Inertia is not available or UI is disabled.
 
   Controllers call `render_page/3` instead of directly coupling to a
@@ -12,7 +12,7 @@ defmodule Escalated.Rendering.UIRenderer do
   @doc """
   Renders a page using the configured rendering strategy.
 
-  - If `inertia_phoenix` is loaded and UI is enabled, renders an Inertia page.
+  - If `inertia` is loaded and UI is enabled, renders an Inertia page.
   - Otherwise, renders JSON.
   """
   def render_page(conn, component, props) do
@@ -33,14 +33,17 @@ defmodule Escalated.Rendering.UIRenderer do
   end
 
   defp render_inertia(conn, component, props) do
-    if Code.ensure_loaded?(InertiaPhoenix.Controller) do
-      apply(InertiaPhoenix.Controller, :render_inertia, [conn, component, props: props])
+    if Code.ensure_loaded?(Inertia.Controller) do
+      # Props are passed as a MAP, not `props: props`. render_inertia/3 treats a
+      # list third argument as options, so the old keyword form would render the
+      # page with no props at all rather than raising.
+      apply(Inertia.Controller, :render_inertia, [conn, component, Map.new(props)])
     else
       render_json(conn, props)
     end
   end
 
   defp inertia_available? do
-    Code.ensure_loaded?(InertiaPhoenix)
+    Code.ensure_loaded?(Inertia)
   end
 end
