@@ -61,8 +61,16 @@ defmodule Escalated.Plugs.ShareInertiaData do
     # data out of conn.assigns; `inertia` reads it from conn.private, so an
     # assign would leave every page missing its shared props with no error.
     conn
-    |> Inertia.Controller.assign_prop(:escalated, escalated_props(user, config))
-    |> Inertia.Controller.assign_prop(:auth, auth)
+    |> assign_inertia_prop(:escalated, escalated_props(user, config))
+    |> assign_inertia_prop(:auth, auth)
+  end
+
+  # apply/3 rather than a direct call because `inertia` is an OPTIONAL
+  # dependency: a direct call compiles to a warning for hosts that do not
+  # install it, which is why the caller guards on Code.ensure_loaded?/1.
+  defp assign_inertia_prop(conn, key, value) do
+    # credo:disable-for-next-line Credo.Check.Refactor.Apply
+    apply(Inertia.Controller, :assign_prop, [conn, key, value])
   end
 
   defp newsletters_enabled? do

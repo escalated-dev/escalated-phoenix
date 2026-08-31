@@ -37,6 +37,11 @@ defmodule Escalated.Rendering.UIRenderer do
       # Props are passed as a MAP, not `props: props`. render_inertia/3 treats a
       # list third argument as options, so the old keyword form would render the
       # page with no props at all rather than raising.
+      #
+      # apply/3 rather than a direct call because `inertia` is an OPTIONAL
+      # dependency: a direct call compiles to a warning for hosts that do not
+      # install it, which is why the guard above exists at all.
+      # credo:disable-for-next-line Credo.Check.Refactor.Apply
       apply(Inertia.Controller, :render_inertia, [conn, component, Map.new(props)])
     else
       render_json(conn, props)
