@@ -166,7 +166,7 @@ stats = Escalated.Services.SlaService.stats()
 
 ## Отрисовка интерфейса
 
-По умолчанию Escalated отрисовывает страницы через [Inertia.js](https://github.com/inertiajs/inertia-phoenix) при установленном `inertia_phoenix`. Если Inertia недоступен, контроллеры возвращают JSON-ответы.
+По умолчанию Escalated отрисовывает страницы через [Inertia.js](https://github.com/inertiajs/inertia-phoenix) при установленном `inertia`. Если Inertia недоступен, контроллеры возвращают JSON-ответы.
 
 Вы можете создавать собственные фронтенд-компоненты, потребляющие свойства страниц Inertia, или использовать JSON API напрямую.
 
