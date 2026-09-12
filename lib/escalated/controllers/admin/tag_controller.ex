@@ -5,8 +5,8 @@ defmodule Escalated.Controllers.Admin.TagController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Schemas.Tag
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.Tag
 
   def index(conn, _params) do
     repo = Escalated.repo()
@@ -21,13 +21,20 @@ defmodule Escalated.Controllers.Admin.TagController do
     repo = Escalated.repo()
 
     case repo.get(Tag, id) do
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
-      tag -> UIRenderer.render_page(conn, "Escalated/Admin/Tags/Show", %{tag: %{id: tag.id, name: tag.name, color: tag.color}})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+
+      # Tags are created and edited inline on the index screen; see the
+      # canned response controller.
+      tag ->
+        Phoenix.Controller.json(conn, %{data: %{id: tag.id, name: tag.name, color: tag.color}})
     end
   end
 
   def new(conn, _params) do
-    UIRenderer.render_page(conn, "Escalated/Admin/Tags/New", %{})
+    # The index screen carries the create form, so this route only ever had a
+    # page name with nothing behind it. Send people to the form that exists.
+    redirect(conn, to: admin_tags_path(conn))
   end
 
   def create(conn, %{"tag" => params}) do
@@ -57,8 +64,11 @@ defmodule Escalated.Controllers.Admin.TagController do
         |> Tag.changeset(params)
         |> repo.update()
         |> case do
-          {:ok, _} -> conn |> put_flash(:info, "Tag updated.") |> redirect(to: admin_tags_path(conn))
-          {:error, cs} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
+          {:ok, _} ->
+            conn |> put_flash(:info, "Tag updated.") |> redirect(to: admin_tags_path(conn))
+
+          {:error, cs} ->
+            conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
         end
     end
   end
@@ -67,7 +77,9 @@ defmodule Escalated.Controllers.Admin.TagController do
     repo = Escalated.repo()
 
     case repo.get(Tag, id) do
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+
       tag ->
         repo.delete(tag)
         conn |> put_flash(:info, "Tag deleted.") |> redirect(to: admin_tags_path(conn))

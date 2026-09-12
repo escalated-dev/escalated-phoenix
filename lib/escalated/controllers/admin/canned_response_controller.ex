@@ -26,9 +26,10 @@ defmodule Escalated.Controllers.Admin.CannedResponseController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Canned response not found"})
 
       response ->
-        UIRenderer.render_page(conn, "Escalated/Admin/CannedResponses/Show", %{
-          response: CannedResponse.to_json(response)
-        })
+        # Canned responses are created and edited inline on the index
+        # screen, so there is no detail component to render. The 404 branch
+        # already answers as an API read; this one now matches it.
+        Phoenix.Controller.json(conn, %{data: CannedResponse.to_json(response)})
     end
   end
 

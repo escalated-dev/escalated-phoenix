@@ -9,10 +9,10 @@ defmodule Escalated.Controllers.Customer.TicketController do
   import Plug.Conn
   import Ecto.Query, only: [where: 3]
 
-  alias Escalated.Services.TicketService
-  alias Escalated.Schemas.{Ticket, Attachment}
-  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.{Attachment, Ticket}
+  alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.TicketService
 
   def index(conn, params) do
     user = conn.assigns[:current_user]
@@ -23,8 +23,9 @@ defmodule Escalated.Controllers.Customer.TicketController do
         status: params["status"]
       })
 
-    UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Index", %{
-      tickets: Enum.map(tickets, &ticket_json/1),
+    UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
+      # TicketList reads `tickets.data`; see the agent controller.
+      tickets: %{data: Enum.map(tickets, &ticket_json/1)},
       filters: %{status: params["status"]}
     })
   end
@@ -36,7 +37,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
         |> Escalated.Schemas.Department.ordered()
       )
 
-    UIRenderer.render_page(conn, "Escalated/Customer/Tickets/New", %{
+    UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
       departments: Enum.map(departments, &%{id: &1.id, name: &1.name}),
       priorities: Ticket.priorities()
     })
@@ -57,7 +58,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
         |> redirect(to: ticket_path(conn, ticket))
 
       {:error, changeset} ->
-        UIRenderer.render_page(conn, "Escalated/Customer/Tickets/New", %{
+        UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
           errors: format_errors(changeset),
           ticket: ticket_params
         })
@@ -75,15 +76,16 @@ defmodule Escalated.Controllers.Customer.TicketController do
       ticket ->
         repo = Escalated.repo()
         ticket = repo.preload(ticket, :attachments)
+
         replies =
           Escalated.Schemas.Reply.chronological()
           |> where([r], r.ticket_id == ^ticket.id and r.is_internal == false)
           |> repo.all()
           |> repo.preload(:attachments)
 
-        UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Show", %{
-          ticket: ticket_detail_json(ticket),
-          replies: Enum.map(replies, &reply_json/1),
+        UIRenderer.render_page(conn, "Escalated/Customer/Show", %{
+          # The reply thread reads `ticket.replies`.
+          ticket: Map.put(ticket_detail_json(ticket), :replies, Enum.map(replies, &reply_json/1)),
           allow_close: Escalated.config(:allow_customer_close, true)
         })
     end
@@ -98,7 +100,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
       ticket ->
-        case TicketService.reply(ticket, %{body: body, author_id: user && user.id, is_internal: false}) do
+        case TicketService.reply(ticket, %{
+               body: body,
+               author_id: user && user.id,
+               is_internal: false
+             }) do
           {:ok, _reply} ->
             conn
             |> put_flash(:info, "Reply sent.")

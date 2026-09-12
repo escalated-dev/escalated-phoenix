@@ -9,9 +9,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
+  alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Automation
   alias Escalated.Services.AutomationRunner
-  alias Escalated.Rendering.UIRenderer
 
   def index(conn, _params) do
     repo = Escalated.repo()
@@ -34,7 +34,7 @@ defmodule Escalated.Controllers.Admin.AutomationController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Automation not found"})
 
       automation ->
-        UIRenderer.render_page(conn, "Escalated/Admin/Automations/Show", %{
+        UIRenderer.render_page(conn, "Escalated/Admin/Automations/Form", %{
           automation: Automation.to_json(automation)
         })
     end
@@ -51,7 +51,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
     |> repo.insert()
     |> case do
       {:ok, _automation} ->
-        conn |> put_flash(:info, "Automation created.") |> redirect(to: admin_automations_path(conn))
+        conn
+        |> put_flash(:info, "Automation created.")
+        |> redirect(to: admin_automations_path(conn))
 
       {:error, changeset} ->
         conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
@@ -74,7 +76,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
         |> repo.update()
         |> case do
           {:ok, _} ->
-            conn |> put_flash(:info, "Automation updated.") |> redirect(to: admin_automations_path(conn))
+            conn
+            |> put_flash(:info, "Automation updated.")
+            |> redirect(to: admin_automations_path(conn))
 
           {:error, cs} ->
             conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
@@ -91,7 +95,10 @@ defmodule Escalated.Controllers.Admin.AutomationController do
 
       automation ->
         repo.delete(automation)
-        conn |> put_flash(:info, "Automation deleted.") |> redirect(to: admin_automations_path(conn))
+
+        conn
+        |> put_flash(:info, "Automation deleted.")
+        |> redirect(to: admin_automations_path(conn))
     end
   end
 

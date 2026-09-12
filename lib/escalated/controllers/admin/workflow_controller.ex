@@ -38,7 +38,7 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Workflow not found"})
 
       workflow ->
-        UIRenderer.render_page(conn, "Escalated/Admin/Workflows/Show", %{
+        UIRenderer.render_page(conn, "Escalated/Admin/Workflows/Form", %{
           workflow: Workflow.to_json(workflow),
           trigger_events: available_trigger_events()
         })
