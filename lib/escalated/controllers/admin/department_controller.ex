@@ -36,7 +36,7 @@ defmodule Escalated.Controllers.Admin.DepartmentController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Department not found"})
 
       dept ->
-        UIRenderer.render_page(conn, "Escalated/Admin/Departments/Show", %{
+        UIRenderer.render_page(conn, "Escalated/Admin/Departments/Form", %{
           department: %{
             id: dept.id,
             name: dept.name,
@@ -51,7 +51,7 @@ defmodule Escalated.Controllers.Admin.DepartmentController do
   end
 
   def new(conn, _params) do
-    UIRenderer.render_page(conn, "Escalated/Admin/Departments/New", %{})
+    UIRenderer.render_page(conn, "Escalated/Admin/Departments/Form", %{})
   end
 
   def create(conn, %{"department" => params}) do
@@ -69,7 +69,7 @@ defmodule Escalated.Controllers.Admin.DepartmentController do
       {:error, changeset} ->
         conn
         |> put_status(422)
-        |> UIRenderer.render_page("Escalated/Admin/Departments/New", %{
+        |> UIRenderer.render_page("Escalated/Admin/Departments/Form", %{
           errors: format_errors(changeset),
           department: params
         })

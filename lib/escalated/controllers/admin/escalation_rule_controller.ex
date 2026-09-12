@@ -34,7 +34,7 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Escalation rule not found"})
 
       rule ->
-        UIRenderer.render_page(conn, "Escalated/Admin/EscalationRules/Show", %{
+        UIRenderer.render_page(conn, "Escalated/Admin/EscalationRules/Form", %{
           rule: EscalationRule.to_json(rule)
         })
     end

@@ -22,12 +22,16 @@ defmodule Escalated.Controllers.Admin.TagController do
 
     case repo.get(Tag, id) do
       nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
-      tag -> UIRenderer.render_page(conn, "Escalated/Admin/Tags/Show", %{tag: %{id: tag.id, name: tag.name, color: tag.color}})
+      # Tags are created and edited inline on the index screen; see the
+      # canned response controller.
+      tag -> Phoenix.Controller.json(conn, %{data: %{id: tag.id, name: tag.name, color: tag.color}})
     end
   end
 
   def new(conn, _params) do
-    UIRenderer.render_page(conn, "Escalated/Admin/Tags/New", %{})
+    # The index screen carries the create form, so this route only ever had a
+    # page name with nothing behind it. Send people to the form that exists.
+    redirect(conn, to: admin_tags_path(conn))
   end
 
   def create(conn, %{"tag" => params}) do

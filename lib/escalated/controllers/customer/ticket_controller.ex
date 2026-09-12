@@ -23,8 +23,9 @@ defmodule Escalated.Controllers.Customer.TicketController do
         status: params["status"]
       })
 
-    UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Index", %{
-      tickets: Enum.map(tickets, &ticket_json/1),
+    UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
+      # TicketList reads `tickets.data`; see the agent controller.
+      tickets: %{data: Enum.map(tickets, &ticket_json/1)},
       filters: %{status: params["status"]}
     })
   end
@@ -36,7 +37,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
         |> Escalated.Schemas.Department.ordered()
       )
 
-    UIRenderer.render_page(conn, "Escalated/Customer/Tickets/New", %{
+    UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
       departments: Enum.map(departments, &%{id: &1.id, name: &1.name}),
       priorities: Ticket.priorities()
     })
@@ -57,7 +58,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
         |> redirect(to: ticket_path(conn, ticket))
 
       {:error, changeset} ->
-        UIRenderer.render_page(conn, "Escalated/Customer/Tickets/New", %{
+        UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
           errors: format_errors(changeset),
           ticket: ticket_params
         })
@@ -81,9 +82,9 @@ defmodule Escalated.Controllers.Customer.TicketController do
           |> repo.all()
           |> repo.preload(:attachments)
 
-        UIRenderer.render_page(conn, "Escalated/Customer/Tickets/Show", %{
-          ticket: ticket_detail_json(ticket),
-          replies: Enum.map(replies, &reply_json/1),
+        UIRenderer.render_page(conn, "Escalated/Customer/Show", %{
+          # The reply thread reads `ticket.replies`.
+          ticket: Map.put(ticket_detail_json(ticket), :replies, Enum.map(replies, &reply_json/1)),
           allow_close: Escalated.config(:allow_customer_close, true)
         })
     end
