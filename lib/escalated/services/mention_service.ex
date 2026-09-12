@@ -146,7 +146,7 @@ defmodule Escalated.Services.MentionService do
   # --- private helpers ---
 
   defp query_user_ids(names) do
-    repo = Escalated.repo()
+    repo = Escalated.user_repo()
     schema = Escalated.user_schema()
 
     schema
@@ -183,7 +183,7 @@ defmodule Escalated.Services.MentionService do
   defp self_mention?(user_id, author_id), do: to_string(user_id) == to_string(author_id)
 
   defp search_agents(term) do
-    repo = Escalated.repo()
+    repo = Escalated.user_repo()
     schema = Escalated.user_schema()
     pattern = "%#{term}%"
 

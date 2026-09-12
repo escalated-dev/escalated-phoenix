@@ -35,7 +35,7 @@ defmodule Escalated.Serializers.TicketSerializer do
   """
   def computed_fields(ticket) do
     repo = Escalated.repo()
-    {requester_name, requester_email} = resolve_requester(ticket, repo)
+    {requester_name, requester_email} = resolve_requester(ticket)
     {last_reply_at, last_reply_author} = resolve_last_reply(ticket, repo)
 
     %{
@@ -104,7 +104,7 @@ defmodule Escalated.Serializers.TicketSerializer do
   # Private
   # ---------------------------------------------------------------------------
 
-  defp resolve_requester(ticket, repo) do
+  defp resolve_requester(ticket) do
     cond do
       # Guest tickets store name/email directly
       ticket.guest_name != nil || ticket.guest_email != nil ->
@@ -114,7 +114,7 @@ defmodule Escalated.Serializers.TicketSerializer do
       ticket.requester_id != nil ->
         user_schema = Escalated.user_schema()
 
-        case repo.get(user_schema, ticket.requester_id) do
+        case Escalated.user_repo().get(user_schema, ticket.requester_id) do
           nil ->
             {nil, nil}
 
@@ -148,17 +148,17 @@ defmodule Escalated.Serializers.TicketSerializer do
 
       reply ->
         at = reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
-        author = resolve_author_name(reply.author_id, repo)
+        author = resolve_author_name(reply.author_id)
         {at, author}
     end
   end
 
-  defp resolve_author_name(nil, _repo), do: nil
+  defp resolve_author_name(nil), do: nil
 
-  defp resolve_author_name(author_id, repo) do
+  defp resolve_author_name(author_id) do
     user_schema = Escalated.user_schema()
 
-    case repo.get(user_schema, author_id) do
+    case Escalated.user_repo().get(user_schema, author_id) do
       nil ->
         nil
 

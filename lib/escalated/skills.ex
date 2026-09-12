@@ -84,7 +84,7 @@ defmodule Escalated.Skills do
         where: u.is_agent == true,
         order_by: [asc: u.id]
       )
-      |> repo.all()
+      |> Escalated.user_repo().all()
       |> Enum.map(fn u ->
         %{
           id: u.id,
@@ -210,7 +210,7 @@ defmodule Escalated.Skills do
 
     cs =
       Enum.reduce(attrs.agents, cs, fn %{user_id: uid}, acc ->
-        validate_agent_user(acc, repo.get(user_schema, uid))
+        validate_agent_user(acc, Escalated.user_repo().get(user_schema, uid))
       end)
 
     if cs.valid?, do: :ok, else: {:error, cs}
