@@ -9,9 +9,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
+  alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Automation
   alias Escalated.Services.AutomationRunner
-  alias Escalated.Rendering.UIRenderer
 
   def index(conn, _params) do
     repo = Escalated.repo()

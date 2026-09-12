@@ -5,8 +5,8 @@ defmodule Escalated.Controllers.Admin.TagController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Schemas.Tag
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.Tag
 
   def index(conn, _params) do
     repo = Escalated.repo()

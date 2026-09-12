@@ -9,10 +9,10 @@ defmodule Escalated.Controllers.Customer.TicketController do
   import Plug.Conn
   import Ecto.Query, only: [where: 3]
 
-  alias Escalated.Services.TicketService
-  alias Escalated.Schemas.{Ticket, Attachment}
-  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.{Attachment, Ticket}
+  alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.TicketService
 
   def index(conn, params) do
     user = conn.assigns[:current_user]

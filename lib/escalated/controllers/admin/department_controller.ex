@@ -5,8 +5,8 @@ defmodule Escalated.Controllers.Admin.DepartmentController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Schemas.Department
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.Department
 
   def index(conn, _params) do
     repo = Escalated.repo()

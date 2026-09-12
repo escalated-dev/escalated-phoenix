@@ -9,9 +9,9 @@ defmodule Escalated.Controllers.Admin.MacroController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
+  alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Macro
   alias Escalated.Services.MacroService
-  alias Escalated.Rendering.UIRenderer
 
   def index(conn, _params) do
     repo = Escalated.repo()

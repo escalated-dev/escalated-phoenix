@@ -5,10 +5,10 @@ defmodule Escalated.Controllers.Agent.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Services.{TicketService, AssignmentService, TicketActionRegistry}
-  alias Escalated.Schemas.{Ticket, Reply, Attachment}
-  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.{Attachment, Reply, Ticket}
+  alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
   import Ecto.Query
 
   def index(conn, params) do
