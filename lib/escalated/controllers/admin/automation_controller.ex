@@ -51,7 +51,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
     |> repo.insert()
     |> case do
       {:ok, _automation} ->
-        conn |> put_flash(:info, "Automation created.") |> redirect(to: admin_automations_path(conn))
+        conn
+        |> put_flash(:info, "Automation created.")
+        |> redirect(to: admin_automations_path(conn))
 
       {:error, changeset} ->
         conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
@@ -74,7 +76,9 @@ defmodule Escalated.Controllers.Admin.AutomationController do
         |> repo.update()
         |> case do
           {:ok, _} ->
-            conn |> put_flash(:info, "Automation updated.") |> redirect(to: admin_automations_path(conn))
+            conn
+            |> put_flash(:info, "Automation updated.")
+            |> redirect(to: admin_automations_path(conn))
 
           {:error, cs} ->
             conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
@@ -91,7 +95,10 @@ defmodule Escalated.Controllers.Admin.AutomationController do
 
       automation ->
         repo.delete(automation)
-        conn |> put_flash(:info, "Automation deleted.") |> redirect(to: admin_automations_path(conn))
+
+        conn
+        |> put_flash(:info, "Automation deleted.")
+        |> redirect(to: admin_automations_path(conn))
     end
   end
 

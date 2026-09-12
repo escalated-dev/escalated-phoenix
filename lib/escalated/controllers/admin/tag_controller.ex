@@ -21,10 +21,13 @@ defmodule Escalated.Controllers.Admin.TagController do
     repo = Escalated.repo()
 
     case repo.get(Tag, id) do
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+
       # Tags are created and edited inline on the index screen; see the
       # canned response controller.
-      tag -> Phoenix.Controller.json(conn, %{data: %{id: tag.id, name: tag.name, color: tag.color}})
+      tag ->
+        Phoenix.Controller.json(conn, %{data: %{id: tag.id, name: tag.name, color: tag.color}})
     end
   end
 
@@ -61,8 +64,11 @@ defmodule Escalated.Controllers.Admin.TagController do
         |> Tag.changeset(params)
         |> repo.update()
         |> case do
-          {:ok, _} -> conn |> put_flash(:info, "Tag updated.") |> redirect(to: admin_tags_path(conn))
-          {:error, cs} -> conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
+          {:ok, _} ->
+            conn |> put_flash(:info, "Tag updated.") |> redirect(to: admin_tags_path(conn))
+
+          {:error, cs} ->
+            conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
         end
     end
   end
@@ -71,7 +77,9 @@ defmodule Escalated.Controllers.Admin.TagController do
     repo = Escalated.repo()
 
     case repo.get(Tag, id) do
-      nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Tag not found"})
+
       tag ->
         repo.delete(tag)
         conn |> put_flash(:info, "Tag deleted.") |> redirect(to: admin_tags_path(conn))

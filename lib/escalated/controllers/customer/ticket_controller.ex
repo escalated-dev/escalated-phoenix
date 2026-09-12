@@ -76,6 +76,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       ticket ->
         repo = Escalated.repo()
         ticket = repo.preload(ticket, :attachments)
+
         replies =
           Escalated.Schemas.Reply.chronological()
           |> where([r], r.ticket_id == ^ticket.id and r.is_internal == false)
@@ -99,7 +100,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
       ticket ->
-        case TicketService.reply(ticket, %{body: body, author_id: user && user.id, is_internal: false}) do
+        case TicketService.reply(ticket, %{
+               body: body,
+               author_id: user && user.id,
+               is_internal: false
+             }) do
           {:ok, _reply} ->
             conn
             |> put_flash(:info, "Reply sent.")
