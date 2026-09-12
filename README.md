@@ -71,7 +71,8 @@ config :escalated,
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `repo` | *required* | Your Ecto Repo module |
+| `repo` | *required* | The Ecto repo Escalated's own tables live on |
+| `user_repo` | `repo` | The Ecto repo your `user_schema` lives on. Only set it when that is a different database — see [Separate databases](#separate-databases) |
 | `user_schema` | *required* | Your User schema module |
 | `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
 | `table_prefix` | `"escalated_"` | Database table name prefix |
@@ -84,6 +85,50 @@ config :escalated,
 | `allow_customer_close` | `true` | Allow customers to close their tickets |
 | `sla` | `%{enabled: true, ...}` | SLA configuration map |
 | `ticket_subjects` | `%{types: [], resolver: nil}` | Allowlisted host subject types and resolver for attach/API + UI serialization |
+
+### Separate databases
+
+In Ecto the repo *is* the connection, so pointing `:repo` at a second repo is
+all it takes to keep Escalated's tables out of your primary database — a schema
+shared with a legacy system, a separate reporting store, or a database you would
+simply rather not mix support data into.
+
+Your users do not move with it. Tell Escalated where they stayed:
+
+```elixir
+config :escalated,
+  repo: MyApp.SupportRepo,      # Escalated's tables
+  user_repo: MyApp.Repo,        # your users
+  user_schema: MyApp.Accounts.User
+```
+
+Set neither and nothing changes: `user_repo` falls back to `repo`, which is the
+single-database setup every host starts with.
+
+Both repos must be started by your application's supervision tree, and
+`MyApp.SupportRepo` is the one you run Escalated's migrations against:
+
+```bash
+mix ecto.migrate -r MyApp.SupportRepo
+```
+
+#### What Escalated does not do
+
+**No query joins the two.** No database can join across two connections, and
+Escalated does not try. There is no `belongs_to` from any Escalated schema to
+your user schema; a ticket's `requester_id`, `assigned_to` and a reply's
+`author_id` are plain unconstrained columns, and every user lookup is a separate
+query on `user_repo`. That is also why there is no foreign key to add — and why
+deleting a user in your app leaves their tickets intact, resolving to a blank
+requester rather than failing.
+
+Filtering or sorting Escalated's tables *by* a user's own columns is therefore
+not possible across a split. Agent load, skill routing and mention search all
+work because they resolve ids on one repo and names on the other, in two steps.
+
+**Your users are never written by the split.** The one place Escalated writes to
+a host user is the admin panel's role toggle, which goes to `user_repo` like
+every other user query.
 
 ## Ticket subjects
 

@@ -22,7 +22,7 @@ defmodule Escalated.Controllers.Admin.UserController do
   admins first, then agents, then everyone else.
   """
   def index(conn, params) do
-    repo = Escalated.repo()
+    repo = Escalated.user_repo()
     user_schema = Escalated.user_schema()
 
     search = params |> Map.get("search", "") |> to_string() |> String.trim()
@@ -67,7 +67,7 @@ defmodule Escalated.Controllers.Admin.UserController do
   end
 
   defp apply_role_change(conn, user_id, role, value) do
-    repo = Escalated.repo()
+    repo = Escalated.user_repo()
     user_schema = Escalated.user_schema()
 
     case repo.get(user_schema, user_id) do

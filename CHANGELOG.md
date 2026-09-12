@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Configurable database connection.** `:repo` now names the repo Escalated's
+  own tables live on, and a new `:user_repo` names the repo your `user_schema`
+  lives on. In Ecto the repo *is* the connection, so pointing `:repo` at a second
+  repo is all it takes to keep support tables out of your primary database.
+
+  `:user_repo` defaults to `:repo`, so a host that has not split its databases is
+  unchanged — the same module, the same queries.
+
+  Every user lookup in the package — the admin user list and role toggle, ticket
+  requester and reply author resolution, mention matching, skill routing and the
+  Skills form — now resolves `Escalated.user_repo/0` instead of
+  `Escalated.repo/0`. On a split install `Escalated.repo/0` is a database with no
+  users table in it, so a missed call site would not fail loudly; it would query
+  the wrong database, which reads as users that do not exist.
+
+  No query joins the two. No database can join across two connections: there is
+  no `belongs_to` from an Escalated schema to the host's user schema, user ids
+  are plain unconstrained columns, and every lookup resolves in two steps.
 - Consume translation catalogs from the central `:escalated_locale` Hex package
   via a new `Escalated.Gettext` backend. Per-host overrides can be placed under
   `priv/gettext/overrides/{locale}/LC_MESSAGES/escalated.po`.

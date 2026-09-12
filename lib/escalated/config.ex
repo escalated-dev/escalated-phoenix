@@ -7,6 +7,9 @@ defmodule Escalated.Config do
 
   defstruct [
     :repo,
+    # Optional. The repo the host's user schema lives on; nil means it shares
+    # `:repo`. See `Escalated.user_repo/0`.
+    :user_repo,
     :user_schema,
     :admin_check,
     :agent_check,

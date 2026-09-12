@@ -127,7 +127,7 @@ defmodule Escalated.SkillRouting do
       |> then(fn ordered ->
         users =
           from(u in user_schema, where: u.id in ^ordered)
-          |> repo.all()
+          |> Escalated.user_repo().all()
           |> Map.new(&{&1.id, &1})
 
         Enum.map(ordered, &Map.get(users, &1))
