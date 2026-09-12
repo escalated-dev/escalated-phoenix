@@ -34,7 +34,7 @@ defmodule Escalated.Controllers.Admin.AutomationController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Automation not found"})
 
       automation ->
-        UIRenderer.render_page(conn, "Escalated/Admin/Automations/Show", %{
+        UIRenderer.render_page(conn, "Escalated/Admin/Automations/Form", %{
           automation: Automation.to_json(automation)
         })
     end

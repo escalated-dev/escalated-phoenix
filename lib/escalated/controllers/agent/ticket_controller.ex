@@ -14,8 +14,10 @@ defmodule Escalated.Controllers.Agent.TicketController do
   def index(conn, params) do
     tickets = TicketService.list(atomize_filters(params))
 
-    UIRenderer.render_page(conn, "Escalated/Agent/Tickets/Index", %{
-      tickets: Enum.map(tickets, &ticket_list_json/1),
+    UIRenderer.render_page(conn, "Escalated/Agent/TicketIndex", %{
+      # TicketList reads `tickets.data`. A bare list renders as no tickets at
+      # all, which is indistinguishable from an empty queue.
+      tickets: %{data: Enum.map(tickets, &ticket_list_json/1)},
       filters: params,
       statuses: Ticket.statuses(),
       priorities: Ticket.priorities()
@@ -43,10 +45,14 @@ defmodule Escalated.Controllers.Agent.TicketController do
             |> limit(50)
           )
 
-        UIRenderer.render_page(conn, "Escalated/Agent/Tickets/Show", %{
-          ticket: ticket_detail_json(ticket),
-          replies: Enum.map(replies, &reply_json/1),
-          activities: Enum.map(activities, &activity_json/1),
+        UIRenderer.render_page(conn, "Escalated/Agent/TicketShow", %{
+          # The reply thread and the activity feed read these off the ticket.
+          # Passed alongside it they are simply never looked at.
+          ticket:
+            Map.merge(ticket_detail_json(ticket), %{
+              replies: Enum.map(replies, &reply_json/1),
+              activities: Enum.map(activities, &activity_json/1)
+            }),
           customActions: serialize_custom_actions(ticket, conn.assigns[:current_user]),
           statuses: Ticket.statuses(),
           priorities: Ticket.priorities()

@@ -32,9 +32,9 @@ defmodule Escalated.Controllers.Admin.MacroController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Macro not found"})
 
       macro ->
-        UIRenderer.render_page(conn, "Escalated/Admin/Macros/Show", %{
-          macro: Macro.to_json(macro)
-        })
+        # Macros are created and edited inline on the index screen; see
+        # the canned response controller.
+        Phoenix.Controller.json(conn, %{data: Macro.to_json(macro)})
     end
   end
 
