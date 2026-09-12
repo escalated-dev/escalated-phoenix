@@ -46,13 +46,21 @@ defmodule Escalated.MixProject do
       # Dev/test
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.31", only: :dev, runtime: false},
-      {:ecto_sqlite3, "~> 0.15", only: :test}
+      # All three only in :test. The suite runs on whichever ESCALATED_TEST_ADAPTER
+      # selects; a host app depends on the one adapter it actually uses.
+      {:ecto_sqlite3, "~> 0.15", only: :test},
+      {:postgrex, "~> 0.17", only: :test},
+      {:myxql, "~> 0.6", only: :test}
     ]
   end
 
   defp aliases do
     [
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      # Dropped first, so the run starts from an empty schema whatever the
+      # adapter. An in-memory SQLite file is replaced anyway; a PostgreSQL or
+      # MySQL database outlives the run, and a half-migrated one from a previous
+      # attempt fails in ways that say nothing about the code.
+      test: ["ecto.drop --quiet", "ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
 

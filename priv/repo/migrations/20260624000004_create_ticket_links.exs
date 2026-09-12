@@ -12,11 +12,15 @@ defmodule Escalated.Repo.Migrations.CreateTicketLinks do
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index("#{@prefix}ticket_links", [
-             :parent_ticket_id,
-             :child_ticket_id,
-             :link_type
-           ])
+    # Named explicitly. The name Ecto would derive is 71 characters, and
+    # PostgreSQL truncates identifiers at 63 bytes -- so the index on disk was
+    # called something no changeset could match, and a duplicate link raised
+    # instead of failing validation.
+    create unique_index(
+             "#{@prefix}ticket_links",
+             [:parent_ticket_id, :child_ticket_id, :link_type],
+             name: "#{@prefix}ticket_links_unique"
+           )
 
     create index("#{@prefix}ticket_links", [:parent_ticket_id])
     create index("#{@prefix}ticket_links", [:child_ticket_id])

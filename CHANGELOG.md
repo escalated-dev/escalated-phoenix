@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Newsletter contact segmentation raised on PostgreSQL.** Every metadata rule
+  went through `json_extract/2`, which is SQLite's spelling and SQLite's alone --
+  PostgreSQL has no such function, and PostgreSQL is what nearly every Phoenix
+  host runs. The rule now uses `->>` on PostgreSQL, `JSON_EXTRACT` on MySQL and
+  `json_extract` on SQLite.
+
+- **A duplicate ticket link raised instead of failing validation on PostgreSQL.**
+  The unique index over `(parent_ticket_id, child_ticket_id, link_type)` gets a
+  71-character generated name, and PostgreSQL truncates identifiers at 63 bytes,
+  so the index on disk was called something `unique_constraint/2` never derived.
+  The constraint violation escaped as `Ecto.ConstraintError` -- a 500 -- rather
+  than coming back as a changeset error. SQLite keeps the full name and never
+  noticed. New installs get a short explicit name; the changeset declares the
+  legacy names too, so existing installs behave the same without a migration.
+
+- **The snooze index could not be created on MySQL.** It is a partial index, and
+  Ecto refuses those on MySQL outright, so the engine could not be installed
+  there at all. MySQL now gets a plain index covering the same queries. (MySQL
+  is still not supported overall -- see below.)
+
+### Changed
+- **The test suite runs on PostgreSQL as well as SQLite.** It had only ever seen
+  SQLite, which is why none of the above was visible.
+  `ESCALATED_TEST_ADAPTER` selects the adapter (`sqlite` default, `postgres`,
+  `mysql`); an unrecognised value raises rather than falling back, because a CI
+  leg that quietly ran SQLite would report green having tested nothing the
+  matrix exists for. `mix test` now drops the schema before creating it, so a
+  server-backed database starts each run as empty as an in-memory one.
+
+  650 tests pass on both.
+
+  **MySQL is not supported**, and there is no CI leg for it. The schema uses
+  PostgreSQL array columns in eight places -- `{:array, :map}` for workflow and
+  automation actions, `{:array, :string}` for webhook events and 2FA recovery
+  codes, and so on -- and MySQL has no array type. Supporting it means changing
+  those columns and the schemas over them, not adding a job. The code that could
+  be made adapter-aware without that change now is.
+
 ### Added
 - **Configurable database connection.** `:repo` now names the repo Escalated's
   own tables live on, and a new `:user_repo` names the repo your `user_schema`

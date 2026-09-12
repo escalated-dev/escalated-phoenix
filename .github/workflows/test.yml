@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    name: mix test
+    name: mix test - sqlite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -35,4 +35,60 @@ jobs:
         run: mix deps.get
 
       - name: Run tests
+        run: mix test
+
+  # The same suite against PostgreSQL, which is what a Phoenix host actually
+  # runs. SQLite keeps identifiers whole where PostgreSQL truncates them at 63
+  # bytes, spells JSON access differently, and accepts DDL and values PostgreSQL
+  # rejects -- none of which was visible from a SQLite-only suite.
+  #
+  # There is no MySQL leg. The schema uses PostgreSQL array columns in eight
+  # places and MySQL has no array type; supporting it means changing those
+  # columns and the schemas over them, not adding a job.
+  postgres:
+    name: mix test - postgres
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: escalated_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd=pg_isready
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "26"
+          elixir-version: "1.15"
+
+      - name: Cache deps
+        uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-postgres-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-postgres-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Run tests
+        env:
+          # Read by config/config.exs and Escalated.TestRepo. An unrecognised
+          # value raises rather than falling back, so a broken leg fails instead
+          # of quietly running SQLite and reporting green.
+          ESCALATED_TEST_ADAPTER: postgres
+          ESCALATED_TEST_PASSWORD: postgres
         run: mix test
