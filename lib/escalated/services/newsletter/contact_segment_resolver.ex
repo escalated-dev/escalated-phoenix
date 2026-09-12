@@ -104,14 +104,57 @@ defmodule Escalated.Services.Newsletter.ContactSegmentResolver do
     ArgumentError -> query
   end
 
+  # Reading a key out of a JSON column is the one place this module cannot stay
+  # in portable Ecto. json_extract/2 is SQLite's spelling and SQLite's alone --
+  # PostgreSQL has no such function, so every metadata rule raised there, and
+  # PostgreSQL is what nearly every Phoenix host runs. MySQL spells it
+  # JSON_EXTRACT and returns a quoted JSON scalar like SQLite does; PostgreSQL's
+  # ->> returns the text already unquoted, so the two sides are compared
+  # differently on purpose.
   defp apply_metadata_rule(query, key, value) do
-    encoded = Jason.encode!(value)
-    path = "$." <> key
+    case json_dialect() do
+      :postgres ->
+        where(query, [c], fragment("? ->> ? = ?", c.metadata, ^key, ^to_text(value)))
 
-    where(
-      query,
-      [c],
-      fragment("CAST(json_extract(?, ?) AS TEXT) = ?", c.metadata, ^path, ^encoded)
-    )
+      :mysql ->
+        where(
+          query,
+          [c],
+          fragment(
+            "CAST(JSON_EXTRACT(?, ?) AS CHAR) = ?",
+            c.metadata,
+            ^json_path(key),
+            ^Jason.encode!(value)
+          )
+        )
+
+      :sqlite ->
+        where(
+          query,
+          [c],
+          fragment(
+            "CAST(json_extract(?, ?) AS TEXT) = ?",
+            c.metadata,
+            ^json_path(key),
+            ^Jason.encode!(value)
+          )
+        )
+    end
+  end
+
+  defp json_path(key), do: "$." <> key
+
+  # ->> yields text, so a JSON string arrives without its quotes and a number
+  # arrives as its digits. Encoding through Jason and stripping the quotes keeps
+  # every other type (booleans, numbers) spelled the way JSON spells it.
+  defp to_text(value) when is_binary(value), do: value
+  defp to_text(value), do: Jason.encode!(value)
+
+  defp json_dialect do
+    case Escalated.repo().__adapter__() do
+      Ecto.Adapters.Postgres -> :postgres
+      Ecto.Adapters.MyXQL -> :mysql
+      _ -> :sqlite
+    end
   end
 end

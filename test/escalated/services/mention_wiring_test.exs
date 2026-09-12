@@ -31,19 +31,33 @@ defmodule Escalated.Services.MentionWiringTest do
   alias Escalated.Services.MentionWiringTest.User
   alias Escalated.Services.TicketService
 
-  @create_users """
-  CREATE TABLE IF NOT EXISTS mention_test_users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
-    is_agent INTEGER DEFAULT 0,
-    is_admin INTEGER DEFAULT 0
-  )
-  """
+  # Stands in for the host's own users table. AUTOINCREMENT is SQLite's spelling
+  # and SQLite's alone, so the column type is asked of the adapter rather than
+  # written once and assumed; the role flags are BOOLEAN because that is what
+  # the schema below declares, and PostgreSQL will not put `false` in an
+  # INTEGER column the way SQLite does.
+  defp create_users_sql(repo) do
+    serial =
+      case repo.__adapter__() do
+        Ecto.Adapters.Postgres -> "SERIAL PRIMARY KEY"
+        Ecto.Adapters.MyXQL -> "INTEGER AUTO_INCREMENT PRIMARY KEY"
+        _ -> "INTEGER PRIMARY KEY AUTOINCREMENT"
+      end
+
+    """
+    CREATE TABLE IF NOT EXISTS mention_test_users (
+      id #{serial},
+      name TEXT,
+      email TEXT,
+      is_agent BOOLEAN DEFAULT FALSE,
+      is_admin BOOLEAN DEFAULT FALSE
+    )
+    """
+  end
 
   setup do
     repo = Escalated.repo()
-    Ecto.Adapters.SQL.query!(repo, @create_users, [])
+    Ecto.Adapters.SQL.query!(repo, create_users_sql(repo), [])
 
     saved = %{
       user_schema: Application.get_env(:escalated, :user_schema),
