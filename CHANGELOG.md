@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-12
+
 ### Fixed
 - **Newsletter contact segmentation raised on PostgreSQL.** Every metadata rule
   went through `json_extract/2`, which is SQLite's spelling and SQLite's alone --
