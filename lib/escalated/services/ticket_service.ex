@@ -20,9 +20,8 @@ defmodule Escalated.Services.TicketService do
     repo = Escalated.repo()
     attrs = resolve_contact(attrs, repo)
 
-    %Ticket{}
-    |> Ticket.changeset(attrs)
-    |> repo.insert()
+    attrs
+    |> insert()
     |> case do
       {:ok, ticket} ->
         log_activity(ticket, "created", nil, %{})
@@ -34,6 +33,49 @@ defmodule Escalated.Services.TicketService do
 
       error ->
         error
+    end
+  end
+
+  # A 40-bit reference collides about once in 2^40 draws, so two collisions in
+  # a row will not happen on a real site. The bound only stops a broken
+  # generator from looping.
+  @reference_attempts 3
+
+  @doc """
+  Inserts a ticket built from `attrs`, and nothing else: no activity, SLA,
+  hooks, webhooks or workflows. `create/1`, `split_ticket/3` and
+  `Escalated.Services.ChatSessionService.start_session/1` all insert through it.
+
+  The reference is random, so it can already be taken. When the insert fails on
+  the unique index on `reference`, the same ticket is inserted again under a
+  fresh reference, up to three attempts in all. Any other error is returned at
+  once.
+
+  On PostgreSQL a failed statement aborts the transaction around it, so the
+  retry only helps when the insert is not inside a caller's own transaction.
+  No caller in this package opens one.
+  """
+  def insert(attrs) do
+    %Ticket{}
+    |> Ticket.changeset(attrs)
+    |> insert_with_fresh_reference(Escalated.repo(), @reference_attempts)
+  end
+
+  # Retries with the changeset as it was before the insert: the failed one
+  # carries the constraint error and would never reach the database again.
+  defp insert_with_fresh_reference(changeset, repo, attempts_left) do
+    case repo.insert(changeset) do
+      {:error, %Ecto.Changeset{} = failed} when attempts_left > 1 ->
+        if Ticket.reference_taken?(failed) do
+          changeset
+          |> Ticket.put_new_reference()
+          |> insert_with_fresh_reference(repo, attempts_left - 1)
+        else
+          {:error, failed}
+        end
+
+      result ->
+        result
     end
   end
 
@@ -372,9 +414,8 @@ defmodule Escalated.Services.TicketService do
         })
     }
 
-    %Ticket{}
-    |> Ticket.changeset(new_ticket_attrs)
-    |> repo.insert()
+    new_ticket_attrs
+    |> insert()
     |> case do
       {:ok, new_ticket} ->
         # Update original ticket metadata to link to the new ticket
