@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-13
+
 ### Security
+- **Any signed-in user could follow any ticket in real time.** `TicketChannel`
+  admitted any `current_user` to `escalated:ticket:<id>`, although its moduledoc
+  promised only agents and the requester. It now checks the ticket's requester
+  (#118).
 - **Any customer could read and answer every customer's tickets.** The customer
   ticket list passed `requester_id` to `TicketService.list/1`, which ignored it,
   so it listed every ticket. The ticket page and reply found a ticket by
@@ -19,7 +25,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `current_user`, or a bearer token the host's `:api_token_validator` accepts --
   who passes `:agent_check`: 401 without one, 403 for a non-agent. Integrations
   that called them anonymously must now send a token. The auth, guest-ticket,
-  knowledge-base, department and tag endpoints are unchanged.
+  knowledge-base, department and tag endpoints are unchanged (#116).
+
+### Fixed
+- **Live chat and the admin snooze, unsnooze and split endpoints returned
+  500.**
+  - **Chat:** the eight agent and widget chat routes named fully qualified
+    controllers inside scopes that already alias the namespace, so Phoenix
+    prefixed it twice and routed to modules that don't exist. They are
+    scope-relative now.
+  - **Admin:** the admin routes pointed at actions only the agent controller
+    has, and now delegate to them. `EnsureAdmin` still runs first.
+  - **Test:** a new test walks the router and fails on any route whose
+    controller or action doesn't exist (#117).
+- **Browsers joined to a chat received nothing.** `ChatChannel` subscribes to
+  `escalated:chat:<ticket_id>` and `escalated:chat:queue`, but chat events were
+  only published to the ticket topics. `Broadcasting.broadcast_chat_event/2`
+  publishes to the session topic and, for sessions starting, being taken and
+  ending, to the queue topic as well (#118).
+- **Nine of the seventeen webhook events offered in the admin were never
+  sent.**
+  - **Events:** `ticket.assigned`, `ticket.unassigned`, `ticket.escalated`,
+    `ticket.department_changed`, `ticket.tag_added`, `ticket.tag_removed`,
+    `ticket.updated`, `sla.breached` and `sla.warning` are now dispatched from
+    the operations that cause them. `sla.breached` goes out only after the
+    breach is saved.
+  - **SLA warnings:** a new `SlaService.check_warnings/1` computes them.
+  - **Scheduling:** `check_breaches/0` had no caller at all. The new
+    `mix escalated.check_sla` task runs both; schedule it (#119).
+- **Migrations could not run on MySQL.** Eight list columns used PostgreSQL
+  arrays. On MySQL they are created as JSON, while PostgreSQL and SQLite keep
+  exactly the columns they had, and the schemas are unchanged. Following a
+  ticket and saving @mentions also failed on MySQL, because both inserts named
+  a conflict target. CI gains a MySQL 8.4 job (#120).
 
 ## [0.1.1] - 2026-09-13
 
