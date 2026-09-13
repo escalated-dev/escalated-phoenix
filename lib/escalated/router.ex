@@ -169,7 +169,14 @@ defmodule Escalated.Router do
           # Event-driven admin Workflows (fired inline from TicketService on
           # ticket lifecycle events — distinct from time-based Automations
           # and agent-applied Macros; see escalated-developer-context).
-          resources "/workflows", WorkflowController, except: [:edit, :new]
+          #
+          # new/edit render the builder; toggle and reorder are the Index
+          # page's controls. The wire shapes are fixed by
+          # domain-model/workflow-admin-contract.md. reorder is declared ahead
+          # of the resource so the literal segment is never read as an :id.
+          post "/workflows/reorder", WorkflowController, :reorder
+          post "/workflows/:id/toggle", WorkflowController, :toggle
+          resources "/workflows", WorkflowController
 
           # Time-based admin automations (distinct from event-driven Workflows
           # and agent-applied Macros — see escalated-developer-context).

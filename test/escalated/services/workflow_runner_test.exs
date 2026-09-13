@@ -34,6 +34,26 @@ defmodule Escalated.Services.WorkflowRunnerTest do
 
       assert WorkflowRunner.evaluate(conditions, %{"status" => "open"}) == false
     end
+
+    # workflow-admin-contract.md: an empty list matches every ticket, whichever
+    # key holds it.
+    test "an empty 'all' list matches everything" do
+      assert WorkflowRunner.evaluate(%{"all" => []}, %{"status" => "open"}) == true
+    end
+
+    test "an empty 'any' list matches everything" do
+      assert WorkflowRunner.evaluate(%{"any" => []}, %{"status" => "open"}) == true
+    end
+
+    test "a flat list of conditions, the older stored shape, is treated as 'all'" do
+      conditions = [
+        %{"field" => "status", "operator" => "equals", "value" => "open"},
+        %{"field" => "priority", "operator" => "equals", "value" => "high"}
+      ]
+
+      assert WorkflowRunner.evaluate(conditions, %{"status" => "open", "priority" => "high"})
+      refute WorkflowRunner.evaluate(conditions, %{"status" => "open", "priority" => "low"})
+    end
   end
 
   describe "ticket_to_condition_map/1" do
