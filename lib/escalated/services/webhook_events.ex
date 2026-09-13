@@ -6,14 +6,25 @@ defmodule Escalated.Services.WebhookEvents do
   a domain event to its wire event name and builds the JSON-serializable
   payload, then hands off to `Escalated.Services.WebhookDispatcher`.
 
-  Called from `Escalated.Services.TicketService` at the same call sites as the
-  `Escalated.Plugins.Hooks.do_action/2` dispatches, so a webhook fires for the
-  subset of events Phoenix already emits.
+  Called from the operation that causes each event. Every event the admin
+  webhook screen offers has a dispatch site.
 
   ## Event names
 
-    * `ticket.created`, `ticket.status_changed`, `ticket.resolved`,
-      `ticket.closed`, `ticket.reopened`, `ticket.priority_changed`
+    * `TicketService`: `ticket.created`, `ticket.status_changed`,
+      `ticket.resolved`, `ticket.closed`, `ticket.reopened`, `ticket.escalated`
+      (a transition to `escalated`), `ticket.priority_changed`,
+      `ticket.department_changed`, and `ticket.tag_added` / `ticket.tag_removed`
+      (one per tag, carrying `:tag`)
+    * `AssignmentService`: `ticket.assigned` (carrying `:agent_id`),
+      `ticket.unassigned`
+    * `EscalationService`: `ticket.escalated` (an escalation rule's `escalate`
+      action)
+    * `SlaService`: `sla.breached` (`check_breaches/0`) and `sla.warning`
+      (`check_warnings/1`); `mix escalated.check_sla` runs both
+    * `ticket.updated`: alongside the specific event whenever `TicketService` or
+      `AssignmentService` changes a ticket's own fields (status, priority,
+      department, assignee, snooze)
     * `reply.created` (public reply), `note.created` (internal note)
 
   ## Payload shape

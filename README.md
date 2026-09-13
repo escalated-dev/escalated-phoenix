@@ -333,8 +333,11 @@ end
 ### SLA Management
 
 ```elixir
-# Check for SLA breaches (run periodically via a scheduler)
+# Check for SLA breaches (dispatches sla.breached) and deadlines due within
+# 30 minutes (dispatches sla.warning). Run both periodically via a scheduler,
+# or run `mix escalated.check_sla`, which does exactly this.
 breached = Escalated.Services.SlaService.check_breaches()
+warned = Escalated.Services.SlaService.check_warnings(30)
 
 # Get SLA statistics
 stats = Escalated.Services.SlaService.stats()
