@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-13
+
+### Fixed
+- **Fifteen screens rendered blank.** They rendered page names with no component
+  behind them in `@escalated-dev/escalated`, and Inertia resolves such a name to
+  nothing rather than to an error, so each returned 200 and an empty panel. Ten
+  are renamed to the component the frontend ships: the agent and customer
+  ticket screens, and the department, automation, escalation rule and workflow
+  forms. The four ticket screens needed their props fixed as well: `TicketList`
+  reads `tickets.data` and was handed a bare list, and the reply thread and
+  activity feed read `ticket.replies` and `ticket.activities`, which arrived as
+  sibling props.
+
+  Tags, macros and canned responses are edited inline on their index screens
+  and have no detail component, so their `show` actions now answer as API reads
+  and `Tags#new` redirects to the index. `Admin/Settings/Index` stays blank: this
+  package's settings are a different set of fields from the shared `Settings`
+  screen, and pointing the name at it would render a form whose Save posts
+  fields `update/2` ignores.
+
+- **The shared workflow builder had no create, edit, toggle or reorder endpoint
+  to talk to.** `GET /workflows/new` fell through to `show` and raised
+  `Ecto.Query.CastError`, and the edit, toggle and reorder routes the Index page
+  links to did not exist. A workflow with no actions could be saved, omitted
+  conditions were stored as `{}`, a failed save answered an Inertia visit with a
+  JSON 422, `{"any": []}` matched no ticket, and the form offered five triggers
+  when only three are fired.
+
+  The surface now follows escalated-developer-context
+  `domain-model/workflow-admin-contract.md`. `new` and `edit` render the Form
+  with `workflow`, `trigger_events`, `action_types` and `operators`;
+  `POST /workflows/:id/toggle` and `POST /workflows/reorder` exist; and a
+  workflow needs a name, a trigger and at least one action, with omitted
+  conditions stored as `{"all": []}`. A failed Inertia save redirects back with
+  its errors, while other callers keep the JSON 422, and `{"any": []}` matches
+  every ticket. Phoenix has no Ziggy, so a host's `window.route` shim must map
+  `escalated.admin.workflows.create`, `.edit`, `.toggle` and `.reorder` to those
+  paths.
+
+### Changed
+- Bump `ex_doc` from 0.40.3 to 0.40.4 (dev dependency). (#109)
+
+### Added
+- **`test/escalated/page_name_parity_test.exs`**, asserting every page name this
+  package renders resolves to a component. It diffs them against the manifest
+  the frontend publishes, vendored at `test/fixtures/escalated-pages.json`, and
+  fails if its list of known-blank names still excuses one that has since been
+  fixed, so that list can only shrink.
+
 ## [0.1.0] - 2026-09-12
 
 ### Fixed
