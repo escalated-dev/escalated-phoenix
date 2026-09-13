@@ -6,7 +6,11 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedWebhooks do
   def change do
     create table("#{@prefix}webhooks") do
       add :url, :string, null: false
-      add :events, {:array, :string}, null: false, default: []
+
+      add :events, Escalated.Migration.list_type(:string),
+        null: false,
+        default: Escalated.Migration.empty_list()
+
       add :secret, :string
       add :active, :boolean, null: false, default: true
 

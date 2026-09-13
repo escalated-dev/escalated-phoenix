@@ -9,7 +9,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedMacros do
     create table("#{@prefix}macros") do
       add :name, :string, null: false
       add :description, :text
-      add :actions, {:array, :map}, default: []
+      add :actions, Escalated.Migration.list_type(:map), default: Escalated.Migration.empty_list()
       add :is_shared, :boolean, null: false, default: true
       add :created_by, UserKey.migration_type()
 

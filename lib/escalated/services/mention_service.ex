@@ -168,7 +168,7 @@ defmodule Escalated.Services.MentionService do
   defp create_and_notify(reply, ticket, user_id) do
     %Mention{}
     |> Mention.changeset(%{reply_id: Map.get(reply, :id), user_id: user_id})
-    |> Escalated.repo().insert(on_conflict: :nothing, conflict_target: [:reply_id, :user_id])
+    |> Escalated.repo().insert(Escalated.Repo.ignore_duplicates([:reply_id, :user_id]))
     |> case do
       {:ok, %Mention{id: id} = mention} when not is_nil(id) ->
         Hooks.do_action("agent_mentioned", [mention, reply, ticket])

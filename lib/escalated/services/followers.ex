@@ -31,7 +31,7 @@ defmodule Escalated.Services.Followers do
 
     %TicketFollower{}
     |> TicketFollower.changeset(attrs)
-    |> Escalated.repo().insert(on_conflict: :nothing, conflict_target: [:ticket_id, :user_id])
+    |> Escalated.repo().insert(Escalated.Repo.ignore_duplicates([:ticket_id, :user_id]))
   end
 
   @doc "User ids following a ticket, minus the actor and de-duplicated."

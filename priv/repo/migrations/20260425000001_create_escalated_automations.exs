@@ -8,7 +8,7 @@ defmodule Escalated.Repo.Migrations.CreateEscalatedAutomations do
       add :name, :string, null: false
       add :description, :text
       add :conditions, :map, default: %{}
-      add :actions, {:array, :map}, default: []
+      add :actions, Escalated.Migration.list_type(:map), default: Escalated.Migration.empty_list()
       add :active, :boolean, null: false, default: true
       add :position, :integer, null: false, default: 0
       add :last_run_at, :utc_datetime

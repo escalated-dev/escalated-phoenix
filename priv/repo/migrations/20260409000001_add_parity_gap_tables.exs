@@ -38,7 +38,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       add :field_type, :string, default: "text"
       add :description, :text
       add :is_required, :boolean, default: false
-      add :options, {:array, :string}
+      add :options, Escalated.Migration.list_type(:string)
       add :default_value, :string
       add :entity_type, :string, default: "ticket"
       add :position, :integer, default: 0
@@ -150,7 +150,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       add :user_id, UserKey.migration_type(), null: false
       add :method, :string, default: "totp"
       add :secret, :string
-      add :recovery_codes, {:array, :string}
+      add :recovery_codes, Escalated.Migration.list_type(:string)
       add :is_enabled, :boolean, default: false
       add :verified_at, :utc_datetime
 
@@ -165,7 +165,7 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       add :description, :text
       add :trigger_event, :string, null: false
       add :conditions, :map, default: %{}
-      add :actions, {:array, :map}, default: []
+      add :actions, Escalated.Migration.list_type(:map), default: Escalated.Migration.empty_list()
       add :position, :integer, default: 0
       add :is_active, :boolean, default: true
       add :stop_on_match, :boolean, default: false
@@ -182,7 +182,10 @@ defmodule Escalated.Repo.Migrations.AddParityGapTables do
       add :ticket_id, :integer, null: false
       add :trigger_event, :string, null: false
       add :status, :string, null: false
-      add :actions_executed, {:array, :map}, default: []
+
+      add :actions_executed, Escalated.Migration.list_type(:map),
+        default: Escalated.Migration.empty_list()
+
       add :error_message, :text
 
       timestamps(type: :utc_datetime, updated_at: false)

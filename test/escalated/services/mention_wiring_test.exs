@@ -55,10 +55,19 @@ defmodule Escalated.Services.MentionWiringTest do
     """
   end
 
-  setup do
+  # Created once, on a connection outside the sandbox. MySQL commits DDL
+  # implicitly, so a CREATE TABLE inside a test's sandbox transaction ends that
+  # transaction: every row the test writes afterwards survives into the next
+  # test. The rows each test inserts still roll back.
+  setup_all do
     repo = Escalated.repo()
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo, sandbox: false)
     Ecto.Adapters.SQL.query!(repo, create_users_sql(repo), [])
+    Ecto.Adapters.SQL.Sandbox.checkin(repo)
+    :ok
+  end
 
+  setup do
     saved = %{
       user_schema: Application.get_env(:escalated, :user_schema),
       hooks: Application.get_env(:escalated, :hooks)

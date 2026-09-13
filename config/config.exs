@@ -8,11 +8,10 @@ if Mix.env() == :test do
   # where SQLite keeps them whole, and SQLite accepts DDL and values PostgreSQL
   # rejects outright.
   #
-  # "mysql" is accepted here and the code is written for it, but there is no CI
-  # leg: the schema uses PostgreSQL array columns in eight places
-  # (`{:array, :map}` for workflow actions, `{:array, :string}` for webhook
-  # events, and so on) and MySQL has no array type. Supporting it means changing
-  # those columns and the schemas over them, not adding a job.
+  # "mysql" runs the same suite, and CI has a leg for it. MySQL has no array
+  # type, so the eight list columns (workflow actions, webhook events, and so
+  # on) are created as JSON there by Escalated.Migration while the schemas keep
+  # `{:array, _}`.
   #
   # An unrecognised value raises rather than falling back: a CI leg that quietly
   # ran SQLite would report green having tested nothing the matrix exists for.
