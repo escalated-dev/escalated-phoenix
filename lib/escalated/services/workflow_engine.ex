@@ -13,6 +13,11 @@ defmodule Escalated.Services.WorkflowEngine do
     Enum.all?(conditions, &evaluate_single(&1, ticket))
   end
 
+  # An empty list matches every ticket whichever key holds it
+  # (workflow-admin-contract.md). Enum.any?/2 over [] is false, which left a
+  # workflow saved as {"any": []} matching nothing.
+  def evaluate_conditions(%{"any" => []}, _ticket), do: true
+
   def evaluate_conditions(%{"any" => conditions}, ticket) when is_list(conditions) do
     Enum.any?(conditions, &evaluate_single(&1, ticket))
   end

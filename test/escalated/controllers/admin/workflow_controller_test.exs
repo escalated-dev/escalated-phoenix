@@ -68,7 +68,10 @@ defmodule Escalated.Controllers.Admin.WorkflowControllerTest do
           "id" => to_string(wf.id),
           "name" => "New name",
           "trigger" => "reply.created",
-          "conditions" => %{}
+          "conditions" => %{},
+          # Actions are required on update as well as create
+          # (workflow-admin-contract.md), since the builder always sends them.
+          "actions" => [%{"type" => "change_priority", "value" => "high"}]
         })
 
       assert conn.status == 302

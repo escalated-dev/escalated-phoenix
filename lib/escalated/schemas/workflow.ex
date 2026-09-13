@@ -24,8 +24,38 @@ defmodule Escalated.Schemas.Workflow do
   @doc false
   def changeset(workflow, attrs) do
     workflow
-    |> cast(attrs, [:name, :description, :trigger_event, :conditions, :actions, :position, :is_active, :stop_on_match])
+    |> cast(attrs, [
+      :name,
+      :description,
+      :trigger_event,
+      :conditions,
+      :actions,
+      :position,
+      :is_active,
+      :stop_on_match
+    ])
     |> validate_required([:name, :trigger_event])
+  end
+
+  @doc """
+  Changeset for a workflow saved from the admin builder.
+
+  On top of `changeset/2`, requires what workflow-admin-contract.md requires of
+  that body: at least one action. A workflow with no actions does nothing when
+  it matches, so the builder must not be able to save one.
+  """
+  def form_changeset(workflow, attrs) do
+    workflow
+    |> changeset(attrs)
+    |> validate_required([:actions])
+    |> validate_has_actions()
+  end
+
+  defp validate_has_actions(changeset) do
+    case get_field(changeset, :actions) do
+      [] -> add_error(changeset, :actions, "must have at least one action")
+      _ -> changeset
+    end
   end
 
   def active(query \\ __MODULE__) do
