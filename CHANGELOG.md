@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-13
+
 ### Fixed
 - **Ticket creation could fail on a reference collision, losing the ticket.**
   The random part of a reference was six hex characters: 24 bits a month. A
