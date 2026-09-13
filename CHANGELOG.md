@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Ticket creation could fail on a reference collision, losing the ticket.**
+  The random part of a reference was six hex characters: 24 bits a month. A
+  site creating about 10,000 tickets a month could expect several collisions a
+  month. Each collision hit the unique index on `tickets.reference`, and the
+  inbound email, widget, portal or chat ticket was lost with a changeset error.
+  - **Format:** the random part is now 8 characters of Crockford base32 (40
+    bits), leaving out the easily misread I, L, O and U. The format is still
+    `ESC-YYMM-`, and existing references keep resolving.
+  - **Retry:** an insert that hits the reference index is retried under a fresh
+    reference, up to three attempts. This covers every path that inserts a
+    ticket: `TicketService.create/1`, `split_ticket/3` and live chat. Other
+    changeset errors are returned at once, as before.
+  - **Test:** the 100-draw uniqueness test, which failed CI by chance, is
+    replaced by deterministic format and encoding tests.
+
 ## [0.1.2] - 2026-09-13
 
 ### Security

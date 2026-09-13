@@ -3,6 +3,8 @@ defmodule Escalated.Schemas.TicketTest do
 
   alias Escalated.Schemas.Ticket
 
+  @now ~U[2026-09-13 12:00:00Z]
+
   describe "changeset/2" do
     test "valid changeset with required fields" do
       changeset =
@@ -71,15 +73,33 @@ defmodule Escalated.Schemas.TicketTest do
   end
 
   describe "generate_reference/0" do
-    test "generates a reference with ESC prefix" do
-      ref = Ticket.generate_reference()
-      assert String.starts_with?(ref, "ESC-")
-      assert String.length(ref) > 10
+    # The random part was six hex characters, 24 bits a month, and a test here
+    # drew 100 references and failed CI when two of them matched. These pin the
+    # format and show that every one of the 40 random bits reaches the
+    # reference, which proves the size of the space without depending on luck.
+
+    test "keeps the ESC-YYMM- prefix and adds 8 characters of Crockford base32" do
+      assert Ticket.generate_reference() =~ ~r/\AESC-\d{4}-[0-9A-HJKMNP-TV-Z]{8}\z/
     end
 
-    test "generates unique references" do
-      refs = for _ <- 1..100, do: Ticket.generate_reference()
-      assert length(Enum.uniq(refs)) == 100
+    test "stamps the year and month and encodes the random bytes" do
+      assert Ticket.generate_reference(@now, <<0::40>>) == "ESC-2609-00000000"
+      assert Ticket.generate_reference(@now, <<0xFFFFFFFFFF::40>>) == "ESC-2609-ZZZZZZZZ"
+    end
+
+    test "maps each 5-bit group to its own character, so all 40 bits count" do
+      alphabet = String.graphemes("0123456789ABCDEFGHJKMNPQRSTVWXYZ")
+
+      # 32 distinct characters per position, none of them easy to misread.
+      assert length(Enum.uniq(alphabet)) == 32
+      refute Enum.any?(~w(I L O U), &(&1 in alphabet))
+
+      for position <- 0..7, {char, value} <- Enum.with_index(alphabet) do
+        random = <<0::size(position * 5), value::5, 0::size((7 - position) * 5)>>
+        suffix = String.duplicate("0", position) <> char <> String.duplicate("0", 7 - position)
+
+        assert Ticket.generate_reference(@now, random) == "ESC-2609-" <> suffix
+      end
     end
   end
 

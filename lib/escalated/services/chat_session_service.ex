@@ -239,13 +239,9 @@ defmodule Escalated.Services.ChatSessionService do
 
   # Private
 
-  defp create_chat_ticket(attrs) do
-    repo = Escalated.repo()
-
-    %Ticket{}
-    |> Ticket.changeset(attrs)
-    |> repo.insert()
-  end
+  # Through TicketService.insert/1, which retries a reference collision, but
+  # without create/1's side effects: a chat ticket has its own start events.
+  defp create_chat_ticket(attrs), do: TicketService.insert(attrs)
 
   defp create_session(ticket, attrs) do
     repo = Escalated.repo()

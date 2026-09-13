@@ -107,14 +107,46 @@ defmodule Escalated.Schemas.Ticket do
     |> maybe_set_reference()
   end
 
+  # Crockford's base32: the digits and the uppercase letters without I, L, O and
+  # U, so a reference read aloud or copied by hand has no 1/I/L or 0/O to mix
+  # up. Every character is in the inbound subject-tag pattern `[0-9A-Z-]`.
+  @reference_alphabet "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+
   @doc """
-  Generates a unique ticket reference.
+  Generates a ticket reference: `ESC-`, the year and month (`YYMM`), and 8
+  characters of Crockford base32 carrying 40 random bits, e.g.
+  `ESC-2609-7KQ2M9XH`.
+
+  The reference is random, so it can match one already stored.
+  `Escalated.Services.TicketService.insert/1` retries under a fresh reference
+  when it does. Older references, with six hex characters, are stored as they
+  are and keep resolving.
   """
   def generate_reference do
-    timestamp = Calendar.strftime(DateTime.utc_now(), "%y%m")
-    sequence = :crypto.strong_rand_bytes(4) |> Base.encode16() |> binary_part(0, 6)
-    "ESC-#{timestamp}-#{sequence}"
+    generate_reference(DateTime.utc_now(), :crypto.strong_rand_bytes(5))
   end
+
+  @doc false
+  # The deterministic half of generate_reference/0: each 5-bit group of the
+  # 40 random bits becomes one character.
+  def generate_reference(%DateTime{} = now, <<_::40>> = random) do
+    suffix = for <<index::5 <- random>>, into: "", do: binary_part(@reference_alphabet, index, 1)
+    "ESC-" <> Calendar.strftime(now, "%y%m") <> "-" <> suffix
+  end
+
+  @doc """
+  True when an insert failed because the ticket's reference is already taken.
+  """
+  def reference_taken?(%Ecto.Changeset{errors: errors}) do
+    case Keyword.get(errors, :reference) do
+      {_message, opts} -> opts[:constraint] == :unique
+      nil -> false
+    end
+  end
+
+  @doc false
+  # Replaces the reference on a ticket changeset whose insert collided.
+  def put_new_reference(changeset), do: put_change(changeset, :reference, new_reference())
 
   # Scopes as composable query functions
 
@@ -203,8 +235,14 @@ defmodule Escalated.Schemas.Ticket do
 
   defp maybe_set_reference(changeset) do
     case get_field(changeset, :reference) do
-      nil -> put_change(changeset, :reference, generate_reference())
+      nil -> put_change(changeset, :reference, new_reference())
       _ -> changeset
     end
+  end
+
+  # :ticket_reference_generator exists so a test can force a collision; it is
+  # not a host setting.
+  defp new_reference do
+    Escalated.config(:ticket_reference_generator, &generate_reference/0).()
   end
 end
