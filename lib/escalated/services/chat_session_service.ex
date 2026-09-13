@@ -6,9 +6,9 @@ defmodule Escalated.Services.ChatSessionService do
   ending sessions, and cleaning up idle/abandoned ones.
   """
 
-  alias Escalated.Schemas.{ChatSession, Ticket, Reply}
-  alias Escalated.Services.{TicketService, ChatRoutingService}
   alias Escalated.Broadcasting
+  alias Escalated.Schemas.{ChatSession, Reply, Ticket}
+  alias Escalated.Services.{ChatRoutingService, TicketService}
   import Ecto.Query
 
   @doc """
@@ -77,7 +77,7 @@ defmodule Escalated.Services.ChatSessionService do
         |> Ticket.changeset(%{assigned_to: agent_id})
         |> repo.update()
 
-        Broadcasting.broadcast_ticket_event("chat:agent_joined", %{
+        Broadcasting.broadcast_chat_event("chat:agent_joined", %{
           session_id: updated.id,
           ticket_id: updated.ticket_id,
           agent_id: agent_id
@@ -112,7 +112,7 @@ defmodule Escalated.Services.ChatSessionService do
       |> ChatSession.changeset(%{last_activity_at: DateTime.utc_now()})
       |> repo.update()
 
-      Broadcasting.broadcast_ticket_event("chat:message", %{
+      Broadcasting.broadcast_chat_event("chat:message", %{
         session_id: session.id,
         ticket_id: ticket.id,
         reply_id: reply.id,
@@ -153,7 +153,7 @@ defmodule Escalated.Services.ChatSessionService do
       })
       |> repo.update()
 
-      Broadcasting.broadcast_ticket_event("chat:session_ended", %{
+      Broadcasting.broadcast_chat_event("chat:session_ended", %{
         session_id: updated.id,
         ticket_id: ticket.id,
         ended_by: causer_id
@@ -176,7 +176,14 @@ defmodule Escalated.Services.ChatSessionService do
   """
   def find_by_ticket(ticket_id) do
     repo = Escalated.repo()
-    repo.one(from(s in ChatSession, where: s.ticket_id == ^ticket_id, order_by: [desc: s.inserted_at], limit: 1))
+
+    repo.one(
+      from(s in ChatSession,
+        where: s.ticket_id == ^ticket_id,
+        order_by: [desc: s.inserted_at],
+        limit: 1
+      )
+    )
   end
 
   @doc """
@@ -218,7 +225,7 @@ defmodule Escalated.Services.ChatSessionService do
         |> Ticket.changeset(%{status: "open", chat_ended_at: now})
         |> repo.update()
 
-        Broadcasting.broadcast_ticket_event("chat:session_abandoned", %{
+        Broadcasting.broadcast_chat_event("chat:session_abandoned", %{
           session_id: session.id,
           ticket_id: session.ticket_id
         })
@@ -255,7 +262,7 @@ defmodule Escalated.Services.ChatSessionService do
   end
 
   defp broadcast_session_started(ticket, session) do
-    Broadcasting.broadcast_ticket_event("chat:session_started", %{
+    Broadcasting.broadcast_chat_event("chat:session_started", %{
       session_id: session.id,
       ticket_id: ticket.id,
       ticket_reference: ticket.reference,

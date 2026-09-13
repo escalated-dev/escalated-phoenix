@@ -17,6 +17,8 @@ defmodule Escalated.Channels.TicketChannel do
   """
   use Phoenix.Channel
 
+  alias Escalated.Schemas.Ticket
+
   @impl true
   def join("escalated:tickets", _params, socket) do
     if authorized_agent?(socket) do
@@ -26,9 +28,10 @@ defmodule Escalated.Channels.TicketChannel do
     end
   end
 
-  def join("escalated:ticket:" <> _ticket_id, _params, socket) do
-    # Allow agents and the ticket requester
-    if authorized_agent?(socket) || socket.assigns[:current_user] do
+  def join("escalated:ticket:" <> ticket_id, _params, socket) do
+    # Allow agents and the ticket's requester. Being signed in is not enough:
+    # the topic carries every event for the ticket.
+    if authorized_agent?(socket) || requester?(ticket_id, socket.assigns[:current_user]) do
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
@@ -56,6 +59,21 @@ defmodule Escalated.Channels.TicketChannel do
   end
 
   # Private
+
+  # True when `user` requested the ticket the topic names. A topic id that is
+  # not a number, or names no ticket, names no requester. Ids are compared as
+  # strings: the column follows :user_key_type, the host's id its own schema.
+  defp requester?(_ticket_id, nil), do: false
+
+  defp requester?(ticket_id, user) do
+    with {id, ""} <- Integer.parse(ticket_id),
+         %Ticket{requester_id: requester_id} when not is_nil(requester_id) <-
+           Escalated.repo().get(Ticket, id) do
+      to_string(requester_id) == to_string(Map.get(user, :id))
+    else
+      _ -> false
+    end
+  end
 
   defp authorized_agent?(socket) do
     user = socket.assigns[:current_user]
