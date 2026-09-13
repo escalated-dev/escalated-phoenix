@@ -89,15 +89,13 @@ defmodule Escalated.Router do
           # Canned responses visible to this agent (shared + their own).
           get "/canned-responses", CannedResponseController, :index
 
-          # Live chat agent routes
-          get "/chat/sessions", Escalated.Controllers.Agent.ChatController, :sessions
-          post "/chat/sessions/:id/accept", Escalated.Controllers.Agent.ChatController, :accept
-
-          post "/chat/sessions/:id/message",
-               Escalated.Controllers.Agent.ChatController,
-               :send_message
-
-          post "/chat/sessions/:id/end", Escalated.Controllers.Agent.ChatController, :end_session
+          # Live chat agent routes. Scope-relative like every other route here:
+          # the scope already aliases Escalated.Controllers.Agent, so a fully
+          # qualified name gets that prefix a second time and names nothing.
+          get "/chat/sessions", ChatController, :sessions
+          post "/chat/sessions/:id/accept", ChatController, :accept
+          post "/chat/sessions/:id/message", ChatController, :send_message
+          post "/chat/sessions/:id/end", ChatController, :end_session
         end
 
         # Admin routes
@@ -287,17 +285,11 @@ defmodule Escalated.Router do
           get "/tickets/:reference", WidgetController, :show_ticket
           post "/tickets/:reference/reply", WidgetController, :reply
 
-          # Live chat widget routes
-          get "/chat/availability", Escalated.Controllers.WidgetChatController, :availability
-          post "/chat/start", Escalated.Controllers.WidgetChatController, :start
-
-          post "/chat/sessions/:reference/messages",
-               Escalated.Controllers.WidgetChatController,
-               :send_message
-
-          post "/chat/sessions/:reference/end",
-               Escalated.Controllers.WidgetChatController,
-               :end_session
+          # Live chat widget routes (scope-relative; see the agent chat routes).
+          get "/chat/availability", WidgetChatController, :availability
+          post "/chat/start", WidgetChatController, :start
+          post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
+          post "/chat/sessions/:reference/end", WidgetChatController, :end_session
         end
 
         # API routes

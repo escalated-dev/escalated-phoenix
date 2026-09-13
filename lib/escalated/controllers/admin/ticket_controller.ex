@@ -5,10 +5,10 @@ defmodule Escalated.Controllers.Admin.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Services.{TicketService, AssignmentService}
-  alias Escalated.Schemas.{Ticket, Reply, Department, Tag, TicketActivity, Attachment}
-  alias Escalated.Serializers.TicketSerializer
   alias Escalated.Rendering.UIRenderer
+  alias Escalated.Schemas.{Attachment, Department, Reply, Tag, Ticket, TicketActivity}
+  alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.{AssignmentService, TicketService}
   import Ecto.Query
 
   def index(conn, params) do
@@ -170,6 +170,13 @@ defmodule Escalated.Controllers.Admin.TicketController do
       nil -> conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
     end
   end
+
+  # The admin routes for snooze, unsnooze and split pointed here with no such
+  # actions. The agent actions answer JSON and redirect nowhere, so they serve
+  # the admin screen unchanged; the admin scope's EnsureAdmin still runs first.
+  defdelegate snooze(conn, params), to: Escalated.Controllers.Agent.TicketController
+  defdelegate unsnooze(conn, params), to: Escalated.Controllers.Agent.TicketController
+  defdelegate split(conn, params), to: Escalated.Controllers.Agent.TicketController
 
   def department(conn, %{"reference" => reference, "department_id" => dept_id}) do
     user = conn.assigns[:current_user]
