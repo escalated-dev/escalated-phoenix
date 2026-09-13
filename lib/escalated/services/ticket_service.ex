@@ -158,6 +158,7 @@ defmodule Escalated.Services.TicketService do
         details = if note, do: Map.put(details, :note, note), else: details
         log_activity(updated, "status_changed", actor_id, details)
         Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
+        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
         WebhookEvents.dispatch("ticket.status_changed", %{ticket: updated})
         maybe_dispatch_status_hook(updated, new_status)
         maybe_dispatch_status_webhook(updated, new_status)
@@ -187,6 +188,7 @@ defmodule Escalated.Services.TicketService do
         })
 
         Hooks.do_action("ticket_priority_changed", [updated, ticket.priority, new_priority])
+        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
         WebhookEvents.dispatch("ticket.priority_changed", %{ticket: updated})
         {:ok, updated}
 
@@ -213,6 +215,8 @@ defmodule Escalated.Services.TicketService do
           to_name: department.name
         })
 
+        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
+        WebhookEvents.dispatch("ticket.department_changed", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -240,6 +244,11 @@ defmodule Escalated.Services.TicketService do
     |> case do
       {:ok, updated} ->
         log_activity(updated, "tags_added", actor_id, %{tag_ids: Enum.map(new_tags, & &1.id)})
+
+        Enum.each(new_tags, fn tag ->
+          WebhookEvents.dispatch("ticket.tag_added", %{ticket: updated, tag: tag})
+        end)
+
         {:ok, updated}
 
       error ->
@@ -255,7 +264,7 @@ defmodule Escalated.Services.TicketService do
     actor_id = Keyword.get(opts, :actor_id)
 
     ticket = repo.preload(ticket, :tags)
-    remaining = Enum.reject(ticket.tags, fn t -> t.id in tag_ids end)
+    {removed, remaining} = Enum.split_with(ticket.tags, fn t -> t.id in tag_ids end)
 
     ticket
     |> Ecto.Changeset.change()
@@ -264,6 +273,12 @@ defmodule Escalated.Services.TicketService do
     |> case do
       {:ok, updated} ->
         log_activity(updated, "tags_removed", actor_id, %{tag_ids: tag_ids})
+
+        # Only tags the ticket actually had: removing an absent tag changes nothing.
+        Enum.each(removed, fn tag ->
+          WebhookEvents.dispatch("ticket.tag_removed", %{ticket: updated, tag: tag})
+        end)
+
         {:ok, updated}
 
       error ->
@@ -307,6 +322,7 @@ defmodule Escalated.Services.TicketService do
           previous_status: ticket.status
         })
 
+        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -430,6 +446,7 @@ defmodule Escalated.Services.TicketService do
           restored_status: restore_status
         })
 
+        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -555,8 +572,8 @@ defmodule Escalated.Services.TicketService do
   defp status_hook("reopened"), do: "ticket_reopened"
   defp status_hook(_status), do: nil
 
-  # Fire the specialized webhook event for terminal/reopen transitions, in
-  # addition to the generic ticket.status_changed event.
+  # Fire the specialized webhook event for terminal, reopen and escalation
+  # transitions, in addition to the generic ticket.status_changed event.
   defp maybe_dispatch_status_webhook(ticket, status) do
     case status_webhook_event(status) do
       nil -> :ok
@@ -567,6 +584,7 @@ defmodule Escalated.Services.TicketService do
   defp status_webhook_event("resolved"), do: "ticket.resolved"
   defp status_webhook_event("closed"), do: "ticket.closed"
   defp status_webhook_event("reopened"), do: "ticket.reopened"
+  defp status_webhook_event("escalated"), do: "ticket.escalated"
   defp status_webhook_event(_status), do: nil
 
   defp log_activity(ticket, action, causer_id, details) do

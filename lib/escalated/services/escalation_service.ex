@@ -16,6 +16,7 @@ defmodule Escalated.Services.EscalationService do
   require Logger
 
   alias Escalated.Schemas.{EscalationRule, Ticket, TicketActivity}
+  alias Escalated.Services.WebhookEvents
 
   @doc """
   Evaluate all active escalation rules and apply their actions to
@@ -156,6 +157,11 @@ defmodule Escalated.Services.EscalationService do
         details: %{"rule" => rule_name}
       })
       |> repo.insert()
+
+      # The escalate action writes the ticket through its changeset rather than
+      # TicketService, so the webhook is dispatched here. Reloaded so the
+      # payload carries the escalated status, not the one the rule matched on.
+      WebhookEvents.dispatch("ticket.escalated", %{ticket: repo.get(Ticket, ticket.id) || ticket})
     end
 
     :ok

@@ -3,8 +3,11 @@ defmodule Escalated.Services.SlaService do
   Service for SLA policy management and breach detection.
   """
 
-  alias Escalated.Schemas.{Ticket, SlaPolicy, TicketActivity}
+  alias Escalated.Schemas.{SlaPolicy, Ticket, TicketActivity}
+  alias Escalated.Services.WebhookEvents
   import Ecto.Query
+
+  @open_statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated reopened)
 
   @doc """
   Attaches an SLA policy to a ticket and calculates due dates.
@@ -33,8 +36,11 @@ defmodule Escalated.Services.SlaService do
   end
 
   @doc """
-  Checks all open tickets for SLA breaches and marks them.
-  Returns a list of newly breached tickets.
+  Checks all open tickets for SLA breaches, marks them and dispatches
+  `sla.breached` for each. Returns a list of newly breached tickets.
+
+  Run it on a schedule: `mix escalated.check_sla` runs it together with
+  `check_warnings/1`.
   """
   def check_breaches do
     config = Escalated.configuration()
@@ -84,6 +90,35 @@ defmodule Escalated.Services.SlaService do
       end)
   catch
     :sla_disabled -> []
+  end
+
+  @doc """
+  Dispatches `sla.warning` for open, unbreached tickets whose first-response or
+  resolution deadline falls in the next `minutes` minutes and has not been met.
+  Returns the warned tickets, one entry per deadline.
+
+  As in the Laravel reference, a deadline is warned about on every run while it
+  stays inside the window. `mix escalated.check_sla` runs it with
+  `check_breaches/0`.
+  """
+  def check_warnings(minutes \\ 30) do
+    if Escalated.Config.sla_enabled?(Escalated.configuration()) do
+      repo = Escalated.repo()
+      window_start = DateTime.truncate(DateTime.utc_now(), :second)
+      window_end = DateTime.add(window_start, minutes * 60, :second)
+
+      warned =
+        due_within(repo, :sla_first_response_due_at, :first_response_at, window_start, window_end) ++
+          due_within(repo, :sla_resolution_due_at, :resolved_at, window_start, window_end)
+
+      Enum.each(warned, fn ticket ->
+        WebhookEvents.dispatch("sla.warning", %{ticket: ticket})
+      end)
+
+      warned
+    else
+      []
+    end
   end
 
   @doc """
@@ -195,19 +230,45 @@ defmodule Escalated.Services.SlaService do
   defp mark_breached(ticket, breach_type) do
     repo = Escalated.repo()
 
-    repo.transaction(fn ->
-      ticket
-      |> Ticket.changeset(%{sla_breached: true})
-      |> repo.update!()
+    result =
+      repo.transaction(fn ->
+        updated =
+          ticket
+          |> Ticket.changeset(%{sla_breached: true})
+          |> repo.update!()
 
-      %TicketActivity{}
-      |> TicketActivity.changeset(%{
-        ticket_id: ticket.id,
-        action: "sla_breached",
-        details: %{breach_type: to_string(breach_type)}
-      })
-      |> repo.insert!()
-    end)
+        %TicketActivity{}
+        |> TicketActivity.changeset(%{
+          ticket_id: ticket.id,
+          action: "sla_breached",
+          details: %{breach_type: to_string(breach_type)}
+        })
+        |> repo.insert!()
+
+        updated
+      end)
+
+    # After the commit, so a webhook never announces a breach that rolled back.
+    case result do
+      {:ok, updated} -> WebhookEvents.dispatch("sla.breached", %{ticket: updated})
+      _error -> :ok
+    end
+
+    result
+  end
+
+  # Open, unbreached tickets whose `due` deadline falls inside the window and
+  # whose `done` timestamp -- the response or resolution the deadline is for --
+  # is still unset.
+  defp due_within(repo, due, done, window_start, window_end) do
+    repo.all(
+      from(t in Ticket,
+        where:
+          t.status in ^@open_statuses and t.sla_breached == false and
+            is_nil(field(t, ^done)) and field(t, ^due) >= ^window_start and
+            field(t, ^due) <= ^window_end
+      )
+    )
   end
 
   defp calculate_business_hours_due_date(hours, bh) do
@@ -232,7 +293,8 @@ defmodule Escalated.Services.SlaService do
       day_start = %{current | hour: start_h, minute: 0, second: 0}
       day_end = %{current | hour: end_h, minute: 0, second: 0}
 
-      effective_start = if DateTime.compare(current, day_start) == :lt, do: day_start, else: current
+      effective_start =
+        if DateTime.compare(current, day_start) == :lt, do: day_start, else: current
 
       if DateTime.compare(effective_start, day_end) == :lt do
         available_seconds = DateTime.diff(day_end, effective_start, :second)
@@ -242,15 +304,28 @@ defmodule Escalated.Services.SlaService do
           DateTime.add(effective_start, needed_seconds, :second)
         else
           remaining = remaining - available_seconds / 3600
-          next_day = current |> DateTime.add(86_400, :second) |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+
+          next_day =
+            current
+            |> DateTime.add(86_400, :second)
+            |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+
           advance_through_business_hours(next_day, remaining, start_h, end_h, working_days)
         end
       else
-        next_day = current |> DateTime.add(86_400, :second) |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+        next_day =
+          current
+          |> DateTime.add(86_400, :second)
+          |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+
         advance_through_business_hours(next_day, remaining, start_h, end_h, working_days)
       end
     else
-      next_day = current |> DateTime.add(86_400, :second) |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+      next_day =
+        current
+        |> DateTime.add(86_400, :second)
+        |> Map.merge(%{hour: start_h, minute: 0, second: 0})
+
       advance_through_business_hours(next_day, remaining, start_h, end_h, working_days)
     end
   end
