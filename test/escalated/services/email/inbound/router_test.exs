@@ -90,6 +90,15 @@ defmodule Escalated.Services.Email.Inbound.RouterTest do
       assert Router.resolve_ticket(m, lookup(by_ref: %{"ESC-00099" => ticket})) == ticket
     end
 
+    test "matches a subject-line tag carrying a generated reference" do
+      reference = Escalated.Schemas.Ticket.generate_reference()
+      ticket = %FakeTicket{id: 7, reference: reference}
+
+      m = message(subject: "RE: [#{reference}] help")
+
+      assert Router.resolve_ticket(m, lookup(by_ref: %{reference => ticket})) == ticket
+    end
+
     test "returns nil when nothing matches" do
       m = message(subject: "No match here")
 
