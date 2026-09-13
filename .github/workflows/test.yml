@@ -41,10 +41,6 @@ jobs:
   # runs. SQLite keeps identifiers whole where PostgreSQL truncates them at 63
   # bytes, spells JSON access differently, and accepts DDL and values PostgreSQL
   # rejects -- none of which was visible from a SQLite-only suite.
-  #
-  # There is no MySQL leg. The schema uses PostgreSQL array columns in eight
-  # places and MySQL has no array type; supporting it means changing those
-  # columns and the schemas over them, not adding a job.
   postgres:
     name: mix test - postgres
     runs-on: ubuntu-latest
@@ -91,4 +87,54 @@ jobs:
           # of quietly running SQLite and reporting green.
           ESCALATED_TEST_ADAPTER: postgres
           ESCALATED_TEST_PASSWORD: postgres
+        run: mix test
+
+  # And against MySQL, which config.exs has accepted all along. MySQL has no
+  # array type, so the list columns are created as JSON there (see
+  # Escalated.Migration); it commits DDL implicitly, ending a test's sandbox
+  # transaction; and it has no conflict target for ON CONFLICT. Without this
+  # leg the migrations did not even run on it.
+  mysql:
+    name: mix test - mysql
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: escalated_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pmysql"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "26"
+          elixir-version: "1.15"
+
+      - name: Cache deps
+        uses: actions/cache@v6
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-mysql-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-mysql-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Run tests
+        env:
+          ESCALATED_TEST_ADAPTER: mysql
+          ESCALATED_TEST_PASSWORD: mysql
         run: mix test

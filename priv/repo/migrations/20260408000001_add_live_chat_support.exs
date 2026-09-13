@@ -39,7 +39,10 @@ defmodule Escalated.Repo.Migrations.AddLiveChatSupport do
       add :name, :string, null: false
       add :strategy, :string, size: 32, default: "round_robin"
       add :department_id, references("#{@prefix}departments", on_delete: :nilify_all)
-      add :agent_ids, {:array, UserKey.migration_type()}, default: []
+
+      add :agent_ids, Escalated.Migration.list_type(UserKey.migration_type()),
+        default: Escalated.Migration.empty_list()
+
       add :priority, :integer, default: 0
       add :max_concurrent_chats, :integer, default: 5
       add :is_active, :boolean, default: true
