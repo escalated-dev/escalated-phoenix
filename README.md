@@ -205,10 +205,23 @@ end
 
 This mounts:
 
-- **Customer routes** at `/support/tickets/*` -- view/create/reply to tickets
+- **Customer routes** at `/support/tickets/*` -- view/create/reply to the signed-in user's own tickets
 - **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+
+The API's auth, guest-ticket, knowledge-base, department and tag endpoints are
+public. Its ticket endpoints (`/support/api/v1/tickets/*`) are for agents. The
+caller is the `current_user` your pipeline assigns or, failing that, the user
+your `:api_token_validator` callback returns for an `Authorization: Bearer
+<token>` header, and must pass `:agent_check`. A request with neither is
+answered 401; a user who is not an agent, 403.
+
+```elixir
+config :escalated,
+  api_token_validator: &MyApp.Api.validate_token/1, # {:ok, user} | :error
+  agent_check: &MyApp.Accounts.agent?/1
+```
 
 ## Inbound email
 

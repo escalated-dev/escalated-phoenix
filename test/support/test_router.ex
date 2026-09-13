@@ -25,8 +25,10 @@ defmodule Escalated.Test.Router do
     plug Inertia.Plug
   end
 
+  # The JSON API is mounted too (`api: true`), so its routes and pipelines are
+  # exercised the same way a host that enables it would run them.
   scope "/" do
     pipe_through :browser
-    escalated_routes("/support")
+    escalated_routes("/support", api: true)
   end
 end
