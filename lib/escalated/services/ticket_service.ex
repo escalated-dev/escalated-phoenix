@@ -463,6 +463,7 @@ defmodule Escalated.Services.TicketService do
       |> maybe_filter(:priority, filters)
       |> maybe_filter(:department_id, filters)
       |> maybe_filter(:assigned_to, filters)
+      |> maybe_filter(:requester_id, filters)
       |> maybe_search(filters)
       |> maybe_unassigned(filters)
       |> maybe_breached(filters)

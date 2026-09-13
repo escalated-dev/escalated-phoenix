@@ -15,13 +15,13 @@ defmodule Escalated.Controllers.Customer.TicketController do
   alias Escalated.Services.TicketService
 
   def index(conn, params) do
-    user = conn.assigns[:current_user]
-
     tickets =
-      TicketService.list(%{
-        requester_id: user && user.id,
-        status: params["status"]
-      })
+      case conn.assigns[:current_user] do
+        # Nobody signed in owns no tickets. An unfiltered list is every
+        # customer's tickets.
+        nil -> []
+        user -> TicketService.list(%{requester_id: user.id, status: params["status"]})
+      end
 
     UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
       # TicketList reads `tickets.data`; see the agent controller.
@@ -66,14 +66,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
   end
 
   def show(conn, %{"reference" => reference}) do
-    user = conn.assigns[:current_user]
-    ticket = TicketService.find(reference)
+    case find_own_ticket(reference, conn.assigns[:current_user]) do
+      {:error, status, message} ->
+        conn |> put_status(status) |> Phoenix.Controller.json(%{error: message})
 
-    case ticket do
-      nil ->
-        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
-
-      ticket ->
+      {:ok, ticket} ->
         repo = Escalated.repo()
         ticket = repo.preload(ticket, :attachments)
 
@@ -93,16 +90,15 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
   def reply(conn, %{"reference" => reference, "body" => body}) do
     user = conn.assigns[:current_user]
-    ticket = TicketService.find(reference)
 
-    case ticket do
-      nil ->
-        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+    case find_own_ticket(reference, user) do
+      {:error, status, message} ->
+        conn |> put_status(status) |> Phoenix.Controller.json(%{error: message})
 
-      ticket ->
+      {:ok, ticket} ->
         case TicketService.reply(ticket, %{
                body: body,
-               author_id: user && user.id,
+               author_id: user.id,
                is_internal: false
              }) do
           {:ok, _reply} ->
@@ -119,6 +115,32 @@ defmodule Escalated.Controllers.Customer.TicketController do
   end
 
   # Private helpers
+
+  # The ticket named in the URL, provided the signed-in user requested it. The
+  # lookup takes a reference or a numeric id and nothing else, so without this
+  # check any customer could open any ticket by counting ids. 404 when there is
+  # no such ticket, 403 when it is someone else's -- the answer the Laravel and
+  # NestJS customer controllers give.
+  defp find_own_ticket(reference, user) do
+    case TicketService.find(reference) do
+      nil ->
+        {:error, 404, "Ticket not found"}
+
+      ticket ->
+        if requester?(ticket, user),
+          do: {:ok, ticket},
+          else: {:error, 403, "You can only access your own tickets"}
+    end
+  end
+
+  # Compared as strings: the column follows :user_key_type while the host's
+  # user id is whatever its schema says, and 7 and "7" name the same user.
+  defp requester?(%Ticket{requester_id: requester_id}, %{id: user_id})
+       when not is_nil(requester_id) and not is_nil(user_id) do
+    to_string(requester_id) == to_string(user_id)
+  end
+
+  defp requester?(_ticket, _user), do: false
 
   defp ticket_path(conn, ticket) do
     prefix = Escalated.config(:route_prefix, "/support")

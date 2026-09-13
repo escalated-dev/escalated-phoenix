@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Any customer could read and answer every customer's tickets.** The customer
+  ticket list passed `requester_id` to `TicketService.list/1`, which ignored it,
+  so it listed every ticket. The ticket page and reply found a ticket by
+  reference or numeric id and never compared the requester. The list is now
+  filtered to the signed-in user, and another user's ticket answers 403.
+- **The JSON ticket API accepted anonymous requests.** `/api/v1/tickets/*` ran
+  no pipeline, so anyone could list and read tickets and change their status,
+  priority and assignee. Those routes now need a caller -- the host's
+  `current_user`, or a bearer token the host's `:api_token_validator` accepts --
+  who passes `:agent_check`: 401 without one, 403 for a non-agent. Integrations
+  that called them anonymously must now send a token. The auth, guest-ticket,
+  knowledge-base, department and tag endpoints are unchanged.
+
 ## [0.1.1] - 2026-09-13
 
 ### Fixed

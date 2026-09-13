@@ -320,6 +320,15 @@ defmodule Escalated.Router do
             # Anonymous (guest) ticket submission + lookup by token.
             post "/guest/tickets", GuestTicketController, :create
             get "/guest/tickets/:token", GuestTicketController, :show
+          end
+
+          # The ticket endpoints read and change any ticket, so they need a
+          # known caller -- the host's current_user, or a bearer token the host
+          # validates -- who passes agent_check. 401 without one, 403 for a
+          # user who is not an agent. Laravel guards the same endpoints with
+          # an agent token.
+          scope "/api/v1", Escalated.Controllers.Api, as: :api do
+            pipe_through [Escalated.Plugs.ApiAuthenticate, Escalated.Plugs.EnsureAgent]
 
             get "/tickets", TicketController, :index
             get "/tickets/:reference", TicketController, :show
