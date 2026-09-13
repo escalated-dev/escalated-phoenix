@@ -17,11 +17,22 @@ defmodule Escalated.Broadcasting do
   - `"escalated:tickets"` - all ticket events (create, update, status change, etc.)
   - `"escalated:ticket:<id>"` - events for a specific ticket
   - `"escalated:agent:<agent_id>"` - events relevant to a specific agent
+  - `"escalated:chat:<ticket_id>"` - live chat events for one session
+  - `"escalated:chat:queue"` - chat sessions starting, being taken and ending
 
   ## Event format
 
   Events are broadcast as `%{event: event_name, payload: payload}` maps.
   """
+
+  # Chat events that change which sessions are waiting or taken, which is what
+  # the agents' queue shows.
+  @queue_events [
+    "chat:session_started",
+    "chat:agent_joined",
+    "chat:session_ended",
+    "chat:session_abandoned"
+  ]
 
   @doc """
   Broadcasts a ticket event if broadcasting is enabled.
@@ -31,30 +42,52 @@ defmodule Escalated.Broadcasting do
   def broadcast_ticket_event(event, payload) do
     if enabled?() do
       pubsub = pubsub_server()
-      topic = "escalated:tickets"
+      message = %{event: event, payload: payload}
 
-      Phoenix.PubSub.broadcast(pubsub, topic, %{event: event, payload: payload})
+      Phoenix.PubSub.broadcast(pubsub, "escalated:tickets", message)
 
       # Also broadcast to ticket-specific topic if ticket_id is available
-      if ticket_id = payload[:ticket_id] || payload["ticket_id"] do
-        Phoenix.PubSub.broadcast(pubsub, "escalated:ticket:#{ticket_id}", %{
-          event: event,
-          payload: payload
-        })
+      case payload[:ticket_id] || payload["ticket_id"] do
+        nil -> :ok
+        ticket_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:ticket:#{ticket_id}", message)
       end
 
       # Broadcast to agent-specific topic if relevant
-      if agent_id = payload[:agent_id] || payload[:assigned_to] do
-        Phoenix.PubSub.broadcast(pubsub, "escalated:agent:#{agent_id}", %{
-          event: event,
-          payload: payload
-        })
+      case payload[:agent_id] || payload[:assigned_to] do
+        nil -> :ok
+        agent_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:agent:#{agent_id}", message)
+      end
+    end
+
+    :ok
+  end
+
+  @doc """
+  Broadcasts a live chat event if broadcasting is enabled.
+
+  Published to the topics `Escalated.Channels.ChatChannel` subscribes to: the
+  session's `"escalated:chat:<ticket_id>"` and, for events that change the
+  queue, `"escalated:chat:queue"`. It also goes to the ticket topics, as
+  `broadcast_ticket_event/2` has always sent chat events there.
+
+  Returns `:ok`.
+  """
+  def broadcast_chat_event(event, payload) do
+    if enabled?() do
+      pubsub = pubsub_server()
+      message = %{event: event, payload: payload}
+
+      case payload[:ticket_id] do
+        nil -> :ok
+        ticket_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:chat:#{ticket_id}", message)
       end
 
-      :ok
-    else
-      :ok
+      if event in @queue_events do
+        Phoenix.PubSub.broadcast(pubsub, "escalated:chat:queue", message)
+      end
     end
+
+    broadcast_ticket_event(event, payload)
   end
 
   @doc """
