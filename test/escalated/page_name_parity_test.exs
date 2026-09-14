@@ -22,15 +22,22 @@ defmodule Escalated.PageNameParityTest do
 
   # Names that render a blank panel today and are not fixed by renaming.
   #
-  # Settings/Index has no component because this package's settings surface is
-  # a different set of fields from the shared Settings screen: it exposes
-  # route_prefix, table_prefix, ui_enabled, api_enabled, sla and
-  # notification_channels, while the component is built around
-  # guest_tickets_enabled, ticket_reference_prefix, max_attachments_per_reply
-  # and the inbound-email adapters. Pointing the name at the shared component
-  # would render a form of undefined values whose Save posts fields update/2
-  # ignores -- worse than blank, because it looks like it works. Closing it is
-  # a settings-parity job, not a rename.
+  # Settings/Index is a missing feature rather than a wrong name, and it is
+  # worth being exact about the size of it.
+  #
+  # The shared Settings screen submits 52 fields: the inbound-email adapters
+  # with their Mailgun, Postmark, SES and IMAP credentials, the widget's
+  # appearance and behaviour, live chat routing and queueing, guest tickets,
+  # and the ticket reference prefix. This package has about seven of those
+  # concepts -- allow_customer_close, auto_close_resolved_after_days,
+  # max_attachments, max_attachment_size_kb and the three knowledge_base flags
+  # -- and update/2 applies only that subset.
+  #
+  # So pointing the name at the component would render a form where six fields
+  # in seven do nothing and Save quietly drops them. That is worse than blank:
+  # blank is obviously broken, and a settings form that accepts an SMTP
+  # password and forgets it is not. Closing this means building the settings,
+  # not renaming the page.
   #
   # This list may shrink. It must never grow.
   @known_blank ["Escalated/Admin/Settings/Index"]
