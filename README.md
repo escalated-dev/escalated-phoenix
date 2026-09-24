@@ -17,6 +17,8 @@
 
 # Escalated for Phoenix
 
+[![Views](https://hits.sh/github.com/escalated-dev/escalated-phoenix.svg?style=flat&label=views&color=007ec6)](https://hits.sh/github.com/escalated-dev/escalated-phoenix/)
+
 Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in support tickets, departments, SLA policies, and agent management as a Hex package.
 
 ## Features
