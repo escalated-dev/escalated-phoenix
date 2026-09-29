@@ -120,7 +120,8 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
     repo.update_all(from(a in Article, where: a.id == ^id), inc: [view_count: 1])
   end
 
-  defp feedback_enabled?, do: Escalated.config(:knowledge_base_feedback_enabled, true)
+  defp feedback_enabled?,
+    do: Escalated.Services.GeneralSettings.enabled?(:knowledge_base_feedback_enabled)
 
   defp truthy?(value), do: value in [true, "true", "1", 1]
 end

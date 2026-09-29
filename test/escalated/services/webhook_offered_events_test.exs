@@ -194,7 +194,7 @@ defmodule Escalated.Services.WebhookOfferedEventsTest do
     conn =
       conn(:get, "/support/admin/webhooks")
       |> init_test_session(%{})
-      |> assign(:current_user, %{id: 1})
+      |> assign(:current_user, %{id: 1, is_admin: true})
       |> put_req_header("x-inertia", "true")
       |> put_req_header("x-inertia-version", inertia_version())
       |> Router.call(Router.init([]))

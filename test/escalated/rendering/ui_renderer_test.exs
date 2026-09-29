@@ -1,5 +1,5 @@
 defmodule Escalated.Rendering.UIRendererTest do
-  use ExUnit.Case, async: true
+  use Escalated.DataCase, async: false
 
   alias Escalated.Rendering.UIRenderer
 

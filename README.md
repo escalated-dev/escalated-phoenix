@@ -56,6 +56,29 @@ end
 
 ## Configuration
 
+### Persistent admin preferences
+
+The general Settings page supports four durable boolean preferences:
+`knowledge_base_enabled`, `knowledge_base_public`,
+`knowledge_base_feedback_enabled` (all default false), and `show_powered_by`
+(default true). Saved values override host configuration across requests and
+process restarts. The existing settings migrations must be applied, including
+the June 2026 migration adding the `type` column; no new migration is required.
+
+Use a shared frontend build containing
+[settings capabilities (PR #185)](https://github.com/escalated-dev/escalated/pull/185)
+before upgrading this page. It renders `Escalated/Admin/Settings`, advertises only
+those four fields, and supplies an explicit POST update URL. Other controls stay
+hidden until their Phoenix behavior is implemented. Unsupported fields and
+invalid booleans reject the whole update. Existing nested PUT requests remain
+supported for those same fields.
+
+Admin routes require the host's `admin_check` callback to return `true`, or, when
+no callback is configured, an admin host flag or Escalated admin profile. A
+signed-in customer alone cannot read or save settings. Nonpublic knowledge bases
+require an authenticated host user; disabling feedback also blocks direct POSTs.
+The host's own authentication pipeline can further restrict public access.
+
 Add the following to your `config/config.exs`:
 
 ```elixir

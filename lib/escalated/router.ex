@@ -154,6 +154,7 @@ defmodule Escalated.Router do
           get "/agents/search", AgentSearchController, :search
 
           get "/settings", SettingsController, :index
+          post "/settings", SettingsController, :update
           put "/settings", SettingsController, :update
 
           # CSAT settings (question text, scale, delivery trigger, delay).
@@ -304,8 +305,12 @@ defmodule Escalated.Router do
             post "/auth/validate", AuthController, :validate
 
             # Public reference endpoints (Flutter app / integrations).
-            get "/kb/articles", ResourceController, :kb_articles
-            get "/kb/categories", ResourceController, :kb_categories
+            scope "/kb" do
+              pipe_through Escalated.Plugs.EnsureKbEnabled
+              get "/articles", ResourceController, :kb_articles
+              get "/categories", ResourceController, :kb_categories
+            end
+
             get "/departments", ResourceController, :departments
             get "/tags", ResourceController, :tags
 

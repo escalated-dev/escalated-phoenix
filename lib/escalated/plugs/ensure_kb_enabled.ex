@@ -2,13 +2,15 @@ defmodule Escalated.Plugs.EnsureKbEnabled do
   @moduledoc """
   Plug that guards knowledge base routes.
 
-  Returns a 404 response when the knowledge base feature is disabled
-  in the Escalated configuration.
+  Returns 404 when the knowledge base is disabled, or when an anonymous
+  visitor requests a nonpublic knowledge base. Persisted admin settings
+  override host configuration.
 
   ## Configuration
 
       config :escalated,
-        knowledge_base_enabled: true
+        knowledge_base_enabled: true,
+        knowledge_base_public: true
 
   When `knowledge_base_enabled` is `false` (the default), all requests
   piped through this plug will receive a 404 Not Found response.
@@ -21,9 +23,10 @@ defmodule Escalated.Plugs.EnsureKbEnabled do
 
   @impl true
   def call(conn, _opts) do
-    config = Escalated.configuration()
+    settings = Escalated.Services.GeneralSettings.all()
 
-    if Escalated.Config.knowledge_base_enabled?(config) do
+    if settings["knowledge_base_enabled"] and
+         (settings["knowledge_base_public"] or not is_nil(conn.assigns[:current_user])) do
       conn
     else
       conn

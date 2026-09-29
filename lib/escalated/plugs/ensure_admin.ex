@@ -4,7 +4,8 @@ defmodule Escalated.Plugs.EnsureAdmin do
 
   Uses the `:admin_check` function configured in `:escalated` application config.
   The function receives the current user (from `conn.assigns.current_user`) and
-  must return a boolean.
+  must return a boolean. Without a callback, the host admin flag or an
+  Escalated admin profile is required.
 
   ## Configuration
 
@@ -29,10 +30,10 @@ defmodule Escalated.Plugs.EnsureAdmin do
         |> Phoenix.Controller.json(%{error: "Authentication required"})
         |> halt()
 
-      is_function(check_fn, 1) && check_fn.(user) ->
+      is_function(check_fn, 1) && check_fn.(user) == true ->
         conn
 
-      is_nil(check_fn) ->
+      is_nil(check_fn) && Escalated.Permissions.admin?(user) ->
         conn
 
       true ->
