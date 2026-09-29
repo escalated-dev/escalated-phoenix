@@ -13,14 +13,15 @@ defmodule Escalated.Controllers.Customer.TicketController do
   alias Escalated.Schemas.{Attachment, Ticket}
   alias Escalated.Serializers.TicketSerializer
   alias Escalated.Services.TicketService
+  alias Escalated.TicketAccess
 
   def index(conn, params) do
     tickets =
-      case conn.assigns[:current_user] do
+      case TicketAccess.user_id(conn.assigns[:current_user]) do
         # Nobody signed in owns no tickets. An unfiltered list is every
         # customer's tickets.
         nil -> []
-        user -> TicketService.list(%{requester_id: user.id, status: params["status"]})
+        user_id -> TicketService.list(%{requester_id: user_id, status: params["status"]})
       end
 
     UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
@@ -43,13 +44,28 @@ defmodule Escalated.Controllers.Customer.TicketController do
     })
   end
 
-  def create(conn, %{"ticket" => ticket_params}) do
-    user = conn.assigns[:current_user]
+  def create(conn, %{"ticket" => ticket_params}) when is_map(ticket_params) do
+    case TicketAccess.user_id(conn.assigns[:current_user]) do
+      nil ->
+        conn |> put_status(401) |> Phoenix.Controller.json(%{error: "Authentication required"})
+
+      user_id ->
+        create_for_requester(conn, ticket_params, user_id)
+    end
+  end
+
+  def create(conn, _params) do
+    conn |> put_status(422) |> Phoenix.Controller.json(%{error: "A ticket object is required"})
+  end
+
+  defp create_for_requester(conn, ticket_params, user_id) do
+    customer_fields =
+      Map.take(ticket_params, ~w(subject description priority ticket_type department_id))
 
     attrs =
-      ticket_params
-      |> Map.put("requester_id", user && user.id)
-      |> Map.put("requester_type", if(user, do: to_string(Escalated.user_schema()), else: nil))
+      customer_fields
+      |> Map.put("requester_id", user_id)
+      |> Map.put("requester_type", to_string(Escalated.user_schema()))
 
     case TicketService.create(attrs) do
       {:ok, ticket} ->
@@ -60,7 +76,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       {:error, changeset} ->
         UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
           errors: format_errors(changeset),
-          ticket: ticket_params
+          ticket: customer_fields
         })
     end
   end
@@ -98,7 +114,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       {:ok, ticket} ->
         case TicketService.reply(ticket, %{
                body: body,
-               author_id: user.id,
+               author_id: TicketAccess.user_id(user),
                is_internal: false
              }) do
           {:ok, _reply} ->
@@ -127,20 +143,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
         {:error, 404, "Ticket not found"}
 
       ticket ->
-        if requester?(ticket, user),
+        if TicketAccess.requester?(ticket, user),
           do: {:ok, ticket},
           else: {:error, 403, "You can only access your own tickets"}
     end
   end
-
-  # Compared as strings: the column follows :user_key_type while the host's
-  # user id is whatever its schema says, and 7 and "7" name the same user.
-  defp requester?(%Ticket{requester_id: requester_id}, %{id: user_id})
-       when not is_nil(requester_id) and not is_nil(user_id) do
-    to_string(requester_id) == to_string(user_id)
-  end
-
-  defp requester?(_ticket, _user), do: false
 
   defp ticket_path(conn, ticket) do
     prefix = Escalated.config(:route_prefix, "/support")

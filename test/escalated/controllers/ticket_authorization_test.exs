@@ -17,7 +17,7 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
 
   alias Ecto.Adapters.SQL.Sandbox
   alias Escalated.HostTestRepo
-  alias Escalated.Schemas.{Reply, Ticket}
+  alias Escalated.Schemas.{Contact, Reply, SatisfactionRating, Ticket}
   alias Escalated.Services.TicketService
   alias Escalated.Test.{HostUser, Router}
 
@@ -184,6 +184,20 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
   end
 
   describe "JSON ticket API" do
+    test "reply attribution comes from the authenticated agent" do
+      ticket = ticket_for!(@customer_one, "Support")
+
+      conn =
+        api(:post, "/support/api/v1/tickets/#{ticket.reference}/reply", @agent, %{
+          "body" => "Agent reply",
+          "author_id" => @customer_two.id,
+          "is_internal" => true
+        })
+
+      assert conn.status == 201
+      assert [%Reply{author_id: 900, is_internal: true}] = replies_on(ticket)
+    end
+
     test "an unauthenticated ticket list is refused" do
       ticket_for!(@customer_one, "Private subject")
 
@@ -288,6 +302,120 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
       # 501: no host authenticator is configured. Not 401 -- login cannot
       # require the login it exists to perform.
       assert conn.status == 501
+    end
+  end
+
+  describe "customer ticket creation" do
+    test "requires an identified user before writing anything" do
+      for user <- [nil, %{}, %{id: nil}, %{id: ""}, %{id: false}] do
+        response =
+          api(:post, "/support/tickets", user, %{
+            "ticket" => %{
+              "subject" => "Help",
+              "description" => "Details",
+              "guest_email" => "guest@example.com"
+            }
+          })
+
+        assert response.status == 401
+      end
+
+      assert repo().aggregate(Ticket, :count) == 0
+      assert repo().aggregate(Contact, :count) == 0
+    end
+
+    test "keeps customer fields and derives ownership while staff fields retain server defaults" do
+      response =
+        api(:post, "/support/tickets", @customer_one, %{
+          "ticket" => %{
+            "subject" => "Delivery",
+            "description" => "Please help",
+            "priority" => "high",
+            "ticket_type" => "question",
+            "requester_id" => @customer_two.id,
+            "requester_type" => "OtherUser",
+            "status" => "closed",
+            "assigned_to" => @agent.id,
+            "contact_id" => 999,
+            "guest_email" => "other@example.com",
+            "guest_name" => "Other",
+            "guest_token" => "supplied",
+            "channel" => "chat",
+            "metadata" => %{"admin" => true},
+            "sla_breached" => true,
+            "closed_at" => "2030-01-01T00:00:00Z",
+            "snoozed_by" => @agent.id
+          }
+        })
+
+      assert response.status == 302
+      ticket = repo().one!(Ticket)
+      assert ticket.subject == "Delivery"
+      assert ticket.priority == "high"
+      assert ticket.ticket_type == "question"
+      assert ticket.requester_id == @customer_one.id
+      assert ticket.requester_type == to_string(HostUser)
+      assert ticket.status == "open"
+      assert is_nil(ticket.assigned_to)
+      assert is_nil(ticket.contact_id)
+      assert is_nil(ticket.guest_email)
+      assert is_nil(ticket.guest_token)
+      assert is_nil(ticket.channel)
+      assert ticket.metadata == %{}
+      refute ticket.sla_breached
+      assert is_nil(ticket.closed_at)
+      assert is_nil(ticket.snoozed_by)
+      assert repo().aggregate(Contact, :count) == 0
+    end
+
+    test "returns a field error for a malformed ticket payload" do
+      assert api(:post, "/support/tickets", @customer_one, %{"ticket" => "invalid"}).status == 422
+      assert repo().aggregate(Ticket, :count) == 0
+    end
+  end
+
+  describe "customer satisfaction" do
+    test "only the requester can consume a ticket rating" do
+      ticket = ticket_for!(@customer_one, "Resolved")
+      repo().update!(Ecto.Changeset.change(ticket, status: "resolved"))
+      path = "/support/tickets/#{ticket.reference}/rate"
+      assert api(:post, path, nil, %{"rating" => 5}).status == 401
+      assert api(:post, path, @customer_two, %{"rating" => 5}).status == 403
+      assert api(:post, path, @agent, %{"rating" => 5}).status == 403
+      assert repo().aggregate(SatisfactionRating, :count) == 0
+      assert api(:post, path, %{id: "101"}, %{"rating" => 4, "rated_by_id" => 202}).status == 201
+      assert %{rated_by_id: 101, rated_by_type: type, rating: 4} = repo().one!(SatisfactionRating)
+      assert type == to_string(HostUser)
+      assert api(:post, path, @customer_one, %{"rating" => 5}).status == 422
+    end
+
+    test "retains the valid guest token route and refuses invalid token shapes" do
+      ticket = ticket_for!(@customer_one, "Guest resolved")
+
+      repo().update!(
+        Ecto.Changeset.change(ticket,
+          status: "resolved",
+          requester_id: nil,
+          guest_token: "guest-private"
+        )
+      )
+
+      assert api(:post, "/support/guest/tickets/wrong/rate", nil, %{"rating" => 5}).status == 404
+
+      assert api(:post, "/support/guest/tickets/guest-private/rate", nil, %{"rating" => 5}).status ==
+               201
+
+      for token <- [nil, "", false, %{}] do
+        response =
+          Escalated.Controllers.SatisfactionRatingController.store_guest(conn(:post, "/"), %{
+            "token" => token,
+            "rating" => 5
+          })
+
+        assert response.status == 404
+      end
+
+      assert repo().aggregate(SatisfactionRating, :count) == 1
     end
   end
 end

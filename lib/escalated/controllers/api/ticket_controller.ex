@@ -5,9 +5,9 @@ defmodule Escalated.Controllers.Api.TicketController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
-  alias Escalated.Services.{TicketService, AssignmentService, TicketActionRegistry}
   alias Escalated.Schemas.Attachment
   alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
 
   def index(conn, params) do
     tickets =
@@ -107,7 +107,7 @@ defmodule Escalated.Controllers.Api.TicketController do
       ticket ->
         attrs = %{
           body: body,
-          author_id: params["author_id"],
+          author_id: Escalated.TicketAccess.user_id(conn.assigns[:current_user]),
           is_internal: params["is_internal"] == true
         }
 
