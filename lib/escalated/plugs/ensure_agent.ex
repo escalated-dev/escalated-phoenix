@@ -4,7 +4,8 @@ defmodule Escalated.Plugs.EnsureAgent do
 
   Uses the `:agent_check` function configured in `:escalated` application config.
   The function receives the current user (from `conn.assigns.current_user`) and
-  must return a boolean.
+  must return a boolean. Without a callback, host agent/admin flags or active
+  Escalated agent profiles determine access through `Escalated.Permissions`.
 
   ## Configuration
 
@@ -20,7 +21,6 @@ defmodule Escalated.Plugs.EnsureAgent do
   @impl true
   def call(conn, _opts) do
     user = conn.assigns[:current_user]
-    check_fn = Escalated.config(:agent_check)
 
     cond do
       is_nil(user) ->
@@ -29,11 +29,7 @@ defmodule Escalated.Plugs.EnsureAgent do
         |> Phoenix.Controller.json(%{error: "Authentication required"})
         |> halt()
 
-      is_function(check_fn, 1) && check_fn.(user) ->
-        conn
-
-      is_nil(check_fn) ->
-        # If no check function configured, allow through (developer must configure)
+      Escalated.Permissions.agent?(user) ->
         conn
 
       true ->

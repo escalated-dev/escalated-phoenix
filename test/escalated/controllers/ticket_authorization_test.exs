@@ -262,6 +262,26 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
       assert rejected.status == 401
     end
 
+    test "default authorization rejects customer sessions and bearer tokens before mutations" do
+      Application.delete_env(:escalated, :agent_check)
+      Application.put_env(:escalated, :api_token_validator, fn _ -> {:ok, @customer_one} end)
+      ticket = ticket_for!(@customer_one, "Private")
+      assert api(:get, "/support/api/v1/tickets", @customer_one).status == 403
+
+      conn =
+        api(
+          :patch,
+          "/support/api/v1/tickets/#{ticket.reference}/status",
+          nil,
+          %{"status" => "closed"},
+          [{"authorization", "Bearer customer-token"}]
+        )
+
+      assert conn.status == 403
+      assert repo().get!(Ticket, ticket.id).status == "open"
+      assert api(:get, "/support/api/v1/tickets", @agent).status == 200
+    end
+
     test "the public auth endpoints stay reachable without a user" do
       conn = api(:post, "/support/api/v1/auth/login", nil, %{"email" => "a@example.com"})
 
