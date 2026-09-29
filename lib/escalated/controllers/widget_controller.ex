@@ -11,8 +11,8 @@ defmodule Escalated.Controllers.WidgetController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
+  alias Escalated.Schemas.{Reply, Ticket}
   alias Escalated.Services.TicketService
-  alias Escalated.Schemas.{Ticket, Reply}
   import Ecto.Query
 
   @doc """

@@ -8,8 +8,8 @@ defmodule Escalated.Controllers.WidgetChatController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
-  alias Escalated.Services.{ChatSessionService, ChatAvailabilityService}
-  alias Escalated.Schemas.{Ticket, ChatSession}
+  alias Escalated.Schemas.{ChatSession, Ticket}
+  alias Escalated.Services.{ChatAvailabilityService, ChatSessionService}
 
   @doc """
   Returns chat availability status.
