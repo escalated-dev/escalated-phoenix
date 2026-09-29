@@ -253,7 +253,7 @@ end
 
 This mounts:
 
-- **Customer routes** at `/support/tickets/*` -- view/create/reply to the signed-in user's own tickets
+- **Customer routes** at `/support/tickets/*` -- view/create/reply to the signed-in user's own tickets. Creation accepts subject, description, priority, ticket type and department; requester identity and staff-controlled fields come from the server. CSAT by reference requires the authenticated requester. API reply authors are taken from the authenticated agent.
 - **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)

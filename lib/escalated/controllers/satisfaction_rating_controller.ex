@@ -11,21 +11,39 @@ defmodule Escalated.Controllers.SatisfactionRatingController do
 
   alias Escalated.Schemas.{SatisfactionRating, Ticket}
   alias Escalated.Services.TicketService
+  alias Escalated.TicketAccess
 
   def store(conn, %{"reference" => reference} = params) do
     user = conn.assigns[:current_user]
+    ticket = TicketService.find(reference)
 
-    rated_by = %{
-      rated_by_type: user && to_string(Escalated.user_schema()),
-      rated_by_id: user && user.id
-    }
+    cond do
+      is_nil(TicketAccess.user_id(user)) ->
+        conn |> put_status(401) |> Phoenix.Controller.json(%{error: "Authentication required"})
 
-    submit_rating(conn, TicketService.find(reference), params, rated_by)
+      is_nil(ticket) ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      not TicketAccess.requester?(ticket, user) ->
+        conn
+        |> put_status(403)
+        |> Phoenix.Controller.json(%{error: "You can only rate your own tickets"})
+
+      true ->
+        submit_rating(conn, ticket, params, %{
+          rated_by_type: to_string(Escalated.user_schema()),
+          rated_by_id: TicketAccess.user_id(user)
+        })
+    end
   end
 
-  def store_guest(conn, %{"token" => token} = params) do
+  def store_guest(conn, %{"token" => token} = params) when is_binary(token) and token != "" do
     ticket = Escalated.repo().get_by(Ticket, guest_token: token)
     submit_rating(conn, ticket, params, %{})
+  end
+
+  def store_guest(conn, _params) do
+    conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
   end
 
   defp submit_rating(conn, ticket, params, rated_by) do
