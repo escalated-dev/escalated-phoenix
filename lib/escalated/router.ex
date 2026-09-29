@@ -40,9 +40,13 @@ defmodule Escalated.Router do
              Escalated.Controllers.SatisfactionRatingController,
              :store
 
-        post "/guest/tickets/:token/rate",
-             Escalated.Controllers.SatisfactionRatingController,
-             :store_guest
+        scope "/guest" do
+          pipe_through Escalated.Plugs.GuestRateLimit
+
+          post "/tickets/:token/rate",
+               Escalated.Controllers.SatisfactionRatingController,
+               :store_guest
+        end
 
         # Customer routes
         scope "/", Escalated.Controllers.Customer do
@@ -315,8 +319,12 @@ defmodule Escalated.Router do
             get "/tags", ResourceController, :tags
 
             # Anonymous (guest) ticket submission + lookup by token.
-            post "/guest/tickets", GuestTicketController, :create
-            get "/guest/tickets/:token", GuestTicketController, :show
+            scope "/guest" do
+              pipe_through Escalated.Plugs.GuestRateLimit
+
+              post "/tickets", GuestTicketController, :create
+              get "/tickets/:token", GuestTicketController, :show
+            end
           end
 
           # The ticket endpoints read and change any ticket, so they need a

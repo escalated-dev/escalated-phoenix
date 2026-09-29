@@ -56,6 +56,11 @@ defmodule Escalated.Config do
       max_requests: 20,
       window_ms: 60_000
     },
+    guest_rate_limit: %{
+      max_requests: 20,
+      window_ms: 60_000
+    },
+    rate_limit_backend: Escalated.RateLimiter,
     email_branding: %{
       company_name: "Support",
       logo_url: nil,

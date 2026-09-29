@@ -21,6 +21,7 @@ defmodule Escalated.MixProject do
 
   def application do
     [
+      mod: {Escalated.Application, []},
       extra_applications: [:logger]
     ]
   end
