@@ -39,13 +39,17 @@ defmodule Escalated.Controllers.WidgetController do
   def create_ticket(conn, params) do
     settings = widget_settings()
 
-    unless settings.enabled do
+    if settings.enabled do
+      create_enabled_ticket(conn, params)
+    else
       conn
       |> put_status(403)
       |> json(%{error: "Widget is disabled"})
       |> halt()
     end
+  end
 
+  defp create_enabled_ticket(conn, params) do
     guest_token = generate_guest_token()
 
     attrs = %{

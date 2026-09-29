@@ -25,13 +25,17 @@ defmodule Escalated.Controllers.WidgetChatController do
   def start(conn, params) do
     settings = widget_settings()
 
-    unless settings.enabled do
+    if settings.enabled do
+      start_enabled_chat(conn, params)
+    else
       conn
       |> put_status(403)
       |> json(%{error: "Widget is disabled"})
       |> halt()
     end
+  end
 
+  defp start_enabled_chat(conn, params) do
     attrs = %{
       guest_name: params["name"],
       guest_email: params["email"],

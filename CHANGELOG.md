@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Disabled widget ticket and chat submissions now stop before creating tickets,
+  contacts, activities or chat sessions. Database-backed regression tests cover
+  both disabled paths and their enabled counterparts.
+
 ## [0.1.3] - 2026-09-13
 
 ### Fixed
