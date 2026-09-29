@@ -23,15 +23,21 @@ defmodule Escalated.Schemas.Attachment do
   def changeset(attachment, attrs) do
     attachment
     |> cast(attrs, [
-      :original_filename, :mime_type, :size, :storage_key,
-      :storage_backend, :ticket_id, :reply_id, :uploaded_by
+      :original_filename,
+      :mime_type,
+      :size,
+      :storage_key,
+      :storage_backend,
+      :ticket_id,
+      :reply_id,
+      :uploaded_by
     ])
     |> validate_required([:original_filename, :storage_key])
     |> validate_number(:size, greater_than: 0)
   end
 
   @doc """
-  Builds a public URL for the attachment.
+  Builds the authorized download route for the attachment.
 
   Uses the configured route prefix to construct the download path.
   """

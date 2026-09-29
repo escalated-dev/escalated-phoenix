@@ -56,6 +56,22 @@ end
 
 ## Configuration
 
+Attachment download routes require an authenticated requester or agent. Internal
+reply files are available only to agents. Sessions and the configured host
+`api_token_validator` are supported. Local files must be regular files within
+`:upload_dir` (default `priv/uploads`), with no symlink components. Keep that
+directory private and outside static web serving.
+
+For external storage, configure `:attachment_download_url` as a two-argument
+function receiving the attachment and an expiry in seconds (300). It must return
+`{:ok, https_url}` for a signed, private download or `{:error, reason}`. The host's
+storage adapter must honor that expiry. The callback runs only after ticket and
+reply authorization. Missing configuration returns 503; the package does not
+redirect to the stored permanent URL. Existing publicly served files need to be
+moved or made private by the host; changing this route does not revoke URLs
+already issued by a storage provider. These routes do not accept guest tokens;
+guest attachment access needs a separate expiring-grant contract.
+
 ### Staff authorization
 
 `Escalated.Permissions.admin?/1` and `agent?/1` determine access consistently

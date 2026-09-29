@@ -32,7 +32,7 @@ defmodule Escalated.Router do
   defmacro escalated_routes(prefix, opts \\ []) do
     quote do
       scope unquote(prefix), as: :escalated do
-        # Attachment downloads (accessible to any authenticated user)
+        # Attachment downloads authenticate and authorize the owning ticket/reply.
         get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
 
         # CSAT rating submission (customer by reference, guest by token).
