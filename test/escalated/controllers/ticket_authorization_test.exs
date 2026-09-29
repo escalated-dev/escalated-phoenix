@@ -17,7 +17,7 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
 
   alias Ecto.Adapters.SQL.Sandbox
   alias Escalated.HostTestRepo
-  alias Escalated.Schemas.{Contact, Reply, SatisfactionRating, Ticket}
+  alias Escalated.Schemas.{Attachment, Contact, Reply, SatisfactionRating, Ticket}
   alias Escalated.Services.TicketService
   alias Escalated.Test.{HostUser, Router}
 
@@ -124,6 +124,25 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
   end
 
   describe "customer ticket page" do
+    test "does not include internal-note attachment metadata in the customer page" do
+      ticket = ticket_for!(@customer_one, "Mine")
+      {:ok, note} = TicketService.reply(ticket, %{body: "Private note", is_internal: true})
+
+      repo().insert!(
+        Attachment.changeset(%Attachment{}, %{
+          ticket_id: ticket.id,
+          reply_id: note.id,
+          original_filename: "internal-cost-breakdown.txt",
+          storage_key: "private.txt"
+        })
+      )
+
+      response = visit(:get, "/support/tickets/#{ticket.reference}", @customer_one)
+      assert response.status == 200
+      refute response.resp_body =~ "internal-cost-breakdown"
+      assert Jason.decode!(response.resp_body)["props"]["ticket"]["attachments"] == []
+    end
+
     test "another customer cannot read a ticket by reference" do
       ticket = ticket_for!(@customer_one, "Private subject")
 

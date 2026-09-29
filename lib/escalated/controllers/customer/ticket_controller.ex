@@ -88,7 +88,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
       {:ok, ticket} ->
         repo = Escalated.repo()
-        ticket = repo.preload(ticket, :attachments)
+        ticket = repo.preload(ticket, attachments: where(Attachment, [a], is_nil(a.reply_id)))
 
         replies =
           Escalated.Schemas.Reply.chronological()
