@@ -30,6 +30,7 @@ defmodule Escalated.Plugs.ShareInertiaData do
   def escalated_props(user, config) do
     %{
       route_prefix: config.route_prefix,
+      show_powered_by: Escalated.Services.GeneralSettings.enabled?(:show_powered_by),
       allow_customer_close: config.allow_customer_close,
       priorities: Escalated.Schemas.Ticket.priorities(),
       statuses: Escalated.Schemas.Ticket.statuses(),

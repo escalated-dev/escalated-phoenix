@@ -105,7 +105,7 @@ defmodule Escalated.RouterWiringTest do
     end
 
     test "they stay behind the admin check" do
-      Application.put_env(:escalated, :admin_check, &Map.get(&1, :is_admin, false))
+      Application.put_env(:escalated, :admin_check, fn _user -> false end)
       ticket = ticket!()
 
       conn =
@@ -127,9 +127,7 @@ defmodule Escalated.RouterWiringTest do
     ticket
   end
 
-  # A signed-in user with no agent or admin flag. With no :agent_check or
-  # :admin_check configured the scopes let any signed-in user through, which
-  # keeps these requests about the route rather than the permission.
+  # A host-authorized admin so successful route tests exercise the action.
   #
   # A missing controller raises out of the router instead of returning a
   # response; the rescue turns that into a failure that names the error.
@@ -147,7 +145,7 @@ defmodule Escalated.RouterWiringTest do
 
     conn
     |> init_test_session(%{})
-    |> assign(:current_user, %{id: 1})
+    |> assign(:current_user, %{id: 1, is_admin: true, is_agent: true})
     |> put_req_header("accept", "application/json")
     |> Router.call(Router.init([]))
   rescue

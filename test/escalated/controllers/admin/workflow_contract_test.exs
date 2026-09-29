@@ -82,7 +82,7 @@ defmodule Escalated.Controllers.Admin.WorkflowContractTest do
     headers
     |> Enum.reduce(base, fn {k, v}, conn -> put_req_header(conn, k, v) end)
     |> init_test_session(%{})
-    |> assign(:current_user, %{id: 1})
+    |> assign(:current_user, %{id: 1, is_admin: true})
     |> put_req_header("x-inertia", "true")
     |> put_req_header("x-inertia-version", inertia_version())
     |> Router.call(Router.init([]))

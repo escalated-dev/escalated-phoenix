@@ -3,17 +3,18 @@ defmodule Escalated.Controllers.Admin.SettingsController do
   Admin controller for viewing and updating Escalated settings.
 
   Two surfaces:
-    * `index` / `update` — the generic Settings UI page. Writes go to
-      `Application.put_env` for runtime-applied config.
+    * `index` / `update` — the supported general Settings UI, persisted
+      through `GeneralSettings` with typed validation.
     * `public_tickets` / `update_public_tickets` — the public-ticket
       guest-policy endpoints. Persist to the `escalated_settings` table
       via `SettingsService` so they survive restarts. Mirrors the
       Symfony, .NET, Go, and Spring ports.
   """
   use Phoenix.Controller, formats: [:html, :json]
+  import Plug.Conn
 
   alias Escalated.Rendering.UIRenderer
-  alias Escalated.Services.SettingsService
+  alias Escalated.Services.{GeneralSettings, SettingsService}
 
   @public_tickets_group "public_tickets"
   @key_mode "guest_policy_mode"
@@ -22,46 +23,43 @@ defmodule Escalated.Controllers.Admin.SettingsController do
   @valid_modes ~w(unassigned guest_user prompt_signup)
 
   def index(conn, _params) do
-    config = Escalated.configuration()
-
-    UIRenderer.render_page(conn, "Escalated/Admin/Settings/Index", %{
-      settings: %{
-        route_prefix: config.route_prefix,
-        table_prefix: config.table_prefix,
-        ui_enabled: config.ui_enabled,
-        api_enabled: config.api_enabled,
-        default_priority: config.default_priority,
-        allow_customer_close: config.allow_customer_close,
-        auto_close_resolved_after_days: config.auto_close_resolved_after_days,
-        max_attachments: config.max_attachments,
-        max_attachment_size_kb: config.max_attachment_size_kb,
-        sla: config.sla,
-        notification_channels: config.notification_channels,
-        knowledge_base_enabled: config.knowledge_base_enabled,
-        knowledge_base_public: config.knowledge_base_public,
-        knowledge_base_feedback_enabled: config.knowledge_base_feedback_enabled
-      }
+    UIRenderer.render_page(conn, "Escalated/Admin/Settings", %{
+      settings: GeneralSettings.all(),
+      supported_settings: GeneralSettings.supported_keys(),
+      update_url: settings_path()
     })
   end
 
-  def update(conn, %{"settings" => settings_params}) do
-    # Runtime settings updates are applied to the application environment.
-    # Only a subset of settings can be changed at runtime.
-    runtime_keys =
-      ~w(default_priority allow_customer_close auto_close_resolved_after_days max_attachments max_attachment_size_kb knowledge_base_enabled knowledge_base_public knowledge_base_feedback_enabled)a
+  def update(conn, params) do
+    params = Map.drop(params, ["_csrf_token", "_method"])
 
-    Enum.each(runtime_keys, fn key ->
-      str_key = to_string(key)
+    # Preserve the previous nested PUT body for the supported fields.
+    params = if Map.keys(params) == ["settings"], do: params["settings"], else: params
 
-      if Map.has_key?(settings_params, str_key) do
-        Application.put_env(:escalated, key, settings_params[str_key])
-      end
-    end)
+    case GeneralSettings.update(params) do
+      {:ok, _settings} ->
+        conn |> put_flash(:info, "Settings updated.") |> redirect(to: settings_path())
 
-    conn
-    |> put_flash(:info, "Settings updated.")
-    |> redirect(to: "#{Escalated.config(:route_prefix, "/support")}/admin/settings")
+      {:error, errors} ->
+        invalid(conn, errors)
+    end
   end
+
+  defp invalid(conn, errors) do
+    if get_req_header(conn, "x-inertia") == ["true"] and
+         Code.ensure_loaded?(Inertia.Controller) do
+      # Inertia is optional; assign_errors persists the field errors across
+      # the redirect through the host's Inertia.Plug.
+      # credo:disable-for-next-line Credo.Check.Refactor.Apply
+      conn = apply(Inertia.Controller, :assign_errors, [conn, errors])
+      redirect(conn, to: settings_path())
+    else
+      conn |> put_status(422) |> json(%{errors: errors})
+    end
+  end
+
+  defp settings_path,
+    do: "/#{String.trim(Escalated.config(:route_prefix, "/support"), "/")}/admin/settings"
 
   @doc """
   GET /admin/settings/public-tickets — returns the three guest-policy

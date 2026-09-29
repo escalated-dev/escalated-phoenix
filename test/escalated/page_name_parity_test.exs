@@ -20,27 +20,9 @@ defmodule Escalated.PageNameParityTest do
 
   @manifest Path.join(__DIR__, "../fixtures/escalated-pages.json")
 
-  # Names that render a blank panel today and are not fixed by renaming.
-  #
-  # Settings/Index is a missing feature rather than a wrong name, and it is
-  # worth being exact about the size of it.
-  #
-  # The shared Settings screen submits 52 fields: the inbound-email adapters
-  # with their Mailgun, Postmark, SES and IMAP credentials, the widget's
-  # appearance and behaviour, live chat routing and queueing, guest tickets,
-  # and the ticket reference prefix. This package has about seven of those
-  # concepts -- allow_customer_close, auto_close_resolved_after_days,
-  # max_attachments, max_attachment_size_kb and the three knowledge_base flags
-  # -- and update/2 applies only that subset.
-  #
-  # So pointing the name at the component would render a form where six fields
-  # in seven do nothing and Save quietly drops them. That is worse than blank:
-  # blank is obviously broken, and a settings form that accepts an SMTP
-  # password and forgets it is not. Closing this means building the settings,
-  # not renaming the page.
-  #
-  # This list may shrink. It must never grow.
-  @known_blank ["Escalated/Admin/Settings/Index"]
+  # Settings now renders the existing shared page with explicit capabilities
+  # and persistent consumers. No blank-page exceptions remain.
+  @known_blank []
 
   @page_name ~r/"(Escalated\/[A-Za-z0-9\/_]+)"/
 

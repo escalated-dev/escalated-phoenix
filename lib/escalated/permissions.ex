@@ -43,7 +43,7 @@ defmodule Escalated.Permissions do
         join: r in Role,
         on: r.id == rp.role_id,
         join: ap in AgentProfile,
-        on: ap.role == r.slug and ap.user_id == ^user_id,
+        on: ap.role == r.slug and ap.user_id == ^user_id and ap.is_active == true,
         select: p.slug,
         distinct: true,
         order_by: [asc: p.slug]
@@ -66,7 +66,7 @@ defmodule Escalated.Permissions do
       repo = Escalated.repo()
 
       from(ap in AgentProfile,
-        where: ap.user_id == ^user_id and ap.role == "admin",
+        where: ap.user_id == ^user_id and ap.role == "admin" and ap.is_active == true,
         select: 1
       )
       |> repo.exists?()
