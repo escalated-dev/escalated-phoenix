@@ -41,7 +41,7 @@ defmodule Escalated.Channels.TicketChannel do
   def join("escalated:agent:" <> agent_id, _params, socket) do
     user = socket.assigns[:current_user]
 
-    if user && to_string(user.id) == agent_id do
+    if authorized_agent?(socket) && to_string(Map.get(user, :id, Map.get(user, "id"))) == agent_id do
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
@@ -63,27 +63,19 @@ defmodule Escalated.Channels.TicketChannel do
   # True when `user` requested the ticket the topic names. A topic id that is
   # not a number, or names no ticket, names no requester. Ids are compared as
   # strings: the column follows :user_key_type, the host's id its own schema.
-  defp requester?(_ticket_id, nil), do: false
+  defp requester?(_ticket_id, user) when not is_map(user), do: false
 
   defp requester?(ticket_id, user) do
-    with {id, ""} <- Integer.parse(ticket_id),
+    with {id, ""} when id > 0 and id <= 9_223_372_036_854_775_807 <- Integer.parse(ticket_id),
          %Ticket{requester_id: requester_id} when not is_nil(requester_id) <-
            Escalated.repo().get(Ticket, id) do
-      to_string(requester_id) == to_string(Map.get(user, :id))
+      to_string(requester_id) == to_string(Map.get(user, :id, Map.get(user, "id")))
     else
       _ -> false
     end
   end
 
   defp authorized_agent?(socket) do
-    user = socket.assigns[:current_user]
-    check_fn = Escalated.config(:agent_check)
-
-    cond do
-      is_nil(user) -> false
-      is_function(check_fn, 1) -> check_fn.(user)
-      is_nil(check_fn) -> true
-      true -> false
-    end
+    Escalated.Permissions.agent?(socket.assigns[:current_user])
   end
 end

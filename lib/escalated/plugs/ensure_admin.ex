@@ -21,7 +21,6 @@ defmodule Escalated.Plugs.EnsureAdmin do
   @impl true
   def call(conn, _opts) do
     user = conn.assigns[:current_user]
-    check_fn = Escalated.config(:admin_check)
 
     cond do
       is_nil(user) ->
@@ -30,10 +29,7 @@ defmodule Escalated.Plugs.EnsureAdmin do
         |> Phoenix.Controller.json(%{error: "Authentication required"})
         |> halt()
 
-      is_function(check_fn, 1) && check_fn.(user) == true ->
-        conn
-
-      is_nil(check_fn) && Escalated.Permissions.admin?(user) ->
+      Escalated.Permissions.admin?(user) ->
         conn
 
       true ->

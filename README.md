@@ -56,6 +56,29 @@ end
 
 ## Configuration
 
+### Staff authorization
+
+`Escalated.Permissions.admin?/1` and `agent?/1` determine access consistently
+for admin/agent routes, ticket APIs and realtime channels. The host must supply
+an authenticated user with an ID. Configured `admin_check` and `agent_check`
+callbacks are authoritative for their respective capability and must return
+the boolean `true` to grant it. A denied or invalid callback never falls back to
+stored roles.
+
+Without callbacks, admin access uses the host `is_admin` flag or an active
+Escalated admin profile. Agent access uses effective admin access, the host
+`is_agent` flag, or an active agent/admin profile. Host flags accept `true`, `1`,
+`"1"`, or `"true"`; atom keys take precedence if both atom and string keys exist.
+An inactive profile removes profile-derived access; it does not override an
+independent host role. An explicit `agent_check` denial still denies agent
+routes for administrators. Newsletter permission callbacks use the same strict
+boolean rule and retain their precedence over admin/permission defaults.
+
+Ticket requesters retain access to their own ticket channel. Guest chat joins
+require the matching nonempty token for an existing chat ticket; the chat queue
+and per-agent topics require staff access. These checks run at channel join;
+hosts should disconnect existing sockets when access is revoked.
+
 ### Persistent admin preferences
 
 The general Settings page supports four durable boolean preferences:

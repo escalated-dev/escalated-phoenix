@@ -1,6 +1,6 @@
 defmodule Escalated.Permissions do
   @moduledoc """
-  RBAC helpers: admin detection and permission slug resolution for the current user.
+  Shared staff authorization and permission slug resolution for the current user.
   """
 
   import Ecto.Query
@@ -13,15 +13,40 @@ defmodule Escalated.Permissions do
   Uses `:admin_check` when configured; otherwise falls back to host `is_admin`
   and `agent_profiles.role == "admin"`.
   """
-  def admin?(nil), do: false
-
   def admin?(user) do
+    identified?(user) and authorized_admin?(user)
+  end
+
+  defp authorized_admin?(user) do
     case Escalated.config(:admin_check) do
       fun when is_function(fun, 1) ->
-        fun.(user)
+        fun.(user) == true
+
+      nil ->
+        host_flag?(user, :is_admin) or active_profile?(user, ["admin"])
 
       _ ->
-        host_admin?(user) || agent_profile_admin?(user)
+        false
+    end
+  end
+
+  @doc """
+  Returns true for an identified agent. An explicit `:agent_check` is
+  authoritative and must return true. Without one, effective admins, host
+  agents and active agent/admin profiles can use agent surfaces.
+  """
+  def agent?(user), do: identified?(user) and authorized_agent?(user)
+
+  defp authorized_agent?(user) do
+    case Escalated.config(:agent_check) do
+      fun when is_function(fun, 1) ->
+        fun.(user) == true
+
+      nil ->
+        admin?(user) or host_flag?(user, :is_agent) or active_profile?(user, ["agent", "admin"])
+
+      _ ->
+        false
     end
   end
 
@@ -54,19 +79,15 @@ defmodule Escalated.Permissions do
     end
   end
 
-  defp host_admin?(user) when is_map(user) do
-    truthy?(Map.get(user, :is_admin)) || truthy?(Map.get(user, "is_admin"))
-  end
+  defp host_flag?(user, key), do: truthy?(Map.get(user, key, Map.get(user, Atom.to_string(key))))
 
-  defp host_admin?(_), do: false
-
-  defp agent_profile_admin?(user) do
+  defp active_profile?(user, roles) do
     with user_id when not is_nil(user_id) <- user_id(user),
          true <- rbac_tables_ready?() do
       repo = Escalated.repo()
 
       from(ap in AgentProfile,
-        where: ap.user_id == ^user_id and ap.role == "admin" and ap.is_active == true,
+        where: ap.user_id == ^user_id and ap.role in ^roles and ap.is_active == true,
         select: 1
       )
       |> repo.exists?()
@@ -76,10 +97,18 @@ defmodule Escalated.Permissions do
   end
 
   defp user_id(user) when is_map(user) do
-    Map.get(user, :id) || Map.get(user, "id")
+    Map.get(user, :id, Map.get(user, "id"))
   end
 
   defp user_id(_), do: nil
+
+  defp identified?(user) do
+    case user_id(user) do
+      id when is_integer(id) -> true
+      id when is_binary(id) -> id != ""
+      _ -> false
+    end
+  end
 
   defp truthy?(value), do: value in [true, 1, "1", "true"]
 

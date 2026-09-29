@@ -21,37 +21,24 @@ defmodule Escalated.Channels.ChatChannel do
   """
   use Phoenix.Channel
 
+  alias Escalated.Schemas.Ticket
+
   @impl true
-  def join("escalated:chat:" <> ticket_id, %{"guest_token" => token}, socket) do
-    repo = Escalated.repo()
-
-    case repo.get(Escalated.Schemas.Ticket, ticket_id) do
-      nil ->
-        {:error, %{reason: "not found"}}
-
-      ticket ->
-        if ticket.guest_token == token && ticket.channel == "chat" do
-          {:ok, socket}
-        else
-          {:error, %{reason: "unauthorized"}}
-        end
-    end
-  end
-
-  def join("escalated:chat:" <> _ticket_id, _params, socket) do
-    # Agent join - check agent auth
-    if authorized_agent?(socket) do
-      {:ok, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
-  end
-
   def join("escalated:chat:queue", _params, socket) do
     if authorized_agent?(socket) do
       {:ok, socket}
     else
       {:error, %{reason: "unauthorized"}}
+    end
+  end
+
+  def join("escalated:chat:" <> ticket_id, params, socket) when is_map(params) do
+    with {id, ""} when id > 0 and id <= 9_223_372_036_854_775_807 <- Integer.parse(ticket_id),
+         %Ticket{channel: "chat"} = ticket <- Escalated.repo().get(Ticket, id),
+         true <- authorized_agent?(socket) or valid_guest_token?(ticket, params["guest_token"]) do
+      {:ok, socket}
+    else
+      _ -> {:error, %{reason: "unauthorized"}}
     end
   end
 
@@ -78,14 +65,12 @@ defmodule Escalated.Channels.ChatChannel do
   # Private
 
   defp authorized_agent?(socket) do
-    user = socket.assigns[:current_user]
-    check_fn = Escalated.config(:agent_check)
-
-    cond do
-      is_nil(user) -> false
-      is_function(check_fn, 1) -> check_fn.(user)
-      is_nil(check_fn) -> true
-      true -> false
-    end
+    Escalated.Permissions.agent?(socket.assigns[:current_user])
   end
+
+  defp valid_guest_token?(%Ticket{guest_token: stored}, supplied)
+       when is_binary(stored) and stored != "" and is_binary(supplied) and supplied != "",
+       do: Plug.Crypto.secure_compare(stored, supplied)
+
+  defp valid_guest_token?(_ticket, _supplied), do: false
 end

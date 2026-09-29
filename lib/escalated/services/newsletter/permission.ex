@@ -21,12 +21,17 @@ defmodule Escalated.Services.Newsletter.Permission do
     end
   end
 
+  def allowed?(nil, _permission), do: false
+
   def allowed?(user, permission) do
     check = Escalated.config(:newsletter_permission_check)
 
     cond do
       is_function(check, 2) ->
-        check.(user, permission)
+        check.(user, permission) == true
+
+      not is_nil(check) ->
+        false
 
       admin_user?(user) ->
         true
@@ -40,8 +45,7 @@ defmodule Escalated.Services.Newsletter.Permission do
   end
 
   defp admin_user?(user) when not is_nil(user) do
-    admin_check = Escalated.config(:admin_check)
-    is_function(admin_check, 1) and admin_check.(user)
+    Escalated.Permissions.admin?(user)
   end
 
   defp admin_user?(_), do: false
