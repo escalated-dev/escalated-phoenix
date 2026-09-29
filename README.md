@@ -287,6 +287,34 @@ config :escalated,
   agent_check: &MyApp.Accounts.agent?/1
 ```
 
+## Public request limits
+
+Guest ticket creation, token lookup and guest ratings share a default budget of
+20 requests per minute per remote IP. Widget and chat routes share a separate
+20-request budget. Limits run before controller work and return HTTP 429 with
+`Retry-After` and `Cache-Control: no-store` when exhausted.
+
+```elixir
+config :escalated,
+  guest_rate_limit: %{max_requests: 20, window_ms: 60_000},
+  widget_rate_limit: %{max_requests: 20, window_ms: 60_000}
+```
+
+The built-in fixed-window limiter is supervised by the Escalated OTP application,
+serializes concurrent admission, expires idle counters, and caps storage at
+50,000 IP/bucket entries. Limits are **per node** and reset when its process or
+application restarts. A full store, unavailable backend or invalid configuration
+returns HTTP 503 instead of allowing uncounted requests.
+
+Multi-node hosts can configure `rate_limit_backend: MyApp.SharedRateLimiter`.
+Its `check(bucket, remote_ip, max_requests, window_ms)` callback must atomically
+return `:allow`, `{:deny, positive_retry_after_ms}`, or `{:error, reason}`. The
+buckets are `:guest` and `:widget`; `remote_ip` is the connection's IP tuple.
+Only a host's trusted-proxy pipeline should rewrite `conn.remote_ip`; Escalated
+does not trust `X-Forwarded-For` itself. Edge rate limits remain useful for
+distributed traffic. These limits do not add guest email verification or
+expiring guest credentials.
+
 ## Inbound email
 
 Point your Postmark, Mailgun, or AWS SES (via SNS HTTP subscription) inbound webhook at:
