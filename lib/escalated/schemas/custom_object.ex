@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.CustomObject do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}custom_objects" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :slug, :string
     field :description, :string
@@ -23,6 +24,7 @@ defmodule Escalated.Schemas.CustomObject do
     |> cast(attrs, [:name, :slug, :description, :field_definitions, :is_active])
     |> validate_required([:name])
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
     |> maybe_generate_slug()
   end
 
@@ -30,7 +32,10 @@ defmodule Escalated.Schemas.CustomObject do
     case get_field(changeset, :slug) do
       nil ->
         name = get_field(changeset, :name) || ""
-        slug = name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
+        slug =
+          name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
         put_change(changeset, :slug, slug)
 
       _ ->

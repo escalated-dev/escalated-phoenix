@@ -8,14 +8,72 @@ defmodule Escalated.Services.ChatSessionService do
 
   alias Escalated.Broadcasting
   alias Escalated.Schemas.{ChatSession, Reply, Ticket}
-  alias Escalated.Services.{ChatRoutingService, TicketService}
+  alias Escalated.Services.{ChatRoutingService, GuestAccess, TicketService}
   import Ecto.Query
+
+  @doc "Creates a chat and consumes email proof in the same transaction."
+  def start_guest(params, attrs) do
+    address = GuestAccess.email(attrs[:guest_email])
+    attrs = Map.put(attrs, :guest_email, address)
+    # IP/user-agent are transport details and must not break a legitimate retry.
+    identity = Map.drop(attrs, [:visitor_ip, :visitor_user_agent])
+
+    case GuestAccess.consume(Map.put(params, "email", address), "chat", identity, fn ->
+           ticket_attrs = %{
+             subject: attrs[:subject] || "Live Chat",
+             description:
+               if(attrs[:message] in [nil, ""], do: "Live chat request", else: attrs[:message]),
+             guest_name: attrs[:guest_name],
+             guest_email: address,
+             guest_token: nil,
+             requester_type: "guest",
+             status: "live",
+             channel: "chat"
+           }
+
+           with {:ok, ticket} <- TicketService.insert(ticket_attrs),
+                {:ok, session} <- create_session(ticket, attrs) do
+             {:ok,
+              GuestAccess.issue(ticket, "chat", address) |> Map.put("session_id", session.id)}
+           end
+         end) do
+      {:ok, result} ->
+        ticket = Escalated.repo().get!(Ticket, result["ticket_id"])
+        session = Escalated.repo().get!(ChatSession, result["session_id"])
+
+        session =
+          if not result["_replayed"] do
+            activate_guest_session(ticket, session)
+          else
+            session
+          end
+
+        {:ok, ticket, session, result}
+
+      error ->
+        error
+    end
+  end
+
+  defp activate_guest_session(ticket, session) do
+    assigned =
+      with {:ok, agent_id} when not is_nil(agent_id) <-
+             ChatRoutingService.find_available_agent(ticket.department_id),
+           {:ok, assigned} <- assign_agent(session, agent_id),
+           do: assigned
+
+    session = if match?(%ChatSession{}, assigned), do: assigned, else: session
+    broadcast_session_started(ticket, session)
+    session
+  end
 
   @doc """
   Starts a new chat session.
 
   Creates a ticket with channel=chat, status=live, and a ChatSession
   in waiting state. Attempts auto-routing to an available agent.
+  This is a trusted host operation: its legacy guest_token does not authorize
+  public access. Public entry points must use start_guest/2 and mailbox proof.
   """
   def start_session(attrs) do
     repo = Escalated.repo()

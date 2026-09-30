@@ -138,7 +138,7 @@ defmodule Escalated.StaffAuthorizationTest do
     end
   end
 
-  test "guest chat joins require a nonempty matching token for an existing chat" do
+  test "guest chat joins reject obsolete raw tokens even when the stored token matches" do
     for stored <- [nil, "", "guest-secret"] do
       {:ok, ticket} =
         TicketService.create(%{
@@ -156,7 +156,7 @@ defmodule Escalated.StaffAuthorizationTest do
             socket(nil)
           )
 
-        assert allowed?(result) == (stored == "guest-secret" and supplied == stored)
+        refute allowed?(result)
       end
 
       assert allowed?(

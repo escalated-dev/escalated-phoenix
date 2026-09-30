@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.SatisfactionRating do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}satisfaction_ratings" do
+    field :tenant_id, :string, default: ""
     field :rating, :integer
     field :comment, :string
     field :rated_by_type, :string
@@ -31,6 +32,7 @@ defmodule Escalated.Schemas.SatisfactionRating do
     |> validate_length(:comment, max: 2000)
     |> maybe_put_created_at()
     |> unique_constraint(:ticket_id)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   defp maybe_put_created_at(changeset) do

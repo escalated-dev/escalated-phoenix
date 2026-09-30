@@ -4,6 +4,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterListMember do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}newsletter_list_members" do
+    field :tenant_id, :string, default: ""
     field :list_id, :integer
     field :contact_id, :integer
     field :added_at, :utc_datetime
@@ -18,5 +19,6 @@ defmodule Escalated.Schemas.Newsletter.NewsletterListMember do
     |> validate_required([:list_id, :contact_id])
     |> put_change(:added_at, attrs[:added_at] || attrs["added_at"] || now)
     |> unique_constraint([:list_id, :contact_id])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

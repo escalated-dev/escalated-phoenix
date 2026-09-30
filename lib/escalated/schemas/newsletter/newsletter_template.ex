@@ -4,6 +4,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterTemplate do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}newsletter_templates" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :theme, :string, default: "default"
     field :subject_template, :string

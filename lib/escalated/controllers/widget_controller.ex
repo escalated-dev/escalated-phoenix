@@ -1,180 +1,80 @@
 defmodule Escalated.Controllers.WidgetController do
-  @moduledoc """
-  Public-facing controller for the embeddable support widget.
-
-  Provides endpoints for:
-  - Retrieving widget configuration/settings
-  - Creating tickets from the widget
-  - Fetching ticket status by guest token
-  - Adding replies via guest token
-  """
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
+  alias Escalated.Controllers.Api.GuestTicketController
+  alias Escalated.Controllers.GuestAccessController, as: AccessController
+  alias Escalated.Controllers.GuestTicketView
+  alias Escalated.Services.{GuestAccess, TicketService}
 
-  alias Escalated.Schemas.{Reply, Ticket}
-  alias Escalated.Services.TicketService
-  import Ecto.Query
-
-  @doc """
-  Returns the widget configuration (branding, allowed fields, etc.).
-  """
   def config(conn, _params) do
-    settings = widget_settings()
-
-    json(conn, %{
-      widget: %{
-        enabled: settings.enabled,
-        title: settings.title,
-        greeting: settings.greeting,
-        primary_color: settings.primary_color,
-        fields: settings.fields,
-        require_email: settings.require_email
-      }
-    })
+    settings = widget_settings() |> Map.put(:guest_verification_required, true)
+    json(conn, Map.put(settings, :widget, settings))
   end
 
-  @doc """
-  Creates a new ticket from the widget (public, unauthenticated).
-  """
   def create_ticket(conn, params) do
-    settings = widget_settings()
+    if widget_settings().enabled do
+      attrs = %{
+        subject: params["subject"] || "Widget submission",
+        description: params["description"],
+        guest_name: params["name"],
+        guest_email: params["email"],
+        metadata: %{"source" => "widget"}
+      }
 
-    if settings.enabled do
-      create_enabled_ticket(conn, params)
-    else
-      conn
-      |> put_status(403)
-      |> json(%{error: "Widget is disabled"})
-      |> halt()
-    end
-  end
-
-  defp create_enabled_ticket(conn, params) do
-    guest_token = generate_guest_token()
-
-    attrs = %{
-      subject: params["subject"] || "Widget submission",
-      description: params["description"] || "",
-      guest_name: params["name"],
-      guest_email: params["email"],
-      guest_token: guest_token,
-      requester_type: "guest",
-      metadata: %{"source" => "widget"}
-    }
-
-    case TicketService.create(attrs) do
-      {:ok, ticket} ->
-        conn
-        |> put_status(201)
-        |> json(%{
-          ticket: %{
-            reference: ticket.reference,
-            guest_token: ticket.guest_token,
-            status: ticket.status,
-            subject: ticket.subject
-          }
-        })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(422)
-        |> json(%{errors: format_errors(changeset)})
-    end
-  end
-
-  @doc """
-  Fetches a ticket's status using the guest token.
-  """
-  def show_ticket(conn, %{"reference" => reference, "guest_token" => token}) do
-    repo = Escalated.repo()
-
-    case repo.get_by(Ticket, reference: reference, guest_token: token) do
-      nil ->
-        conn |> put_status(404) |> json(%{error: "Ticket not found"})
-
-      ticket ->
-        replies =
-          repo.all(
-            from(r in Reply,
-              where: r.ticket_id == ^ticket.id and r.is_internal == false,
-              order_by: [asc: r.inserted_at]
+      case TicketService.create_guest(params, attrs) do
+        {:ok, ticket, result} ->
+          payload =
+            Map.merge(
+              GuestTicketController.guest_json(ticket),
+              AccessController.public_grant(result)
             )
-          )
 
-        json(conn, %{
-          ticket: %{
-            reference: ticket.reference,
-            subject: ticket.subject,
-            status: ticket.status,
-            created_at: ticket.inserted_at && DateTime.to_iso8601(ticket.inserted_at)
-          },
-          replies:
-            Enum.map(replies, fn r ->
-              %{
-                body: r.body,
-                created_at: r.inserted_at && DateTime.to_iso8601(r.inserted_at)
-              }
-            end)
-        })
+          conn |> put_status(201) |> json(Map.put(payload, "ticket", payload))
+
+        {:error, reason} ->
+          AccessController.error(conn, reason)
+      end
+    else
+      conn |> put_status(403) |> json(%{error: "Widget is disabled"}) |> halt()
     end
   end
 
-  @doc """
-  Adds a reply to a ticket using the guest token.
-  """
-  def reply(conn, %{"reference" => reference, "guest_token" => token, "body" => body}) do
-    repo = Escalated.repo()
+  def show_ticket(conn, %{"reference" => reference} = params) do
+    token = GuestAccess.token(conn, params)
 
-    case repo.get_by(Ticket, reference: reference, guest_token: token) do
-      nil ->
-        conn |> put_status(404) |> json(%{error: "Ticket not found"})
-
-      ticket ->
-        case TicketService.reply(ticket, %{body: body, is_internal: false}) do
-          {:ok, reply} ->
-            conn
-            |> put_status(201)
-            |> json(%{
-              reply: %{
-                body: reply.body,
-                created_at: reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(422)
-            |> json(%{errors: format_errors(changeset)})
-        end
+    with {:ok, ticket, grant} <- GuestAccess.resolve(token),
+         true <- ticket.reference == reference do
+      payload = GuestTicketView.correspondence(ticket, token, grant)
+      json(conn, Map.put(payload, "ticket", payload))
+    else
+      _ -> AccessController.error(conn, :not_found)
     end
   end
 
-  # Private
+  def reply(conn, %{"reference" => reference} = params) do
+    with {:ok, ticket, _} <- GuestAccess.resolve(GuestAccess.token(conn, params)),
+         true <- ticket.reference == reference,
+         {:ok, reply} <- TicketService.reply(ticket, %{body: params["body"], is_internal: false}) do
+      conn
+      |> put_status(201)
+      |> json(%{reply: %{body: reply.body, created_at: reply.inserted_at}})
+    else
+      {:error, %Ecto.Changeset{}} -> AccessController.error(conn, :invalid)
+      _ -> AccessController.error(conn, :not_found)
+    end
+  end
 
   defp widget_settings do
-    defaults = %{
-      enabled: true,
-      title: "Contact Support",
-      greeting: "How can we help you?",
-      primary_color: "#4F46E5",
-      fields: ~w(name email subject description),
-      require_email: true
-    }
-
-    configured = Escalated.config(:widget_settings, %{})
-
-    Map.merge(defaults, configured)
-  end
-
-  defp generate_guest_token do
-    :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
-  end
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
+    Map.merge(
+      %{
+        enabled: true,
+        title: "Contact Support",
+        greeting: "How can we help you?",
+        primary_color: "#4F46E5",
+        fields: ~w(name email subject description),
+        require_email: true
+      },
+      Escalated.config(:widget_settings, %{})
+    )
   end
 end

@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.ArticleCategory do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}article_categories" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :slug, :string
     field :parent_id, :id
@@ -24,6 +25,7 @@ defmodule Escalated.Schemas.ArticleCategory do
     |> validate_required([:name])
     |> put_slug(:name)
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   def roots(query \\ __MODULE__), do: from(c in query, where: is_nil(c.parent_id))

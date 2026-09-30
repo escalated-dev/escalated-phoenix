@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.AgentSkill do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{@prefix}agent_skills" do
+    field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :proficiency, :integer, default: 3
 
@@ -24,5 +25,6 @@ defmodule Escalated.Schemas.AgentSkill do
     |> validate_required([:user_id, :skill_id])
     |> validate_number(:proficiency, greater_than_or_equal_to: 1, less_than_or_equal_to: 5)
     |> unique_constraint([:user_id, :skill_id])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

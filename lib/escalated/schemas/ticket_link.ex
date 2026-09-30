@@ -11,6 +11,7 @@ defmodule Escalated.Schemas.TicketLink do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}ticket_links" do
+    field :tenant_id, :string, default: ""
     field :parent_ticket_id, :id
     field :child_ticket_id, :id
     field :link_type, :string
@@ -27,6 +28,7 @@ defmodule Escalated.Schemas.TicketLink do
     |> validate_required([:parent_ticket_id, :child_ticket_id, :link_type])
     |> validate_inclusion(:link_type, @link_types)
     |> put_unique_constraints()
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   @unique_fields [:parent_ticket_id, :child_ticket_id, :link_type]

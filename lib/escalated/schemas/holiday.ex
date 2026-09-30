@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.Holiday do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}holidays" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :date, :date
     field :is_recurring, :boolean, default: false

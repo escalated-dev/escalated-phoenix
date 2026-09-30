@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.WorkflowLog do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}workflow_logs" do
+    field :tenant_id, :string, default: ""
     belongs_to :workflow, Escalated.Schemas.Workflow
     belongs_to :ticket, Escalated.Schemas.Ticket
     field :trigger_event, :string

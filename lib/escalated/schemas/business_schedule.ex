@@ -16,6 +16,7 @@ defmodule Escalated.Schemas.BusinessSchedule do
   }
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}business_schedules" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :timezone, :string, default: "UTC"
     field :hours, :map, default: @default_hours
@@ -42,11 +43,18 @@ defmodule Escalated.Schemas.BusinessSchedule do
     day_config = Map.get(hours, day_name)
 
     cond do
-      is_nil(day_config) -> false
-      not Map.get(day_config, "enabled", false) -> false
-      is_holiday?(holidays, dt) -> false
+      is_nil(day_config) ->
+        false
+
+      not Map.get(day_config, "enabled", false) ->
+        false
+
+      holiday?(holidays, dt) ->
+        false
+
       true ->
         time_str = Calendar.strftime(dt, "%H:%M")
+
         time_str >= Map.get(day_config, "start", "00:00") and
           time_str <= Map.get(day_config, "end", "23:59")
     end
@@ -54,10 +62,12 @@ defmodule Escalated.Schemas.BusinessSchedule do
 
   def within_business_hours?(_, _), do: false
 
-  defp is_holiday?(%Ecto.Association.NotLoaded{}, _dt), do: false
-  defp is_holiday?(holidays, dt) when is_list(holidays) do
+  defp holiday?(%Ecto.Association.NotLoaded{}, _dt), do: false
+
+  defp holiday?(holidays, dt) when is_list(holidays) do
     date = DateTime.to_date(dt)
     Enum.any?(holidays, fn h -> Date.compare(h.date, date) == :eq end)
   end
-  defp is_holiday?(_, _), do: false
+
+  defp holiday?(_, _), do: false
 end

@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.SideConversation do
   @statuses ~w(open closed)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}side_conversations" do
+    field :tenant_id, :string, default: ""
     field :ticket_id, :id
     field :subject, :string
     field :channel, :string, default: "internal"

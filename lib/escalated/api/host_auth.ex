@@ -24,23 +24,35 @@ defmodule Escalated.Api.HostAuth do
 
   @doc "Authenticate a login request (email/password etc.) via the host."
   @spec authenticate(map()) :: result
-  def authenticate(params), do: call(:api_authenticator, [params])
+  def authenticate(params), do: call(:api_authenticator, [params]) |> member_response()
 
   @doc "Register a new account via the host."
   @spec register(map()) :: result
-  def register(params), do: call(:api_registrar, [params])
+  def register(params) do
+    if Escalated.Tenancy.enabled?(),
+      do:
+        call(:api_tenant_registrar, [params, Escalated.Tenancy.current_id!()])
+        |> member_response(),
+      else: call(:api_registrar, [params])
+  end
 
   @doc "Exchange/refresh a token via the host."
   @spec refresh(String.t()) :: result
-  def refresh(token), do: call(:api_token_refresher, [token])
+  def refresh(token) do
+    with :ok <- authorize_token(token),
+         do: call(:api_token_refresher, [token]) |> member_response()
+  end
 
   @doc "Validate a token and return the associated user via the host."
   @spec validate(String.t()) :: result
-  def validate(token), do: call(:api_token_validator, [token])
+  def validate(token), do: call(:api_token_validator, [token]) |> member_response()
 
   @doc "Update the authenticated user's profile via the host."
   @spec update_profile(String.t(), map()) :: result
-  def update_profile(token, attrs), do: call(:api_profile_updater, [token, attrs])
+  def update_profile(token, attrs) do
+    with :ok <- authorize_token(token),
+         do: call(:api_profile_updater, [token, attrs]) |> member_response()
+  end
 
   @doc """
   Invalidate a token via the host (best-effort). Always returns `:ok` — a
@@ -48,6 +60,10 @@ defmodule Escalated.Api.HostAuth do
   """
   @spec logout(String.t() | nil) :: :ok
   def logout(token) do
+    if authorize_token(token) == :ok, do: logout_authorized(token), else: :ok
+  end
+
+  defp logout_authorized(token) do
     case Escalated.config(:api_logout) do
       callback when is_function(callback, 1) ->
         _ = callback.(token)
@@ -57,6 +73,24 @@ defmodule Escalated.Api.HostAuth do
         :ok
     end
   end
+
+  defp authorize_token(token) do
+    if Escalated.Tenancy.enabled?() do
+      case validate(token) do
+        {:ok, _} -> :ok
+        error -> error
+      end
+    else
+      :ok
+    end
+  end
+
+  defp member_response({:ok, data} = result) do
+    user = Map.get(data, :user, Map.get(data, "user", data))
+    if Escalated.Tenancy.member?(user), do: result, else: :unauthorized
+  end
+
+  defp member_response(result), do: result
 
   defp call(key, args) do
     arity = length(args)

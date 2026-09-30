@@ -7,6 +7,7 @@ defmodule Escalated.Schemas.TicketSubject do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_subjects" do
+    field :tenant_id, :string, default: ""
     field :subject_type, :string
     field :subject_id, :string
     field :role, :string
@@ -25,6 +26,7 @@ defmodule Escalated.Schemas.TicketSubject do
     |> unique_constraint([:ticket_id, :subject_type, :subject_id],
       name: :escalated_ticket_subject_unique
     )
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   def ordered(query \\ __MODULE__) do

@@ -14,7 +14,7 @@ defmodule Escalated.Services.AutomationRunner do
   import Ecto.Query
   require Logger
 
-  alias Escalated.Schemas.{Automation, Ticket, Reply, Tag}
+  alias Escalated.Schemas.{Automation, Reply, Tag, Ticket}
 
   @doc """
   Evaluate all active automations and apply their actions to matching
@@ -30,6 +30,8 @@ defmodule Escalated.Services.AutomationRunner do
   """
   @spec run(module()) :: non_neg_integer()
   def run(repo) when is_atom(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     automations =
       Automation
       |> Automation.active()
@@ -51,21 +53,19 @@ defmodule Escalated.Services.AutomationRunner do
   end
 
   defp run_one(%Automation{} = automation, repo) do
-    try do
-      tickets = find_matching_tickets(automation, repo)
+    tickets = find_matching_tickets(automation, repo)
 
-      Enum.each(tickets, fn ticket ->
-        execute_actions(automation, ticket, repo)
-      end)
+    Enum.each(tickets, fn ticket ->
+      execute_actions(automation, ticket, repo)
+    end)
 
-      automation
-      |> Automation.changeset(%{last_run_at: DateTime.utc_now() |> DateTime.truncate(:second)})
-      |> repo.update()
+    automation
+    |> Automation.changeset(%{last_run_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+    |> repo.update()
 
-      {:ok, length(tickets)}
-    rescue
-      e -> {:error, e}
-    end
+    {:ok, length(tickets)}
+  rescue
+    e -> {:error, e}
   end
 
   defp find_matching_tickets(%Automation{conditions: conditions}, repo) do
@@ -212,11 +212,8 @@ defmodule Escalated.Services.AutomationRunner do
   defp run_action(_unknown, _ticket, _aid, _repo), do: :ok
 
   defp attach_tag(ticket, tag, repo) do
-    # Conservative implementation: insert into the join table only if the
-    # link doesn't exist yet. Schema for the join table is host-defined;
-    # exact module name varies by repo. The Phoenix port keeps a flat
-    # ticket_tag table by convention.
-    join_table = "#{Application.get_env(:escalated, :table_prefix, "escalated_")}ticket_tag"
+    # Match the package's explicit TicketTag schema and migration.
+    join_table = Escalated.table_name("ticket_tags")
 
     repo.insert_all(
       join_table,

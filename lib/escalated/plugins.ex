@@ -30,7 +30,9 @@ defmodule Escalated.Plugins do
 
   @doc "Returns the list of registered plugin modules (from config)."
   def registered_modules do
-    List.wrap(Escalated.config(:plugins, []))
+    # Plugin modules and lifecycle callbacks are platform-global host code.
+    # Tenant-local activation rows do not make that code safe to execute.
+    if Escalated.Tenancy.enabled?(), do: [], else: List.wrap(Escalated.config(:plugins, []))
   end
 
   @doc "Returns the slugs of all currently-activated plugins."
@@ -70,6 +72,12 @@ defmodule Escalated.Plugins do
   `on_activate/0`, and fires the `plugin_activated` hooks.
   """
   def activate(slug) when is_binary(slug) do
+    if Escalated.Tenancy.enabled?(),
+      do: {:error, :tenant_mode_unsupported},
+      else: do_activate(slug)
+  end
+
+  defp do_activate(slug) do
     repo = Escalated.repo()
 
     changeset =
@@ -96,6 +104,12 @@ defmodule Escalated.Plugins do
   the row inactive.
   """
   def deactivate(slug) when is_binary(slug) do
+    if Escalated.Tenancy.enabled?(),
+      do: {:error, :tenant_mode_unsupported},
+      else: do_deactivate(slug)
+  end
+
+  defp do_deactivate(slug) do
     repo = Escalated.repo()
 
     case repo.get_by(Plugin, slug: slug) do
@@ -118,6 +132,10 @@ defmodule Escalated.Plugins do
   first. The plugin's stored data (`Escalated.Plugins.Store`) is left intact.
   """
   def delete(slug) when is_binary(slug) do
+    if Escalated.Tenancy.enabled?(), do: {:error, :tenant_mode_unsupported}, else: do_delete(slug)
+  end
+
+  defp do_delete(slug) do
     repo = Escalated.repo()
 
     case repo.get_by(Plugin, slug: slug) do

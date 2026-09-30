@@ -21,7 +21,7 @@ defmodule Escalated.Serializers.TicketSerializer do
     * `subjects`               — host entities the ticket is about
   """
 
-  alias Escalated.Schemas.{Reply, ChatSession, Ticket}
+  alias Escalated.Schemas.{ChatSession, Contact, Reply, Ticket}
   alias Escalated.Services.TicketSubjectService
   alias Escalated.TicketSubjects
   import Ecto.Query
@@ -29,14 +29,13 @@ defmodule Escalated.Serializers.TicketSerializer do
   @doc """
   Returns a map of the six computed fields for the given ticket.
 
-  The ticket must already have its `replies` association loaded (or an empty
-  list will be assumed). If `replies` is not preloaded, the function falls
-  back to a single query for the latest reply.
+  Pass `public: true` for customer-facing data so the last reply excludes
+  internal notes, including their author and timestamp.
   """
-  def computed_fields(ticket) do
+  def computed_fields(ticket, opts \\ []) do
     repo = Escalated.repo()
     {requester_name, requester_email} = resolve_requester(ticket)
-    {last_reply_at, last_reply_author} = resolve_last_reply(ticket, repo)
+    {last_reply_at, last_reply_author} = resolve_last_reply(ticket, repo, opts)
 
     %{
       requester_name: requester_name,
@@ -110,37 +109,51 @@ defmodule Escalated.Serializers.TicketSerializer do
       ticket.guest_name != nil || ticket.guest_email != nil ->
         {ticket.guest_name, ticket.guest_email}
 
-      # Registered requester — look up via configured user schema
-      ticket.requester_id != nil ->
+      ticket.requester_id != nil and
+          ticket.requester_type in ["contact", "Contact", to_string(Contact)] ->
+        Escalated.repo().get(Contact, ticket.requester_id) |> requester_identity()
+
+      # Only host-user requester types may resolve against the host directory.
+      ticket.requester_id != nil and
+          ticket.requester_type in [
+            nil,
+            "user",
+            "User",
+            to_string(Escalated.config(:user_schema))
+          ] ->
         user_schema = Escalated.user_schema()
-
-        case Escalated.user_repo().get(user_schema, ticket.requester_id) do
-          nil ->
-            {nil, nil}
-
-          user ->
-            name =
-              if function_exported?(user.__struct__, :name, 1),
-                do: user.__struct__.name(user),
-                else: Map.get(user, :name)
-
-            email = Map.get(user, :email)
-            {name, email}
-        end
+        Escalated.user_repo().get(user_schema, ticket.requester_id) |> requester_identity()
 
       true ->
         {nil, nil}
     end
   end
 
-  defp resolve_last_reply(ticket, repo) do
-    last_reply =
+  defp requester_identity(nil), do: {nil, nil}
+
+  defp requester_identity(requester) do
+    name =
+      if function_exported?(requester.__struct__, :name, 1),
+        do: requester.__struct__.name(requester),
+        else: Map.get(requester, :name)
+
+    {name, Map.get(requester, :email)}
+  end
+
+  defp resolve_last_reply(ticket, repo, opts) do
+    query =
       from(r in Reply,
         where: r.ticket_id == ^ticket.id,
-        order_by: [desc: r.inserted_at],
+        order_by: [desc: r.inserted_at, desc: r.id],
         limit: 1
       )
-      |> repo.one()
+
+    query =
+      if Keyword.get(opts, :public, false),
+        do: where(query, [r], r.is_internal == false),
+        else: query
+
+    last_reply = repo.one(query)
 
     case last_reply do
       nil ->
@@ -208,10 +221,14 @@ defmodule Escalated.Serializers.TicketSerializer do
   defp resolve_requester_ticket_count(ticket, repo) do
     cond do
       ticket.requester_id != nil ->
-        repo.aggregate(
-          from(t in Ticket, where: t.requester_id == ^ticket.requester_id),
-          :count
-        )
+        query = from(t in Ticket, where: t.requester_id == ^ticket.requester_id)
+
+        query =
+          if is_nil(ticket.requester_type),
+            do: where(query, [t], is_nil(t.requester_type)),
+            else: where(query, [t], t.requester_type == ^ticket.requester_type)
+
+        repo.aggregate(query, :count)
 
       ticket.guest_email != nil ->
         repo.aggregate(

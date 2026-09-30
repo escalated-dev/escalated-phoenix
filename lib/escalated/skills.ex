@@ -79,11 +79,13 @@ defmodule Escalated.Skills do
     repo = Escalated.repo()
     user_schema = Escalated.user_schema()
 
+    agent_query =
+      if Escalated.Tenancy.enabled?(),
+        do: Escalated.Permissions.tenant_agents(user_schema),
+        else: from(u in user_schema, where: u.is_agent == true)
+
     agents =
-      from(u in user_schema,
-        where: u.is_agent == true,
-        order_by: [asc: u.id]
-      )
+      from(u in agent_query, order_by: [asc: u.id])
       |> Escalated.user_repo().all()
       |> Enum.map(fn u ->
         %{
@@ -220,7 +222,7 @@ defmodule Escalated.Skills do
     do: Ecto.Changeset.add_error(cs, :agents, "invalid user id")
 
   defp validate_agent_user(cs, user) do
-    if Map.get(user, :is_agent, false),
+    if Escalated.Permissions.agent?(user),
       do: cs,
       else: Ecto.Changeset.add_error(cs, :agents, "user must be an agent")
   end

@@ -12,6 +12,14 @@ defmodule Escalated.Controllers.Admin.PluginController do
   alias Escalated.Rendering.UIRenderer
 
   def index(conn, _params) do
+    if Escalated.Tenancy.enabled?() do
+      respond(conn, {:error, :tenant_mode_unsupported}, nil)
+    else
+      legacy_index(conn)
+    end
+  end
+
+  defp legacy_index(conn) do
     # can_upload: false — Escalated plugins here are compiled host modules
     # registered in config, not uploaded ZIPs, so the admin page hides its
     # upload control (the shared page defaults can_upload to true for Laravel).
@@ -39,6 +47,13 @@ defmodule Escalated.Controllers.Admin.PluginController do
 
   defp respond(conn, {:error, :not_found}, _message) do
     conn |> put_status(404) |> json(%{error: "Plugin not found."})
+  end
+
+  defp respond(conn, {:error, :tenant_mode_unsupported}, _message) do
+    conn
+    |> put_status(403)
+    |> json(%{error: "Plugins require platform administration."})
+    |> halt()
   end
 
   defp respond(conn, {:error, _reason}, _message) do

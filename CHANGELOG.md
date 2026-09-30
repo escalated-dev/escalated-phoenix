@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Opt-in merchant tenancy with scoped repositories, tenant-local roles and unique
+  keys, host membership and reference validation, isolated jobs and realtime
+  channels, explicit provisioning and an offline legacy-data backfill command.
+- Verified guest mailbox access for tickets, chat, tracking lookup and private
+  attachments. Proof consumption is atomic with creation; capabilities expire,
+  can be revoked and are bound to the merchant, mailbox and intended use.
+- Shared mailbox delivery budgets, bounded proof attempts and scheduled cleanup
+  of expired guest access records.
+
+### Security
+- Customer ticket summaries distinguish contacts from host users with the same
+  numeric ID and exclude internal-note timestamps and authors.
+- Legacy permanent guest tokens no longer grant access. Hosts must configure
+  verification delivery and a stable guest access secret before accepting public
+  submissions. See [merchant and guest setup](docs/merchant-and-guest-access.md)
+  for required migrations, callbacks and upgrade behavior.
+
 ### Fixed
 - Disabled widget ticket and chat submissions now stop before creating tickets,
   contacts, activities or chat sessions. Database-backed regression tests cover

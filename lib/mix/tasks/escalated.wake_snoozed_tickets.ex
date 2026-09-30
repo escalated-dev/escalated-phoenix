@@ -13,20 +13,25 @@ defmodule Mix.Tasks.Escalated.WakeSnoozedTickets do
   @shortdoc "Wakes snoozed tickets that are past their snooze-until time"
 
   @impl Mix.Task
-  def run(_args) do
+  def run(args) do
     Mix.Task.run("app.start")
+    Escalated.Tenancy.Maintenance.run(args, &run_for_tenant/1)
+  end
 
+  defp run_for_tenant(_args) do
     results = Escalated.Services.TicketService.wake_snoozed_tickets()
 
-    woken = Enum.count(results, fn
-      {:ok, _} -> true
-      _ -> false
-    end)
+    woken =
+      Enum.count(results, fn
+        {:ok, _} -> true
+        _ -> false
+      end)
 
-    errors = Enum.count(results, fn
-      {:error, _} -> true
-      _ -> false
-    end)
+    errors =
+      Enum.count(results, fn
+        {:error, _} -> true
+        _ -> false
+      end)
 
     Mix.shell().info("Escalated: Woke #{woken} snoozed ticket(s). Errors: #{errors}.")
   end

@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.WidgetSubmissionTest do
   alias Escalated.TestRepo
 
   setup do
+    Escalated.Test.GuestAccessHelpers.configure()
     previous = Application.fetch_env(:escalated, :widget_settings)
 
     on_exit(fn ->
@@ -42,7 +43,8 @@ defmodule Escalated.Controllers.WidgetSubmissionTest do
 
   test "enabled ticket submissions still create a ticket" do
     Application.put_env(:escalated, :widget_settings, %{enabled: true})
-    conn = WidgetController.create_ticket(Plug.Test.conn(:post, "/widget/tickets"), params())
+    verified = Map.merge(params(), Escalated.Test.GuestAccessHelpers.proof())
+    conn = WidgetController.create_ticket(Plug.Test.conn(:post, "/widget/tickets"), verified)
 
     assert conn.status == 201
     assert TestRepo.aggregate(Ticket, :count) == 1
@@ -51,7 +53,14 @@ defmodule Escalated.Controllers.WidgetSubmissionTest do
 
   test "enabled chat submissions still create a ticket and session" do
     Application.put_env(:escalated, :widget_settings, %{enabled: true})
-    conn = WidgetChatController.start(Plug.Test.conn(:post, "/widget/chat"), params())
+
+    verified =
+      Map.merge(
+        params(),
+        Escalated.Test.GuestAccessHelpers.proof("recipient@example.test", "chat")
+      )
+
+    conn = WidgetChatController.start(Plug.Test.conn(:post, "/widget/chat"), verified)
 
     assert conn.status == 201
     assert TestRepo.aggregate(Ticket, :count) == 1

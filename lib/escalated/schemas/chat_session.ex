@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.ChatSession do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}chat_sessions" do
+    field :tenant_id, :string, default: ""
     field :status, :string, default: "waiting"
     field :agent_id, @user_id_type
     field :visitor_user_agent, :string

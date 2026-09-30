@@ -7,11 +7,13 @@ defmodule Escalated.Schemas.Tag do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}tags" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :color, :string, default: "#6B7280"
 
     many_to_many :tickets, Escalated.Schemas.Ticket,
-      join_through: "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_tags"
+      join_through: Escalated.Schemas.TicketTag,
+      join_defaults: {Escalated.Schemas.TicketTag, :tenant_defaults, []}
 
     timestamps(type: :utc_datetime)
   end
@@ -22,6 +24,7 @@ defmodule Escalated.Schemas.Tag do
     |> cast(attrs, [:name, :color])
     |> validate_required([:name])
     |> unique_constraint(:name)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   def ordered(query \\ __MODULE__) do

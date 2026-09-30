@@ -58,6 +58,7 @@ defmodule Escalated.Services.WebhookDispatcher do
   the delivery row could not be inserted).
   """
   def send(%Webhook{} = webhook, event, payload, attempt \\ 1) do
+    Escalated.Tenancy.assert_record!(webhook)
     body = encode_body(event, payload)
     headers = build_headers(webhook, event, body)
 
@@ -92,6 +93,7 @@ defmodule Escalated.Services.WebhookDispatcher do
 
   @doc "Replay a recorded delivery from the start (a fresh attempt chain)."
   def retry_delivery(%WebhookDelivery{} = delivery) do
+    Escalated.Tenancy.assert_record!(delivery)
     repo = Escalated.repo()
 
     case repo.get(Webhook, delivery.webhook_id) do
@@ -121,6 +123,8 @@ defmodule Escalated.Services.WebhookDispatcher do
   # Inline when synchronous (tests / hosts that opt in), otherwise an unlinked
   # task so a slow endpoint never blocks the triggering request.
   defp run(fun) do
+    fun = Escalated.Tenancy.capture(fun)
+
     if sync?() do
       fun.()
     else

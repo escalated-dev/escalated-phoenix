@@ -3,8 +3,12 @@ defmodule Escalated.Services.Newsletter.RateLimit do
   @table :escalated_newsletter_sent_buckets
 
   def sent_this_minute do
-    ensure_table()
     key = minute_key()
+    lookup_count(key)
+  end
+
+  defp lookup_count(key) do
+    ensure_table()
     :ets.lookup_element(@table, key, 2, 0)
   rescue
     ArgumentError -> 0
@@ -17,8 +21,9 @@ defmodule Escalated.Services.Newsletter.RateLimit do
   end
 
   def reset do
+    tenant_id = Escalated.Tenancy.current_id!()
     ensure_table()
-    :ets.delete_all_objects(@table)
+    :ets.match_delete(@table, {{tenant_id, :_}, :_})
     :ok
   end
 
@@ -31,9 +36,10 @@ defmodule Escalated.Services.Newsletter.RateLimit do
   end
 
   defp minute_key do
+    tenant_id = Escalated.Tenancy.current_id!()
     {{y, m, d}, {h, min, _}} = :calendar.universal_time()
 
-    :io_lib.format("~4..0w~2..0w~2..0w~2..0w~2..0w", [y, m, d, h, min])
-    |> to_string()
+    minute = :io_lib.format("~4..0w~2..0w~2..0w~2..0w~2..0w", [y, m, d, h, min]) |> to_string()
+    {tenant_id, minute}
   end
 end

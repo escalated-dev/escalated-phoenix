@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.AuditLog do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}audit_logs" do
+    field :tenant_id, :string, default: ""
     field :action, :string
     field :entity_type, :string
     field :entity_id, :integer

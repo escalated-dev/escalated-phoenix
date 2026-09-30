@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.Reply do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}replies" do
+    field :tenant_id, :string, default: ""
     field :body, :string
     field :is_internal, :boolean, default: false
     field :is_system, :boolean, default: false

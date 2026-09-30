@@ -17,6 +17,7 @@ defmodule Escalated.Schemas.Contact do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}contacts" do
+    field :tenant_id, :string, default: ""
     field :email, :string
     field :name, :string
     field :user_id, @user_id_type
@@ -81,5 +82,6 @@ defmodule Escalated.Schemas.Contact do
     |> update_change(:email, &normalize_email/1)
     |> validate_length(:email, max: 320)
     |> unique_constraint(:email)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

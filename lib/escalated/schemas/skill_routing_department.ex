@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.SkillRoutingDepartment do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}skill_routing_departments" do
+    field :tenant_id, :string, default: ""
     belongs_to :skill, Escalated.Schemas.Skill
     belongs_to :department, Escalated.Schemas.Department
   end
@@ -20,5 +21,6 @@ defmodule Escalated.Schemas.SkillRoutingDepartment do
     |> foreign_key_constraint(:skill_id)
     |> foreign_key_constraint(:department_id)
     |> unique_constraint([:skill_id, :department_id])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

@@ -7,6 +7,7 @@ defmodule Escalated.Schemas.Department do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}departments" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :slug, :string
     field :description, :string
@@ -28,6 +29,7 @@ defmodule Escalated.Schemas.Department do
     |> validate_format(:email, ~r/@/, message: "must be a valid email")
     |> unique_constraint(:name)
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
     |> maybe_generate_slug()
   end
 
@@ -43,7 +45,10 @@ defmodule Escalated.Schemas.Department do
     case get_field(changeset, :slug) do
       nil ->
         name = get_field(changeset, :name) || ""
-        slug = name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
+        slug =
+          name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
         put_change(changeset, :slug, slug)
 
       _ ->

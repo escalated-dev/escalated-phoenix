@@ -43,8 +43,7 @@ defmodule Escalated.Services.Newsletter.Renderer do
 
   # ----
 
-  defp base_url,
-    do: String.trim_trailing(Application.get_env(:escalated, :app_url, "http://localhost"), "/")
+  defp base_url, do: Escalated.Tenancy.PublicUrl.base()
 
   defp default_theme, do: Application.get_env(:escalated, :newsletter_default_theme, "default")
   defp tracking_enabled?, do: Application.get_env(:escalated, :newsletter_tracking_enabled, true)

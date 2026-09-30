@@ -16,26 +16,38 @@ defmodule Escalated.Webhooks do
 
   @doc "All webhooks, newest first."
   def list(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.all(from(w in Webhook, order_by: [desc: w.id]))
   end
 
   @doc "Active webhooks only (used by the dispatcher)."
   def list_active(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.all(Webhook.active())
   end
 
   @doc "Active webhooks subscribed to `event`."
   def subscribed_to(repo, event) when is_binary(event) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo
     |> list_active()
     |> Enum.filter(&Webhook.subscribed_to?(&1, event))
   end
 
   @doc "Fetch a webhook by id (nil when absent)."
-  def get(repo, id), do: repo.get(Webhook, id)
+  def get(repo, id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
+    repo.get(Webhook, id)
+  end
 
   @doc "Create a webhook."
   def create(repo, attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     %Webhook{}
     |> Webhook.changeset(attrs)
     |> repo.insert()
@@ -43,19 +55,27 @@ defmodule Escalated.Webhooks do
 
   @doc "Update a webhook."
   def update(repo, %Webhook{} = webhook, attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     webhook
     |> Webhook.changeset(attrs)
     |> repo.update()
   end
 
   @doc "Delete a webhook (cascades its deliveries)."
-  def delete(repo, %Webhook{} = webhook), do: repo.delete(webhook)
+  def delete(repo, %Webhook{} = webhook) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
+    repo.delete(webhook)
+  end
 
   @doc """
   Webhooks decorated with delivery stats for the admin index:
   a `delivery_count` and the `latest_delivery` (serialized or nil).
   """
   def list_with_delivery_stats(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     Enum.map(list(repo), fn webhook ->
       webhook
       |> Webhook.to_json()
@@ -66,12 +86,16 @@ defmodule Escalated.Webhooks do
 
   @doc "Number of delivery attempts recorded for a webhook."
   def delivery_count(repo, webhook_id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.one(from(d in WebhookDelivery, where: d.webhook_id == ^webhook_id, select: count(d.id))) ||
       0
   end
 
   @doc "Most recent deliveries for a webhook, newest first."
   def list_deliveries(repo, webhook_id, max \\ 50) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     webhook_id
     |> WebhookDelivery.for_webhook()
     |> limit(^max)
@@ -79,7 +103,11 @@ defmodule Escalated.Webhooks do
   end
 
   @doc "Fetch a single delivery by id (nil when absent)."
-  def get_delivery(repo, id), do: repo.get(WebhookDelivery, id)
+  def get_delivery(repo, id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
+    repo.get(WebhookDelivery, id)
+  end
 
   defp latest_delivery_json(repo, webhook_id) do
     query = webhook_id |> WebhookDelivery.for_webhook() |> limit(1)

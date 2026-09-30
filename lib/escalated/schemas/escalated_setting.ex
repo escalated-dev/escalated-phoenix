@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.EscalatedSetting do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}settings" do
+    field :tenant_id, :string, default: ""
     field :key, :string
     field :value, :string
     field :type, :string
@@ -26,5 +27,6 @@ defmodule Escalated.Schemas.EscalatedSetting do
     |> cast(attrs, [:key, :value, :type, :group])
     |> validate_required([:key])
     |> unique_constraint(:key)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

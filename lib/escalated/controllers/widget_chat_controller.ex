@@ -1,137 +1,147 @@
 defmodule Escalated.Controllers.WidgetChatController do
-  @moduledoc """
-  Public-facing controller for the widget live chat feature.
-
-  Provides endpoints for checking chat availability, starting
-  chat sessions, sending messages, and ending sessions.
-  """
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
+  import Ecto.Query
+  alias Escalated.Broadcasting
+  alias Escalated.Controllers.GuestAccessController, as: AccessController
+  alias Escalated.Schemas.{ChatSession, Reply, SatisfactionRating}
+  alias Escalated.Services.{ChatAvailabilityService, ChatSessionService, GuestAccess}
 
-  alias Escalated.Schemas.{ChatSession, Ticket}
-  alias Escalated.Services.{ChatAvailabilityService, ChatSessionService}
-
-  @doc """
-  Returns chat availability status.
-  """
   def availability(conn, _params) do
     status = ChatAvailabilityService.get_status()
-    json(conn, %{data: status})
+    json(conn, Map.put(status, :data, status))
   end
 
-  @doc """
-  Starts a new chat session from the widget.
-  """
   def start(conn, params) do
-    settings = widget_settings()
+    if Map.get(Escalated.config(:widget_settings, %{}), :enabled, true) do
+      attrs = %{
+        guest_name: params["name"],
+        guest_email: params["email"],
+        subject: params["subject"],
+        message: params["message"],
+        page_url: params["page_url"],
+        visitor_ip: to_string(:inet.ntoa(conn.remote_ip)),
+        visitor_user_agent: List.first(get_req_header(conn, "user-agent"))
+      }
 
-    if settings.enabled do
-      start_enabled_chat(conn, params)
-    else
-      conn
-      |> put_status(403)
-      |> json(%{error: "Widget is disabled"})
-      |> halt()
-    end
-  end
+      case ChatSessionService.start_guest(params, attrs) do
+        {:ok, ticket, session, result} ->
+          token = result["guest_access_token"]
 
-  defp start_enabled_chat(conn, params) do
-    attrs = %{
-      guest_name: params["name"],
-      guest_email: params["email"],
-      subject: params["subject"],
-      message: params["message"],
-      page_url: params["page_url"],
-      visitor_ip: to_string(:inet.ntoa(conn.remote_ip)),
-      visitor_user_agent: get_req_header(conn, "user-agent") |> List.first()
-    }
-
-    case ChatSessionService.start_session(attrs) do
-      {:ok, ticket, session} ->
-        conn
-        |> put_status(201)
-        |> json(%{
-          data: %{
-            session_id: session.id,
+          payload = %{
+            id: token,
+            session_id: token,
             ticket_reference: ticket.reference,
-            guest_token: ticket.guest_token,
-            status: session.status
+            guest_access_token: token,
+            expires_at: result["expires_at"],
+            status: session.status,
+            messages: []
           }
-        })
 
-      {:error, changeset} ->
-        conn
-        |> put_status(422)
-        |> json(%{errors: format_errors(changeset)})
+          conn |> put_status(201) |> json(Map.put(payload, :data, payload))
+
+        {:error, reason} ->
+          AccessController.error(conn, reason)
+      end
+    else
+      conn |> put_status(403) |> json(%{error: "Widget is disabled"}) |> halt()
     end
   end
 
-  @doc """
-  Sends a message in a chat session (guest).
-  """
-  def send_message(conn, %{"reference" => reference, "body" => body}) do
-    guest_token = get_req_header(conn, "x-guest-token") |> List.first()
-
-    case find_session(reference, guest_token) do
-      nil ->
-        conn |> put_status(404) |> json(%{error: "Session not found"})
-
-      session ->
-        case ChatSessionService.send_message(session, body) do
-          {:ok, _} ->
-            conn |> put_status(201) |> json(%{data: %{status: "sent"}})
-
-          {:error, _} ->
-            conn |> put_status(500) |> json(%{error: "Failed to send"})
-        end
+  def send_message(conn, params) do
+    with {:ok, _ticket, session, _grant} <- session(conn, params),
+         true <- session.status in ["waiting", "active"],
+         body when is_binary(body) and byte_size(body) in 1..20_000 <- params["body"],
+         {:ok, _reply} <- ChatSessionService.send_message(session, body) do
+      conn |> put_status(201) |> json(%{data: %{status: "sent"}})
+    else
+      _ -> AccessController.error(conn, :not_found)
     end
   end
 
-  @doc """
-  Ends a chat session (guest).
-  """
-  def end_session(conn, %{"reference" => reference}) do
-    guest_token = get_req_header(conn, "x-guest-token") |> List.first()
+  def messages(conn, params) do
+    with {:ok, ticket, session, _} <- session(conn, params) do
+      messages =
+        Escalated.repo().all(
+          from(r in Reply,
+            where: r.ticket_id == ^ticket.id and r.is_internal == false,
+            order_by: [desc: r.id],
+            limit: 100
+          )
+        )
+        |> Enum.reverse()
+        |> Enum.map(
+          &%{
+            id: &1.id,
+            body: &1.body,
+            is_agent: not is_nil(&1.author_id),
+            created_at: &1.inserted_at
+          }
+        )
 
-    case find_session(reference, guest_token) do
-      nil ->
-        conn |> put_status(404) |> json(%{error: "Session not found"})
-
-      session ->
-        case ChatSessionService.end_session(session) do
-          {:ok, _} -> json(conn, %{data: %{status: "ended"}})
-          {:error, _} -> conn |> put_status(500) |> json(%{error: "Failed to end"})
-        end
+      json(conn, %{
+        messages: messages,
+        agent: nil,
+        typing: nil,
+        ended: session.status in ["ended", "abandoned"]
+      })
+    else
+      _ -> AccessController.error(conn, :not_found)
     end
   end
 
-  # Private
+  def typing(conn, params) do
+    with {:ok, _, session, _} <- session(conn, params),
+         true <- session.status in ["waiting", "active"] do
+      Broadcasting.broadcast_chat_event("chat:typing", %{
+        ticket_id: session.ticket_id,
+        session_id: session.id,
+        typing: true,
+        is_agent: false
+      })
 
-  defp find_session(reference, guest_token) when is_binary(guest_token) do
-    repo = Escalated.repo()
-
-    case repo.get_by(Ticket, reference: reference, guest_token: guest_token, channel: "chat") do
-      nil -> nil
-      ticket -> ChatSessionService.find_by_ticket(ticket.id)
+      json(conn, %{message: "Typing updated."})
+    else
+      _ -> AccessController.error(conn, :not_found)
     end
   end
 
-  defp find_session(_, _), do: nil
-
-  defp widget_settings do
-    defaults = %{
-      enabled: true
-    }
-
-    configured = Escalated.config(:widget_settings, %{})
-    Map.merge(defaults, configured)
+  def end_session(conn, params) do
+    with {:ok, _, session, _} <- session(conn, params),
+         {:ok, _} <- ChatSessionService.end_session(session) do
+      json(conn, %{data: %{status: "ended"}})
+    else
+      _ -> AccessController.error(conn, :not_found)
+    end
   end
 
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
+  def rate(conn, params) do
+    with {:ok, ticket, session, _} <- session(conn, params),
+         true <- session.status == "ended",
+         {:ok, _} <-
+           %SatisfactionRating{}
+           |> SatisfactionRating.changeset(%{
+             ticket_id: ticket.id,
+             rating: params["rating"],
+             comment: params["comment"]
+           })
+           |> Escalated.repo().insert() do
+      conn |> put_status(201) |> json(%{message: "Rating submitted."})
+    else
+      {:error, %Ecto.Changeset{}} -> AccessController.error(conn, :invalid)
+      _ -> AccessController.error(conn, :not_found)
+    end
   end
+
+  defp session(_conn, %{"token" => token}) do
+    with {:ok, ticket, grant} <- GuestAccess.resolve(token, "chat"),
+         %ChatSession{} = session <- Escalated.repo().get_by(ChatSession, ticket_id: ticket.id) do
+      {:ok, ticket, session, grant}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
+  defp session(conn, params),
+    do: GuestAccess.resolve_session(params["reference"], GuestAccess.token(conn, params))
 end

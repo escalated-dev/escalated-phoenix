@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.SideConversationReply do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}side_conversation_replies" do
+    field :tenant_id, :string, default: ""
     field :side_conversation_id, :id
     field :body, :string
     field :author_id, @user_id_type

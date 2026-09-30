@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.SavedView do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}saved_views" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :filters, :map, default: %{}
     field :user_id, @user_id_type
@@ -28,6 +29,7 @@ defmodule Escalated.Schemas.SavedView do
     |> validate_required([:name, :user_id])
     |> validate_length(:name, max: 100)
     |> unique_constraint([:user_id, :name])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   @doc "Returns views belonging to a specific user."

@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.Attachment do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}attachments" do
+    field :tenant_id, :string, default: ""
     field :original_filename, :string
     field :mime_type, :string
     field :size, :integer

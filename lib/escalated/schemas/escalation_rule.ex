@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.EscalationRule do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}escalation_rules" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :description, :string
     field :trigger_type, :string

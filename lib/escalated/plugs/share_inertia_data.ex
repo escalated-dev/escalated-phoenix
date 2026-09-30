@@ -30,6 +30,12 @@ defmodule Escalated.Plugs.ShareInertiaData do
   def escalated_props(user, config) do
     %{
       route_prefix: config.route_prefix,
+      broadcasting: %{
+        enabled: Escalated.Config.broadcasting_enabled?(config),
+        driver: "phoenix",
+        channel_prefix: String.trim_trailing(Escalated.Tenancy.topic("escalated:"), ":")
+      },
+      tenant_id: if(Escalated.Tenancy.enabled?(), do: Escalated.Tenancy.current_id!(), else: nil),
       show_powered_by: Escalated.Services.GeneralSettings.enabled?(:show_powered_by),
       allow_customer_close: config.allow_customer_close,
       priorities: Escalated.Schemas.Ticket.priorities(),

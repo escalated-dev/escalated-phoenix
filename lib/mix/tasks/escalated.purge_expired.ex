@@ -22,6 +22,10 @@ defmodule Mix.Tasks.Escalated.PurgeExpired do
   @impl Mix.Task
   def run(args) do
     Mix.Task.run("app.start")
+    Escalated.Tenancy.Maintenance.run(args, &run_for_tenant/1)
+  end
+
+  defp run_for_tenant(args) do
     dry_run? = "--dry-run" in args
     repo = Escalated.repo()
 

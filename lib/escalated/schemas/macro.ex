@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.Macro do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}macros" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :description, :string
     # Actions: list of %{"type" => ..., "value" => ...}
@@ -24,6 +25,8 @@ defmodule Escalated.Schemas.Macro do
 
     timestamps(type: :utc_datetime)
   end
+
+  @type t :: %__MODULE__{}
 
   @doc false
   def changeset(macro, attrs) do

@@ -47,7 +47,12 @@ defmodule Escalated.Plugs.PublicRateLimitTest do
   end
 
   test "guest creation is throttled through the mounted API" do
-    body = %{name: "Pat", email: "pat@example.com", subject: "Help", body: "Details"}
+    Escalated.Test.GuestAccessHelpers.configure()
+
+    body =
+      Escalated.Test.GuestAccessHelpers.proof("pat@example.com")
+      |> Map.merge(%{"name" => "Pat", "subject" => "Help", "body" => "Details"})
+
     assert request(:post, "/support/api/v1/guest/tickets", body).status == 201
     assert request(:post, "/support/api/v1/guest/tickets", body).status == 201
     assert_throttled(request(:post, "/support/api/v1/guest/tickets", body))

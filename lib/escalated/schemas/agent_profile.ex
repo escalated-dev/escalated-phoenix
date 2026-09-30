@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.AgentProfile do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}agent_profiles" do
+    field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :display_name, :string
     field :role, :string, default: "agent"
@@ -25,5 +26,6 @@ defmodule Escalated.Schemas.AgentProfile do
     |> validate_required([:user_id])
     |> validate_inclusion(:role, ~w(agent admin))
     |> unique_constraint(:user_id)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

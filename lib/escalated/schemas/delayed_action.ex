@@ -7,6 +7,7 @@ defmodule Escalated.Schemas.DelayedAction do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}delayed_actions" do
+    field :tenant_id, :string, default: ""
     field :workflow_id, :integer
     field :ticket_id, :integer
     field :action_data, :map, default: %{}

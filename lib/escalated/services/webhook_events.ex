@@ -45,6 +45,12 @@ defmodule Escalated.Services.WebhookEvents do
   is assembled from whichever are present (see the moduledoc).
   """
   def dispatch(event, context) when is_binary(event) and is_map(context) do
+    if Escalated.Tenancy.enabled?() do
+      for key <- [:ticket, :reply, :tag], record = Map.get(context, key), not is_nil(record) do
+        Escalated.Tenancy.assert_record!(record)
+      end
+    end
+
     WebhookDispatcher.dispatch(event, build_payload(context))
   end
 
@@ -55,6 +61,13 @@ defmodule Escalated.Services.WebhookEvents do
     |> put_reply(context)
     |> put_tag(Map.get(context, :tag))
     |> put_agent(Map.get(context, :agent_id))
+    |> put_tenant()
+  end
+
+  defp put_tenant(payload) do
+    if Escalated.Tenancy.enabled?(),
+      do: Map.put(payload, :tenant_id, Escalated.Tenancy.current_id!()),
+      else: payload
   end
 
   # A reply present means the ticket portion is trimmed to {id, reference},

@@ -22,8 +22,12 @@ defmodule Mix.Tasks.Escalated.CheckSla do
 
   @impl Mix.Task
   def run(args) do
-    {opts, _rest, _invalid} = OptionParser.parse(args, strict: [warn_minutes: :integer])
     Mix.Task.run("app.start")
+    Escalated.Tenancy.Maintenance.run(args, &run_for_tenant/1)
+  end
+
+  defp run_for_tenant(args) do
+    {opts, _rest, _invalid} = OptionParser.parse(args, strict: [warn_minutes: :integer])
 
     breached = SlaService.check_breaches()
     warned = SlaService.check_warnings(Keyword.get(opts, :warn_minutes, 30))
