@@ -9,6 +9,7 @@ defmodule PhoenixTenancyMigrationProbe do
   @legacy_version 20_260_802_000_001
   @tenant_version 20_260_930_000_001
   @guest_version 20_260_930_000_002
+  @guest_result_version 20_260_930_000_003
   @database_prefix "phoenix_tenancy_probe_20260930_"
 
   def run(adapter_name) when adapter_name in ["sqlite", "postgres", "mysql"] do
@@ -85,7 +86,9 @@ defmodule PhoenixTenancyMigrationProbe do
     check!(original_count >= 10, "The upgrade must exercise populated legacy tables")
     IO.puts("PROBE #{adapter_name}: legacy schema seeded with #{original_count} rows")
 
-    Ecto.Migrator.run(repo, migrations, :up, all: true, log: false)
+    Ecto.Migrator.run(repo, migrations, :up, to: @guest_version, log: false)
+    verify_guest_result_clearing!(repo, migrations)
+    IO.puts("PROBE #{adapter_name}: stored guest proof results cleared on upgrade")
 
     check!(
       snapshots(repo, legacy_tables, true) == original,
@@ -193,8 +196,55 @@ defmodule PhoenixTenancyMigrationProbe do
       local_unique_keys_checked: 5,
       case_sensitive_tenants: true,
       guest_state_rollback_refused: true,
+      guest_results_cleared: true,
       assigned_rollback_refused: true
     }
+  end
+
+  # Rows from before the replay change hold live capabilities in `result`. The
+  # upgrade must clear every one of them, in every tenant, and change nothing else.
+  defp verify_guest_result_clearing!(repo, migrations) do
+    expiry = ~U[2099-01-01 00:00:00Z]
+    used = ~U[2026-09-30 00:00:00Z]
+    hash = String.duplicate("0", 64)
+
+    rows =
+      for {tenant, result} <- [
+            {"", %{"guest_access_token" => "live-capability", "ticket_id" => 101}},
+            {"merchant", %{"data" => [%{"guest_access_token" => "live-capability"}]}},
+            {"merchant", nil}
+          ] do
+        repo.insert!(%Escalated.Schemas.GuestChallenge{
+          tenant_id: tenant,
+          email: "probe@example.test",
+          purpose: "ticket",
+          code_hash: hash,
+          attempts: 1,
+          expires_at: expiry,
+          used_at: if(result, do: used),
+          request_hash: if(result, do: hash),
+          result: result
+        })
+      end
+
+    Ecto.Migrator.run(repo, migrations, :up, all: true, log: false)
+
+    check!(
+      @guest_result_version in Ecto.Migrator.migrated_versions(repo),
+      "Result clearing did not run"
+    )
+
+    for row <- rows do
+      after_row = repo.get!(Escalated.Schemas.GuestChallenge, row.id)
+      check!(is_nil(after_row.result), "A stored guest proof result survived the upgrade")
+
+      check!(
+        Map.drop(after_row, [:result, :__meta__]) == Map.drop(row, [:result, :__meta__]),
+        "Clearing guest proof results changed another column"
+      )
+
+      repo.delete!(after_row)
+    end
   end
 
   defp verify_guest_rollback!(repo, migrations, legacy_tables) do

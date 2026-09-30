@@ -33,13 +33,14 @@ defmodule Escalated.Services.GuestAccessTest do
       guest_email: "recipient@example.test"
     }
 
-  test "proof and creation commit once; identical retries return the same encrypted grant" do
+  test "proof and creation commit once; identical retries return the same grant" do
     proof = Helpers.proof("  Recipient@Example.Test ")
     assert {:ok, ticket, result} = TicketService.create_guest(proof, attrs())
     token = result["guest_access_token"]
     assert {:ok, same, repeated} = TicketService.create_guest(proof, attrs())
     assert same.id == ticket.id
-    assert repeated["guest_access_token"] == token
+    assert {:ok, _, grant} = GuestAccess.resolve(token)
+    assert {:ok, _, ^grant} = GuestAccess.resolve(repeated["guest_access_token"])
     assert Escalated.repo().aggregate(Ticket, :count) == 1
     assert Escalated.repo().aggregate(Escalated.Schemas.TicketActivity, :count) == 1
     assert {:ok, resolved, _} = GuestAccess.resolve(token)
@@ -136,10 +137,14 @@ defmodule Escalated.Services.GuestAccessTest do
 
     assert {:error, :rate_limited} = GuestAccess.challenge("recipient@example.test", "ticket")
     assert Escalated.repo().aggregate(GuestChallenge, :count) == 0
-    budget = Escalated.storage_repo().one!(GuestMailboxBudget)
-    assert budget.attempts == 3
-    assert byte_size(budget.mailbox_hash) == 64
-    refute String.contains?(budget.mailbox_hash, "recipient")
+    # One budget for the mailbox from this (unknown) network, one across networks.
+    budgets = Escalated.storage_repo().all(GuestMailboxBudget)
+    assert Enum.map(budgets, & &1.attempts) == [3, 3]
+
+    for budget <- budgets do
+      assert byte_size(budget.mailbox_hash) == 64
+      refute String.contains?(budget.mailbox_hash, "recipient")
+    end
   end
 
   test "grants reject tampering, the wrong purpose, revocation, and old permanent tokens" do
@@ -477,10 +482,11 @@ defmodule Escalated.Services.GuestAccessTest do
     assert Escalated.repo().aggregate(GuestChallenge, :count) == 1
     assert GuestAccess.purge_expired() == %{challenges: 1, grants: 0}
     assert GuestAccess.purge_expired_mailboxes() == 0
-    assert Escalated.storage_repo().aggregate(GuestMailboxBudget, :count, :mailbox_hash) == 2
+    # Per mailbox: one network budget and one budget across networks.
+    assert Escalated.storage_repo().aggregate(GuestMailboxBudget, :count, :mailbox_hash) == 4
     Escalated.storage_repo().update_all(GuestMailboxBudget, set: [expires_at: current])
     assert GuestAccess.purge_expired_mailboxes(1) == 1
-    assert GuestAccess.purge_expired_mailboxes() == 1
+    assert GuestAccess.purge_expired_mailboxes() == 3
   end
 
   test "cleanup task selects a tenant and preserves other tenant state and active proofs" do
@@ -520,7 +526,7 @@ defmodule Escalated.Services.GuestAccessTest do
       assert Escalated.repo().aggregate(GuestGrant, :count) == 1
     end)
 
-    assert Escalated.storage_repo().aggregate(GuestMailboxBudget, :count, :mailbox_hash) == 4
+    assert Escalated.storage_repo().aggregate(GuestMailboxBudget, :count, :mailbox_hash) == 8
   end
 
   test "anonymous attachment attempts share the guest budget while host authentication is exempt" do
