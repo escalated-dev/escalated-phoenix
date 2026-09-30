@@ -26,7 +26,10 @@ defmodule Escalated.Controllers.Api.GuestTicketController do
     end
   end
 
-  def show(conn, %{"token" => token}) do
+  # A capability header, when sent, takes precedence over the path segment.
+  def show(conn, %{"token" => path_token}) do
+    token = GuestAccess.header_token(conn) || path_token
+
     case GuestAccess.resolve(token) do
       {:ok, ticket, grant} ->
         json(conn, %{data: GuestTicketView.correspondence(ticket, token, grant)})
@@ -36,7 +39,9 @@ defmodule Escalated.Controllers.Api.GuestTicketController do
     end
   end
 
-  def reply(conn, %{"token" => token} = params) do
+  def reply(conn, %{"token" => path_token} = params) do
+    token = GuestAccess.header_token(conn) || path_token
+
     with {:ok, ticket, _grant} <- GuestAccess.resolve(token),
          {:ok, reply} <- TicketService.reply(ticket, %{body: params["body"], is_internal: false}) do
       conn |> put_status(201) |> json(%{data: %{body: reply.body, created_at: reply.inserted_at}})
