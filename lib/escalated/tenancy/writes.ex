@@ -77,6 +77,7 @@ defmodule Escalated.Tenancy.Writes do
     Enum.map(rows, fn row ->
       row = Map.new(row)
       if Map.get(row, :tenant_id, tenant) != tenant or Map.has_key?(row, :id), do: Tenancy.deny!()
+      if Enum.any?(row, fn {_, value} -> sql_value?(value) end), do: Tenancy.deny!()
       row = Map.put(row, :tenant_id, tenant)
       validate_written!(entry, row, :all)
       row
@@ -84,6 +85,14 @@ defmodule Escalated.Tenancy.Writes do
   end
 
   def rows!(_, _), do: Tenancy.deny!()
+
+  # insert_all turns these row values into SQL of their own (a subquery, or a
+  # value shared through the :placeholders option) that the tenant scope never
+  # sees, so only literal values are accepted.
+  defp sql_value?(%Ecto.Query{}), do: true
+  defp sql_value?(%Ecto.SubQuery{}), do: true
+  defp sql_value?({:placeholder, _}), do: true
+  defp sql_value?(_), do: false
 
   defp validate_written!(entry, values, fields) do
     validate_references!(entry, values, fields)

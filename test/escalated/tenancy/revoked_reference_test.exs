@@ -4,12 +4,15 @@ defmodule Escalated.Tenancy.RevokedReferenceTest do
   (an assigned ticket, a requester, an agent seat). Writes that do not touch
   those references must keep working; writes that set a reference must still
   prove it belongs to the merchant.
+
+  Also covers `insert_all` row values, which Ecto can turn into SQL of their
+  own and which the scoped repo cannot inspect.
   """
   use Escalated.DataCase, async: false
   import Ecto.Query
   import Ecto.Changeset
   alias Escalated.{HostTestRepo, Tenancy, TestRepo}
-  alias Escalated.Schemas.{AgentProfile, Reply, Ticket}
+  alias Escalated.Schemas.{AgentProfile, Reply, Tag, Ticket}
   alias Escalated.Services.{AssignmentService, SlaService, TicketService}
   alias Escalated.Tenancy.{Maintenance, Repo}
   alias Escalated.Test.{HostUser, TenantResolver}
@@ -200,6 +203,71 @@ defmodule Escalated.Tenancy.RevokedReferenceTest do
       end)
 
       assert TestRepo.get(Ticket, ctx.ticket_b.id)
+    end
+  end
+
+  describe "insert_all row values" do
+    setup do
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+      %{now: now}
+    end
+
+    defp tag_names, do: TestRepo.all(from(t in Tag, select: t.name))
+
+    test "a query value is refused instead of running unscoped", ctx do
+      Tenancy.run("a", fn ->
+        foreign = from(t in Ticket, where: t.id == ^ctx.ticket_b.id, select: t.subject)
+        legacy = from(t in Ticket, where: t.tenant_id == "", select: t.subject, limit: 1)
+
+        for value <- [foreign, legacy, subquery(foreign)] do
+          assert_raise Tenancy.Error, fn ->
+            Repo.insert_all(Tag, [%{name: value, inserted_at: ctx.now, updated_at: ctx.now}])
+          end
+        end
+      end)
+
+      refute "B SECRET SUBJECT" in tag_names()
+      refute "LEGACY SECRET" in tag_names()
+    end
+
+    test "placeholder values are refused", ctx do
+      Tenancy.run("a", fn ->
+        assert_raise Tenancy.Error, fn ->
+          Repo.insert_all(
+            Tag,
+            [%{name: {:placeholder, :name}, inserted_at: ctx.now, updated_at: ctx.now}],
+            placeholders: %{name: "placeholder"}
+          )
+        end
+      end)
+
+      assert tag_names() == []
+    end
+
+    test "Multi.insert_all is checked the same way", ctx do
+      foreign = from(t in Ticket, where: t.id == ^ctx.ticket_b.id, select: t.subject)
+
+      multi =
+        Ecto.Multi.insert_all(Ecto.Multi.new(), :tags, Tag, [
+          %{name: foreign, inserted_at: ctx.now, updated_at: ctx.now}
+        ])
+
+      Tenancy.run("a", fn ->
+        assert_raise Tenancy.Error, fn -> Repo.transaction(multi) end
+      end)
+
+      assert tag_names() == []
+    end
+
+    test "plain values are still inserted in the current merchant", ctx do
+      Tenancy.run("a", fn ->
+        assert {1, _} =
+                 Repo.insert_all(Tag, [
+                   %{name: "plain", inserted_at: ctx.now, updated_at: ctx.now}
+                 ])
+      end)
+
+      assert [%Tag{tenant_id: "a"}] = TestRepo.all(from(t in Tag, where: t.name == "plain"))
     end
   end
 end
