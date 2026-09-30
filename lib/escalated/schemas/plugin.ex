@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.Plugin do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}plugins" do
+    field :tenant_id, :string, default: ""
     field :slug, :string
     field :is_active, :boolean, default: false
     field :activated_at, :utc_datetime
@@ -28,6 +29,7 @@ defmodule Escalated.Schemas.Plugin do
     |> cast(attrs, [:slug, :is_active, :activated_at, :deactivated_at])
     |> validate_required([:slug])
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   @doc "Scope query to activated plugins."

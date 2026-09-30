@@ -4,6 +4,7 @@ defmodule Escalated.Schemas.Permission do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}permissions" do
+    field :tenant_id, :string, default: ""
     field :slug, :string
     field :name, :string
     field :group, :string
@@ -17,5 +18,6 @@ defmodule Escalated.Schemas.Permission do
     |> cast(attrs, [:slug, :name, :group, :description])
     |> validate_required([:slug, :name])
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

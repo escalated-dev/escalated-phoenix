@@ -10,6 +10,7 @@ defmodule Escalated.Schemas.TicketFollower do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}ticket_followers" do
+    field :tenant_id, :string, default: ""
     field :ticket_id, :id
     field :user_id, :string
 

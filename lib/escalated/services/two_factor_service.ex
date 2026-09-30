@@ -5,6 +5,8 @@ defmodule Escalated.Services.TwoFactorService do
 
   @doc "Enable 2FA for a user."
   def enable(repo, user_id, method \\ "totp") do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     attrs = %{
       user_id: user_id,
       method: method,
@@ -20,11 +22,15 @@ defmodule Escalated.Services.TwoFactorService do
 
   @doc "Find active 2FA config for a user."
   def find_by_user(repo, user_id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.get_by(TwoFactor, user_id: user_id, is_enabled: true)
   end
 
   @doc "Verify a recovery code."
   def verify_recovery_code(repo, %TwoFactor{} = tf, code) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     case TwoFactor.use_recovery_code(tf, code) do
       {true, new_codes} ->
         tf
@@ -38,6 +44,8 @@ defmodule Escalated.Services.TwoFactorService do
 
   @doc "Disable 2FA for a user."
   def disable(repo, %TwoFactor{} = tf) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     tf
     |> Ecto.Changeset.change(is_enabled: false, secret: nil, recovery_codes: nil)
     |> repo.update()
@@ -45,6 +53,8 @@ defmodule Escalated.Services.TwoFactorService do
 
   @doc "Regenerate recovery codes."
   def regenerate_recovery_codes(repo, %TwoFactor{} = tf) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     codes = generate_recovery_codes()
 
     tf

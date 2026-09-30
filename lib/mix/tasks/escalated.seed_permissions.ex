@@ -1,28 +1,25 @@
 defmodule Mix.Tasks.Escalated.SeedPermissions do
-  @shortdoc "Seeds Escalated permission rows (including newsletter slugs)"
-  @moduledoc false
+  @shortdoc "Seeds Escalated permissions and default roles in selected tenants"
+  @moduledoc """
+  Seeds the permission catalog and default admin/agent roles idempotently.
+
+      mix escalated.seed_permissions --tenant merchant-id
+
+  With tenancy enabled and no `--tenant`, the trusted resolver's `tenants/0`
+  catalog selects the merchants. Legacy single-tenant hosts need no selector.
+  """
   use Mix.Task
 
-  alias Escalated.Permissions.Catalog
-  alias Escalated.Schemas.Permission
-
   @impl Mix.Task
-  def run(_args) do
+  def run(args) do
     Mix.Task.run("app.start")
-    repo = Escalated.repo()
 
-    Enum.each(Catalog.all(), fn attrs ->
-      case repo.get_by(Permission, slug: attrs.slug) do
-        nil ->
-          %Permission{}
-          |> Permission.changeset(attrs)
-          |> repo.insert!()
+    Escalated.Tenancy.Maintenance.run(args, fn _remaining ->
+      {:ok, counts} = Escalated.Tenancy.Provisioner.seed()
 
-        row ->
-          row |> Permission.changeset(attrs) |> repo.update!()
-      end
+      Mix.shell().info(
+        "Escalated: seeded #{counts.permissions} permission(s) and #{counts.roles} default role(s)."
+      )
     end)
-
-    Mix.shell().info("Escalated: seeded #{length(Catalog.all())} permission(s).")
   end
 end

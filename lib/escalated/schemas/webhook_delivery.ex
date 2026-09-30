@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.WebhookDelivery do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}webhook_deliveries" do
+    field :tenant_id, :string, default: ""
     field :event, :string
     field :payload, :map
     field :response_code, :integer

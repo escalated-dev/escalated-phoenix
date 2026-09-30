@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.Ticket do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}tickets" do
+    field :tenant_id, :string, default: ""
     field :reference, :string
     field :subject, :string
     field :description, :string
@@ -55,12 +56,14 @@ defmodule Escalated.Schemas.Ticket do
     has_many :ticket_subjects, Escalated.Schemas.TicketSubject
 
     many_to_many :tags, Escalated.Schemas.Tag,
-      join_through:
-        "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_tags",
+      join_through: Escalated.Schemas.TicketTag,
+      join_defaults: {Escalated.Schemas.TicketTag, :tenant_defaults, []},
       on_replace: :delete
 
     timestamps(type: :utc_datetime)
   end
+
+  @type t :: %__MODULE__{}
 
   def statuses, do: @statuses
   def priorities, do: @priorities

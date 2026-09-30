@@ -49,7 +49,7 @@ defmodule Escalated.Services.ChatRoutingService do
 
   # Private
 
-  defp evaluate_rule(%{agent_ids: ids} = rule, repo) when is_list(ids) and length(ids) > 0 do
+  defp evaluate_rule(%{agent_ids: ids} = rule, repo) when is_list(ids) and ids != [] do
     case rule.strategy do
       "least_active" -> least_active(ids, rule.max_concurrent_chats, repo)
       _ -> round_robin(rule, ids, rule.max_concurrent_chats, repo)
@@ -104,11 +104,15 @@ defmodule Escalated.Services.ChatRoutingService do
 
   defp get_round_robin_index(rule_id) do
     state = Process.get(@round_robin_key, %{})
-    Map.get(state, rule_id, 0)
+    Map.get(state, {Escalated.Tenancy.current_id!(), rule_id}, 0)
   end
 
   defp put_round_robin_index(rule_id, index) do
     state = Process.get(@round_robin_key, %{})
-    Process.put(@round_robin_key, Map.put(state, rule_id, index))
+
+    Process.put(
+      @round_robin_key,
+      Map.put(state, {Escalated.Tenancy.current_id!(), rule_id}, index)
+    )
   end
 end

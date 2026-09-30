@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.CustomFieldValue do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}custom_field_values" do
+    field :tenant_id, :string, default: ""
     field :entity_type, :string, default: "ticket"
     field :entity_id, :integer
     field :value, :string
@@ -21,5 +22,6 @@ defmodule Escalated.Schemas.CustomFieldValue do
     |> cast(attrs, [:custom_field_id, :entity_type, :entity_id, :value])
     |> validate_required([:custom_field_id, :entity_type, :entity_id])
     |> unique_constraint([:custom_field_id, :entity_type, :entity_id], name: :unique_field_entity)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

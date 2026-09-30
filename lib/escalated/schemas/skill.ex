@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.Skill do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}skills" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :slug, :string
     field :description, :string
@@ -29,6 +30,7 @@ defmodule Escalated.Schemas.Skill do
     |> validate_length(:slug, max: 100)
     |> unique_constraint(:slug)
     |> unique_constraint(:name)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   defp put_slug_from_name(changeset) do

@@ -20,6 +20,7 @@ defmodule Escalated.Schemas.CannedResponse do
   @type t :: %__MODULE__{}
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}canned_responses" do
+    field :tenant_id, :string, default: ""
     field :title, :string
     field :body, :string
     field :category, :string

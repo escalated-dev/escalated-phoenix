@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.Automation do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}automations" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :description, :string
     # Conditions: list of %{"field" => ..., "operator" => ..., "value" => ...}

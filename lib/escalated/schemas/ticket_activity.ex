@@ -9,6 +9,7 @@ defmodule Escalated.Schemas.TicketActivity do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}ticket_activities" do
+    field :tenant_id, :string, default: ""
     field :action, :string
     field :description, :string
     field :causer_id, @user_id_type

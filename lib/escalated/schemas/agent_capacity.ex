@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.AgentCapacity do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}agent_capacity" do
+    field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :channel, :string, default: "default"
     field :max_concurrent, :integer, default: 10
@@ -31,6 +32,7 @@ defmodule Escalated.Schemas.AgentCapacity do
     |> unique_constraint([:user_id, :channel],
       name: :escalated_agent_capacity_user_id_channel_index
     )
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   @doc "Whether the agent can take another ticket on this channel."

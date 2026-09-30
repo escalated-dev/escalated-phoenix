@@ -5,7 +5,7 @@ defmodule Escalated.Services.TicketService do
 
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.{MentionService, WebhookEvents, WorkflowRunner}
+  alias Escalated.Services.{GuestAccess, MentionService, WebhookEvents, WorkflowRunner}
   import Ecto.Query
   require Logger
 
@@ -24,16 +24,47 @@ defmodule Escalated.Services.TicketService do
     |> insert()
     |> case do
       {:ok, ticket} ->
-        log_activity(ticket, "created", nil, %{})
-        maybe_attach_sla(ticket)
-        Hooks.do_action("ticket_created", [ticket])
-        WebhookEvents.dispatch("ticket.created", %{ticket: ticket})
-        run_workflows("ticket.created", ticket)
+        created(ticket)
         {:ok, ticket}
 
       error ->
         error
     end
+  end
+
+  @doc "Consumes mailbox proof and creates the guest ticket atomically."
+  def create_guest(params, attrs) do
+    address = GuestAccess.email(attrs[:guest_email])
+
+    attrs =
+      Map.merge(attrs, %{
+        guest_email: address,
+        guest_token: nil,
+        requester_id: nil,
+        requester_type: "guest"
+      })
+
+    case GuestAccess.consume(Map.put(params, "email", address), "ticket", attrs, fn ->
+           with {:ok, ticket} <- attrs |> resolve_contact(Escalated.repo()) |> insert() do
+             {:ok, GuestAccess.issue(ticket, "ticket", address)}
+           end
+         end) do
+      {:ok, result} ->
+        ticket = Escalated.repo().get!(Ticket, result["ticket_id"])
+        if not result["_replayed"], do: created(ticket)
+        {:ok, ticket, result}
+
+      error ->
+        error
+    end
+  end
+
+  defp created(ticket) do
+    log_activity(ticket, "created", nil, %{})
+    maybe_attach_sla(ticket)
+    Hooks.do_action("ticket_created", [ticket])
+    WebhookEvents.dispatch("ticket.created", %{ticket: ticket})
+    run_workflows("ticket.created", ticket)
   end
 
   # A 40-bit reference collides about once in 2^40 draws, so two collisions in
@@ -51,9 +82,8 @@ defmodule Escalated.Services.TicketService do
   fresh reference, up to three attempts in all. Any other error is returned at
   once.
 
-  On PostgreSQL a failed statement aborts the transaction around it, so the
-  retry only helps when the insert is not inside a caller's own transaction.
-  No caller in this package opens one.
+  A savepoint keeps PostgreSQL reference collisions from aborting a surrounding
+  guest proof transaction before the reference can be retried.
   """
   def insert(attrs) do
     %Ticket{}
@@ -64,7 +94,7 @@ defmodule Escalated.Services.TicketService do
   # Retries with the changeset as it was before the insert: the failed one
   # carries the constraint error and would never reach the database again.
   defp insert_with_fresh_reference(changeset, repo, attempts_left) do
-    case repo.insert(changeset) do
+    case repo.insert(changeset, mode: :savepoint) do
       {:error, %Ecto.Changeset{} = failed} when attempts_left > 1 ->
         if Ticket.reference_taken?(failed) do
           changeset
@@ -107,19 +137,24 @@ defmodule Escalated.Services.TicketService do
     normalized = Contact.normalize_email(email)
     existing = repo.get_by(Contact, email: normalized)
 
-    case Contact.decide_action(existing, name) do
-      :return_existing ->
+    case existing do
+      %Contact{} ->
         {:ok, existing}
 
-      :update_name ->
-        existing
-        |> Contact.changeset(%{name: name})
-        |> repo.update()
-
-      :create ->
+      nil ->
         %Contact{}
         |> Contact.changeset(%{email: normalized, name: name, metadata: %{}})
-        |> repo.insert()
+        |> repo.insert(mode: :savepoint)
+        |> case do
+          {:error, changeset} ->
+            case repo.get_by(Contact, email: normalized) do
+              %Contact{} = winner -> {:ok, winner}
+              _ -> {:error, changeset}
+            end
+
+          result ->
+            result
+        end
     end
   end
 
@@ -537,7 +572,12 @@ defmodule Escalated.Services.TicketService do
   """
   def find(reference) when is_binary(reference) do
     repo = Escalated.repo()
-    repo.get_by(Ticket, reference: reference) || repo.get(Ticket, reference)
+
+    repo.get_by(Ticket, reference: reference) ||
+      case Integer.parse(reference) do
+        {id, ""} when id > 0 and id <= 9_223_372_036_854_775_807 -> repo.get(Ticket, id)
+        _ -> nil
+      end
   end
 
   def find(id) when is_integer(id) do
@@ -564,10 +604,12 @@ defmodule Escalated.Services.TicketService do
   #   2. Rescue. Any crash in the engine is logged and swallowed so the
   #      underlying ticket operation still succeeds.
   defp run_workflows(trigger_event, %Ticket{} = ticket) do
-    if Process.get(:escalated_workflows_running) do
+    workflow_key = {:escalated_workflows_running, Escalated.Tenancy.current_id!()}
+
+    if Process.get(workflow_key) do
       :ok
     else
-      Process.put(:escalated_workflows_running, true)
+      Process.put(workflow_key, true)
 
       try do
         WorkflowRunner.run_for_event(trigger_event, ticket)
@@ -577,7 +619,7 @@ defmodule Escalated.Services.TicketService do
             "[TicketService] workflow engine crashed for #{trigger_event} on ticket ##{ticket.id}: #{Exception.message(error)}"
           )
       after
-        Process.delete(:escalated_workflows_running)
+        Process.delete(workflow_key)
       end
 
       :ok

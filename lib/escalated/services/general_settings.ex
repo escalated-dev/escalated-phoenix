@@ -77,10 +77,11 @@ defmodule Escalated.Services.GeneralSettings do
     options = [on_conflict: {:replace, [:value, :type, :group, :updated_at]}]
 
     # MySQL selects the conflicting unique index itself. With a generated
-    # primary key, the settings key is the only possible conflict here.
+    # primary key, the tenant/settings key is the only possible conflict here.
+    # The legacy single-tenant namespace also uses the composite unique index.
     if Escalated.repo().__adapter__() == Ecto.Adapters.MyXQL,
       do: options,
-      else: Keyword.put(options, :conflict_target, [:key])
+      else: Keyword.put(options, :conflict_target, [:tenant_id, :key])
   end
 
   defp boolean(value, default) do

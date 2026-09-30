@@ -22,6 +22,10 @@ defmodule Escalated.Controllers.Admin.UserController do
   admins first, then agents, then everyone else.
   """
   def index(conn, params) do
+    if Escalated.Tenancy.enabled?(), do: tenant_denied(conn), else: legacy_index(conn, params)
+  end
+
+  defp legacy_index(conn, params) do
     repo = Escalated.user_repo()
     user_schema = Escalated.user_schema()
 
@@ -55,6 +59,12 @@ defmodule Escalated.Controllers.Admin.UserController do
   endpoint (would lock themselves out of the panel they're using).
   """
   def update_role(conn, %{"user_id" => user_id} = params) do
+    if Escalated.Tenancy.enabled?(),
+      do: tenant_denied(conn),
+      else: legacy_update_role(conn, user_id, params)
+  end
+
+  defp legacy_update_role(conn, user_id, params) do
     with {:ok, role} <- validate_role(Map.get(params, "role")),
          {:ok, value} <- validate_value(Map.get(params, "value")) do
       apply_role_change(conn, user_id, role, value)
@@ -237,5 +247,12 @@ defmodule Escalated.Controllers.Admin.UserController do
   defp admin_users_path do
     prefix = Escalated.config(:route_prefix, "/support")
     "#{prefix}/admin/users"
+  end
+
+  defp tenant_denied(conn) do
+    conn
+    |> put_status(403)
+    |> Phoenix.Controller.json(%{error: "Host user administration requires platform access."})
+    |> halt()
   end
 end

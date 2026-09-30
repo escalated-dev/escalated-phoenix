@@ -6,6 +6,8 @@ defmodule Escalated.Services.AuditLogService do
 
   @doc "Record an audit log entry."
   def log(repo, attrs) when is_map(attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     %AuditLog{}
     |> AuditLog.changeset(attrs)
     |> repo.insert()
@@ -13,6 +15,8 @@ defmodule Escalated.Services.AuditLogService do
 
   @doc "Get logs for a specific entity."
   def logs_for_entity(repo, entity_type, entity_id, opts \\ []) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     limit = Keyword.get(opts, :limit, 50)
 
     AuditLog
@@ -23,6 +27,8 @@ defmodule Escalated.Services.AuditLogService do
 
   @doc "Get logs by a specific performer."
   def logs_by_performer(repo, performer_type, performer_id, opts \\ []) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     limit = Keyword.get(opts, :limit, 50)
 
     AuditLog

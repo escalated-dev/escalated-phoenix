@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.CustomObjectRecord do
   import Ecto.Changeset
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}custom_object_records" do
+    field :tenant_id, :string, default: ""
     field :title, :string
     field :data, :map, default: %{}
     field :linked_entity_type, :string

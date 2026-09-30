@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.Mention do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}mentions" do
+    field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :read_at, :utc_datetime
 
@@ -28,6 +29,7 @@ defmodule Escalated.Schemas.Mention do
     |> cast(attrs, [:reply_id, :user_id, :read_at])
     |> validate_required([:reply_id, :user_id])
     |> unique_constraint([:reply_id, :user_id])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   @doc "Scope mentions belonging to a single host user."

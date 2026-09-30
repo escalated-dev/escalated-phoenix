@@ -101,6 +101,8 @@ defmodule Escalated.Controllers.NewsletterHttp do
   def token_from_message_id(_), do: ""
 
   def lists_with_counts(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     lists = repo.all(from(l in NewsletterList, select: %{id: l.id, name: l.name, kind: l.kind}))
 
     Enum.map(lists, fn list ->

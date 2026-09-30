@@ -24,7 +24,7 @@ defmodule Escalated.Repo do
     if Escalated.repo().__adapter__() == Ecto.Adapters.MyXQL do
       [on_conflict: :nothing]
     else
-      [on_conflict: :nothing, conflict_target: conflict_target]
+      [on_conflict: :nothing, conflict_target: Enum.uniq([:tenant_id | conflict_target])]
     end
   end
 

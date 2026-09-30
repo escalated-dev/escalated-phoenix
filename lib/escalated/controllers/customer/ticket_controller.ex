@@ -16,12 +16,18 @@ defmodule Escalated.Controllers.Customer.TicketController do
   alias Escalated.TicketAccess
 
   def index(conn, params) do
+    user = conn.assigns[:current_user]
+
     tickets =
-      case TicketAccess.user_id(conn.assigns[:current_user]) do
+      case TicketAccess.user_id(user) do
         # Nobody signed in owns no tickets. An unfiltered list is every
         # customer's tickets.
-        nil -> []
-        user_id -> TicketService.list(%{requester_id: user_id, status: params["status"]})
+        nil ->
+          []
+
+        user_id ->
+          TicketService.list(%{requester_id: user_id, status: params["status"]})
+          |> Enum.filter(&TicketAccess.requester?(&1, user))
       end
 
     UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
@@ -164,7 +170,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       created_at: ticket.inserted_at && DateTime.to_iso8601(ticket.inserted_at),
       updated_at: ticket.updated_at && DateTime.to_iso8601(ticket.updated_at)
     }
-    |> Map.merge(TicketSerializer.computed_fields(ticket))
+    |> Map.merge(TicketSerializer.computed_fields(ticket, public: true))
   end
 
   defp ticket_detail_json(ticket) do

@@ -12,6 +12,7 @@ defmodule Escalated.Schemas.Article do
   @statuses ~w(draft published)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}articles" do
+    field :tenant_id, :string, default: ""
     field :category_id, :id
     field :title, :string
     field :slug, :string
@@ -49,6 +50,7 @@ defmodule Escalated.Schemas.Article do
     |> put_slug()
     |> maybe_published_at()
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   def published(query \\ __MODULE__), do: from(a in query, where: a.status == "published")

@@ -5,11 +5,53 @@ defmodule Escalated.Controllers.AttachmentController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
+  alias Escalated.Api.HostAuth
   alias Escalated.Permissions
+  alias Escalated.Plugs.{ApiAuthenticate, GuestRateLimit}
   alias Escalated.Schemas.{Attachment, Reply, Ticket}
+  alias Escalated.Services.GuestAccess
   alias Escalated.TicketAccess
 
-  plug Escalated.Plugs.ApiAuthenticate
+  plug :authenticate
+
+  defp authenticate(conn, opts) do
+    case host_user(conn) do
+      {:ok, user} -> conn |> assign(:current_user, user) |> ApiAuthenticate.call(opts)
+      _ -> conn |> GuestRateLimit.call([]) |> authenticate_guest()
+    end
+  end
+
+  defp host_user(%{assigns: %{current_user: user}}) when not is_nil(user), do: {:ok, user}
+
+  defp host_user(conn) do
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token | _] -> HostAuth.validate(token)
+      _ -> :error
+    end
+  end
+
+  defp authenticate_guest(%{halted: true} = conn), do: conn
+
+  defp authenticate_guest(conn) do
+    token = GuestAccess.token(conn, conn.params)
+
+    result =
+      case GuestAccess.resolve_attachment(conn.params["download_token"], conn.params["id"]) do
+        {:ok, _, _} = result ->
+          result
+
+        _ ->
+          case GuestAccess.resolve(token) do
+            {:ok, _, _} = result -> result
+            _ -> GuestAccess.resolve(token, "chat")
+          end
+      end
+
+    case result do
+      {:ok, ticket, grant} -> assign(conn, :guest_attachment_access, {ticket, grant})
+      _ -> conn |> put_status(401) |> json(%{error: "Authentication required"}) |> halt()
+    end
+  end
 
   def download(conn, %{"id" => id}) do
     conn =
@@ -20,20 +62,27 @@ defmodule Escalated.Controllers.AttachmentController do
 
     user = conn.assigns[:current_user]
 
-    if is_nil(TicketAccess.user_id(user)) do
+    guest = conn.assigns[:guest_attachment_access]
+
+    if is_nil(TicketAccess.user_id(user)) and is_nil(guest) do
       conn |> put_status(401) |> json(%{error: "Authentication required"})
     else
       with {key, ""} when key > 0 and key <= 9_223_372_036_854_775_807 <- Integer.parse(id),
            %Attachment{} = attachment <- Escalated.repo().get(Attachment, key),
            {%Ticket{} = ticket, internal?} <- owner(attachment),
            true <-
-             Permissions.agent?(user) or (not internal? and TicketAccess.requester?(ticket, user)) do
+             (not is_nil(user) and Permissions.agent?(user)) or
+               (not internal? and
+                  (TicketAccess.requester?(ticket, user) or guest_owns?(guest, ticket))) do
         serve(conn, attachment)
       else
         _ -> not_found(conn)
       end
     end
   end
+
+  defp guest_owns?({%Ticket{id: id}, _grant}, %Ticket{id: id}), do: true
+  defp guest_owns?(_, _), do: false
 
   defp owner(%Attachment{reply_id: reply_id, ticket_id: ticket_id}) when not is_nil(reply_id) do
     case Escalated.repo().get(Reply, reply_id) do
@@ -68,7 +117,15 @@ defmodule Escalated.Controllers.AttachmentController do
 
   defp serve(conn, attachment) do
     callback = Escalated.config(:attachment_download_url)
-    result = if is_function(callback, 2), do: callback.(attachment, 300), else: :unavailable
+
+    ttl =
+      case conn.assigns[:guest_attachment_access] do
+        {_ticket, grant} -> min(300, DateTime.diff(grant.expires_at, GuestAccess.now(), :second))
+        _ -> 300
+      end
+
+    result =
+      if ttl > 0 and is_function(callback, 2), do: callback.(attachment, ttl), else: :unavailable
 
     case result do
       {:ok, url} when is_binary(url) ->

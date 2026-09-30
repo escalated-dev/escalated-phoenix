@@ -41,6 +41,8 @@ Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in 
 - **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
 - **Real-time broadcasting** — Opt-in broadcasting via Phoenix PubSub with automatic polling fallback
 - **Knowledge base toggle** — Enable or disable the public knowledge base from admin settings
+- **Merchant tenancy** — Tenant-scoped data access, staff seats, jobs and realtime topics, with explicit legacy-data assignment
+- **Verified guest access** — Email proof, expiring encrypted grants, private guest attachments and host-resolved tracking lookup
 
 ## Installation
 
@@ -49,7 +51,7 @@ Add `escalated` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.1.0"}
+    {:escalated, "~> 0.1.0", hex: :escalated_phoenix}
   ]
 end
 ```
@@ -69,8 +71,10 @@ storage adapter must honor that expiry. The callback runs only after ticket and
 reply authorization. Missing configuration returns 503; the package does not
 redirect to the stored permanent URL. Existing publicly served files need to be
 moved or made private by the host; changing this route does not revoke URLs
-already issued by a storage provider. These routes do not accept guest tokens;
-guest attachment access needs a separate expiring-grant contract.
+already issued by a storage provider. Verified guest grants can authorize public
+attachments on their ticket; private storage redirects expire within the shorter
+of 300 seconds and the remaining grant lifetime. Internal-note files remain
+staff-only. Permanent legacy guest tokens are rejected.
 
 ### Staff authorization
 
@@ -90,10 +94,16 @@ independent host role. An explicit `agent_check` denial still denies agent
 routes for administrators. Newsletter permission callbacks use the same strict
 boolean rule and retain their precedence over admin/permission defaults.
 
-Ticket requesters retain access to their own ticket channel. Guest chat joins
-require the matching nonempty token for an existing chat ticket; the chat queue
-and per-agent topics require staff access. These checks run at channel join;
-hosts should disconnect existing sockets when access is revoked.
+Merchant mode independently requires current host membership. Without an explicit
+host callback, staff access then requires an active **tenant-local** agent/admin
+profile; a host-wide staff flag never grants a seat in another merchant.
+
+Ticket requesters retain access to safe public events on their own ticket channel.
+Guest chat joins require a verified, unexpired chat grant in single-tenant mode.
+The queue and per-agent topics require staff access. Membership, ownership and
+guest grants are rechecked before processing or delivering messages. Merchant
+guest chat uses the authenticated polling routes; anonymous merchant sockets are
+refused. See [merchant and guest integration](docs/merchant-and-guest-access.md).
 
 ### Persistent admin preferences
 
@@ -102,7 +112,9 @@ The general Settings page supports four durable boolean preferences:
 `knowledge_base_feedback_enabled` (all default false), and `show_powered_by`
 (default true). Saved values override host configuration across requests and
 process restarts. The existing settings migrations must be applied, including
-the June 2026 migration adding the `type` column; no new migration is required.
+the June 2026 migration adding the `type` column and the September 30, 2026
+merchant/guest migrations. Apply every package migration before using this code,
+including on existing single-tenant installations.
 
 Use a shared frontend build containing
 [settings capabilities (PR #185)](https://github.com/escalated-dev/escalated/pull/185)
@@ -173,7 +185,7 @@ Both repos must be started by your application's supervision tree, and
 `MyApp.SupportRepo` is the one you run Escalated's migrations against:
 
 ```bash
-mix ecto.migrate -r MyApp.SupportRepo
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
 #### What Escalated does not do
@@ -235,17 +247,19 @@ Admin routes `POST` / `DELETE` … `/admin/tickets/:reference/subjects` accept o
 
 ## Database Setup
 
-Run the Escalated migration:
+Run every package migration against the configured support repository:
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-Then copy the migration content from `priv/repo/migrations/20260406000001_create_escalated_tables.exs` or install via:
-
-```bash
-mix ecto.migrate
-```
+Use `MyApp.Repo` instead if support and host records share that repository. If
+your host copies package migrations into its own migration directory, preserve
+all original version numbers and include every later migration; copying only
+the initial table migration does not create the current schema. Upgrades also
+require the September 30, 2026 merchant and guest migrations. See the
+[upgrade guide](docs/merchant-and-guest-access.md#provisioning-and-upgrading)
+before assigning legacy data or enabling public guest access.
 
 ## Router Setup
 
@@ -312,8 +326,9 @@ return `:allow`, `{:deny, positive_retry_after_ms}`, or `{:error, reason}`. The
 buckets are `:guest` and `:widget`; `remote_ip` is the connection's IP tuple.
 Only a host's trusted-proxy pipeline should rewrite `conn.remote_ip`; Escalated
 does not trust `X-Forwarded-For` itself. Edge rate limits remain useful for
-distributed traffic. These limits do not add guest email verification or
-expiring guest credentials.
+distributed traffic. Guest email proof also has a database-backed mailbox budget
+shared across tenants and nodes. Setup and request shapes are documented in
+[merchant and guest integration](docs/merchant-and-guest-access.md).
 
 ## Inbound email
 

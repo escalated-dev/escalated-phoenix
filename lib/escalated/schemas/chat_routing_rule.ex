@@ -14,6 +14,7 @@ defmodule Escalated.Schemas.ChatRoutingRule do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}chat_routing_rules" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :strategy, :string, default: "round_robin"
     field :agent_ids, {:array, @user_id_type}, default: []

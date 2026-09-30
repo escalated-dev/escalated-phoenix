@@ -74,7 +74,7 @@ defmodule Escalated.MixProject do
       name: "escalated_phoenix",
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+      files: ~w(lib priv docs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
     ]
   end
 
@@ -82,7 +82,7 @@ defmodule Escalated.MixProject do
     [
       main: "readme",
       source_url: @source_url,
-      extras: ["README.md"]
+      extras: ["README.md", "docs/merchant-and-guest-access.md"]
     ]
   end
 end

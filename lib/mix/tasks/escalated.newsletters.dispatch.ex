@@ -8,9 +8,12 @@ defmodule Mix.Tasks.Escalated.Newsletters.Dispatch do
   alias Escalated.Services.Newsletter.{Dispatcher, Planner}
 
   @impl Mix.Task
-  def run(_args) do
+  def run(args) do
     Mix.Task.run("app.start")
+    Escalated.Tenancy.Maintenance.run(args, &run_for_tenant/1)
+  end
 
+  defp run_for_tenant(_args) do
     if newsletters_enabled?() do
       plan_due_scheduled()
       Dispatcher.dispatch_batch()

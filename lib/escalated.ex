@@ -35,8 +35,11 @@ defmodule Escalated do
   Your users do not move with it. See `user_repo/0`.
   """
   def repo do
-    config(:repo) || raise "Escalated: :repo must be configured"
+    if Escalated.Tenancy.enabled?(), do: Escalated.Tenancy.Repo, else: storage_repo()
   end
+
+  @doc "The configured raw repository. Reserved for trusted host migrations and provisioning."
+  def storage_repo, do: config(:repo) || raise("Escalated: :repo must be configured")
 
   @doc """
   The repo the host's user schema lives on.
@@ -51,7 +54,9 @@ defmodule Escalated do
   no database can join across two connections.
   """
   def user_repo do
-    config(:user_repo) || repo()
+    if Escalated.Tenancy.enabled?(),
+      do: Escalated.Tenancy.UserRepo,
+      else: config(:user_repo) || storage_repo()
   end
 
   @doc """

@@ -32,6 +32,7 @@ defmodule Escalated.Router do
   defmacro escalated_routes(prefix, opts \\ []) do
     quote do
       scope unquote(prefix), as: :escalated do
+        pipe_through Escalated.Plugs.ResolveTenant
         # Attachment downloads authenticate and authorize the owning ticket/reply.
         get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
 
@@ -41,7 +42,10 @@ defmodule Escalated.Router do
              :store
 
         scope "/guest" do
-          pipe_through Escalated.Plugs.GuestRateLimit
+          pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
+
+          post "/verification", Escalated.Controllers.GuestAccessController, :challenge
+          post "/lookup", Escalated.Controllers.GuestAccessController, :lookup
 
           post "/tickets/:token/rate",
                Escalated.Controllers.SatisfactionRatingController,
@@ -283,7 +287,10 @@ defmodule Escalated.Router do
 
         # Widget routes (public, rate-limited)
         scope "/widget", Escalated.Controllers, as: :widget do
-          pipe_through Escalated.Plugs.WidgetRateLimit
+          pipe_through [Escalated.Plugs.WidgetRateLimit, Escalated.Plugs.GuestPrivacy]
+
+          post "/verification", GuestAccessController, :challenge
+          post "/lookup", GuestAccessController, :lookup
 
           get "/config", WidgetController, :config
           post "/tickets", WidgetController, :create_ticket
@@ -293,6 +300,11 @@ defmodule Escalated.Router do
           # Live chat widget routes (scope-relative; see the agent chat routes).
           get "/chat/availability", WidgetChatController, :availability
           post "/chat/start", WidgetChatController, :start
+          get "/chat/:token/messages", WidgetChatController, :messages
+          post "/chat/:token/messages", WidgetChatController, :send_message
+          post "/chat/:token/typing", WidgetChatController, :typing
+          post "/chat/:token/end", WidgetChatController, :end_session
+          post "/chat/:token/rate", WidgetChatController, :rate
           post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
           post "/chat/sessions/:reference/end", WidgetChatController, :end_session
         end
@@ -320,10 +332,14 @@ defmodule Escalated.Router do
 
             # Anonymous (guest) ticket submission + lookup by token.
             scope "/guest" do
-              pipe_through Escalated.Plugs.GuestRateLimit
+              pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
+
+              post "/verification", GuestAccessController, :challenge
+              post "/lookup", GuestAccessController, :lookup
 
               post "/tickets", GuestTicketController, :create
               get "/tickets/:token", GuestTicketController, :show
+              post "/tickets/:token/replies", GuestTicketController, :reply
             end
           end
 

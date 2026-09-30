@@ -16,39 +16,49 @@ defmodule Escalated.Services.MacroService do
 
   require Logger
 
-  alias Escalated.Schemas.{Macro, Ticket, Reply, Tag}
+  alias Escalated.Schemas.{Macro, Reply, Tag, Ticket}
 
   @doc """
   Macros visible to an agent: shared macros plus macros they created.
   """
-  @spec list_for_agent(module(), integer()) :: [Macro.t()] | [%Macro{}]
+  @spec list_for_agent(module(), integer()) :: [Macro.t()]
   def list_for_agent(repo, agent_id) when is_atom(repo) and is_integer(agent_id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     Macro
     |> Macro.for_agent(agent_id)
     |> repo.all()
   end
 
-  @spec find_by_id(module(), integer()) :: %Macro{} | nil
+  @spec find_by_id(module(), integer()) :: Macro.t() | nil
   def find_by_id(repo, id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.get(Macro, id)
   end
 
-  @spec create(module(), map()) :: {:ok, %Macro{}} | {:error, Ecto.Changeset.t()}
+  @spec create(module(), map()) :: {:ok, Macro.t()} | {:error, Ecto.Changeset.t()}
   def create(repo, attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     %Macro{}
     |> Macro.changeset(attrs)
     |> repo.insert()
   end
 
-  @spec update(module(), %Macro{}, map()) :: {:ok, %Macro{}} | {:error, Ecto.Changeset.t()}
+  @spec update(module(), Macro.t(), map()) :: {:ok, Macro.t()} | {:error, Ecto.Changeset.t()}
   def update(repo, %Macro{} = macro, attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     macro
     |> Macro.changeset(attrs)
     |> repo.update()
   end
 
-  @spec delete(module(), %Macro{}) :: {:ok, %Macro{}} | {:error, Ecto.Changeset.t()}
+  @spec delete(module(), Macro.t()) :: {:ok, Macro.t()} | {:error, Ecto.Changeset.t()}
   def delete(repo, %Macro{} = macro) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.delete(macro)
   end
 
@@ -57,8 +67,12 @@ defmodule Escalated.Services.MacroService do
   failure is rescued and logged so one bad action does not abort the
   rest of the bundle.
   """
-  @spec apply(module(), %Macro{}, %Ticket{}, integer()) :: %Ticket{}
-  def apply(repo, %Macro{actions: actions, id: macro_id}, %Ticket{} = ticket, agent_id) do
+  @spec apply(module(), Macro.t(), Ticket.t(), integer()) :: Ticket.t()
+  def apply(repo, %Macro{actions: actions, id: macro_id} = macro, %Ticket{} = ticket, agent_id) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+    Escalated.Tenancy.assert_record!(macro)
+    Escalated.Tenancy.assert_record!(ticket)
+
     Enum.reduce(actions || [], ticket, fn action, t ->
       try do
         run_action(action, t, agent_id, macro_id, repo)
@@ -109,7 +123,7 @@ defmodule Escalated.Services.MacroService do
 
       %Tag{} = tag ->
         join_table =
-          "#{Application.get_env(:escalated, :table_prefix, "escalated_")}ticket_tag"
+          "#{Application.get_env(:escalated, :table_prefix, "escalated_")}ticket_tags"
 
         repo.insert_all(
           join_table,

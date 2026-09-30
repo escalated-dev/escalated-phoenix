@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.CustomField do
   @field_types ~w(text textarea number select multi_select checkbox date url)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}custom_fields" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :slug, :string
     field :field_type, :string, default: "text"
@@ -29,10 +30,22 @@ defmodule Escalated.Schemas.CustomField do
   @doc false
   def changeset(custom_field, attrs) do
     custom_field
-    |> cast(attrs, [:name, :slug, :field_type, :description, :is_required, :options, :default_value, :entity_type, :position, :is_active])
+    |> cast(attrs, [
+      :name,
+      :slug,
+      :field_type,
+      :description,
+      :is_required,
+      :options,
+      :default_value,
+      :entity_type,
+      :position,
+      :is_active
+    ])
     |> validate_required([:name, :field_type, :entity_type])
     |> validate_inclusion(:field_type, @field_types)
     |> unique_constraint(:slug)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
     |> maybe_generate_slug()
   end
 
@@ -40,7 +53,10 @@ defmodule Escalated.Schemas.CustomField do
     case get_field(changeset, :slug) do
       nil ->
         name = get_field(changeset, :name) || ""
-        slug = name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
+        slug =
+          name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
+
         put_change(changeset, :slug, slug)
 
       _ ->

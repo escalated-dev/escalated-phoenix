@@ -31,12 +31,12 @@ defmodule Escalated.Plugs.ApiAuthenticate do
 
   @impl true
   def call(%Plug.Conn{assigns: %{current_user: user}} = conn, _opts) when not is_nil(user),
-    do: conn
+    do: check_membership(conn)
 
   def call(conn, _opts) do
     with {:ok, token} <- bearer_token(conn),
          {:ok, user} <- HostAuth.validate(token) do
-      assign(conn, :current_user, user)
+      conn |> assign(:current_user, user) |> check_membership()
     else
       _ ->
         conn
@@ -51,5 +51,15 @@ defmodule Escalated.Plugs.ApiAuthenticate do
       ["Bearer " <> token | _] when token != "" -> {:ok, token}
       _ -> :error
     end
+  end
+
+  defp check_membership(conn) do
+    if Escalated.Tenancy.member?(conn.assigns.current_user),
+      do: conn,
+      else:
+        conn
+        |> put_status(403)
+        |> Phoenix.Controller.json(%{error: "Tenant access denied"})
+        |> halt()
   end
 end

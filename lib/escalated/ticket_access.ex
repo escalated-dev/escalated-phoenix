@@ -15,12 +15,25 @@ defmodule Escalated.TicketAccess do
 
   def user_id(_), do: nil
 
-  def requester?(%Ticket{requester_id: requester_id}, user) when not is_nil(requester_id) do
+  def requester?(%Ticket{requester_id: requester_id} = ticket, user)
+      when not is_nil(requester_id) do
+    Escalated.Tenancy.assert_record!(ticket)
+
     case user_id(user) do
-      nil -> false
-      id -> to_string(requester_id) == to_string(id)
+      nil ->
+        false
+
+      id ->
+        Escalated.Tenancy.member?(user) and host_requester?(ticket) and
+          to_string(requester_id) == to_string(id)
     end
+  rescue
+    Escalated.Tenancy.Error -> false
   end
 
   def requester?(_, _), do: false
+
+  defp host_requester?(ticket) do
+    ticket.requester_type in [nil, "user", "User", to_string(Escalated.config(:user_schema))]
+  end
 end

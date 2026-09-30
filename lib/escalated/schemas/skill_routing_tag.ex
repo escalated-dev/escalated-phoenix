@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.SkillRoutingTag do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}skill_routing_tags" do
+    field :tenant_id, :string, default: ""
     belongs_to :skill, Escalated.Schemas.Skill
     belongs_to :tag, Escalated.Schemas.Tag
   end
@@ -20,5 +21,6 @@ defmodule Escalated.Schemas.SkillRoutingTag do
     |> foreign_key_constraint(:skill_id)
     |> foreign_key_constraint(:tag_id)
     |> unique_constraint([:skill_id, :tag_id])
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 end

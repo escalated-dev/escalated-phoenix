@@ -212,6 +212,9 @@ defmodule Escalated.Services.MentionService do
 
   defp restrict_to_agents(query, schema) do
     cond do
+      Escalated.Tenancy.enabled?() ->
+        Escalated.Permissions.tenant_agents(query)
+
       schema_has_field?(schema, :is_agent) and schema_has_field?(schema, :is_admin) ->
         from(u in query, where: u.is_agent == true or u.is_admin == true)
 

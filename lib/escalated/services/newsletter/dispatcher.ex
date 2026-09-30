@@ -169,7 +169,7 @@ defmodule Escalated.Services.Newsletter.Dispatcher do
   defp format_from(%{from_email: email}), do: email
 
   defp newsletter_from_host do
-    Application.get_env(:escalated, :app_url, "http://localhost")
+    Escalated.Tenancy.PublicUrl.base()
     |> URI.parse()
     |> Map.get(:host, "localhost")
   end

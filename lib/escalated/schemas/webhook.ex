@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.Webhook do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}webhooks" do
+    field :tenant_id, :string, default: ""
     field :url, :string
     # List of subscribed event-name strings, e.g. ["ticket.created"].
     field :events, {:array, :string}, default: []

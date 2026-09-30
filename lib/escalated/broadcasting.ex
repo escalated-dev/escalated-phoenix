@@ -25,6 +25,8 @@ defmodule Escalated.Broadcasting do
   Events are broadcast as `%{event: event_name, payload: payload}` maps.
   """
 
+  alias Escalated.Tenancy
+
   # Chat events that change which sessions are waiting or taken, which is what
   # the agents' queue shows.
   @queue_events [
@@ -41,21 +43,32 @@ defmodule Escalated.Broadcasting do
   """
   def broadcast_ticket_event(event, payload) do
     if enabled?() do
+      assert_payload!(payload)
       pubsub = pubsub_server()
       message = %{event: event, payload: payload}
 
-      Phoenix.PubSub.broadcast(pubsub, "escalated:tickets", message)
+      Phoenix.PubSub.broadcast(pubsub, Tenancy.topic("escalated:tickets"), message)
 
       # Also broadcast to ticket-specific topic if ticket_id is available
       case payload[:ticket_id] || payload["ticket_id"] do
-        nil -> :ok
-        ticket_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:ticket:#{ticket_id}", message)
+        nil ->
+          :ok
+
+        ticket_id ->
+          Phoenix.PubSub.broadcast(
+            pubsub,
+            Tenancy.topic("escalated:ticket:#{ticket_id}"),
+            message
+          )
       end
 
       # Broadcast to agent-specific topic if relevant
       case payload[:agent_id] || payload[:assigned_to] do
-        nil -> :ok
-        agent_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:agent:#{agent_id}", message)
+        nil ->
+          :ok
+
+        agent_id ->
+          Phoenix.PubSub.broadcast(pubsub, Tenancy.topic("escalated:agent:#{agent_id}"), message)
       end
     end
 
@@ -74,16 +87,20 @@ defmodule Escalated.Broadcasting do
   """
   def broadcast_chat_event(event, payload) do
     if enabled?() do
+      assert_payload!(payload)
       pubsub = pubsub_server()
       message = %{event: event, payload: payload}
 
       case payload[:ticket_id] do
-        nil -> :ok
-        ticket_id -> Phoenix.PubSub.broadcast(pubsub, "escalated:chat:#{ticket_id}", message)
+        nil ->
+          :ok
+
+        ticket_id ->
+          Phoenix.PubSub.broadcast(pubsub, Tenancy.topic("escalated:chat:#{ticket_id}"), message)
       end
 
       if event in @queue_events do
-        Phoenix.PubSub.broadcast(pubsub, "escalated:chat:queue", message)
+        Phoenix.PubSub.broadcast(pubsub, Tenancy.topic("escalated:chat:queue"), message)
       end
     end
 
@@ -94,6 +111,8 @@ defmodule Escalated.Broadcasting do
   Broadcasts a ticket creation event.
   """
   def ticket_created(ticket) do
+    Tenancy.assert_record!(ticket)
+
     broadcast_ticket_event("ticket:created", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -108,6 +127,8 @@ defmodule Escalated.Broadcasting do
   Broadcasts a ticket status change event.
   """
   def ticket_status_changed(ticket, from_status, to_status) do
+    Tenancy.assert_record!(ticket)
+
     broadcast_ticket_event("ticket:status_changed", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -121,6 +142,13 @@ defmodule Escalated.Broadcasting do
   Broadcasts a new reply event.
   """
   def reply_added(ticket, reply) do
+    Tenancy.assert_record!(ticket)
+    Tenancy.assert_record!(reply)
+
+    if Tenancy.enabled?() and reply.ticket_id != ticket.id do
+      raise ArgumentError, "reply does not belong to the broadcast ticket"
+    end
+
     broadcast_ticket_event("ticket:reply_added", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -135,6 +163,8 @@ defmodule Escalated.Broadcasting do
   Broadcasts a custom ticket action being triggered.
   """
   def custom_action_triggered(ticket, action_key, user_id, payload, metadata) do
+    Tenancy.assert_record!(ticket)
+
     broadcast_ticket_event("ticket:custom_action_triggered", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -150,6 +180,8 @@ defmodule Escalated.Broadcasting do
   Broadcasts a ticket assignment event.
   """
   def ticket_assigned(ticket, agent_id) do
+    Tenancy.assert_record!(ticket)
+
     broadcast_ticket_event("ticket:assigned", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -162,6 +194,8 @@ defmodule Escalated.Broadcasting do
   Broadcasts a ticket priority change event.
   """
   def ticket_priority_changed(ticket, from_priority, to_priority) do
+    Tenancy.assert_record!(ticket)
+
     broadcast_ticket_event("ticket:priority_changed", %{
       ticket_id: ticket.id,
       reference: ticket.reference,
@@ -176,7 +210,7 @@ defmodule Escalated.Broadcasting do
   """
   def subscribe_tickets do
     if enabled?() do
-      Phoenix.PubSub.subscribe(pubsub_server(), "escalated:tickets")
+      Phoenix.PubSub.subscribe(pubsub_server(), Tenancy.topic("escalated:tickets"))
     else
       :ok
     end
@@ -187,7 +221,8 @@ defmodule Escalated.Broadcasting do
   """
   def subscribe_ticket(ticket_id) do
     if enabled?() do
-      Phoenix.PubSub.subscribe(pubsub_server(), "escalated:ticket:#{ticket_id}")
+      assert_payload!(%{ticket_id: ticket_id})
+      Phoenix.PubSub.subscribe(pubsub_server(), Tenancy.topic("escalated:ticket:#{ticket_id}"))
     else
       :ok
     end
@@ -198,7 +233,7 @@ defmodule Escalated.Broadcasting do
   """
   def subscribe_agent(agent_id) do
     if enabled?() do
-      Phoenix.PubSub.subscribe(pubsub_server(), "escalated:agent:#{agent_id}")
+      Phoenix.PubSub.subscribe(pubsub_server(), Tenancy.topic("escalated:agent:#{agent_id}"))
     else
       :ok
     end
@@ -217,5 +252,18 @@ defmodule Escalated.Broadcasting do
   """
   def pubsub_server do
     Escalated.config(:pubsub_server)
+  end
+
+  defp assert_payload!(payload) do
+    if Tenancy.enabled?() do
+      id = Map.get(payload, :ticket_id, Map.get(payload, "ticket_id"))
+
+      case id && Escalated.repo().get(Escalated.Schemas.Ticket, id) do
+        %Escalated.Schemas.Ticket{} = ticket -> Tenancy.assert_record!(ticket)
+        _ -> raise ArgumentError, "broadcast ticket is outside the current tenant"
+      end
+    end
+
+    :ok
   end
 end

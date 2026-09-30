@@ -8,6 +8,7 @@ defmodule Escalated.Schemas.TwoFactor do
   @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}two_factors" do
+    field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :method, :string, default: "totp"
     field :secret, :string

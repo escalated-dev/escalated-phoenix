@@ -5,6 +5,8 @@ defmodule Escalated.Services.EmailChannelService do
 
   @doc "Create a new email channel."
   def create(repo, attrs) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     %EmailChannel{}
     |> EmailChannel.changeset(attrs)
     |> repo.insert()
@@ -12,16 +14,23 @@ defmodule Escalated.Services.EmailChannelService do
 
   @doc "Find an email channel by address."
   def find_by_address(repo, email_address) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.get_by(EmailChannel, email_address: email_address)
   end
 
   @doc "Get the default active email channel."
   def get_default(repo) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.get_by(EmailChannel, is_default: true, is_active: true)
   end
 
   @doc "Set a channel as the default (clears other defaults)."
   def set_default(repo, %EmailChannel{} = channel) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+    Escalated.Tenancy.assert_record!(channel)
+
     import Ecto.Query
 
     prefix = Application.get_env(:escalated, :table_prefix, "escalated_")
@@ -38,7 +47,13 @@ defmodule Escalated.Services.EmailChannelService do
   end
 
   @doc "Verify DKIM DNS records for a channel."
-  def verify_dkim(%EmailChannel{email_address: addr, dkim_selector: selector, dkim_public_key: pub_key} = channel, repo) do
+  def verify_dkim(
+        %EmailChannel{email_address: addr, dkim_selector: selector, dkim_public_key: pub_key} =
+          channel,
+        repo
+      ) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     domain = addr |> String.split("@") |> List.last()
     sel = selector || "escalated"
     dns_host = "#{sel}._domainkey.#{domain}"
@@ -46,10 +61,11 @@ defmodule Escalated.Services.EmailChannelService do
     # In production, perform actual DNS TXT lookup
     verified = false
 
-    changeset = Ecto.Changeset.change(channel,
-      dkim_status: if(verified, do: "verified", else: "failed"),
-      is_verified: verified
-    )
+    changeset =
+      Ecto.Changeset.change(channel,
+        dkim_status: if(verified, do: "verified", else: "failed"),
+        is_verified: verified
+      )
 
     repo.update(changeset)
 
@@ -58,6 +74,8 @@ defmodule Escalated.Services.EmailChannelService do
 
   @doc "Delete an email channel."
   def delete(repo, %EmailChannel{} = channel) do
+    repo = Escalated.Tenancy.scoped_repo(repo)
+
     repo.delete(channel)
   end
 end

@@ -5,6 +5,7 @@ defmodule Escalated.Schemas.Newsletter.NewsletterDelivery do
   @statuses ~w(pending queued sent bounced complained suppressed failed)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}newsletter_deliveries" do
+    field :tenant_id, :string, default: ""
     field :newsletter_id, :integer
     field :contact_id, :integer
     field :email_at_send, :string

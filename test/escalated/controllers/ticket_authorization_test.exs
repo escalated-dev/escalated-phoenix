@@ -408,8 +408,16 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
       assert api(:post, path, @customer_one, %{"rating" => 5}).status == 422
     end
 
-    test "retains the valid guest token route and refuses invalid token shapes" do
-      ticket = ticket_for!(@customer_one, "Guest resolved")
+    test "accepts verified guest grants and refuses permanent or malformed tokens" do
+      Escalated.Test.GuestAccessHelpers.configure()
+      proof = Escalated.Test.GuestAccessHelpers.proof()
+
+      {:ok, ticket, result} =
+        TicketService.create_guest(proof, %{
+          subject: "Guest resolved",
+          description: "Help",
+          guest_email: proof["email"]
+        })
 
       repo().update!(
         Ecto.Changeset.change(ticket,
@@ -422,6 +430,11 @@ defmodule Escalated.Controllers.TicketAuthorizationTest do
       assert api(:post, "/support/guest/tickets/wrong/rate", nil, %{"rating" => 5}).status == 404
 
       assert api(:post, "/support/guest/tickets/guest-private/rate", nil, %{"rating" => 5}).status ==
+               404
+
+      token = result["guest_access_token"]
+
+      assert api(:post, "/support/guest/tickets/#{token}/rate", nil, %{"rating" => 5}).status ==
                201
 
       for token <- [nil, "", false, %{}] do

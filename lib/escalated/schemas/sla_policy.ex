@@ -11,6 +11,7 @@ defmodule Escalated.Schemas.SlaPolicy do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}sla_policies" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :description, :string
     field :is_active, :boolean, default: true
@@ -27,9 +28,17 @@ defmodule Escalated.Schemas.SlaPolicy do
   @doc false
   def changeset(policy, attrs) do
     policy
-    |> cast(attrs, [:name, :description, :is_active, :is_default, :first_response_hours, :resolution_hours])
+    |> cast(attrs, [
+      :name,
+      :description,
+      :is_active,
+      :is_default,
+      :first_response_hours,
+      :resolution_hours
+    ])
     |> validate_required([:name, :first_response_hours, :resolution_hours])
     |> unique_constraint(:name)
+    |> Escalated.Tenancy.Constraints.add_unique_constraints()
   end
 
   def active(query \\ __MODULE__) do

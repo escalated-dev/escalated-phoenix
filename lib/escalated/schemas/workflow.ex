@@ -7,6 +7,7 @@ defmodule Escalated.Schemas.Workflow do
   import Ecto.Query
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}workflows" do
+    field :tenant_id, :string, default: ""
     field :name, :string
     field :description, :string
     field :trigger_event, :string

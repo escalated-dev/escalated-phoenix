@@ -9,7 +9,7 @@ defmodule Escalated.Controllers.SatisfactionRatingController do
   import Plug.Conn
   import Ecto.Query, only: [from: 2]
 
-  alias Escalated.Schemas.{SatisfactionRating, Ticket}
+  alias Escalated.Schemas.SatisfactionRating
   alias Escalated.Services.TicketService
   alias Escalated.TicketAccess
 
@@ -38,8 +38,10 @@ defmodule Escalated.Controllers.SatisfactionRatingController do
   end
 
   def store_guest(conn, %{"token" => token} = params) when is_binary(token) and token != "" do
-    ticket = Escalated.repo().get_by(Ticket, guest_token: token)
-    submit_rating(conn, ticket, params, %{})
+    case Escalated.Services.GuestAccess.resolve(token) do
+      {:ok, ticket, _grant} -> submit_rating(conn, ticket, params, %{})
+      _ -> conn |> put_status(404) |> json(%{error: "Ticket not found"})
+    end
   end
 
   def store_guest(conn, _params) do

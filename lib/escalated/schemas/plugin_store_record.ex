@@ -13,6 +13,7 @@ defmodule Escalated.Schemas.PluginStoreRecord do
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   schema "#{@prefix}plugin_store" do
+    field :tenant_id, :string, default: ""
     field :plugin, :string
     field :collection, :string
     field :key, :string

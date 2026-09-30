@@ -6,6 +6,7 @@ defmodule Escalated.Schemas.Newsletter.Newsletter do
   @statuses ~w(draft scheduled sending sent paused failed)
 
   schema "#{Application.compile_env(:escalated, :table_prefix, "escalated_")}newsletters" do
+    field :tenant_id, :string, default: ""
     field :subject, :string
     field :from_email, :string
     field :from_name, :string
