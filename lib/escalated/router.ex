@@ -285,28 +285,51 @@ defmodule Escalated.Router do
           end
         end
 
-        # Widget routes (public, rate-limited)
+        # Widget routes (public, rate-limited). Everything but /config is refused
+        # while the widget is disabled.
         scope "/widget", Escalated.Controllers, as: :widget do
-          pipe_through [Escalated.Plugs.WidgetRateLimit, Escalated.Plugs.GuestPrivacy]
+          scope "/" do
+            pipe_through [Escalated.Plugs.WidgetRateLimit, Escalated.Plugs.GuestPrivacy]
 
-          post "/verification", GuestAccessController, :challenge
-          post "/lookup", GuestAccessController, :lookup
+            get "/config", WidgetController, :config
+          end
 
-          get "/config", WidgetController, :config
-          post "/tickets", WidgetController, :create_ticket
-          get "/tickets/:reference", WidgetController, :show_ticket
-          post "/tickets/:reference/reply", WidgetController, :reply
+          scope "/" do
+            pipe_through [
+              Escalated.Plugs.WidgetRateLimit,
+              Escalated.Plugs.GuestPrivacy,
+              Escalated.Plugs.EnsureWidgetEnabled
+            ]
 
-          # Live chat widget routes (scope-relative; see the agent chat routes).
-          get "/chat/availability", WidgetChatController, :availability
-          post "/chat/start", WidgetChatController, :start
-          get "/chat/:token/messages", WidgetChatController, :messages
-          post "/chat/:token/messages", WidgetChatController, :send_message
-          post "/chat/:token/typing", WidgetChatController, :typing
-          post "/chat/:token/end", WidgetChatController, :end_session
-          post "/chat/:token/rate", WidgetChatController, :rate
-          post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
-          post "/chat/sessions/:reference/end", WidgetChatController, :end_session
+            post "/verification", GuestAccessController, :challenge
+            post "/lookup", GuestAccessController, :lookup
+
+            post "/tickets", WidgetController, :create_ticket
+            get "/tickets/:reference", WidgetController, :show_ticket
+            post "/tickets/:reference/reply", WidgetController, :reply
+
+            # Live chat widget routes (scope-relative; see the agent chat routes).
+            get "/chat/availability", WidgetChatController, :availability
+            post "/chat/start", WidgetChatController, :start
+            post "/chat/:token/end", WidgetChatController, :end_session
+            post "/chat/:token/rate", WidgetChatController, :rate
+            post "/chat/sessions/:reference/end", WidgetChatController, :end_session
+          end
+
+          # An open chat polls every three seconds and sends messages and typing
+          # pings besides, so these routes have their own per-capability budget.
+          scope "/" do
+            pipe_through [
+              Escalated.Plugs.WidgetChatRateLimit,
+              Escalated.Plugs.GuestPrivacy,
+              Escalated.Plugs.EnsureWidgetEnabled
+            ]
+
+            get "/chat/:token/messages", WidgetChatController, :messages
+            post "/chat/:token/messages", WidgetChatController, :send_message
+            post "/chat/:token/typing", WidgetChatController, :typing
+            post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
+          end
         end
 
         # API routes
