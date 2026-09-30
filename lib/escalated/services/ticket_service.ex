@@ -82,8 +82,11 @@ defmodule Escalated.Services.TicketService do
   fresh reference, up to three attempts in all. Any other error is returned at
   once.
 
-  A savepoint keeps PostgreSQL reference collisions from aborting a surrounding
-  guest proof transaction before the reference can be retried.
+  Inside a transaction (the guest proof, a split, a chat session) the insert
+  runs in a savepoint, so a PostgreSQL reference collision does not abort the
+  surrounding transaction before the reference can be retried. Outside one it
+  is a plain insert: PostgreSQL refuses a savepoint when no transaction is
+  open, and a failed statement there aborts nothing.
   """
   def insert(attrs) do
     %Ticket{}
@@ -94,7 +97,7 @@ defmodule Escalated.Services.TicketService do
   # Retries with the changeset as it was before the insert: the failed one
   # carries the constraint error and would never reach the database again.
   defp insert_with_fresh_reference(changeset, repo, attempts_left) do
-    case repo.insert(changeset, mode: :savepoint) do
+    case insert_recoverably(repo, changeset) do
       {:error, %Ecto.Changeset{} = failed} when attempts_left > 1 ->
         if Ticket.reference_taken?(failed) do
           changeset
@@ -107,6 +110,14 @@ defmodule Escalated.Services.TicketService do
       result ->
         result
     end
+  end
+
+  # An insert whose constraint error the caller recovers from. The savepoint is
+  # only valid, and only needed, when a transaction is already open.
+  defp insert_recoverably(repo, changeset) do
+    if repo.in_transaction?(),
+      do: repo.insert(changeset, mode: :savepoint),
+      else: repo.insert(changeset)
   end
 
   # Resolve/create a Contact when guest_email is in attrs and contact_id is not
@@ -144,7 +155,7 @@ defmodule Escalated.Services.TicketService do
       nil ->
         %Contact{}
         |> Contact.changeset(%{email: normalized, name: name, metadata: %{}})
-        |> repo.insert(mode: :savepoint)
+        |> then(&insert_recoverably(repo, &1))
         |> case do
           {:error, changeset} ->
             case repo.get_by(Contact, email: normalized) do
