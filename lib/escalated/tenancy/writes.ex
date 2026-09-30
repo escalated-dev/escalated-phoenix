@@ -17,6 +17,7 @@ defmodule Escalated.Tenancy.Writes do
     if Changeset.get_change(cs, :tenant_id, tenant) != tenant, do: Tenancy.deny!()
 
     assert_identity!(cs, action, tenant)
+    changed = Map.keys(cs.changes)
 
     cs = Changeset.put_change(cs, :tenant_id, tenant)
 
@@ -25,9 +26,16 @@ defmodule Escalated.Tenancy.Writes do
         do: %{cs | filters: Map.put(cs.filters, :tenant_id, tenant)},
         else: cs
 
-    values = Changeset.apply_changes(cs)
-    validate_references!(entry, values)
-    validate_pair!(entry.name, values)
+    # An insert proves every reference it stores. An update proves only the
+    # references it writes: a stored one may name a user whose membership has
+    # since been revoked, and that must not block unrelated changes to the row
+    # (or deactivating the revoked user's own seat). A delete writes nothing.
+    # Ownership of the row itself is checked by assert_identity!/3 either way.
+    case action do
+      :insert -> validate_written!(entry, Changeset.apply_changes(cs), :all)
+      :update -> validate_written!(entry, Changeset.apply_changes(cs), changed)
+      :delete -> :ok
+    end
 
     Enum.reduce(cs.data.__struct__.__schema__(:associations), cs, fn name, current ->
       case Map.fetch(current.changes, name) do
@@ -70,16 +78,35 @@ defmodule Escalated.Tenancy.Writes do
       row = Map.new(row)
       if Map.get(row, :tenant_id, tenant) != tenant or Map.has_key?(row, :id), do: Tenancy.deny!()
       row = Map.put(row, :tenant_id, tenant)
-      validate_references!(entry, row)
-      validate_pair!(entry.name, row)
+      validate_written!(entry, row, :all)
       row
     end)
   end
 
   def rows!(_, _), do: Tenancy.deny!()
 
-  def validate_references!(entry, values) do
-    Enum.each(entry.local_refs, fn {field, {parent, key}} ->
+  defp validate_written!(entry, values, fields) do
+    validate_references!(entry, values, fields)
+
+    if written?(fields, :reply_id) or written?(fields, :ticket_id),
+      do: validate_pair!(entry.name, values)
+  end
+
+  defp written?(:all, _field), do: true
+  defp written?(fields, field), do: field in fields
+
+  def validate_references!(entry, values, fields \\ :all) do
+    local_refs = Enum.filter(entry.local_refs, fn {field, _} -> written?(fields, field) end)
+    host_refs = Enum.filter(entry.host_refs, &written?(fields, &1))
+    host_ref_lists = Enum.filter(Map.get(entry, :host_ref_lists, []), &written?(fields, &1))
+
+    # A polymorphic reference is re-checked when either half of the pair changes.
+    polymorphic_refs =
+      Enum.filter(Map.get(entry, :polymorphic_refs, %{}), fn {id_field, type_field} ->
+        written?(fields, id_field) or written?(fields, type_field)
+      end)
+
+    Enum.each(local_refs, fn {field, {parent, key}} ->
       if id = Map.get(values, field) do
         table = Escalated.table_name(parent)
 
@@ -88,20 +115,20 @@ defmodule Escalated.Tenancy.Writes do
       end
     end)
 
-    Enum.each(entry.host_refs, fn field ->
+    Enum.each(host_refs, fn field ->
       id = Map.get(values, field)
       if not Tenancy.reference?(:user, id), do: Tenancy.deny!()
       if field in [:assigned_to, :agent_id] and not is_nil(id), do: assert_agent!(id)
     end)
 
-    Enum.each(Map.get(entry, :host_ref_lists, []), fn field ->
+    Enum.each(host_ref_lists, fn field ->
       Enum.each(Map.get(values, field) || [], fn id ->
         if not Tenancy.reference?(:user, id), do: Tenancy.deny!()
         assert_agent!(id)
       end)
     end)
 
-    Enum.each(Map.get(entry, :polymorphic_refs, %{}), fn {id_field, type_field} ->
+    Enum.each(polymorphic_refs, fn {id_field, type_field} ->
       if id = Map.get(values, id_field) do
         validate_polymorphic!(Map.get(values, type_field), id)
       end

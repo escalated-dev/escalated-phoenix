@@ -93,13 +93,45 @@ defmodule Escalated.Tenancy.MaintenanceTest do
     Process.put(:catalog_tenants, ["merchant-a"])
 
     Tenancy.run("outer", fn ->
-      assert_raise RuntimeError, "failed worker", fn ->
-        Maintenance.run([], fn _ -> raise "failed worker" end)
-      end
+      error =
+        assert_raise Maintenance.Error, fn ->
+          Maintenance.run([], fn _ -> raise "failed worker" end)
+        end
 
+      assert [{"merchant-a", %RuntimeError{message: "failed worker"}}] = error.failures
       assert Tenancy.current_id!() == "outer"
     end)
 
+    assert_raise Tenancy.Error, fn -> Tenancy.current_id!() end
+  end
+
+  test "a failing tenant is logged and the sweep still reaches every other tenant" do
+    Process.put(:catalog_tenants, ["merchant-a", "merchant-b", "merchant-c"])
+    test = self()
+
+    log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        error =
+          assert_raise Maintenance.Error, ~r/2 tenant\(s\): merchant-a, merchant-c/, fn ->
+            Maintenance.run([], fn _ ->
+              tenant = Tenancy.current_id!()
+              send(test, {:ran, tenant})
+
+              case tenant do
+                "merchant-a" -> raise "row payload secret-value"
+                "merchant-c" -> exit(:worker_down)
+                _ -> :ok
+              end
+            end)
+          end
+
+        assert [{"merchant-a", %RuntimeError{}}, {"merchant-c", :worker_down}] = error.failures
+      end)
+
+    for tenant <- ["merchant-a", "merchant-b", "merchant-c"], do: assert_received({:ran, ^tenant})
+    assert log =~ "tenant merchant-a: error RuntimeError"
+    assert log =~ "tenant merchant-c: exit"
+    refute log =~ "secret-value"
     assert_raise Tenancy.Error, fn -> Tenancy.current_id!() end
   end
 
