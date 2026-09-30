@@ -134,14 +134,25 @@ existing capabilities and pending proofs.
    `chat` or `lookup`. A 202 response contains `verification_id` and `expires_in`.
 2. Submit the received `verification_code` and `verification_id` with the same
    email and intended create/lookup request. Codes expire after ten minutes and
-   allow five attempts. Proof consumption and creation commit together. An
-   identical retry returns the original still-valid result without a second
-   ticket, chat or creation event.
+   allow five attempts; every wrong code and the first successful use spend one.
+   Proof consumption and creation commit together. Within the ten minutes, an
+   identical retry (same code, email and request) spends no attempt and returns
+   the original result without a second ticket, chat or creation event. Its
+   `guest_access_token` is a freshly sealed capability for the same grant and
+   expiry, so it may differ byte-for-byte from the first response; both work.
+   A retry after that grant was renewed, revoked or expired, a changed request,
+   or any request after five spent attempts is refused with 422. The proof row
+   stores only non-secret result data (ticket IDs, references, subjects, expiry),
+   never a capability; upgrading clears results stored by earlier releases, so a
+   proof consumed before the upgrade cannot be replayed.
 3. Store the returned `guest_access_token` only for its stated `expires_at`.
-   Send it as `Authorization: Bearer ...` or `X-Guest-Access-Token` on ticket
-   reads/replies and attachment downloads. Ticket and chat capabilities are
-   distinct. Changed email, renewal, revocation, expiry or tenant mismatch denies
-   an old capability. `GuestAccess.revoke(ticket)` revokes its grants.
+   Send it as `Authorization: Bearer ...`, `X-Guest-Access-Token` or
+   `X-Guest-Token` on widget ticket reads/replies, attachment downloads, and the
+   API guest ticket read/reply and guest rating routes. Those API and rating
+   routes also accept the capability as their `:token` path segment; a header,
+   when present, takes precedence over the segment. Ticket and chat capabilities
+   are distinct. Changed email, renewal, revocation, expiry or tenant mismatch
+   denies an old capability. `GuestAccess.revoke(ticket)` revokes its grants.
 
 The default grant lifetime is one day; `guest_access_ttl_minutes` is clamped to
 5–10,080 minutes. Tokens are encrypted and authenticated, with a database nonce,
@@ -151,10 +162,17 @@ Verified Phoenix submissions currently create an unassigned guest requester
 (`requester_id: nil`); the legacy `guest_user` and `prompt_signup` requester
 allocation modes are not applied by this flow.
 
-Code delivery has a shared database limit of three sends per mailbox per hour,
-including failed sends, across tenants and nodes. The global budget table stores
-only a keyed mailbox hash, expiry and count; it is intentionally not a tenant
-table. The existing IP limits still apply and need a shared backend on clusters.
+Code delivery has two shared database limits per hour, including failed sends,
+across tenants and nodes: `guest_mailbox_ip_limit` (default 3) per mailbox and
+client network, and `guest_mailbox_limit` (default 10) per mailbox across every
+network. A stranger exhausting one network's budget therefore does not lock the
+owner out from theirs, while the global cap still bounds delivery to a mailbox.
+IPv6 networks are counted per /64. A refused request spends neither budget.
+Service callers of `GuestAccess.challenge/3` should pass `ip: conn.remote_ip`;
+without it, calls share one "unknown" network budget. The budget table stores
+only keyed hashes of the mailbox (and network), expiry and count; it is
+intentionally not a tenant table. The existing IP limits still apply and need a
+shared backend on clusters.
 Schedule `mix escalated.purge_guest_access` hourly, using the trusted catalog or
 `--tenant ID`. It removes at most 1,000 expired challenges and grants per tenant
 and 1,000 expired global mailbox buckets per invocation. Active limits and grants
@@ -169,8 +187,14 @@ with renewed ticket grants, never unverified lookup results or internal notes.
 
 Chat start returns a capability as `id`/`session_id`. Shared frontend polling uses
 `/support/widget/chat/:token/messages` (GET/POST), `/typing`, `/end` and `/rate`.
-Legacy reference-based chat paths require the capability header. All public grant
-paths send no-store/no-referrer headers. Configure access-log redaction for token
+Legacy reference-based chat paths require the capability header. Message polling,
+sending and typing use `widget_chat_rate_limit` rather than the general widget
+limit: by default 90 requests a minute per chat capability and network, which
+fits a poll and a typing ping every three seconds plus messages, and 300 a minute
+per network across capabilities. While `widget_settings.enabled` is false, every
+widget route except `/widget/config` answers 403: no codes are sent and no
+lookup, ticket or chat traffic is served. The `/guest` and API guest routes are
+unaffected. All public grant paths send no-store/no-referrer headers. Configure access-log redaction for token
 path segments at the host proxy; the package cannot control upstream logs.
 
 Authenticated API profile/token callbacks require membership before mutation.
