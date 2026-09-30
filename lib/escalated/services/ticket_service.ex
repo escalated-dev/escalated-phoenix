@@ -171,6 +171,10 @@ defmodule Escalated.Services.TicketService do
 
   @doc """
   Adds a reply (or internal note) to a ticket.
+
+  The reply, its activity entry and the ticket's first response time are saved
+  in one transaction; if any of them fails, none is kept. Hooks, mentions,
+  webhooks and workflows run only after that transaction commits.
   """
   def reply(ticket, attrs) do
     repo = Escalated.repo()
@@ -179,22 +183,16 @@ defmodule Escalated.Services.TicketService do
       attrs
       |> Map.put(:ticket_id, ticket.id)
 
-    %Reply{}
-    |> Reply.changeset(reply_attrs)
-    |> repo.insert()
+    repo.transaction(fn ->
+      with {:ok, reply} <- repo.insert(Reply.changeset(%Reply{}, reply_attrs)),
+           {:ok, _} <- record_reply(repo, ticket, reply) do
+        reply
+      else
+        {:error, error} -> repo.rollback(error)
+      end
+    end)
     |> case do
       {:ok, reply} ->
-        action = if reply.is_internal, do: "note_added", else: "reply_added"
-        log_activity(ticket, action, reply.author_id, %{reply_id: reply.id})
-
-        # Track first response
-        if !reply.is_internal && is_nil(ticket.first_response_at) &&
-             reply.author_id != ticket.requester_id do
-          ticket
-          |> Ticket.changeset(%{first_response_at: DateTime.utc_now()})
-          |> repo.update()
-        end
-
         reply_hook = if reply.is_internal, do: "internal_note_added", else: "ticket_replied"
         Hooks.do_action(reply_hook, [reply, ticket])
 
@@ -216,6 +214,22 @@ defmodule Escalated.Services.TicketService do
 
       error ->
         error
+    end
+  end
+
+  defp record_reply(repo, ticket, reply) do
+    action = if reply.is_internal, do: "note_added", else: "reply_added"
+
+    with {:ok, _} <- log_activity(ticket, action, reply.author_id, %{reply_id: reply.id}) do
+      # Track first response
+      if !reply.is_internal && is_nil(ticket.first_response_at) &&
+           reply.author_id != ticket.requester_id do
+        ticket
+        |> Ticket.changeset(%{first_response_at: DateTime.utc_now()})
+        |> repo.update()
+      else
+        {:ok, ticket}
+      end
     end
   end
 
