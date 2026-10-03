@@ -1,9 +1,13 @@
 defmodule Escalated.Services.Email.Inbound.ServiceTest do
   use ExUnit.Case, async: true
   alias Escalated.Services.Email.Inbound.Service
+  alias Escalated.Services.Email.MessageIdUtil
+
+  @secret "test-inbound-secret"
+  @domain "support.example.com"
 
   defmodule FakeTicket do
-    defstruct [:id, :reference]
+    defstruct [:id, :reference, :guest_email, :requester_id, status: "open"]
   end
 
   defmodule FakeReply do
@@ -16,7 +20,7 @@ defmodule Escalated.Services.Email.Inbound.ServiceTest do
     create_err = Keyword.get(opts, :create_err)
     reply_err = Keyword.get(opts, :reply_err)
 
-    agent = Agent.start_link(fn -> %{create_calls: [], reply_calls: []} end)
+    agent = Agent.start_link(fn -> %{create_calls: [], reply_calls: [], reopen_calls: []} end)
     {:ok, pid} = agent
 
     %{
@@ -31,14 +35,24 @@ defmodule Escalated.Services.Email.Inbound.ServiceTest do
         end)
 
         if reply_err, do: {:error, reply_err}, else: {:ok, created_reply}
+      end,
+      reopen: fn ticket ->
+        Agent.update(pid, fn s -> %{s | reopen_calls: s.reopen_calls ++ [ticket]} end)
+        {:ok, %{ticket | status: "reopened"}}
       end
     }
   end
 
-  defp lookup(tickets_by_id \\ %{}) do
+  defp lookup(tickets_by_id \\ %{}, opts \\ []) do
+    by_ref = Keyword.get(opts, :by_ref, %{})
+    requester_emails = Keyword.get(opts, :requester_emails, %{})
+
     %{
       get_ticket_by_id: fn id -> Map.get(tickets_by_id, id) end,
-      get_ticket_by_reference: fn _ref -> nil end
+      get_ticket_by_reference: fn ref -> Map.get(by_ref, ref) end,
+      requester_emails: fn ticket ->
+        Map.get(requester_emails, ticket.id, [ticket.guest_email])
+      end
     }
   end
 
@@ -56,7 +70,7 @@ defmodule Escalated.Services.Email.Inbound.ServiceTest do
 
   describe "process/4" do
     test "matched ticket → adds reply, outcome :replied_to_existing" do
-      ticket = %FakeTicket{id: 42}
+      ticket = %FakeTicket{id: 42, guest_email: "customer@example.com"}
       l = lookup(%{42 => ticket})
       w = writer()
       m = message(%{in_reply_to: "<ticket-42@support.example.com>"})
@@ -175,6 +189,151 @@ defmodule Escalated.Services.Email.Inbound.ServiceTest do
 
       assert {:ok, result} = Service.process(m, lookup(), w)
       assert result.outcome == :created_new
+    end
+  end
+
+  describe "process/4 — who a matched email may post as" do
+    test "a stranger quoting a ticket reference in the subject gets a new ticket" do
+      ticket = %FakeTicket{id: 7001, reference: "ESC-07001", guest_email: "owner@example.com"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "stranger@example.net",
+          subject: "RE: [ESC-07001] Your order",
+          body_text: "Injected reply."
+        })
+
+      assert {:ok, result} =
+               Service.process(m, lookup(%{}, by_ref: %{"ESC-07001" => ticket}), w)
+
+      assert result.outcome == :created_new
+      assert result.ticket_id == 101
+      assert result.reply_id == nil
+
+      state = Agent.get(w.pid, & &1)
+      assert state.reply_calls == []
+      assert [%{guest_email: "stranger@example.net"}] = state.create_calls
+    end
+
+    test "a stranger threading onto a closed ticket neither replies nor reopens it" do
+      ticket = %FakeTicket{id: 42, guest_email: "owner@example.com", status: "closed"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "stranger@example.net",
+          in_reply_to: "<ticket-42@support.example.com>",
+          subject: "RE: Closed",
+          body_text: "Reopen this."
+        })
+
+      assert {:ok, result} = Service.process(m, lookup(%{42 => ticket}), w)
+
+      assert result.outcome == :created_new
+      state = Agent.get(w.pid, & &1)
+      assert state.reply_calls == []
+      assert state.reopen_calls == []
+    end
+
+    test "a From header naming an agent is never posted as that agent" do
+      ticket = %FakeTicket{id: 42, guest_email: "owner@example.com"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "agent@example.com",
+          to_email: MessageIdUtil.build_reply_to(42, @secret, @domain),
+          in_reply_to: "<ticket-42@support.example.com>",
+          subject: "RE: Update",
+          body_text: "Refund approved."
+        })
+
+      assert {:ok, result} =
+               Service.process(m, lookup(%{42 => ticket}), w, %{inbound_secret: @secret})
+
+      assert result.outcome == :created_new
+      state = Agent.get(w.pid, & &1)
+      assert state.reply_calls == []
+      assert [%{guest_email: "agent@example.com"}] = state.create_calls
+    end
+
+    test "a signed reply from the requester is accepted as the requester and reopens" do
+      ticket = %FakeTicket{id: 42, requester_id: 9, status: "resolved"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "Owner@Example.com",
+          to_email: MessageIdUtil.build_reply_to(42, @secret, @domain),
+          subject: "RE: Question",
+          body_text: "Still broken."
+        })
+
+      l = lookup(%{42 => ticket}, requester_emails: %{42 => [nil, "owner@example.com"]})
+
+      assert {:ok, result} = Service.process(m, l, w, %{inbound_secret: @secret})
+
+      assert result.outcome == :replied_to_existing
+      assert result.ticket_id == 42
+      state = Agent.get(w.pid, & &1)
+      assert [{^ticket, %{author_id: 9, body: "Still broken."}}] = state.reply_calls
+      assert state.reopen_calls == [ticket]
+      assert state.create_calls == []
+    end
+
+    test "a guest requester's reply is posted without an author and leaves an open ticket alone" do
+      ticket = %FakeTicket{id: 42, guest_email: "guest@example.com", status: "open"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "GUEST@example.com",
+          in_reply_to: "<ticket-42@support.example.com>"
+        })
+
+      assert {:ok, %{outcome: :replied_to_existing}} =
+               Service.process(m, lookup(%{42 => ticket}), w)
+
+      state = Agent.get(w.pid, & &1)
+      assert [{_, %{author_id: nil}}] = state.reply_calls
+      assert state.reopen_calls == []
+    end
+
+    test "once a secret is set, unsigned headers and subject references do not thread" do
+      ticket = %FakeTicket{id: 42, reference: "ESC-00042", guest_email: "owner@example.com"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "owner@example.com",
+          to_email: "support@support.example.com",
+          in_reply_to: "<ticket-42@support.example.com>",
+          references: "<ticket-42@support.example.com>",
+          subject: "RE: [ESC-00042] Question",
+          body_text: "Unsigned follow-up."
+        })
+
+      l = lookup(%{42 => ticket}, by_ref: %{"ESC-00042" => ticket})
+
+      assert {:ok, result} = Service.process(m, l, w, %{inbound_secret: @secret})
+
+      assert result.outcome == :created_new
+      assert Agent.get(w.pid, & &1).reply_calls == []
+    end
+
+    test "a forged Reply-To signature does not thread" do
+      ticket = %FakeTicket{id: 42, guest_email: "owner@example.com"}
+      w = writer()
+
+      m =
+        message(%{
+          from_email: "owner@example.com",
+          to_email: MessageIdUtil.build_reply_to(42, "wrong-secret", @domain)
+        })
+
+      assert {:ok, %{outcome: :created_new}} =
+               Service.process(m, lookup(%{42 => ticket}), w, %{inbound_secret: @secret})
     end
   end
 
