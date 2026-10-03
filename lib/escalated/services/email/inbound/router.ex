@@ -16,6 +16,15 @@ defmodule Escalated.Services.Email.Inbound.Router do
        signatures are rejected with `Plug.Crypto.secure_compare/2`.
     4. Subject line reference tag (`[{PREFIX}-...]`).
 
+  Paths 1, 2 and 4 use values anyone can guess or copy: Message-IDs
+  are deterministic from the ticket id and references are sequential.
+  Once an `inbound_secret` is configured (so outbound mail carries the
+  signed Reply-To) only path 3 identifies a ticket; mail without a
+  valid signature resolves to `nil`. Without a secret, paths 1, 2 and 4
+  remain as a compatibility mode. Either way a match is only a lookup:
+  `Escalated.Services.Email.Inbound.Service` decides whether the sender
+  may post on it. See developer-context `domain-model/email-threading.md`.
+
   Mirrors the NestJS reference and the per-framework inbound-verify
   PRs plus the greenfield .NET / Spring / Go routers.
 
@@ -52,23 +61,19 @@ defmodule Escalated.Services.Email.Inbound.Router do
   """
   @spec resolve_ticket(map(), lookup(), options()) :: any() | nil
   def resolve_ticket(message, lookup, options \\ %{}) when is_map(message) do
-    # 1 + 2. Parse canonical Message-IDs out of our own headers.
-    ticket = resolve_by_header_message_ids(message, lookup)
-
-    if is_nil(ticket) do
-      # 3. Signed Reply-To on the recipient address.
-      case resolve_by_signed_reply_to(message, lookup, options) do
-        nil ->
-          # 4. Subject-line reference tag.
-          resolve_by_subject_reference(message, lookup, options)
-
-        signed_ticket ->
-          signed_ticket
-      end
+    if inbound_secret(options) == "" do
+      resolve_unsigned(message, lookup, options)
     else
-      ticket
+      # 3. With a secret configured, only the signed Reply-To counts.
+      resolve_by_signed_reply_to(message, lookup, options)
     end
   end
+
+  @doc """
+  The configured inbound secret from `options`, or `""` when unset.
+  """
+  @spec inbound_secret(options()) :: String.t()
+  def inbound_secret(options), do: Map.get(options, :inbound_secret) || ""
 
   @doc """
   Return every candidate Message-ID from the inbound headers in the
@@ -83,6 +88,14 @@ defmodule Escalated.Services.Email.Inbound.Router do
 
   # --- private ---
 
+  # Compatibility mode for hosts without an inbound secret.
+  defp resolve_unsigned(message, lookup, options) do
+    # 1 + 2. Parse canonical Message-IDs out of our own headers, then
+    # 4. the subject-line reference tag.
+    resolve_by_header_message_ids(message, lookup) ||
+      resolve_by_subject_reference(message, lookup, options)
+  end
+
   defp resolve_by_header_message_ids(message, lookup) do
     message
     |> candidate_header_message_ids()
@@ -95,13 +108,10 @@ defmodule Escalated.Services.Email.Inbound.Router do
   end
 
   defp resolve_by_signed_reply_to(message, lookup, options) do
-    secret = Map.get(options, :inbound_secret, "")
+    secret = inbound_secret(options)
     to_email = Map.get(message, :to_email) || Map.get(message, "to_email")
 
     cond do
-      secret == "" ->
-        nil
-
       is_nil(to_email) or to_email == "" ->
         nil
 
