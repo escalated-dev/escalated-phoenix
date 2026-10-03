@@ -82,8 +82,11 @@ defmodule Escalated.Services.TicketService do
   fresh reference, up to three attempts in all. Any other error is returned at
   once.
 
-  A savepoint keeps PostgreSQL reference collisions from aborting a surrounding
-  guest proof transaction before the reference can be retried.
+  Inside a transaction (the guest proof, a split, a chat session) the insert
+  runs in a savepoint, so a PostgreSQL reference collision does not abort the
+  surrounding transaction before the reference can be retried. Outside one it
+  is a plain insert: PostgreSQL refuses a savepoint when no transaction is
+  open, and a failed statement there aborts nothing.
   """
   def insert(attrs) do
     %Ticket{}
@@ -94,7 +97,7 @@ defmodule Escalated.Services.TicketService do
   # Retries with the changeset as it was before the insert: the failed one
   # carries the constraint error and would never reach the database again.
   defp insert_with_fresh_reference(changeset, repo, attempts_left) do
-    case repo.insert(changeset, mode: :savepoint) do
+    case insert_recoverably(repo, changeset) do
       {:error, %Ecto.Changeset{} = failed} when attempts_left > 1 ->
         if Ticket.reference_taken?(failed) do
           changeset
@@ -107,6 +110,14 @@ defmodule Escalated.Services.TicketService do
       result ->
         result
     end
+  end
+
+  # An insert whose constraint error the caller recovers from. The savepoint is
+  # only valid, and only needed, when a transaction is already open.
+  defp insert_recoverably(repo, changeset) do
+    if repo.in_transaction?(),
+      do: repo.insert(changeset, mode: :savepoint),
+      else: repo.insert(changeset)
   end
 
   # Resolve/create a Contact when guest_email is in attrs and contact_id is not
@@ -144,7 +155,7 @@ defmodule Escalated.Services.TicketService do
       nil ->
         %Contact{}
         |> Contact.changeset(%{email: normalized, name: name, metadata: %{}})
-        |> repo.insert(mode: :savepoint)
+        |> then(&insert_recoverably(repo, &1))
         |> case do
           {:error, changeset} ->
             case repo.get_by(Contact, email: normalized) do
@@ -160,6 +171,10 @@ defmodule Escalated.Services.TicketService do
 
   @doc """
   Adds a reply (or internal note) to a ticket.
+
+  The reply, its activity entry and the ticket's first response time are saved
+  in one transaction; if any of them fails, none is kept. Hooks, mentions,
+  webhooks and workflows run only after that transaction commits.
   """
   def reply(ticket, attrs) do
     repo = Escalated.repo()
@@ -168,22 +183,16 @@ defmodule Escalated.Services.TicketService do
       attrs
       |> Map.put(:ticket_id, ticket.id)
 
-    %Reply{}
-    |> Reply.changeset(reply_attrs)
-    |> repo.insert()
+    repo.transaction(fn ->
+      with {:ok, reply} <- repo.insert(Reply.changeset(%Reply{}, reply_attrs)),
+           {:ok, _} <- record_reply(repo, ticket, reply) do
+        reply
+      else
+        {:error, error} -> repo.rollback(error)
+      end
+    end)
     |> case do
       {:ok, reply} ->
-        action = if reply.is_internal, do: "note_added", else: "reply_added"
-        log_activity(ticket, action, reply.author_id, %{reply_id: reply.id})
-
-        # Track first response
-        if !reply.is_internal && is_nil(ticket.first_response_at) &&
-             reply.author_id != ticket.requester_id do
-          ticket
-          |> Ticket.changeset(%{first_response_at: DateTime.utc_now()})
-          |> repo.update()
-        end
-
         reply_hook = if reply.is_internal, do: "internal_note_added", else: "ticket_replied"
         Hooks.do_action(reply_hook, [reply, ticket])
 
@@ -205,6 +214,22 @@ defmodule Escalated.Services.TicketService do
 
       error ->
         error
+    end
+  end
+
+  defp record_reply(repo, ticket, reply) do
+    action = if reply.is_internal, do: "note_added", else: "reply_added"
+
+    with {:ok, _} <- log_activity(ticket, action, reply.author_id, %{reply_id: reply.id}) do
+      # Track first response
+      if !reply.is_internal && is_nil(ticket.first_response_at) &&
+           reply.author_id != ticket.requester_id do
+        ticket
+        |> Ticket.changeset(%{first_response_at: DateTime.utc_now()})
+        |> repo.update()
+      else
+        {:ok, ticket}
+      end
     end
   end
 

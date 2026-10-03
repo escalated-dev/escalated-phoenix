@@ -7,12 +7,34 @@ defmodule Escalated.Tenancy.Maintenance do
   process. Every ID is validated before any operation starts. No tenant is
   discovered from package data and the legacy empty namespace is never included.
 
-  The callback receives the remaining command arguments unchanged. Exceptions
-  stop the sweep and `Tenancy.run/2` restores the caller's context. Schedulers
-  may call `run([], fn _args -> work() end)` using the same trusted catalog.
+  The callback receives the remaining command arguments unchanged. A tenant
+  whose callback raises (or exits or throws) is logged by tenant ID and error
+  type only, and the sweep continues with the next tenant, so one merchant's
+  bad data cannot stop maintenance for the others. `Tenancy.run/2` restores the
+  caller's context after each tenant. Once every tenant has run, any failure is
+  raised as `Escalated.Tenancy.Maintenance.Error`, whose `failures` field lists
+  each failed tenant with what it raised, so mix tasks and schedulers still
+  exit non-zero. Schedulers may call `run([], fn _args -> work() end)` using the
+  same trusted catalog.
   """
 
   alias Escalated.Tenancy
+  require Logger
+
+  defmodule Error do
+    @moduledoc "Raised after a sweep in which at least one tenant failed."
+    defexception failures: [], message: "Escalated maintenance failed"
+
+    @impl true
+    def exception(failures) do
+      tenants = Enum.map_join(failures, ", ", &elem(&1, 0))
+
+      %__MODULE__{
+        failures: failures,
+        message: "Escalated maintenance failed for #{length(failures)} tenant(s): #{tenants}"
+      }
+    end
+  end
 
   def run(args, callback) when is_list(args) and is_function(callback, 1) do
     {selected, remaining} = extract_tenant(args, nil, [])
@@ -21,14 +43,34 @@ defmodule Escalated.Tenancy.Maintenance do
       tenants = if selected, do: [selected], else: catalog!()
       tenants = tenants |> Enum.map(&Tenancy.validate_id!/1) |> Enum.uniq()
 
-      Enum.map(tenants, fn tenant ->
-        {tenant, Tenancy.run(tenant, fn -> callback.(remaining) end)}
-      end)
+      results = Enum.map(tenants, &run_tenant(&1, callback, remaining))
+
+      case for {tenant, {:failed, error}} <- results, do: {tenant, error} do
+        [] -> Enum.map(results, fn {tenant, {:ok, result}} -> {tenant, result} end)
+        failures -> raise Error, failures
+      end
     else
       if selected, do: raise(ArgumentError, "--tenant requires tenancy_enabled: true")
       [{"", callback.(remaining)}]
     end
   end
+
+  defp run_tenant(tenant, callback, remaining) do
+    {tenant, {:ok, Tenancy.run(tenant, fn -> callback.(remaining) end)}}
+  catch
+    kind, reason ->
+      error = Exception.normalize(kind, reason, __STACKTRACE__)
+
+      # Only the tenant and the error type: messages can carry row data.
+      Logger.error(
+        "Escalated maintenance failed for tenant #{tenant}: #{kind} #{describe(error)}"
+      )
+
+      {tenant, {:failed, error}}
+  end
+
+  defp describe(%{__exception__: true, __struct__: module}), do: inspect(module)
+  defp describe(_), do: "(non-exception)"
 
   defp catalog! do
     resolver = Escalated.config(:tenant_resolver)
