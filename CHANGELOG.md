@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   per mailbox overall, so one network cannot exhaust an owner's budget. Public
   rate limits count IPv6 clients per /64.
 - A disabled widget refuses verification, lookup, ticket and chat routes.
+- Inbound email that threads onto a ticket becomes a reply only when it is sent
+  by the ticket's requester (guest, contact or requester user email,
+  case-insensitive), and it is posted as that requester. Other senders, agents'
+  addresses included, open a new ticket and never reopen the matched one. With
+  an inbound secret configured, only the signed Reply-To address links mail to
+  a ticket. Accepted replies now reopen resolved and closed tickets.
 
 ### Fixed
 - Guest chat polling, messages and typing have their own per-capability limit,
