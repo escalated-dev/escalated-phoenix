@@ -50,13 +50,20 @@ end)
 Missing context fails closed. `Tenancy.capture/1` captures context for a spawned
 callback. Arbitrary spawned processes do not inherit it. Do not pass unvalidated
 record structs between tenants. `Escalated.repo/0` scopes package reads, joins,
-preloads, writes, bulk mutations and `Ecto.Multi` operations. It checks package
-foreign keys and host references before writing. Unsupported SQL forms (raw SQL,
-subqueries/CTEs/unions, outer/association joins, prefix overrides and bulk ownership
-changes) are refused; use supported queries or separately scoped queries and
-combine their results in Elixir. `storage_repo/0` is a trusted host migration
-escape hatch, not a request-facing API. Host code and plugins that query their own
-repo directly remain responsible for their own authorization.
+preloads, writes, bulk mutations and `Ecto.Multi` operations. It checks the
+package foreign keys and host references a write stores: an insert checks all of
+them, an update only those it changes, and a delete none, so a row that still
+names a user whose membership was revoked can still be updated or deleted. The
+scoped repo has no raw SQL entry point (`query/3` and friends), and it refuses
+subqueries/CTEs/unions, query or placeholder values in `insert_all` rows,
+outer/association joins, prefix overrides and bulk ownership changes; use
+supported queries or separately scoped queries and combine their results in
+Elixir. SQL written inside `fragment/1` is trusted raw SQL: the scoped repo does
+not inspect it, so a fragment that selects from another table is not tenant
+scoped. Only use fragments whose SQL reads the row already in scope.
+`storage_repo/0` is a trusted host migration escape hatch, not a request-facing
+API. Host code and plugins that query their own repo directly remain responsible
+for their own authorization.
 
 Tenant mode requires explicit booleans. Keep it enabled for a merchant database;
 turning it off restores the legacy single-tenant API and is not an isolation mode.
@@ -98,7 +105,10 @@ destination must be empty for this whole-installation operation.
 
 Scheduled tasks accept `--tenant ID`, or sweep the resolver's trusted catalog:
 SLA checks, delayed workflows, escalation, snoozed tickets, retention, newsletters
-and permission seeding. Each operation runs with a restored tenant context.
+and permission seeding. Each operation runs with a restored tenant context. A
+tenant whose operation fails is logged by tenant ID and error type, the sweep
+continues with the remaining tenants, and `Escalated.Tenancy.Maintenance.Error`
+listing the failed tenants is raised at the end, so the task exits non-zero.
 Settings, contacts, roles and other formerly global unique keys are tenant-local.
 
 ## Realtime

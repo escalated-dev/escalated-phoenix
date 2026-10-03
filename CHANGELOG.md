@@ -39,6 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Concurrent first lookups of a ticket with no guest grant no longer fail with a
   unique-key error on MySQL.
 - API guest ticket read/reply and guest ratings accept the capability headers.
+- On PostgreSQL, creating a ticket outside a transaction (customer portal, API,
+  inbound email, chat) no longer raises "transaction is not started".
+- In merchant mode, rows that still name a user whose membership was revoked can
+  be updated and deleted again; updates validate only the references they
+  change. Maintenance tasks run every tenant even when one fails, then exit with
+  an error listing the failed tenants.
+- A reply, its activity entry and the ticket's first response time are saved in
+  one transaction, and hooks run only after it commits.
+- The scoped repo refuses query and placeholder values in `insert_all` rows.
 - Disabled widget ticket and chat submissions now stop before creating tickets,
   contacts, activities or chat sessions. Database-backed regression tests cover
   both disabled paths and their enabled counterparts.
