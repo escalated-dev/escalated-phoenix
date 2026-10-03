@@ -24,8 +24,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   verification delivery and a stable guest access secret before accepting public
   submissions. See [merchant and guest setup](docs/merchant-and-guest-access.md)
   for required migrations, callbacks and upgrade behavior.
+- Guest proof rows no longer store issued capabilities; an identical retry
+  re-derives an equivalent capability for the same grant. A migration clears
+  results stored earlier.
+- Mailbox code delivery is budgeted per mailbox and client network as well as
+  per mailbox overall, so one network cannot exhaust an owner's budget. Public
+  rate limits count IPv6 clients per /64.
+- A disabled widget refuses verification, lookup, ticket and chat routes.
 
 ### Fixed
+- Guest chat polling, messages and typing have their own per-capability limit,
+  so the widget's three-second polling no longer hits the general widget limit.
+- Identical retries of a consumed guest proof no longer spend attempts.
+- Concurrent first lookups of a ticket with no guest grant no longer fail with a
+  unique-key error on MySQL.
+- API guest ticket read/reply and guest ratings accept the capability headers.
 - On PostgreSQL, creating a ticket outside a transaction (customer portal, API,
   inbound email, chat) no longer raises "transaction is not started".
 - In merchant mode, rows that still name a user whose membership was revoked can

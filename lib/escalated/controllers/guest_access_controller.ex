@@ -4,7 +4,7 @@ defmodule Escalated.Controllers.GuestAccessController do
   alias Escalated.Services.GuestAccess
 
   def challenge(conn, params) do
-    case GuestAccess.challenge(params["email"], params["purpose"]) do
+    case GuestAccess.challenge(params["email"], params["purpose"], ip: conn.remote_ip) do
       {:ok, id} ->
         conn
         |> put_status(202)

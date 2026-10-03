@@ -19,6 +19,20 @@ defmodule Escalated.RateLimiter do
     GenServer.start_link(__MODULE__, opts, server_opts)
   end
 
+  @doc """
+  Normalizes a client address into the identity a limit is charged to.
+
+  An IPv6 client usually controls a whole /64, so every address in it shares one
+  key; IPv4-mapped IPv6 addresses are keyed as the IPv4 address they carry.
+  """
+  def client_key({_, _, _, _} = ipv4), do: ipv4
+
+  def client_key({0, 0, 0, 0, 0, 0xFFFF, high, low}),
+    do: {div(high, 256), rem(high, 256), div(low, 256), rem(low, 256)}
+
+  def client_key({a, b, c, d, _, _, _, _}), do: {a, b, c, d, 0, 0, 0, 0}
+  def client_key(other), do: other
+
   @doc "Returns `:allow`, `{:deny, retry_after_ms}`, or `{:error, reason}`."
   def check(bucket, key, max_requests, window_ms, server \\ __MODULE__)
       when is_integer(max_requests) and max_requests > 0 and is_integer(window_ms) and

@@ -37,7 +37,11 @@ defmodule Escalated.Controllers.SatisfactionRatingController do
     end
   end
 
-  def store_guest(conn, %{"token" => token} = params) when is_binary(token) and token != "" do
+  # A capability header, when sent, takes precedence over the path segment.
+  def store_guest(conn, %{"token" => path_token} = params)
+      when is_binary(path_token) and path_token != "" do
+    token = Escalated.Services.GuestAccess.header_token(conn) || path_token
+
     case Escalated.Services.GuestAccess.resolve(token) do
       {:ok, ticket, _grant} -> submit_rating(conn, ticket, params, %{})
       _ -> conn |> put_status(404) |> json(%{error: "Ticket not found"})
