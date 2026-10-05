@@ -312,11 +312,20 @@ capabilities, so changing guessed tokens cannot mint fresh budgets. IPv6 clients
 are counted per /64. Limits run before controller work and return HTTP 429 with
 `Retry-After` and `Cache-Control: no-store` when exhausted.
 
+On top of those shared budgets, the guest writes have per-IP limits of their own:
+5 ticket creations (`POST /widget/tickets`, `POST /api/v1/guest/tickets`) and 10
+replies (`POST /widget/tickets/:reference/reply`,
+`POST /api/v1/guest/tickets/:token/replies`) per minute, each with its own
+counter. The reply limit runs before the guest token is resolved, so wrong-token
+guesses count too. Set `enabled: false` only when you already throttle these
+routes upstream.
+
 ```elixir
 config :escalated,
   guest_rate_limit: %{max_requests: 20, window_ms: 60_000},
   widget_rate_limit: %{max_requests: 20, window_ms: 60_000},
-  widget_chat_rate_limit: %{max_requests: 90, max_requests_per_ip: 300, window_ms: 60_000}
+  widget_chat_rate_limit: %{max_requests: 90, max_requests_per_ip: 300, window_ms: 60_000},
+  guest_submission_rate_limit: %{enabled: true, tickets_per_minute: 5, replies_per_minute: 10}
 ```
 
 The built-in fixed-window limiter is supervised by the Escalated OTP application,
@@ -328,11 +337,14 @@ returns HTTP 503 instead of allowing uncounted requests.
 Multi-node hosts can configure `rate_limit_backend: MyApp.SharedRateLimiter`.
 Its `check(bucket, key, max_requests, window_ms)` callback must atomically
 return `:allow`, `{:deny, positive_retry_after_ms}`, or `{:error, reason}`. The
-buckets `:guest`, `:widget` and `:widget_chat_network` key on the client's IP
+buckets `:guest`, `:widget`, `:guest_ticket`, `:guest_reply` and
+`:widget_chat_network` key on the client's IP
 tuple (an IPv6 address with its last 64 bits zeroed); `:widget_chat` keys on
 `{ip_tuple, capability_hash}`, a hash of the chat capability, never the token.
 Only a host's trusted-proxy pipeline should rewrite `conn.remote_ip`; Escalated
-does not trust `X-Forwarded-For` itself. Edge rate limits remain useful for
+does not trust `X-Forwarded-For` itself. **Behind a proxy or load balancer,
+configure trusted proxies (for example `Plug.RewriteOn` or the `remote_ip`
+library) before the router, or every guest shares the proxy's address.** Edge rate limits remain useful for
 distributed traffic. Guest email proof also has a database-backed mailbox budget
 shared across tenants and nodes. Setup and request shapes are documented in
 [merchant and guest integration](docs/merchant-and-guest-access.md).
