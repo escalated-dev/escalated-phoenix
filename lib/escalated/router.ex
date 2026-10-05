@@ -304,9 +304,20 @@ defmodule Escalated.Router do
             post "/verification", GuestAccessController, :challenge
             post "/lookup", GuestAccessController, :lookup
 
-            post "/tickets", WidgetController, :create_ticket
             get "/tickets/:reference", WidgetController, :show_ticket
-            post "/tickets/:reference/reply", WidgetController, :reply
+
+            # Writes get a per-IP limit of their own on top of the widget budget
+            # (Escalated.Plugs.GuestSubmissionRateLimit). The reply limit runs
+            # before the token is resolved, so wrong-token guesses count.
+            scope "/" do
+              pipe_through Escalated.Plugs.GuestTicketRateLimit
+              post "/tickets", WidgetController, :create_ticket
+            end
+
+            scope "/" do
+              pipe_through Escalated.Plugs.GuestReplyRateLimit
+              post "/tickets/:reference/reply", WidgetController, :reply
+            end
 
             # Live chat widget routes (scope-relative; see the agent chat routes).
             get "/chat/availability", WidgetChatController, :availability
@@ -360,9 +371,17 @@ defmodule Escalated.Router do
               post "/verification", GuestAccessController, :challenge
               post "/lookup", GuestAccessController, :lookup
 
-              post "/tickets", GuestTicketController, :create
               get "/tickets/:token", GuestTicketController, :show
-              post "/tickets/:token/replies", GuestTicketController, :reply
+
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestTicketRateLimit
+                post "/tickets", GuestTicketController, :create
+              end
+
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestReplyRateLimit
+                post "/tickets/:token/replies", GuestTicketController, :reply
+              end
             end
           end
 
