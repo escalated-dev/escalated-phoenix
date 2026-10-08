@@ -46,7 +46,7 @@ Phoenix 애플리케이션을 위한 임베디드 헬프데스크 및 지원 티
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.1.0"}
+    {:escalated_phoenix, "~> 0.2.0"}
   ]
 end
 ```
