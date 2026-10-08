@@ -7,7 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-08
+
+### Upgrading
+
+This release changes behaviour hosts rely on. Before deploying it:
+
+- **Run every package migration**, including the three from September 30, 2026
+  (`20260930000001_add_merchant_tenancy`, `20260930000002_add_verified_guest_access`
+  and `20260930000003_clear_guest_challenge_results`, which clears guest proof
+  results stored earlier):
+  `mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations`.
+  A host that copies package migrations must keep their version numbers. Take a
+  backup first; the tenancy and guest-access migrations refuse some rollbacks.
+- **Configure guest access before accepting public submissions.** Permanent guest
+  tokens no longer grant access. Set `guest_access_secret` (at least 32 random
+  bytes, stable across deploys) and a `guest_verification_delivery` callback.
+- **Merchant tenancy is opt-in.** To use it, set `tenancy_enabled: true` and a
+  `tenant_resolver` implementing `resolve/1`, `member?/2`, `reference?/3`,
+  `scope_users/2`, `tenants/0` and `public_url/1`, plus `guest_reference_resolver`
+  if guests look tickets up by your own references. Move an existing
+  installation to a merchant with `mix escalated.backfill_tenant`. See
+  [merchant and guest setup](docs/merchant-and-guest-access.md).
+- **`Escalated.Tenancy.Maintenance.run` raises `Escalated.Tenancy.Maintenance.Error`**
+  once the sweep finishes if any tenant failed (its `failures` field lists them).
+  Schedulers that call it directly should expect the exception; mix tasks exit
+  non-zero.
+- **Inbound email:** only the ticket's requester can reply by email. Mail from
+  anyone else, an agent's address included, opens a new ticket, so agents must
+  reply in the app. With `email_inbound_secret` set, only the signed Reply-To
+  address links mail to a ticket.
+- **Staff callbacks:** `admin_check` and `agent_check` must return the boolean
+  `true`. Any other value denies, with no fallback to stored roles.
+- **Attachments:** downloads require the requester or an agent. With external
+  storage, configure `:attachment_download_url` (otherwise downloads answer
+  503) and make files that were publicly served private.
+- **Guest rate limits:** guest ticket creation (5 per minute) and replies (10 per
+  minute) are limited per client IP. Behind a proxy, rewrite `conn.remote_ip`
+  from trusted proxies before the router, or every guest shares one limit.
+- **Shared frontend:** ship a build of `@escalated-dev/escalated` that contains
+  the settings page (escalated#185), tenant broadcasts (escalated#184) and guest
+  forms (escalated#186, escalated#187).
+
 ### Added
+- Guest ticket creation and replies are limited per client IP: 5 tickets and
+  10 replies a minute, counted separately and before the guest token is
+  resolved, so wrong-token guesses count. Configure with
+  `guest_submission_rate_limit` (`enabled`, `tickets_per_minute`,
+  `replies_per_minute`) (#138).
+- The general settings page saves knowledge-base enablement, public access,
+  feedback and footer branding. Invalid or unsupported input rejects the whole
+  write with field errors (#128).
 - Opt-in merchant tenancy with scoped repositories, tenant-local roles and unique
   keys, host membership and reference validation, isolated jobs and realtime
   channels, explicit provisioning and an offline legacy-data backfill command.
@@ -18,6 +68,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   of expired guest access records.
 
 ### Security
+- Staff access is decided the same way for admin and agent routes, ticket APIs
+  and realtime channels. `admin_check` and `agent_check` callbacks are
+  authoritative and grant only on `true` (#129).
+- Customer ticket creation uses the authenticated requester, satisfaction
+  ratings by reference require that requester, and API replies are authored by
+  the authenticated agent (#130).
+- Attachment downloads check the requester or agent against the owning ticket
+  and reply visibility; internal-note files are staff-only. External storage is
+  served through a five-minute private URL from `:attachment_download_url` (#131).
+- Public guest ticket creation, token lookup and guest rating routes enforce a
+  per-IP budget. The limiter is supervised and admits concurrent requests
+  atomically; over the limit it answers 429 with `Retry-After`, and 503 when its
+  backend fails (#132).
 - Customer ticket summaries distinguish contacts from host users with the same
   numeric ID and exclude internal-note timestamps and authors.
 - Legacy permanent guest tokens no longer grant access. Hosts must configure

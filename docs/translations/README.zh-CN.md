@@ -46,7 +46,7 @@ Phoenix 应用程序的可嵌入帮助台和支持工单系统。作为 Hex 包�
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.1.0"}
+    {:escalated_phoenix, "~> 0.2.0"}
   ]
 end
 ```
