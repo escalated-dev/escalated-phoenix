@@ -22,6 +22,8 @@ defmodule Escalated.Schemas.Ticket do
     field :assigned_to, @user_id_type
     field :requester_id, @user_id_type
     field :requester_type, :string
+    field :account_type, :string
+    field :account_id, :string
     field :guest_name, :string
     field :guest_email, :string
     field :guest_token, :string
@@ -187,13 +189,13 @@ defmodule Escalated.Schemas.Ticket do
   end
 
   def search(query \\ __MODULE__, term) do
-    pattern = "%#{term}%"
+    pattern = "%#{String.downcase(term)}%"
 
     from(t in query,
       where:
-        ilike(t.subject, ^pattern) or
-          ilike(t.description, ^pattern) or
-          ilike(t.reference, ^pattern)
+        like(fragment("LOWER(?)", t.subject), ^pattern) or
+          like(fragment("LOWER(?)", t.description), ^pattern) or
+          like(fragment("LOWER(?)", t.reference), ^pattern)
     )
   end
 

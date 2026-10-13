@@ -84,7 +84,9 @@ defmodule Escalated.Channels.ChatChannel do
   @impl true
   def handle_info(%{event: event, payload: payload}, socket) do
     deliver(socket, fn ->
-      push(socket, event, payload)
+      if TenantSocket.visible_payload?(payload) or event == "chat:typing",
+        do: push(socket, event, payload)
+
       {:noreply, socket}
     end)
   end
@@ -92,7 +94,9 @@ defmodule Escalated.Channels.ChatChannel do
   @impl true
   def handle_out("chat:typing" = event, payload, socket) do
     deliver(socket, fn ->
-      push(socket, event, payload)
+      if TenantSocket.visible_payload?(payload) or event == "chat:typing",
+        do: push(socket, event, payload)
+
       {:noreply, socket}
     end)
   end
@@ -118,7 +122,7 @@ defmodule Escalated.Channels.ChatChannel do
   # Private
 
   defp authorized_agent?(socket) do
-    Escalated.Permissions.agent?(socket.assigns[:current_user])
+    Escalated.Permissions.agent?(TenantSocket.current_user(socket))
   end
 
   defp valid_guest_token?(%Ticket{id: id}, supplied)

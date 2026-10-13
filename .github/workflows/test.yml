@@ -43,6 +43,22 @@ jobs:
           ESCALATED_TEST_ADAPTER: sqlite
         run: mix run --no-compile --no-start scripts/verify_tenancy_migrations.exs sqlite
 
+      - name: Verify populated ticket access migration with custom prefixes
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: sqlite
+        run: mix run --no-compile --no-start scripts/verify_ticket_access_migration.exs
+
+      - name: Verify custom prefix and string agent identities
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: sqlite
+          ESCALATED_TEST_TABLE_PREFIX: Support_
+          ESCALATED_TEST_USER_KEY_TYPE: string
+        run: |
+          mix clean
+          mix test test/escalated/ticket_access_identity_test.exs
+
   # The same suite against PostgreSQL, which is what a Phoenix host actually
   # runs. SQLite keeps identifiers whole where PostgreSQL truncates them at 63
   # bytes, spells JSON access differently, and accepts DDL and values PostgreSQL
@@ -105,6 +121,30 @@ jobs:
           ESCALATED_TEST_PASSWORD: postgres
         run: mix run --no-compile --no-start scripts/verify_tenancy_migrations.exs postgres
 
+      - name: Verify populated ticket access migration with custom prefixes
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: postgres
+          ESCALATED_TEST_HOST: 127.0.0.1
+          ESCALATED_TEST_PORT: 5432
+          ESCALATED_TEST_USERNAME: postgres
+          ESCALATED_TEST_PASSWORD: postgres
+        run: mix run --no-compile --no-start scripts/verify_ticket_access_migration.exs
+
+      - name: Verify custom prefix and string agent identities
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: postgres
+          ESCALATED_TEST_HOST: 127.0.0.1
+          ESCALATED_TEST_PORT: 5432
+          ESCALATED_TEST_USERNAME: postgres
+          ESCALATED_TEST_PASSWORD: postgres
+          ESCALATED_TEST_TABLE_PREFIX: Support_
+          ESCALATED_TEST_USER_KEY_TYPE: string
+        run: |
+          mix clean
+          mix test test/escalated/ticket_access_identity_test.exs
+
   # And against MySQL, which config.exs has accepted all along. MySQL has no
   # array type, so the list columns are created as JSON there (see
   # Escalated.Migration); it commits DDL implicitly, ending a test's sandbox
@@ -164,3 +204,27 @@ jobs:
           ESCALATED_TEST_USERNAME: root
           ESCALATED_TEST_PASSWORD: mysql
         run: mix run --no-compile --no-start scripts/verify_tenancy_migrations.exs mysql
+
+      - name: Verify populated ticket access migration with custom prefixes
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: mysql
+          ESCALATED_TEST_HOST: 127.0.0.1
+          ESCALATED_TEST_PORT: 3306
+          ESCALATED_TEST_USERNAME: root
+          ESCALATED_TEST_PASSWORD: mysql
+        run: mix run --no-compile --no-start scripts/verify_ticket_access_migration.exs
+
+      - name: Verify custom prefix and string agent identities
+        env:
+          MIX_ENV: test
+          ESCALATED_TEST_ADAPTER: mysql
+          ESCALATED_TEST_HOST: 127.0.0.1
+          ESCALATED_TEST_PORT: 3306
+          ESCALATED_TEST_USERNAME: root
+          ESCALATED_TEST_PASSWORD: mysql
+          ESCALATED_TEST_TABLE_PREFIX: Support_
+          ESCALATED_TEST_USER_KEY_TYPE: string
+        run: |
+          mix clean
+          mix test test/escalated/ticket_access_identity_test.exs

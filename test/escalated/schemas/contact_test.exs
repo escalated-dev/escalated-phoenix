@@ -1,5 +1,6 @@
 defmodule Escalated.Schemas.ContactTest do
-  use ExUnit.Case, async: true
+  # The integration group below uses a shared SQL sandbox connection.
+  use ExUnit.Case, async: false
   alias Escalated.Schemas.Contact
 
   # --------------------------------------------------------------------

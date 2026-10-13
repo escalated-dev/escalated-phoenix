@@ -80,6 +80,7 @@ defmodule Escalated.Services.AutomationRunner do
       end)
 
     repo.all(query)
+    |> Enum.filter(&Escalated.Services.TicketRoutingConditions.matches_all?(conditions, &1))
   end
 
   # Operator-flipping helper: "hours_since > N" means timestamp <
@@ -136,6 +137,9 @@ defmodule Escalated.Services.AutomationRunner do
     pattern = "%#{v}%"
     where(query, [t], like(t.subject, ^pattern))
   end
+
+  defp apply_condition(query, %{"field" => "department_id", "value" => id}),
+    do: where(query, [t], t.department_id == ^to_int(id))
 
   # Unknown field — skip silently for forward-compat.
   defp apply_condition(query, _), do: query

@@ -14,7 +14,7 @@ defmodule Escalated.Tenancy.Repo do
 
   def all(queryable, opts \\ []) do
     options!(opts)
-    query = Query.scope(queryable)
+    query = scope(queryable)
     if query.assocs != [], do: Tenancy.deny!()
     preloads = query.preloads
     rows = raw().all(%{query | preloads: []}, opts)
@@ -44,7 +44,7 @@ defmodule Escalated.Tenancy.Repo do
 
   def exists?(query, opts \\ []) do
     options!(opts)
-    raw().exists?(Query.scope(query), opts)
+    raw().exists?(scope(query), opts)
   end
 
   def aggregate(query, aggregate, opts) when is_list(opts),
@@ -55,15 +55,15 @@ defmodule Escalated.Tenancy.Repo do
 
   def aggregate(query, aggregate, field, opts) do
     options!(opts)
-    raw().aggregate(Query.scope(query), aggregate, field, opts)
+    raw().aggregate(scope(query), aggregate, field, opts)
   end
 
   def preload(records, preloads, opts \\ []), do: Preloader.load(records, preloads, opts)
 
   for action <- [:insert, :update, :delete] do
     def unquote(action)(record, opts \\ []) do
-      cs = Writes.prepare(record, unquote(action))
-      opts = Writes.options!(cs.data.__struct__, opts)
+      cs = prepare(record, unquote(action))
+      opts = write_options!(cs.data.__struct__, opts)
       apply(raw(), unquote(action), [cs, opts])
     end
 
@@ -82,18 +82,21 @@ defmodule Escalated.Tenancy.Repo do
   def insert_or_update(cs), do: insert_or_update(cs, [])
 
   def insert_all(source, rows, opts \\ []) do
-    raw().insert_all(source, Writes.rows!(source, rows), Writes.options!(source, opts))
+    rows = if Tenancy.enabled?(), do: Writes.rows!(source, rows), else: rows
+    rows = Escalated.TicketVisibility.Writes.rows!(source, rows)
+    raw().insert_all(source, rows, write_options!(source, opts))
   end
 
   def update_all(query, updates, opts \\ []) do
     options!(opts)
-    Writes.validate_bulk!(query, updates)
-    raw().update_all(Query.scope(query), updates, opts)
+    if Tenancy.enabled?(), do: Writes.validate_bulk!(query, updates)
+    Escalated.TicketVisibility.Writes.validate_bulk!(query, updates)
+    raw().update_all(scope(query), updates, opts)
   end
 
   def delete_all(query, opts \\ []) do
     options!(opts)
-    raw().delete_all(Query.scope(query), opts)
+    raw().delete_all(scope(query), opts)
   end
 
   def transaction(fun_or_multi, opts \\ []) do
@@ -146,5 +149,26 @@ defmodule Escalated.Tenancy.Repo do
   defp call_run({mod, fun, args}, changes), do: apply(mod, fun, [__MODULE__, changes | args])
   defp call_run(fun, changes), do: fun.(__MODULE__, changes)
   defp options!(opts), do: if(Keyword.has_key?(opts, :prefix), do: Tenancy.deny!())
+
+  defp scope(query) do
+    query = if Tenancy.enabled?(), do: Query.scope(query), else: Ecto.Queryable.to_query(query)
+    Escalated.TicketVisibility.Query.scope(query)
+  end
+
+  defp prepare(record, action) do
+    cs =
+      if Tenancy.enabled?(),
+        do: Writes.prepare(record, action),
+        else: Ecto.Changeset.change(record)
+
+    Escalated.TicketVisibility.Writes.prepare(cs, action)
+  end
+
+  defp write_options!(schema, opts) do
+    options!(opts)
+    Escalated.TicketVisibility.Writes.options!(opts)
+    if Tenancy.enabled?(), do: Writes.options!(schema, opts), else: opts
+  end
+
   defp raw, do: Escalated.storage_repo()
 end

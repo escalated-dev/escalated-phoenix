@@ -33,6 +33,9 @@ defmodule Escalated.Services.WorkflowRunner do
   """
   @spec run_for_event(String.t(), map()) :: [{integer(), execution_outcome()}]
   def run_for_event(trigger_event, ticket) do
+    if match?(%Escalated.Schemas.Ticket{}, ticket),
+      do: Escalated.TicketVisibility.assert_record!(ticket)
+
     workflows = load_active_workflows(trigger_event)
     condition_map = ticket_to_condition_map(ticket)
 
@@ -153,6 +156,8 @@ defmodule Escalated.Services.WorkflowRunner do
       :priority,
       :channel,
       :ticket_type,
+      :account_type,
+      :account_id,
       :assigned_to,
       :department_id,
       :requester_id,

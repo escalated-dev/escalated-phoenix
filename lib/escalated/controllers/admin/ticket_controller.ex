@@ -207,7 +207,7 @@ defmodule Escalated.Controllers.Admin.TicketController do
   defp atomize_filters(params) do
     params
     |> Map.take(
-      ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type)
+      ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type account_type account_id)
     )
     |> Enum.reduce(%{}, fn
       {_key, ""}, acc -> acc

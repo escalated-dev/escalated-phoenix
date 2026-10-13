@@ -112,6 +112,8 @@ defmodule Escalated.Services.MentionService do
     user_ids
     |> Enum.uniq()
     |> Enum.reject(&self_mention?(&1, author_id))
+    |> then(&Escalated.TicketVisibility.recipients(ticket, &1))
+    |> Enum.filter(&Escalated.TicketVisibility.can_assign?(ticket, &1))
     |> Enum.map(&create_and_notify(reply, ticket, &1))
     |> Enum.reject(&is_nil/1)
   end

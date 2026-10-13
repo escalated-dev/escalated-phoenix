@@ -1,6 +1,11 @@
 import Config
 
 if Mix.env() == :test do
+  config :escalated,
+    table_prefix: System.get_env("ESCALATED_TEST_TABLE_PREFIX", "escalated_"),
+    user_key_type:
+      if(System.get_env("ESCALATED_TEST_USER_KEY_TYPE") == "string", do: :string, else: :integer)
+
   # The suite runs on SQLite unless ESCALATED_TEST_ADAPTER says otherwise, so it
   # needs nothing installed locally. CI runs it twice -- sqlite and postgres --
   # because the two disagree about enough to matter: reading a key out of a JSON
@@ -72,7 +77,11 @@ if Mix.env() == :test do
   # and two throwaway SQLite files are the only way to get two genuinely empty
   # schemas without a second server.
   config :escalated, Escalated.HostTestRepo,
-    database: Path.expand("../tmp/host_test.db", __DIR__),
+    database:
+      Path.expand(
+        "../tmp/host_#{System.get_env("ESCALATED_TEST_ADAPTER", "sqlite")}_test.db",
+        __DIR__
+      ),
     pool: Ecto.Adapters.SQL.Sandbox,
     adapter: Ecto.Adapters.SQLite3
 

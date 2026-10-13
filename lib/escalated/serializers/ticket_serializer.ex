@@ -33,11 +33,14 @@ defmodule Escalated.Serializers.TicketSerializer do
   internal notes, including their author and timestamp.
   """
   def computed_fields(ticket, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     {requester_name, requester_email} = resolve_requester(ticket)
     {last_reply_at, last_reply_author} = resolve_last_reply(ticket, repo, opts)
 
     %{
+      account_type: ticket.account_type,
+      account_id: ticket.account_id,
       requester_name: requester_name,
       requester_email: requester_email,
       last_reply_at: last_reply_at,
@@ -62,6 +65,7 @@ defmodule Escalated.Serializers.TicketSerializer do
   Returns additional computed fields for the ticket detail (show) view.
   """
   def detail_fields(ticket) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
 
     chat_session = resolve_chat_session(ticket, repo)

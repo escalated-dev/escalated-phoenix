@@ -14,6 +14,13 @@ defmodule Escalated.Tenancy.Tables do
 
   @entries [
     %{
+      name: "department_agent",
+      schema: Escalated.Schemas.DepartmentAgent,
+      local_refs: %{department_id: {"departments", :id}},
+      host_refs: [:agent_id],
+      unique_keys: [[:department_id, :agent_id]]
+    },
+    %{
       name: "guest_challenges",
       schema: Escalated.Schemas.GuestChallenge,
       local_refs: %{},
@@ -339,7 +346,7 @@ defmodule Escalated.Tenancy.Tables do
     %{
       name: "sla_policies",
       schema: Escalated.Schemas.SlaPolicy,
-      local_refs: %{},
+      local_refs: %{department_id: {"departments", :id}},
       host_refs: [],
       unique_keys: [[:name]]
     },

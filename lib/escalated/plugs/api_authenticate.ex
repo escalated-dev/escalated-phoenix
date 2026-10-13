@@ -30,12 +30,14 @@ defmodule Escalated.Plugs.ApiAuthenticate do
   def init(opts), do: opts
 
   @impl true
-  def call(%Plug.Conn{assigns: %{current_user: user}} = conn, _opts) when not is_nil(user),
-    do: check_membership(conn)
-
   def call(conn, _opts) do
-    with {:ok, token} <- bearer_token(conn),
-         {:ok, user} <- HostAuth.validate(token) do
+    identity =
+      case bearer_token(conn) do
+        {:ok, token} -> HostAuth.validate(token)
+        _ -> if conn.assigns[:current_user], do: {:ok, conn.assigns.current_user}, else: :error
+      end
+
+    with {:ok, user} <- identity do
       conn |> assign(:current_user, user) |> check_membership()
     else
       _ ->
@@ -55,7 +57,7 @@ defmodule Escalated.Plugs.ApiAuthenticate do
 
   defp check_membership(conn) do
     if Escalated.Tenancy.member?(conn.assigns.current_user),
-      do: conn,
+      do: Escalated.Plugs.TicketVisibility.call(conn, []),
       else:
         conn
         |> put_status(403)

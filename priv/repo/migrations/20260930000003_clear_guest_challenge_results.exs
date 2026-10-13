@@ -1,5 +1,6 @@
 defmodule Escalated.Repo.Migrations.ClearGuestChallengeResults do
   use Ecto.Migration
+  require Ecto.Query
   @prefix Application.compile_env(:escalated, :table_prefix, "escalated_")
 
   # Proof rows written before this release kept the issued bearer capability in
@@ -9,7 +10,11 @@ defmodule Escalated.Repo.Migrations.ClearGuestChallengeResults do
   # the capability already returned or requests a new code. All tenants' rows are
   # cleared in one statement; nothing else changes.
   def up do
-    execute("UPDATE #{@prefix}guest_challenges SET result = NULL WHERE result IS NOT NULL")
+    execute(fn ->
+      table = @prefix <> "guest_challenges"
+      query = Ecto.Query.from(row in table, where: not is_nil(row.result))
+      repo().update_all(query, set: [result: nil])
+    end)
   end
 
   # Cleared results cannot be restored, and older code treats a missing result as

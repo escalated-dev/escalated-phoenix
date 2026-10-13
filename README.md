@@ -23,6 +23,10 @@ Embeddable helpdesk and support ticket system for Phoenix applications. Drop-in 
 
 ## Features
 
+Department visibility, account resolution and targeted SLAs are opt-in. See the
+[ticket access and routing guide](docs/ticket-access-and-routing.md) for configuration,
+host integration hooks and migration instructions.
+
 - **Ticket lifecycle** — Create, assign, reply, resolve, close, reopen with configurable status transitions
 - **SLA engine** — Per-priority response and resolution targets, business hours calculation, automatic breach detection
 - **Agent dashboard** — Ticket queue with filters, internal notes, canned responses

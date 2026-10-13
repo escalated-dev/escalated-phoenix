@@ -64,8 +64,8 @@ defmodule Escalated.Services.AssignmentService do
       nil ->
         {:ok, nil}
 
-      dept_id ->
-        case next_available_agent(dept_id) do
+      _dept_id ->
+        case next_available_agent(ticket) do
           nil -> {:ok, nil}
           agent_id -> assign(ticket, agent_id)
         end
@@ -121,7 +121,8 @@ defmodule Escalated.Services.AssignmentService do
 
   # Private
 
-  defp next_available_agent(department_id) do
+  defp next_available_agent(ticket) do
+    department_id = ticket.department_id
     repo = Escalated.repo()
 
     # Find agents in this department via agent_profiles or department_agents join table.
@@ -133,6 +134,9 @@ defmodule Escalated.Services.AssignmentService do
           select: ap.user_id
         )
       )
+
+    agent_profiles =
+      Enum.filter(agent_profiles, &Escalated.TicketVisibility.can_assign?(ticket, &1))
 
     case agent_profiles do
       [] ->
