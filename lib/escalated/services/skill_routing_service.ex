@@ -36,6 +36,7 @@ defmodule Escalated.Services.SkillRoutingService do
       repo
       |> matching_skill_ids(tag_ids, tag_names, ticket.department_id)
       |> rank_agents(repo)
+      |> Enum.filter(&Escalated.TicketVisibility.can_assign?(ticket, &1.user_id))
     end
   end
 

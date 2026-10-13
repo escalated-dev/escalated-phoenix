@@ -57,6 +57,11 @@ defmodule Escalated.Services.WorkflowEngine do
 
   def interpolate(text, _), do: to_string(text)
 
+  defp evaluate_single(%{"field" => field} = condition, ticket)
+       when field in ~w(account account_type account_id ticket_type) do
+    Escalated.Services.TicketRoutingConditions.matches?(condition, ticket)
+  end
+
   defp evaluate_single(%{"field" => field, "operator" => op, "value" => expected}, ticket) do
     actual = resolve_field(field, ticket)
     apply_operator(op, to_string(actual), to_string(expected))

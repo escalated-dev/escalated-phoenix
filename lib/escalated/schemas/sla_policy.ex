@@ -18,6 +18,8 @@ defmodule Escalated.Schemas.SlaPolicy do
     field :is_default, :boolean, default: false
     field :first_response_hours, :map
     field :resolution_hours, :map
+    field :ticket_type, :string
+    belongs_to :department, Escalated.Schemas.Department
 
     has_many :tickets, Escalated.Schemas.Ticket
     has_many :departments, Escalated.Schemas.Department, foreign_key: :default_sla_policy_id
@@ -34,7 +36,9 @@ defmodule Escalated.Schemas.SlaPolicy do
       :is_active,
       :is_default,
       :first_response_hours,
-      :resolution_hours
+      :resolution_hours,
+      :department_id,
+      :ticket_type
     ])
     |> validate_required([:name, :first_response_hours, :resolution_hours])
     |> unique_constraint(:name)

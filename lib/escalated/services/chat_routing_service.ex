@@ -17,7 +17,7 @@ defmodule Escalated.Services.ChatRoutingService do
 
   Returns `{:ok, agent_id}` or `{:ok, nil}` if no agent is available.
   """
-  def find_available_agent(department_id \\ nil) do
+  def find_available_agent(department_id \\ nil, ticket \\ nil) do
     repo = Escalated.repo()
 
     rules =
@@ -27,7 +27,13 @@ defmodule Escalated.Services.ChatRoutingService do
 
     agent_id =
       Enum.find_value(rules, fn rule ->
-        evaluate_rule(rule, repo)
+        ids =
+          Enum.filter(rule.agent_ids || [], fn id ->
+            not Escalated.TicketVisibility.enabled?() or
+              (ticket && Escalated.TicketVisibility.can_assign?(ticket, id))
+          end)
+
+        evaluate_rule(%{rule | agent_ids: ids}, repo)
       end)
 
     {:ok, agent_id}

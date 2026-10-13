@@ -75,7 +75,7 @@ defmodule PhoenixTenancyMigrationProbe do
 
     legacy_tables =
       Escalated.Tenancy.Tables.entries()
-      |> Enum.reject(&(&1.name in ["guest_challenges", "guest_grants"]))
+      |> Enum.reject(&(&1.name in ["guest_challenges", "guest_grants", "department_agent"]))
       |> Enum.map(&Escalated.table_name(&1.name))
 
     check!(length(legacy_tables) == 56, "Expected the fixed 56-table pre-tenancy baseline")
@@ -134,7 +134,7 @@ defmodule PhoenixTenancyMigrationProbe do
       "PROBE #{adapter_name}: clean downgrade preserved rows and restored legacy uniqueness"
     )
 
-    Ecto.Migrator.run(repo, migrations, :up, all: true, log: false)
+    Ecto.Migrator.run(repo, migrations, :up, to: @guest_result_version, log: false)
 
     for {name, values} <-
           Map.take(seeds, [:contacts, :settings, :roles, :permissions, :agent_profiles]) do
@@ -227,7 +227,7 @@ defmodule PhoenixTenancyMigrationProbe do
         })
       end
 
-    Ecto.Migrator.run(repo, migrations, :up, all: true, log: false)
+    Ecto.Migrator.run(repo, migrations, :up, to: @guest_result_version, log: false)
 
     check!(
       @guest_result_version in Ecto.Migrator.migrated_versions(repo),

@@ -92,7 +92,12 @@ defmodule Escalated.Tenancy do
 
   def assert_record!(_), do: deny!()
 
-  def scoped_repo(repo), do: if(enabled?(), do: Escalated.Tenancy.Repo, else: repo)
+  def scoped_repo(repo),
+    do:
+      if(enabled?() or Escalated.TicketVisibility.enabled?(),
+        do: Escalated.Tenancy.Repo,
+        else: repo
+      )
 
   def topic(topic) do
     if enabled?() do

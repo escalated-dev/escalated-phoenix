@@ -5,6 +5,8 @@ defmodule Escalated.Config do
   All values are read from application config under the `:escalated` key.
   """
 
+  # Keep the public configuration struct additive for existing host initializers.
+  # credo:disable-for-next-line Credo.Check.Warning.StructFieldAmount
   defstruct [
     :repo,
     # Optional. The repo the host's user schema lives on; nil means it shares
@@ -13,6 +15,10 @@ defmodule Escalated.Config do
     :user_schema,
     :admin_check,
     :agent_check,
+    visibility: :all,
+    accounts: %{enabled: false, scope_agents: false, resolver: nil},
+    targeted_slas: false,
+    access_user_resolver: nil,
     route_prefix: "/support",
     table_prefix: "escalated_",
     ui_enabled: true,

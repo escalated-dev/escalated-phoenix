@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Opt-in department and account ticket visibility across UI/API/widget queries, related records, reports, bulk operations, assignment, mentions and live channels. Admins retain access; all settings default off.
+- Host account resolvers and nullable indexed ticket account fields; account/type conditions in workflows, automations and escalation rules.
+- Opt-in department/type SLA targets, with explicit reselection from the original ticket creation time. Moving a ticket preserves existing deadlines.
+- Additive migration and regression coverage for SQLite, PostgreSQL, MySQL, custom prefixes, separate host databases and string identities. See `docs/ticket-access-and-routing.md` for configuration and integration hooks.
+
 ## [0.2.0] - 2026-10-08
 
 ### Upgrading

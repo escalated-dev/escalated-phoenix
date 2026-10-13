@@ -10,14 +10,22 @@ defmodule Escalated.Controllers.Api.TicketController do
   alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
 
   def index(conn, params) do
-    tickets =
-      TicketService.list(%{
-        status: params["status"],
-        priority: params["priority"],
-        department_id: params["department_id"],
-        assigned_to: params["assigned_to"],
-        search: params["search"]
-      })
+    filters =
+      for key <- [
+            :status,
+            :priority,
+            :department_id,
+            :assigned_to,
+            :search,
+            :ticket_type,
+            :account_type,
+            :account_id
+          ],
+          Map.has_key?(params, to_string(key)),
+          into: %{},
+          do: {key, params[to_string(key)]}
+
+    tickets = TicketService.list(filters)
 
     json(conn, %{
       data:

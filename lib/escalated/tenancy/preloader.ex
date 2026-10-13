@@ -9,6 +9,7 @@ defmodule Escalated.Tenancy.Preloader do
 
   def load(records, preloads, opts) when is_list(records) do
     Enum.each(records, &Tenancy.assert_record!/1)
+    Enum.each(records, &Escalated.TicketVisibility.assert_record!/1)
     Enum.reduce(List.wrap(preloads), records, &load_association(&2, &1, opts))
   end
 

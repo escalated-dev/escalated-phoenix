@@ -58,7 +58,7 @@ defmodule Escalated.Services.ChatSessionService do
   defp activate_guest_session(ticket, session) do
     assigned =
       with {:ok, agent_id} when not is_nil(agent_id) <-
-             ChatRoutingService.find_available_agent(ticket.department_id),
+             ChatRoutingService.find_available_agent(ticket.department_id, ticket),
            {:ok, assigned} <- assign_agent(session, agent_id),
            do: assigned
 
@@ -99,7 +99,7 @@ defmodule Escalated.Services.ChatSessionService do
     with {:ok, ticket} <- create_chat_ticket(ticket_attrs),
          {:ok, session} <- create_session(ticket, attrs) do
       # Attempt auto-routing
-      case ChatRoutingService.find_available_agent(ticket.department_id) do
+      case ChatRoutingService.find_available_agent(ticket.department_id, ticket) do
         {:ok, agent_id} when not is_nil(agent_id) ->
           {:ok, session} = assign_agent(session, agent_id)
           broadcast_session_started(ticket, session)
@@ -116,7 +116,13 @@ defmodule Escalated.Services.ChatSessionService do
   Assigns an agent to a waiting chat session.
   """
   def assign_agent(session, agent_id) do
+    Escalated.TicketVisibility.assert_record!(session)
     repo = Escalated.repo()
+    ticket = repo.get!(Ticket, session.ticket_id)
+
+    if not Escalated.TicketVisibility.can_assign?(ticket, agent_id),
+      do: Escalated.TicketVisibility.deny!()
+
     now = DateTime.utc_now()
 
     session

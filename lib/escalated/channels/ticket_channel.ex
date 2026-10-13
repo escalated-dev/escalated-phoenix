@@ -49,7 +49,7 @@ defmodule Escalated.Channels.TicketChannel do
   defp do_join("escalated:ticket:" <> ticket_id, _params, socket) do
     # Allow agents and the ticket's requester. Being signed in is not enough:
     # the topic carries every event for the ticket.
-    if Escalated.Tenancy.enabled?() do
+    if Escalated.Tenancy.enabled?() or Escalated.TicketVisibility.enabled?() do
       with %Ticket{} = ticket <- find_ticket(ticket_id),
            true <-
              authorized_agent?(socket) or requester_ticket?(ticket, socket.assigns[:current_user]) do
@@ -87,7 +87,7 @@ defmodule Escalated.Channels.TicketChannel do
   def handle_info(%{event: event, payload: payload}, socket) do
     deliver(socket, fn ->
       if authorized_agent?(socket) do
-        push(socket, event, payload)
+        if TenantSocket.visible_payload?(payload), do: push(socket, event, payload)
       else
         case customer_payload(event, payload) do
           {:ok, safe} -> push(socket, event, safe)
@@ -159,6 +159,6 @@ defmodule Escalated.Channels.TicketChannel do
   defp customer_payload(_, _), do: :skip
 
   defp authorized_agent?(socket) do
-    Escalated.Permissions.agent?(socket.assigns[:current_user])
+    Escalated.Permissions.agent?(TenantSocket.current_user(socket))
   end
 end

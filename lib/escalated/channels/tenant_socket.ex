@@ -6,6 +6,42 @@ defmodule Escalated.Channels.TenantSocket do
   # The host's authenticated Socket.connect/3 sets this assign. Neither a join
   # parameter nor a client-supplied topic can establish a merchant identity.
   def run(socket, callback, denied) do
+    wrapped = fn ->
+      if Escalated.TicketVisibility.enabled?() do
+        original = socket.assigns[:current_user]
+
+        user =
+          if original,
+            do: Escalated.TicketVisibility.load_user(Escalated.TicketAccess.user_id(original))
+
+        if original && is_nil(user), do: Escalated.TicketVisibility.deny!()
+        Escalated.TicketVisibility.with_user(user, callback)
+      else
+        callback.()
+      end
+    end
+
+    run_context(socket, wrapped, denied)
+  rescue
+    _ -> denied
+  end
+
+  def current_user(socket) do
+    if Escalated.TicketVisibility.enabled?(),
+      do: Escalated.TicketVisibility.actor().user,
+      else: socket.assigns[:current_user]
+  end
+
+  def visible_payload?(payload) do
+    if Escalated.TicketVisibility.restricted?() do
+      id = payload[:ticket_id] || payload["ticket_id"]
+      not is_nil(id) and not is_nil(Escalated.repo().get(Escalated.Schemas.Ticket, id))
+    else
+      true
+    end
+  end
+
+  defp run_context(socket, callback, denied) do
     if Tenancy.enabled?() do
       run_tenant(socket, callback, denied)
     else

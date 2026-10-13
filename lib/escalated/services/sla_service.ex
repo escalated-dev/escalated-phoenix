@@ -15,6 +15,7 @@ defmodule Escalated.Services.SlaService do
   def attach_policy(ticket, policy \\ nil) do
     repo = Escalated.repo()
 
+    Escalated.TicketVisibility.assert_record!(ticket)
     policy = policy || find_policy_for(ticket)
 
     case policy do
@@ -28,8 +29,8 @@ defmodule Escalated.Services.SlaService do
         ticket
         |> Ticket.changeset(%{
           sla_policy_id: policy.id,
-          sla_first_response_due_at: calculate_due_date(first_response_hours),
-          sla_resolution_due_at: calculate_due_date(resolution_hours)
+          sla_first_response_due_at: due_for(ticket, first_response_hours),
+          sla_resolution_due_at: due_for(ticket, resolution_hours)
         })
         |> repo.update()
     end
@@ -195,21 +196,50 @@ defmodule Escalated.Services.SlaService do
   @doc """
   Calculates a due date from now, optionally respecting business hours.
   """
-  def calculate_due_date(nil), do: nil
+  def calculate_due_date(hours), do: calculate_due_date(hours, DateTime.utc_now())
+  def calculate_due_date(nil, _start), do: nil
 
-  def calculate_due_date(hours) do
+  def calculate_due_date(hours, start) do
     config = Escalated.configuration()
 
     if config.sla[:business_hours_only] do
-      calculate_business_hours_due_date(hours, config.sla[:business_hours] || %{})
+      calculate_business_hours_due_date(hours, config.sla[:business_hours] || %{}, start)
     else
-      DateTime.add(DateTime.utc_now(), trunc(hours * 3600), :second)
+      DateTime.add(start, trunc(hours * 3600), :second)
     end
   end
 
   # Private
 
+  defp due_for(ticket, hours) do
+    if Escalated.config(:targeted_slas, false),
+      do: calculate_due_date(hours, ticket.inserted_at),
+      else: calculate_due_date(hours)
+  end
+
   defp find_policy_for(ticket) do
+    if Escalated.config(:targeted_slas, false),
+      do: targeted_policy(ticket),
+      else: legacy_policy(ticket)
+  end
+
+  defp targeted_policy(ticket) do
+    SlaPolicy.active()
+    |> Escalated.repo().all()
+    |> Enum.filter(fn policy ->
+      (is_nil(policy.department_id) or policy.department_id == ticket.department_id) and
+        (is_nil(policy.ticket_type) or policy.ticket_type == ticket.ticket_type) and
+        (not is_nil(policy.department_id) or not is_nil(policy.ticket_type) or policy.is_default)
+    end)
+    |> Enum.min_by(
+      fn p ->
+        {-(if(p.department_id, do: 2, else: 0) + if(p.ticket_type, do: 1, else: 0)), p.id}
+      end,
+      fn -> nil end
+    )
+  end
+
+  defp legacy_policy(ticket) do
     repo = Escalated.repo()
 
     cond do
@@ -219,11 +249,21 @@ defmodule Escalated.Services.SlaService do
         if dept && dept.default_sla_policy_id do
           repo.get(SlaPolicy, dept.default_sla_policy_id)
         else
-          repo.one(from(p in SlaPolicy, where: p.is_default == true, limit: 1))
+          repo.one(
+            from(p in SlaPolicy,
+              where: p.is_default == true and is_nil(p.department_id) and is_nil(p.ticket_type),
+              limit: 1
+            )
+          )
         end
 
       true ->
-        repo.one(from(p in SlaPolicy, where: p.is_default == true, limit: 1))
+        repo.one(
+          from(p in SlaPolicy,
+            where: p.is_default == true and is_nil(p.department_id) and is_nil(p.ticket_type),
+            limit: 1
+          )
+        )
     end
   end
 
@@ -271,12 +311,11 @@ defmodule Escalated.Services.SlaService do
     )
   end
 
-  defp calculate_business_hours_due_date(hours, bh) do
+  defp calculate_business_hours_due_date(hours, bh, now) do
     start_hour = Map.get(bh, :start, 9)
     end_hour = Map.get(bh, :end_hour, 17)
     working_days = Map.get(bh, :working_days, [1, 2, 3, 4, 5])
 
-    now = DateTime.utc_now()
     remaining = hours * 1.0
     advance_through_business_hours(now, remaining, start_hour, end_hour, working_days)
   end

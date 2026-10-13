@@ -17,6 +17,19 @@ defmodule Escalated.Services.TicketService do
   and `:contact_id` is injected into the changeset attrs.
   """
   def create(attrs) do
+    if Escalated.TicketVisibility.enabled?() or Escalated.TicketVisibility.accounts?() do
+      Escalated.repo().transaction(fn ->
+        case do_create(attrs) do
+          {:ok, ticket} -> ticket
+          {:error, reason} -> Escalated.repo().rollback(reason)
+        end
+      end)
+    else
+      do_create(attrs)
+    end
+  end
+
+  defp do_create(attrs) do
     repo = Escalated.repo()
     attrs = resolve_contact(attrs, repo)
 
@@ -88,9 +101,10 @@ defmodule Escalated.Services.TicketService do
   is a plain insert: PostgreSQL refuses a savepoint when no transaction is
   open, and a failed statement there aborts nothing.
   """
-  def insert(attrs) do
+  def insert(attrs, account_source \\ nil) do
     %Ticket{}
     |> Ticket.changeset(attrs)
+    |> Escalated.TicketAccounts.resolve(account_source)
     |> insert_with_fresh_reference(Escalated.repo(), @reference_attempts)
   end
 
@@ -177,6 +191,7 @@ defmodule Escalated.Services.TicketService do
   webhooks and workflows run only after that transaction commits.
   """
   def reply(ticket, attrs) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
 
     reply_attrs =
@@ -237,6 +252,7 @@ defmodule Escalated.Services.TicketService do
   Transitions a ticket to a new status.
   """
   def transition_status(ticket, new_status, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
     note = Keyword.get(opts, :note)
@@ -276,6 +292,7 @@ defmodule Escalated.Services.TicketService do
   Changes a ticket's priority.
   """
   def change_priority(ticket, new_priority, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
 
@@ -303,6 +320,14 @@ defmodule Escalated.Services.TicketService do
   Changes a ticket's department.
   """
   def change_department(ticket, department, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
+
+    Escalated.TicketVisibility.with_user(nil, fn ->
+      do_change_department(ticket, department, opts)
+    end)
+  end
+
+  defp do_change_department(ticket, department, opts) do
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
 
@@ -330,6 +355,7 @@ defmodule Escalated.Services.TicketService do
   Adds tags to a ticket.
   """
   def add_tags(ticket, tag_ids, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
     tags = repo.all(from(t in Escalated.Schemas.Tag, where: t.id in ^tag_ids))
@@ -362,6 +388,7 @@ defmodule Escalated.Services.TicketService do
   Removes tags from a ticket.
   """
   def remove_tags(ticket, tag_ids, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
 
@@ -406,6 +433,7 @@ defmodule Escalated.Services.TicketService do
     * `{:error, changeset}` on failure
   """
   def snooze_ticket(ticket, until, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
 
@@ -452,6 +480,9 @@ defmodule Escalated.Services.TicketService do
     * `{:error, changeset}` on failure
   """
   def split_ticket(ticket, reply, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
+    Escalated.TicketVisibility.assert_record!(reply)
+    if reply.ticket_id != ticket.id, do: Escalated.TicketVisibility.deny!()
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
     subject = Keyword.get(opts, :subject, "Split from #{ticket.reference}: #{ticket.subject}")
@@ -475,7 +506,7 @@ defmodule Escalated.Services.TicketService do
     }
 
     new_ticket_attrs
-    |> insert()
+    |> insert(ticket)
     |> case do
       {:ok, new_ticket} ->
         # Update original ticket metadata to link to the new ticket
@@ -529,6 +560,7 @@ defmodule Escalated.Services.TicketService do
     * `{:error, changeset}` on failure
   """
   def unsnooze_ticket(ticket, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
     actor_id = Keyword.get(opts, :actor_id)
     restore_status = ticket.status_before_snooze || "open"
@@ -582,6 +614,8 @@ defmodule Escalated.Services.TicketService do
       |> maybe_filter(:department_id, filters)
       |> maybe_filter(:assigned_to, filters)
       |> maybe_filter(:requester_id, filters)
+      |> maybe_filter(:ticket_type, filters)
+      |> maybe_account(filters)
       |> maybe_search(filters)
       |> maybe_unassigned(filters)
       |> maybe_breached(filters)
@@ -607,6 +641,20 @@ defmodule Escalated.Services.TicketService do
 
   def find(id) when is_integer(id) do
     Escalated.repo().get(Ticket, id)
+  end
+
+  defp maybe_account(query, filters) do
+    if Map.has_key?(filters, :account_type) or Map.has_key?(filters, :account_id) do
+      case Escalated.TicketVisibility.pair(%{
+             type: filters[:account_type],
+             id: filters[:account_id]
+           }) do
+        %{type: type, id: id} -> Escalated.TicketVisibility.Query.exact_account(query, type, id)
+        nil -> where(query, false)
+      end
+    else
+      query
+    end
   end
 
   # Private helpers

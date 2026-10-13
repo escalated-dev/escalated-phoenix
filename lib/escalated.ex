@@ -35,7 +35,9 @@ defmodule Escalated do
   Your users do not move with it. See `user_repo/0`.
   """
   def repo do
-    if Escalated.Tenancy.enabled?(), do: Escalated.Tenancy.Repo, else: storage_repo()
+    if Escalated.Tenancy.enabled?() or Escalated.TicketVisibility.enabled?(),
+      do: Escalated.Tenancy.Repo,
+      else: storage_repo()
   end
 
   @doc "The configured raw repository. Reserved for trusted host migrations and provisioning."

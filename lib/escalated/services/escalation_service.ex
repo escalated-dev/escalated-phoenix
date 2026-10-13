@@ -69,6 +69,7 @@ defmodule Escalated.Services.EscalationService do
       end)
 
     repo.all(query)
+    |> Enum.filter(&Escalated.Services.TicketRoutingConditions.matches_all?(conditions, &1))
   end
 
   defp hours_ago(hours) do

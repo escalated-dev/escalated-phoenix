@@ -30,6 +30,27 @@ defmodule Escalated.Services.TicketSubjectService do
   """
   def attach_subject(ticket, type, id, opts \\ [])
       when is_binary(type) and is_binary(id) do
+    Escalated.TicketVisibility.assert_record!(ticket)
+
+    if Escalated.TicketVisibility.accounts?() do
+      case Escalated.repo().transaction(fn ->
+             case do_attach(ticket, type, id, opts) do
+               {:ok, link} ->
+                 Escalated.TicketAccounts.attach(ticket, type, id)
+                 link
+
+               {:error, error} ->
+                 Escalated.repo().rollback(error)
+             end
+           end) do
+        result -> result
+      end
+    else
+      do_attach(ticket, type, id, opts)
+    end
+  end
+
+  defp do_attach(ticket, type, id, opts) do
     enforce? = Keyword.get(opts, :enforce_allowlist, true)
 
     if enforce? and not TicketSubjects.type_allowed?(type) do
