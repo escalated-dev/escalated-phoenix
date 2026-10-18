@@ -34,8 +34,25 @@ jobs:
       - name: Install dependencies
         run: mix deps.get
 
+      - name: Audit locked Hex dependencies
+        run: mix hex.audit
+
       - name: Run tests
         run: mix test
+
+      - name: Verify the built Hex package in isolated host applications
+        env:
+          MIX_ENV: test
+        run: mix run --no-start scripts/verify_package.exs
+
+      - name: Upload package verification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: phoenix-package-verification
+          path: tmp/package-verification/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Verify populated migration upgrade and rollback
         env:

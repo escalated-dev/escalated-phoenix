@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Require Decimal 3.1.2 or newer below 4.0 to exclude CVE-2026-97853, including
+  installations in host applications. The lockfile uses Decimal 3.2.0.
+- Require Ecto SQL 3.14 or newer in the 3.x line because earlier Ecto lines
+  select Decimal 1.x/2.x, which do not have that security fix. Existing hosts
+  must update their Ecto and Decimal dependencies together.
+
 ### Added
 
 - Opt-in department and account ticket visibility across UI/API/widget queries, related records, reports, bulk operations, assignment, mentions and live channels. Admins retain access; all settings default off.

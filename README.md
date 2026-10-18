@@ -50,6 +50,11 @@ host integration hooks and migration instructions.
 
 ## Installation
 
+Requires Elixir 1.15+ and Ecto SQL 3.14+ on the 3.x line. The package requires Decimal 3.1.2+
+within the 3.x line to exclude CVE-2026-97853; earlier Ecto lines depend on
+Decimal versions that do not contain that fix. Existing hosts should update
+their Ecto and Decimal dependencies together and run `mix hex.audit`.
+
 Add `escalated` to your list of dependencies in `mix.exs`:
 
 ```elixir
@@ -494,6 +499,28 @@ By default, Escalated renders pages via [Inertia.js](https://github.com/inertiaj
 > Escalated previously depended on `inertia_phoenix`, which did not require this. That package is retired (last released 2023) and pinned two vulnerable transitive dependencies, so it was replaced with the officially maintained `inertia` package.
 
 You can build your own frontend components that consume the Inertia page props, or use the JSON API directly.
+
+This source line uses the Inertia Phoenix 2.6 protocol. An upgrade to Inertia
+Phoenix 3 also requires client-side `@inertiajs/*` 3, a frontend release that
+reads top-level `page.flash`, and a bootstrap that reads the JSON script element
+instead of the old `data-page` attribute. The shared frontend source includes
+that flash support after escalated-dev/escalated#202; deploying an older npm
+release does not pick up a source-only change.
+
+For Inertia 3, set `http.xsrfHeaderName` to `'x-csrf-token'` in the
+`createInertiaApp` options so Phoenix receives its expected CSRF header. Axios
+defaults no longer configure Inertia 3's HTTP client. Hosts using the default
+Node.js SSR adapter must also explicitly depend on `nodejs` 3.1.4+ below 4.0.
+Review the [upstream migration guide](https://github.com/inertiajs/inertia-phoenix/blob/v3.0.1/guides/upgrading_to_v3.md)
+before changing the server adapter major.
+
+Maintainers can run `MIX_ENV=test mix run --no-start scripts/verify_package.exs`
+to build and unpack the actual Hex package, install it in isolated hosts, audit
+the resolved graph, test JSON fallback without the optional Inertia dependency,
+and verify that a host pinning vulnerable Decimal 3.1.1 cannot resolve. Evidence
+is written to `tmp/package-verification/`. The normal test suite also exercises
+HTML/XHR bootstrapping, escaping, session flash, CSRF, and redirect contracts
+through a host Phoenix router.
 
 ## Plugs
 
