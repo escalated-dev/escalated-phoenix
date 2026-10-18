@@ -32,7 +32,10 @@ defmodule Escalated.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.7"},
-      {:ecto_sql, "~> 3.10"},
+      {:ecto_sql, "~> 3.14"},
+      # Earlier Ecto lines require Decimal 1/2, which have no fix for
+      # CVE-2026-97853. Export the patched floor to host applications too.
+      {:decimal, ">= 3.1.2 and < 4.0.0"},
       {:jason, "~> 1.4"},
       {:inertia, "~> 2.6", optional: true},
       {:plug, "~> 1.14"},
