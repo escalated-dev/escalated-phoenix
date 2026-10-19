@@ -1,0 +1,97 @@
+name: Publish
+
+# Publishes the `escalated_phoenix` package to Hex when a GitHub release is
+# published. Re-run for an existing tag from the Actions tab (Run workflow,
+# tag: vX.Y.Z). See RELEASE.md.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish (e.g. v0.2.1)"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  hex:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      MIX_ENV: dev
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "26"
+          elixir-version: "1.15"
+
+      - name: Verify mix.exs version matches tag
+        run: |
+          version="$(sed -n 's/^  @version "\(.*\)"$/\1/p' mix.exs)"
+          if [ -z "${version}" ] || [ "v${version}" != "${TAG}" ]; then
+            echo "::error::mix.exs @version '${version}' does not match tag ${TAG}"
+            exit 1
+          fi
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+
+      # Hex refuses git/path dependencies, and a package that leans on one would
+      # install for nobody. Fail with a clear message before trying to build.
+      - name: Verify runtime dependencies resolve from Hex
+        run: |
+          cat > /tmp/check_deps.exs <<'ELIXIR'
+          bad =
+            for dep <- Mix.Project.config()[:deps],
+                opts = (case dep do
+                          {_, o} when is_list(o) -> o
+                          {_, _, o} -> o
+                          _ -> []
+                        end),
+                not (List.wrap(opts[:only]) != [] and :prod not in List.wrap(opts[:only])),
+                Enum.any?([:git, :github, :path], &Keyword.has_key?(opts, &1)),
+                do: dep
+
+          if bad != [] do
+            for dep <- bad, do: IO.puts("::error::runtime dependency #{elem(dep, 0)} is not a Hex package")
+            System.halt(1)
+          end
+
+          IO.puts("All runtime dependencies are Hex packages.")
+          ELIXIR
+          mix run --no-start --no-compile --no-deps-check /tmp/check_deps.exs
+
+      - name: Build package
+        run: mix hex.build
+
+      - name: Publish package
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          if [ -z "${HEX_API_KEY}" ]; then
+            echo "skipping: HEX_API_KEY not configured"
+            exit 0
+          fi
+          status="$(curl -s -o /dev/null -w '%{http_code}' "https://hex.pm/api/packages/escalated_phoenix/releases/${VERSION}")"
+          if [ "${status}" = "200" ]; then
+            echo "escalated_phoenix ${VERSION} is already on Hex. Nothing to publish."
+            exit 0
+          fi
+          mix hex.publish --yes
