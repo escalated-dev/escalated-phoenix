@@ -22,6 +22,8 @@ defmodule Escalated.PackageProbe do
       true = File.regular?(Path.join(package, "lib/escalated/rendering/ui_renderer.ex"))
       # Served at {prefix}/widget/embed.js; the package must ship it.
       true = File.regular?(Path.join(package, "priv/static/widget/escalated-widget.js"))
+      # Translations are vendored, not a dependency; the package must carry them.
+      true = File.regular?(Path.join(package, "priv/gettext/de/LC_MESSAGES/escalated.po"))
       digest = package_digest(package)
       consumer = write_consumer!(temporary, "consumer", package, "3.1.2")
 
