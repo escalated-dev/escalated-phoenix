@@ -29,6 +29,7 @@ defmodule Escalated.Services.ChatSessionService do
              requester_type: "guest",
              status: "live",
              channel: "chat",
+             department_id: attrs[:department_id],
              # Host parameters from an embedding page (Escalated.WidgetMetadata).
              metadata: attrs[:metadata] || %{}
            }

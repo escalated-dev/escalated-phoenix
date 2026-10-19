@@ -78,6 +78,11 @@ defmodule Escalated.Router do
 
               get "/tickets/:reference", WidgetController, :show_ticket
 
+              # Knowledge-base search for the widget's help tab; it follows
+              # the knowledge base's enabled and public settings.
+              get "/articles", WidgetController, :search_articles
+              get "/articles/:slug", WidgetController, :show_article
+
               # Writes get a per-IP limit of their own on top of the widget
               # budget (Escalated.Plugs.GuestSubmissionRateLimit). The reply
               # limit runs before the token is resolved, so wrong-token

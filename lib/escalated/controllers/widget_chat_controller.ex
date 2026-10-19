@@ -4,9 +4,10 @@ defmodule Escalated.Controllers.WidgetChatController do
   import Ecto.Query
   alias Escalated.Broadcasting
   alias Escalated.Controllers.GuestAccessController, as: AccessController
+  alias Escalated.Controllers.GuestTicketView
   alias Escalated.Schemas.{ChatSession, Reply, SatisfactionRating}
   alias Escalated.Services.{ChatAvailabilityService, ChatSessionService, GuestAccess}
-  alias Escalated.WidgetMetadata
+  alias Escalated.{WidgetDepartments, WidgetMetadata}
 
   def availability(conn, _params) do
     status = ChatAvailabilityService.get_status()
@@ -22,6 +23,7 @@ defmodule Escalated.Controllers.WidgetChatController do
         guest_email: params["email"],
         subject: params["subject"],
         message: params["message"],
+        department_id: WidgetDepartments.resolve(params["department_id"]),
         page_url: params["page_url"],
         metadata: metadata,
         visitor_ip: to_string(:inet.ntoa(conn.remote_ip)),
@@ -39,7 +41,8 @@ defmodule Escalated.Controllers.WidgetChatController do
             guest_access_token: token,
             expires_at: result["expires_at"],
             status: session.status,
-            messages: []
+            messages: [],
+            agent: agent(session)
           }
 
           conn |> put_status(201) |> json(Map.put(payload, :data, payload))
@@ -66,7 +69,7 @@ defmodule Escalated.Controllers.WidgetChatController do
 
   def messages(conn, params) do
     with {:ok, ticket, session, _} <- session(conn, params) do
-      messages =
+      replies =
         Escalated.repo().all(
           from(r in Reply,
             where: r.ticket_id == ^ticket.id and r.is_internal == false,
@@ -75,18 +78,24 @@ defmodule Escalated.Controllers.WidgetChatController do
           )
         )
         |> Enum.reverse()
-        |> Enum.map(
+
+      agents = GuestTicketView.agent_names([session.agent_id | Enum.map(replies, & &1.author_id)])
+
+      messages =
+        Enum.map(
+          replies,
           &%{
             id: &1.id,
             body: &1.body,
-            is_agent: not is_nil(&1.author_id),
+            is_agent: GuestTicketView.agent?(&1),
+            author: %{name: GuestTicketView.author_name(&1, ticket, agents)},
             created_at: &1.inserted_at
           }
         )
 
       json(conn, %{
         messages: messages,
-        agent: nil,
+        agent: agent(session, agents),
         typing: nil,
         ended: session.status in ["ended", "abandoned"]
       })
@@ -136,6 +145,15 @@ defmodule Escalated.Controllers.WidgetChatController do
       {:error, %Ecto.Changeset{}} -> AccessController.error(conn, :invalid)
       _ -> AccessController.error(conn, :not_found)
     end
+  end
+
+  # The agent who joined the chat, as the widget shows them, or nil.
+  defp agent(session, agents \\ nil)
+  defp agent(%ChatSession{agent_id: nil}, _), do: nil
+
+  defp agent(%ChatSession{agent_id: id}, agents) do
+    agents = agents || GuestTicketView.agent_names([id])
+    %{name: Map.get(agents, id) || "Support"}
   end
 
   defp session(_conn, %{"token" => token}) do
