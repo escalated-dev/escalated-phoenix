@@ -9,6 +9,7 @@ defmodule Escalated.Services.GeneralSettings do
   import Ecto.Query
 
   alias Escalated.Schemas.EscalatedSetting
+  alias Escalated.WidgetOrigins
 
   @defaults %{
     knowledge_base_enabled: false,
@@ -16,7 +17,15 @@ defmodule Escalated.Services.GeneralSettings do
     knowledge_base_feedback_enabled: false,
     show_powered_by: true
   }
-  @keys @defaults |> Map.keys() |> Enum.map(&Atom.to_string/1) |> Enum.sort()
+  @boolean_keys @defaults |> Map.keys() |> Enum.map(&Atom.to_string/1)
+
+  # Text settings. `widget_allowed_origins` is the admin half of the widget's
+  # embedding allow list (Escalated.WidgetOrigins); the host's
+  # `:widget_allowed_origins` config is the other half and is not shown here.
+  @text_keys ["widget_allowed_origins"]
+  @max_text_length 5000
+
+  @keys Enum.sort(@boolean_keys ++ @text_keys)
 
   def supported_keys, do: @keys
 
@@ -26,11 +35,14 @@ defmodule Escalated.Services.GeneralSettings do
       |> Escalated.repo().all()
       |> Map.new()
 
-    Map.new(@defaults, fn {key, default} ->
-      name = Atom.to_string(key)
-      configured = boolean(Application.get_env(:escalated, key, default), default)
-      {name, boolean(Map.get(stored, name), configured)}
-    end)
+    booleans =
+      Map.new(@defaults, fn {key, default} ->
+        name = Atom.to_string(key)
+        configured = boolean(Application.get_env(:escalated, key, default), default)
+        {name, boolean(Map.get(stored, name), configured)}
+      end)
+
+    Map.merge(booleans, Map.new(@text_keys, &{&1, Map.get(stored, &1) || ""}))
   end
 
   def enabled?(key) when is_atom(key), do: Map.fetch!(all(), Atom.to_string(key))
@@ -40,6 +52,7 @@ defmodule Escalated.Services.GeneralSettings do
       Enum.reduce(params, %{}, fn {key, value}, errors ->
         cond do
           key not in @keys -> Map.put(errors, key, "This setting is not supported.")
+          key in @text_keys -> text_error(errors, key, value)
           parse_boolean(value) == :error -> Map.put(errors, key, "Must be a boolean.")
           true -> errors
         end
@@ -54,13 +67,13 @@ defmodule Escalated.Services.GeneralSettings do
     params
     |> Enum.sort()
     |> Enum.reduce(Ecto.Multi.new(), fn {key, value}, multi ->
-      {:ok, value} = parse_boolean(value)
+      {value, type} = stored_value(key, value)
 
       changeset =
         EscalatedSetting.changeset(%EscalatedSetting{}, %{
           key: key,
-          value: if(value, do: "1", else: "0"),
-          type: "boolean",
+          value: value,
+          type: type,
           group: "general"
         })
 
@@ -72,6 +85,43 @@ defmodule Escalated.Services.GeneralSettings do
       {:error, key, _reason, _changes} -> {:error, %{key => "Could not save this setting."}}
     end
   end
+
+  defp stored_value(key, value) when key in @text_keys,
+    do: {key |> normalize_text(value) |> elem(1), "string"}
+
+  defp stored_value(_key, value) do
+    {:ok, value} = parse_boolean(value)
+    {if(value, do: "1", else: "0"), "boolean"}
+  end
+
+  defp text_error(errors, key, value) do
+    case normalize_text(key, value) do
+      {:ok, _} -> errors
+      {:error, message} -> Map.put(errors, key, message)
+    end
+  end
+
+  # One origin per line, normalised and without duplicates.
+  defp normalize_text("widget_allowed_origins", value) when is_nil(value), do: {:ok, ""}
+
+  defp normalize_text("widget_allowed_origins", value)
+       when is_binary(value) and byte_size(value) <= @max_text_length do
+    entries = WidgetOrigins.split(value)
+    patterns = Enum.map(entries, &WidgetOrigins.normalize_pattern/1)
+
+    if Enum.any?(patterns, &is_nil/1) do
+      {:error,
+       "Each site must be an origin such as https://shop.example.com or " <>
+         "https://*.example.com, without a path."}
+    else
+      {:ok, patterns |> Enum.uniq() |> Enum.join("\n")}
+    end
+  end
+
+  defp normalize_text("widget_allowed_origins", value) when is_binary(value),
+    do: {:error, "Must be at most #{@max_text_length} characters."}
+
+  defp normalize_text(_key, _value), do: {:error, "Must be text."}
 
   defp upsert_options do
     options = [on_conflict: {:replace, [:value, :type, :group, :updated_at]}]

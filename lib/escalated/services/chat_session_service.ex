@@ -28,7 +28,9 @@ defmodule Escalated.Services.ChatSessionService do
              guest_token: nil,
              requester_type: "guest",
              status: "live",
-             channel: "chat"
+             channel: "chat",
+             # Host parameters from an embedding page (Escalated.WidgetMetadata).
+             metadata: attrs[:metadata] || %{}
            }
 
            with {:ok, ticket} <- TicketService.insert(ticket_attrs),

@@ -52,7 +52,8 @@ defmodule Escalated.Controllers.Admin.GeneralSettingsContractTest do
   test "saves and returns the sites allowed to embed the widget" do
     conn =
       visit(:post, @path, %{
-        "widget_allowed_origins" => "https://Shop.Example.com/\nhttps://*.brand.test, https://shop.example.com"
+        "widget_allowed_origins" =>
+          "https://Shop.Example.com/\nhttps://*.brand.test, https://shop.example.com"
       })
 
     assert conn.status in [302, 303]

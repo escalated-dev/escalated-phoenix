@@ -20,6 +20,8 @@ defmodule Escalated.PackageProbe do
       # not a copy of the checkout. Published packages intentionally omit locks.
       if File.exists?(Path.join(package, "mix.lock")), do: raise("Unexpected packaged lockfile")
       true = File.regular?(Path.join(package, "lib/escalated/rendering/ui_renderer.ex"))
+      # Served at {prefix}/widget/embed.js; the package must ship it.
+      true = File.regular?(Path.join(package, "priv/static/widget/escalated-widget.js"))
       digest = package_digest(package)
       consumer = write_consumer!(temporary, "consumer", package, "3.1.2")
 
