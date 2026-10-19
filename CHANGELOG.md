@@ -21,6 +21,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Host account resolvers and nullable indexed ticket account fields; account/type conditions in workflows, automations and escalation rules.
 - Opt-in department/type SLA targets, with explicit reselection from the original ticket creation time. Moving a ticket preserves existing deadlines.
 - Additive migration and regression coverage for SQLite, PostgreSQL, MySQL, custom prefixes, separate host databases and string identities. See `docs/ticket-access-and-routing.md` for configuration and integration hooks.
+- Cross-origin widget embedding, off until a site is listed. Allowed sites come
+  from `config :escalated, widget_allowed_origins` (a list or a comma separated
+  string, e.g. `ESCALATED_WIDGET_ALLOWED_ORIGINS`) plus the new
+  `widget_allowed_origins` admin setting, which is validated on save. Requests
+  from those sites get CORS headers on every widget answer (preflights, 4xx and
+  429 included), skip the CSRF check and always run as guests. New
+  `Escalated.Plugs.WidgetCors` and `escalated_widget_routes/1` (with
+  `escalated_routes(prefix, widget: false)`) let hosts mount the widget in its
+  own pipeline; routers that only call `escalated_routes/2` keep working.
+- `GET /widget/embed.js` serves the standalone widget bundle from
+  `@escalated-dev/escalated` 0.12.1 with caching headers and an ETag.
+- `/widget/config` returns `accepts_metadata: true`; widget tickets and chats
+  store the sanitised `metadata` the embedding page sends, plus the server-set
+  `embedded_on` origin. Widget tickets keep `source: "widget"`. See
+  `docs/embedding-the-widget.md`.
 
 ## [0.2.0] - 2026-10-08
 
