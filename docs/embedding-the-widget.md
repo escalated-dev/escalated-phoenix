@@ -138,6 +138,42 @@ request's `Origin` and cannot be supplied by the page. A `metadata` value that
 is not an object, or has more than 50 keys, is answered 422. Treat all of it as
 unverified visitor input.
 
+### What the widget reads
+
+These widget routes answer in the shape the shared widget
+(`@escalated-dev/escalated` 0.12) expects, embedded or on your own pages:
+
+- `GET {prefix}/widget/config` returns, at the top level, `color` (from
+  `widget_settings.primary_color`, which is still returned), `position`
+  (`widget_settings.position`, default `"bottom-right"`), `greeting`,
+  `departments` (the active departments, as `[%{id, name}]`), `kb_enabled`,
+  `guest_tickets_enabled`, `accepts_metadata`, `guest_verification_required`
+  and `status_lookup_enabled` (both `true`). The same map is also under
+  `widget`.
+- `GET {prefix}/widget/articles?q=` searches published knowledge-base
+  articles (`q` of 2 to 200 characters, else 422) and returns up to ten as
+  `%{articles: [%{title, slug, excerpt}]}`. `GET {prefix}/widget/articles/:slug`
+  returns one published article as `%{title, slug, body, category}` and counts
+  the view. Both follow the knowledge base's settings: 404 while
+  `knowledge_base_enabled` is off, 403 for a visitor who is not signed in while
+  `knowledge_base_public` is off (embedded visitors are never signed in).
+  `kb_enabled` in `/config` is `true` only when the articles can be read.
+- `POST {prefix}/widget/tickets` and `POST {prefix}/widget/chat/start` accept
+  `department_id` (a number or a numeric string). A value that names no active
+  department is ignored and the ticket is filed without one. The ticket answer
+  carries `message` and `reference` at the top level.
+- `GET {prefix}/widget/chat/:id/messages` gives each message `is_agent` and
+  `author: %{name}`: the agent's `AgentProfile` display name (or the `name` of
+  your `user_schema` record), `"Support"` when there is neither, and the
+  guest's name for the guest's own messages. `agent` names the agent who
+  joined the chat.
+- The verified status view, `GET {prefix}/widget/tickets/:reference` with the
+  guest's bearer token, adds `status_label`, `status_color` and `department`,
+  and gives each reply `author` (a name, as above) and `is_agent`. Status is
+  only shown after the visitor proves the mailbox through
+  `POST {prefix}/widget/verification` and `POST {prefix}/widget/lookup`;
+  nothing is shown for an email address alone.
+
 ### The script
 
 `GET {prefix}/widget/embed.js` serves `priv/static/widget/escalated-widget.js`,

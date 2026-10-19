@@ -36,6 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   store the sanitised `metadata` the embedding page sends, plus the server-set
   `embedded_on` origin. Widget tickets keep `source: "widget"`. See
   `docs/embedding-the-widget.md`.
+- Widget routes answer in the shape the shared widget reads. `/widget/config`
+  adds `color`, `position`, `departments`, `kb_enabled`,
+  `guest_tickets_enabled` and `status_lookup_enabled: true`
+  (`primary_color` stays). New `GET /widget/articles?q=` and
+  `GET /widget/articles/:slug` serve published knowledge-base articles and
+  follow the knowledge base's enabled and public settings. Widget tickets and
+  chats accept `department_id` (ignored unless it names an active department).
+  Chat messages carry `author.name`, and the verified ticket view adds
+  `status_label`, `status_color`, `department` and each reply's `author` and
+  `is_agent`.
 
 ## [0.2.0] - 2026-10-08
 
