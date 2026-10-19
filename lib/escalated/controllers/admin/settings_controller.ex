@@ -23,8 +23,14 @@ defmodule Escalated.Controllers.Admin.SettingsController do
   @valid_modes ~w(unassigned guest_user prompt_signup)
 
   def index(conn, _params) do
+    # `widget_enabled` comes from the host's `:widget_settings` config. It is
+    # shown, not supported for saving: the page lists embedding sites only
+    # while the widget is on.
+    widget_enabled = Map.get(Escalated.config(:widget_settings, %{}), :enabled, true)
+
     UIRenderer.render_page(conn, "Escalated/Admin/Settings", %{
-      settings: GeneralSettings.all(),
+      settings:
+        Map.put(GeneralSettings.all(), "widget_enabled", widget_enabled not in [false, nil]),
       supported_settings: GeneralSettings.supported_keys(),
       update_url: settings_path()
     })

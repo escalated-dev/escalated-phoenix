@@ -39,7 +39,7 @@ host integration hooks and migration instructions.
 - **Ticket splitting** — Split a reply into a new standalone ticket while preserving the original context
 - **Ticket snooze** — Snooze tickets with presets (1h, 4h, tomorrow, next week); `mix escalated.wake_snoozed_tickets` Mix task auto-wakes them on schedule
 - **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
-- **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check
+- **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check, served at `/support/widget/embed.js` and embeddable on other sites you list ([guide](docs/embedding-the-widget.md))
 - **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
 - **Inbound email** — Single webhook endpoint with Postmark + Mailgun + AWS SES parsers, signed Reply-To verification, and Message-ID-based ticket resolution
 - **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
@@ -283,12 +283,32 @@ defmodule MyAppWeb.Router do
     plug :require_authenticated_user
   end
 
+  # The public support widget gets a pipeline of its own: no sign-in
+  # requirement, and WidgetCors before the CSRF check so sites listed in
+  # `widget_allowed_origins` can embed it.
+  pipeline :escalated_widget do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug Escalated.Plugs.WidgetCors
+    plug :protect_from_forgery
+  end
+
+  scope "/" do
+    pipe_through :escalated_widget
+    escalated_widget_routes("/support")
+  end
+
   scope "/" do
     pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
+    escalated_routes("/support", widget: false)
   end
 end
 ```
+
+Existing routers that call `escalated_routes("/support")` alone keep working
+unchanged: it still mounts the widget routes, inside your pipeline. Split them
+out as above to embed the widget on other sites; see
+[embedding the widget](docs/embedding-the-widget.md).
 
 This mounts:
 
@@ -296,6 +316,7 @@ This mounts:
 - **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
 - **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+- **Widget routes** at `/support/widget/*` -- the public support widget and its `embed.js` (unless `widget: false`)
 
 The API's auth, guest-ticket, knowledge-base, department and tag endpoints are
 public. Its ticket endpoints (`/support/api/v1/tickets/*`) are for agents. The

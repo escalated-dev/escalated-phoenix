@@ -41,8 +41,48 @@ defmodule Escalated.Controllers.Admin.GeneralSettingsContractTest do
              "knowledge_base_enabled" => false,
              "knowledge_base_public" => false,
              "knowledge_base_feedback_enabled" => false,
-             "show_powered_by" => true
+             "show_powered_by" => true,
+             "widget_allowed_origins" => "",
+             "widget_enabled" => true
            }
+
+    refute "widget_enabled" in page["props"]["supported_settings"]
+  end
+
+  test "saves and returns the sites allowed to embed the widget" do
+    conn =
+      visit(:post, @path, %{
+        "widget_allowed_origins" =>
+          "https://Shop.Example.com/\nhttps://*.brand.test, https://shop.example.com"
+      })
+
+    assert conn.status in [302, 303]
+    assert get_session(conn, "inertia_errors") in [nil, %{}]
+    settings = page(visit(:get, @path))["props"]["settings"]
+    assert settings["widget_allowed_origins"] == "https://shop.example.com\nhttps://*.brand.test"
+    assert Escalated.WidgetOrigins.allows?("https://help.brand.test")
+
+    conn = visit(:post, @path, %{"widget_allowed_origins" => ""})
+    assert conn.status in [302, 303]
+    refute Escalated.WidgetOrigins.allows?("https://help.brand.test")
+  end
+
+  test "rejects an embedding site that is not a bare origin" do
+    for entry <- ["https://shop.example.com/checkout", "*", "ftp://shop.example.com", %{}] do
+      conn =
+        visit(
+          :post,
+          @path,
+          %{"widget_allowed_origins" => entry, "show_powered_by" => false},
+          @admin,
+          false
+        )
+
+      assert conn.status == 422
+      assert Jason.decode!(conn.resp_body)["errors"]["widget_allowed_origins"]
+    end
+
+    assert Escalated.repo().all(EscalatedSetting) == []
   end
 
   test "flat POST and legacy nested PUT persist without changing application config" do

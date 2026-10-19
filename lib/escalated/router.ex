@@ -13,11 +13,112 @@ defmodule Escalated.Router do
           escalated_routes("/support")
         end
       end
+
+  To embed the widget on other sites, mount the widget routes in a public
+  pipeline of their own with `escalated_widget_routes/1`, running
+  `Escalated.Plugs.WidgetCors` before `:protect_from_forgery`, and pass
+  `widget: false` to `escalated_routes/2` (see
+  `docs/embedding-the-widget.md`).
   """
 
   defmacro __using__(_opts) do
     quote do
-      import Escalated.Router, only: [escalated_routes: 1, escalated_routes: 2]
+      import Escalated.Router,
+        only: [escalated_routes: 1, escalated_routes: 2, escalated_widget_routes: 1]
+    end
+  end
+
+  @doc """
+  Mounts only the widget routes (`{prefix}/widget/*`, including `embed.js`).
+
+  Use it, with `escalated_routes(prefix, widget: false)`, to give the widget a
+  pipeline of its own: one without the host's sign-in requirement, in which
+  `Escalated.Plugs.WidgetCors` runs before `:protect_from_forgery` so sites
+  listed in `widget_allowed_origins` can post without a CSRF token. See the
+  README's router setup.
+  """
+  defmacro escalated_widget_routes(prefix), do: widget_scope(prefix)
+
+  # Widget routes (public, rate-limited). Everything but /config and embed.js
+  # is refused while the widget is disabled. WidgetCors runs first so CORS
+  # headers reach every answer, rate-limit and tenant refusals included, and
+  # so an embedded visitor is a guest before the tenant membership check.
+  defp widget_scope(prefix) do
+    quote do
+      scope unquote(prefix), as: :escalated do
+        scope "/widget", Escalated.Controllers, as: :widget do
+          # The bundle is public and cacheable; it needs no tenant or session.
+          get "/embed.js", WidgetScriptController, :show
+
+          scope "/" do
+            pipe_through [
+              Escalated.Plugs.WidgetCors,
+              Escalated.Plugs.ResolveTenant,
+              Escalated.Plugs.TicketVisibility
+            ]
+
+            # CORS preflights are answered by WidgetCors before this action.
+            options "/*path", WidgetController, :preflight
+
+            scope "/" do
+              pipe_through [Escalated.Plugs.WidgetRateLimit, Escalated.Plugs.GuestPrivacy]
+
+              get "/config", WidgetController, :config
+            end
+
+            scope "/" do
+              pipe_through [
+                Escalated.Plugs.WidgetRateLimit,
+                Escalated.Plugs.GuestPrivacy,
+                Escalated.Plugs.EnsureWidgetEnabled
+              ]
+
+              post "/verification", GuestAccessController, :challenge
+              post "/lookup", GuestAccessController, :lookup
+
+              get "/tickets/:reference", WidgetController, :show_ticket
+
+              # Writes get a per-IP limit of their own on top of the widget
+              # budget (Escalated.Plugs.GuestSubmissionRateLimit). The reply
+              # limit runs before the token is resolved, so wrong-token
+              # guesses count.
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestTicketRateLimit
+                post "/tickets", WidgetController, :create_ticket
+              end
+
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestReplyRateLimit
+                post "/tickets/:reference/reply", WidgetController, :reply
+              end
+
+              # Live chat widget routes (scope-relative; see the agent chat
+              # routes).
+              get "/chat/availability", WidgetChatController, :availability
+              post "/chat/start", WidgetChatController, :start
+              post "/chat/:token/end", WidgetChatController, :end_session
+              post "/chat/:token/rate", WidgetChatController, :rate
+              post "/chat/sessions/:reference/end", WidgetChatController, :end_session
+            end
+
+            # An open chat polls every three seconds and sends messages and
+            # typing pings besides, so these routes have their own
+            # per-capability budget.
+            scope "/" do
+              pipe_through [
+                Escalated.Plugs.WidgetChatRateLimit,
+                Escalated.Plugs.GuestPrivacy,
+                Escalated.Plugs.EnsureWidgetEnabled
+              ]
+
+              get "/chat/:token/messages", WidgetChatController, :messages
+              post "/chat/:token/messages", WidgetChatController, :send_message
+              post "/chat/:token/typing", WidgetChatController, :typing
+              post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
+            end
+          end
+        end
+      end
     end
   end
 
@@ -28,9 +129,17 @@ defmodule Escalated.Router do
 
     * `:ui` - whether to mount UI routes (default: value of `config :escalated, :ui_enabled`)
     * `:api` - whether to mount API routes (default: value of `config :escalated, :api_enabled`)
+    * `:widget` - `false` leaves out the widget routes, for hosts that mount
+      them with `escalated_widget_routes/1` (default: `true`)
   """
   defmacro escalated_routes(prefix, opts \\ []) do
+    # `widget: false` leaves the widget routes to `escalated_widget_routes/1`,
+    # mounted by the host in a pipeline of their own.
+    widget = if Keyword.get(opts, :widget, true) == false, do: nil, else: widget_scope(prefix)
+
     quote do
+      unquote(widget)
+
       scope unquote(prefix), as: :escalated do
         pipe_through [Escalated.Plugs.ResolveTenant, Escalated.Plugs.TicketVisibility]
         # Attachment downloads authenticate and authorize the owning ticket/reply.
@@ -282,64 +391,6 @@ defmodule Escalated.Router do
             post "/mailgun", NewsletterEspWebhookController, :mailgun
             post "/ses", NewsletterEspWebhookController, :ses
             post "/sendgrid", NewsletterEspWebhookController, :sendgrid
-          end
-        end
-
-        # Widget routes (public, rate-limited). Everything but /config is refused
-        # while the widget is disabled.
-        scope "/widget", Escalated.Controllers, as: :widget do
-          scope "/" do
-            pipe_through [Escalated.Plugs.WidgetRateLimit, Escalated.Plugs.GuestPrivacy]
-
-            get "/config", WidgetController, :config
-          end
-
-          scope "/" do
-            pipe_through [
-              Escalated.Plugs.WidgetRateLimit,
-              Escalated.Plugs.GuestPrivacy,
-              Escalated.Plugs.EnsureWidgetEnabled
-            ]
-
-            post "/verification", GuestAccessController, :challenge
-            post "/lookup", GuestAccessController, :lookup
-
-            get "/tickets/:reference", WidgetController, :show_ticket
-
-            # Writes get a per-IP limit of their own on top of the widget budget
-            # (Escalated.Plugs.GuestSubmissionRateLimit). The reply limit runs
-            # before the token is resolved, so wrong-token guesses count.
-            scope "/" do
-              pipe_through Escalated.Plugs.GuestTicketRateLimit
-              post "/tickets", WidgetController, :create_ticket
-            end
-
-            scope "/" do
-              pipe_through Escalated.Plugs.GuestReplyRateLimit
-              post "/tickets/:reference/reply", WidgetController, :reply
-            end
-
-            # Live chat widget routes (scope-relative; see the agent chat routes).
-            get "/chat/availability", WidgetChatController, :availability
-            post "/chat/start", WidgetChatController, :start
-            post "/chat/:token/end", WidgetChatController, :end_session
-            post "/chat/:token/rate", WidgetChatController, :rate
-            post "/chat/sessions/:reference/end", WidgetChatController, :end_session
-          end
-
-          # An open chat polls every three seconds and sends messages and typing
-          # pings besides, so these routes have their own per-capability budget.
-          scope "/" do
-            pipe_through [
-              Escalated.Plugs.WidgetChatRateLimit,
-              Escalated.Plugs.GuestPrivacy,
-              Escalated.Plugs.EnsureWidgetEnabled
-            ]
-
-            get "/chat/:token/messages", WidgetChatController, :messages
-            post "/chat/:token/messages", WidgetChatController, :send_message
-            post "/chat/:token/typing", WidgetChatController, :typing
-            post "/chat/sessions/:reference/messages", WidgetChatController, :send_message
           end
         end
 

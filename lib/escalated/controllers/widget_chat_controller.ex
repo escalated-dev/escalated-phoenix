@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.WidgetChatController do
   alias Escalated.Controllers.GuestAccessController, as: AccessController
   alias Escalated.Schemas.{ChatSession, Reply, SatisfactionRating}
   alias Escalated.Services.{ChatAvailabilityService, ChatSessionService, GuestAccess}
+  alias Escalated.WidgetMetadata
 
   def availability(conn, _params) do
     status = ChatAvailabilityService.get_status()
@@ -13,13 +14,16 @@ defmodule Escalated.Controllers.WidgetChatController do
   end
 
   def start(conn, params) do
-    if Map.get(Escalated.config(:widget_settings, %{}), :enabled, true) do
+    with true <-
+           Map.get(Escalated.config(:widget_settings, %{}), :enabled, true) not in [false, nil],
+         {:ok, metadata} <- WidgetMetadata.from_params(conn, params) do
       attrs = %{
         guest_name: params["name"],
         guest_email: params["email"],
         subject: params["subject"],
         message: params["message"],
         page_url: params["page_url"],
+        metadata: metadata,
         visitor_ip: to_string(:inet.ntoa(conn.remote_ip)),
         visitor_user_agent: List.first(get_req_header(conn, "user-agent"))
       }
@@ -44,7 +48,8 @@ defmodule Escalated.Controllers.WidgetChatController do
           AccessController.error(conn, reason)
       end
     else
-      conn |> put_status(403) |> json(%{error: "Widget is disabled"}) |> halt()
+      false -> conn |> put_status(403) |> json(%{error: "Widget is disabled"}) |> halt()
+      {:error, message} -> WidgetMetadata.invalid(conn, message)
     end
   end
 

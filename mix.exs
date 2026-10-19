@@ -85,7 +85,11 @@ defmodule Escalated.MixProject do
     [
       main: "readme",
       source_url: @source_url,
-      extras: ["README.md", "docs/merchant-and-guest-access.md"]
+      extras: [
+        "README.md",
+        "docs/merchant-and-guest-access.md",
+        "docs/embedding-the-widget.md"
+      ]
     ]
   end
 end
