@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Automation and macro "add note" actions now create internal notes. They
+  passed `is_internal_note`, which the reply schema does not cast, so every
+  such note was saved as a public reply the requester could read.
+  `Reply.changeset/2` now raises on `is_internal_note` and similar aliases
+  instead of silently dropping them.
+- Escalation rules, automations and macros change status, priority, assignee
+  and department through `TicketService` / `AssignmentService`, so their
+  webhooks (`ticket.status_changed`, `ticket.resolved`, `ticket.escalated`,
+  `ticket.priority_changed`, `ticket.assigned`, `ticket.department_changed`,
+  `ticket.updated`), hooks, activity rows, workflows and assignment checks run
+  as they do for a change an agent makes. Setting a value the ticket already
+  has is a no-op.
+- `GET {prefix}/widget/config` answers `403 {"enabled": false}` while the
+  widget is disabled, matching Laravel (it answered 200). The widget stays
+  enabled by default (`widget_settings.enabled`); Laravel defaults it off, but
+  flipping the default here would silently turn the widget off on existing
+  installs.
+
+### Security
+
+- Outbound webhook URLs must be http or https and resolve only to public
+  addresses. Loopback, private, link-local (cloud metadata), carrier-grade NAT,
+  multicast and other reserved ranges are refused when a webhook is saved and
+  again before every delivery; a refused delivery is recorded as not sent and
+  not retried. The default client connects to the checked address (keeping
+  the host name for the Host header and TLS verification) and no longer
+  follows redirects. Hosts can replace DNS resolution with
+  `config :escalated, :outbound_url_resolver, fun`.
+
 ## [0.2.1] - 2026-10-19
 
 ### Changed
