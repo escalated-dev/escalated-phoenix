@@ -13,6 +13,15 @@ end
 
 {:ok, _} = Application.ensure_all_started(:ecto_sql)
 
+# Webhook URLs are checked with Escalated.OutboundUrlGuard, which resolves their
+# host. Tests use reserved `.test` host names, which never resolve, so they are
+# given a public address here; every test that dispatches stubs the HTTP client,
+# so nothing is sent to it. IP literals still resolve to themselves, and tests
+# of the guard pass their own resolver.
+Application.put_env(:escalated, :outbound_url_resolver, fn host ->
+  if String.ends_with?(host, ".test"), do: ["93.184.215.14"], else: []
+end)
+
 unless Process.whereis(Escalated.TestRepo) do
   {:ok, _} = Escalated.TestRepo.start_link()
   Ecto.Adapters.SQL.Sandbox.mode(Escalated.TestRepo, :manual)

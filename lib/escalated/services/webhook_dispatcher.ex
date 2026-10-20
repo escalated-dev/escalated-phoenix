@@ -22,10 +22,21 @@ defmodule Escalated.Services.WebhookDispatcher do
   (a `{module, function}` or 3-arity `fun.(url, headers, body)`), defaulting to
   a thin wrapper over Erlang's stdlib `:httpc` — no external HTTP dependency,
   matching `Escalated.Services.Email.Inbound.AttachmentDownloader`.
+
+  Every attempt is checked with `Escalated.OutboundUrlGuard` first: the URL
+  must be http(s) and resolve only to public addresses, or the attempt is
+  recorded as not sent and never retried. The check runs at send time as well
+  as when the webhook is saved, because a row can predate the check and a host
+  name can be re-pointed at an internal address after it passed. The default
+  client then connects to the address that was checked (so a DNS answer that
+  changes in between cannot substitute a private one) and never follows
+  redirects, which could otherwise carry the request, and the response body an
+  admin can read back, to a refused address.
   """
 
   require Logger
 
+  alias Escalated.OutboundUrlGuard
   alias Escalated.Schemas.{Webhook, WebhookDelivery}
   alias Escalated.Webhooks
 
@@ -64,7 +75,23 @@ defmodule Escalated.Services.WebhookDispatcher do
 
     delivery = insert_delivery(webhook, event, payload, attempt)
 
-    case http_post(webhook.url, headers, body) do
+    case OutboundUrlGuard.public_address_for(webhook.url) do
+      {:ok, address} ->
+        post_and_record(webhook, event, payload, attempt, delivery, address, headers, body)
+
+      :error ->
+        Logger.warning(
+          "Escalated webhook not sent (webhook #{webhook.id}, event #{event}): " <>
+            "URL does not resolve to a public address"
+        )
+
+        # Not retried: another attempt would be refused the same way.
+        record_error(delivery, OutboundUrlGuard.refusal_message(), attempt)
+    end
+  end
+
+  defp post_and_record(webhook, event, payload, attempt, delivery, address, headers, body) do
+    case http_post(webhook.url, address, headers, body) do
       {:ok, %{status: status, body: response_body}} ->
         delivery = record_response(delivery, status, response_body, attempt)
 
@@ -230,9 +257,9 @@ defmodule Escalated.Services.WebhookDispatcher do
 
   # ---------- HTTP transport ----------
 
-  defp http_post(url, headers, body) do
+  defp http_post(url, address, headers, body) do
     case Application.get_env(:escalated, :webhook_http_client) do
-      nil -> default_post(url, headers, body)
+      nil -> default_post(url, address, headers, body)
       fun when is_function(fun, 3) -> fun.(url, headers, body)
       {mod, fun} -> apply(mod, fun, [url, headers, body])
     end
@@ -240,19 +267,26 @@ defmodule Escalated.Services.WebhookDispatcher do
 
   # Wrap :httpc — stdlib, no external dep. Starts inets/ssl so :httpc is
   # available even if the host didn't pre-start it.
-  defp default_post(url, headers, body) do
+  defp default_post(url, address, headers, body) do
     _ = :application.ensure_all_started(:inets)
     _ = :application.ensure_all_started(:ssl)
 
     {content_type, other_headers} = split_content_type(headers)
+    {request_url, host_headers, ssl_opts} = pinned_request(url, address)
 
-    charlist_url = String.to_charlist(url)
+    charlist_url = String.to_charlist(request_url)
 
     charlist_headers =
-      Enum.map(other_headers, fn {k, v} -> {String.to_charlist(k), String.to_charlist(v)} end)
+      Enum.map(host_headers ++ other_headers, fn {k, v} ->
+        {String.to_charlist(k), String.to_charlist(v)}
+      end)
 
     request = {charlist_url, charlist_headers, String.to_charlist(content_type), body}
-    http_opts = [timeout: @timeout_ms, connect_timeout: @timeout_ms]
+
+    # No redirects: a 3xx is recorded as the response instead of being followed
+    # to an address the guard never checked.
+    http_opts =
+      [timeout: @timeout_ms, connect_timeout: @timeout_ms, autoredirect: false] ++ ssl_opts
 
     case :httpc.request(:post, request, http_opts, body_format: :binary) do
       {:ok, {{_version, status, _reason}, _resp_headers, resp_body}} ->
@@ -260,6 +294,42 @@ defmodule Escalated.Services.WebhookDispatcher do
 
       {:error, reason} ->
         {:error, {:http_error, reason}}
+    end
+  end
+
+  @doc false
+  # Rewrites `url` to connect to the checked `address` while still presenting
+  # the original host: in the Host header and, for https, as the TLS SNI name
+  # that the certificate is verified against. Returns
+  # `{request_url, extra_headers, http_opts}`. A URL whose host is already an
+  # IP literal is left as it is.
+  def pinned_request(url, address) do
+    uri = URI.parse(url)
+    host = uri.host || ""
+
+    if match?({:ok, _}, :inet.parse_strict_address(String.to_charlist(host))) do
+      {url, [], []}
+    else
+      ip = address |> :inet.ntoa() |> to_string()
+      pinned = URI.to_string(%{uri | host: ip})
+      default_port? = uri.port == URI.default_port(uri.scheme)
+      host_header = if default_port?, do: host, else: "#{host}:#{uri.port}"
+
+      ssl_opts =
+        if String.downcase(uri.scheme || "") == "https" do
+          [
+            ssl:
+              :httpc.ssl_verify_host_options(true) ++
+                [server_name_indication: String.to_charlist(host)]
+          ]
+        else
+          []
+        end
+
+      # `connection: close` keeps :httpc from reusing this TLS session for a
+      # request to another host name that happens to share the address, which
+      # would skip that host's certificate check.
+      {pinned, [{"host", host_header}, {"connection", "close"}], ssl_opts}
     end
   end
 

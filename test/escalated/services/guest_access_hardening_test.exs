@@ -457,9 +457,10 @@ defmodule Escalated.Services.GuestAccessHardeningTest do
     end
 
     test "still reports its disabled configuration" do
+      # 403 `{"enabled": false}`, matching Laravel's widget config answer.
       resp = request(:get, "/support/widget/config")
-      assert resp.status == 200
-      assert Jason.decode!(resp.resp_body)["enabled"] == false
+      assert resp.status == 403
+      assert Jason.decode!(resp.resp_body) == %{"enabled" => false}
     end
 
     test "leaves the non-widget guest routes available", %{token: token} do

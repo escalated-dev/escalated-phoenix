@@ -303,6 +303,38 @@ defmodule Escalated.TicketVisibilityTest do
     end
   end
 
+  test "escalation rules and macros cannot assign a ticket to an agent outside its department",
+       c do
+    alias Escalated.Schemas.{EscalationRule, Macro}
+    alias Escalated.Services.{EscalationService, MacroService}
+
+    Escalated.repo().insert!(
+      EscalationRule.changeset(%EscalationRule{}, %{
+        name: "assign outsider",
+        trigger_type: "cron",
+        conditions: [%{"field" => "department_id", "value" => c.a.id}],
+        actions: [%{"type" => "assign_to", "value" => 901}]
+      })
+    )
+
+    EscalationService.evaluate_rules(Escalated.repo())
+    assert is_nil(Escalated.repo().get!(Ticket, c.allowed.id).assigned_to)
+
+    macro =
+      Escalated.repo().insert!(
+        Macro.changeset(%Macro{}, %{name: "m", actions: [%{"type" => "assign", "value" => 901}]})
+      )
+
+    assert is_nil(MacroService.apply(Escalated.repo(), macro, c.allowed, 999).assigned_to)
+
+    macro =
+      Escalated.repo().update!(
+        Changeset.change(macro, actions: [%{"type" => "assign", "value" => 900}])
+      )
+
+    assert MacroService.apply(Escalated.repo(), macro, c.allowed, 999).assigned_to == 900
+  end
+
   test "assignment and recipient filtering reject outsiders and revoked memberships", c do
     assert_raise TicketVisibility.Error, fn -> AssignmentService.assign(c.allowed, 901) end
     assert {:ok, _} = AssignmentService.assign(c.allowed, 900)

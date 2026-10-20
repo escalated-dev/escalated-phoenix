@@ -2,7 +2,8 @@ defmodule Escalated.Plugs.EnsureWidgetEnabled do
   @moduledoc """
   Refuses public widget requests with 403 while `widget_settings.enabled` is
   false: no codes are sent and no ticket, lookup or chat traffic is served.
-  The widget's `/config` route stays available so the embed can see it is off.
+  The widget's `/config` route skips this plug and answers `403 {"enabled": false}`
+  itself (as Laravel does), so the embed can see the widget is off.
   """
   import Plug.Conn
   @behaviour Plug

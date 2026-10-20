@@ -32,7 +32,26 @@ defmodule Escalated.Schemas.Webhook do
     webhook
     |> cast(attrs, [:url, :events, :secret, :active])
     |> validate_required([:url])
+    |> validate_url_scheme()
     |> validate_events()
+  end
+
+  # Only http(s) URLs with a host. Whether the host resolves to a public
+  # address is checked by `Escalated.Webhooks.create/2` / `update/3` and again
+  # on every delivery (see `Escalated.OutboundUrlGuard`).
+  defp validate_url_scheme(changeset) do
+    validate_change(changeset, :url, fn :url, url ->
+      case URI.new(String.trim(url)) do
+        {:ok, %URI{scheme: scheme, host: host}}
+        when is_binary(scheme) and is_binary(host) and host != "" ->
+          if String.downcase(scheme) in ["http", "https"],
+            do: [],
+            else: [url: "must use http or https"]
+
+        _ ->
+          [url: "must be a valid http or https URL"]
+      end
+    end)
   end
 
   # Ecto's validate_required/validate_length both treat `[]` as present, so

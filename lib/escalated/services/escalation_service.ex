@@ -16,7 +16,7 @@ defmodule Escalated.Services.EscalationService do
   require Logger
 
   alias Escalated.Schemas.{EscalationRule, Ticket, TicketActivity}
-  alias Escalated.Services.WebhookEvents
+  alias Escalated.Services.RuleActions
 
   @doc """
   Evaluate all active escalation rules and apply their actions to
@@ -116,40 +116,58 @@ defmodule Escalated.Services.EscalationService do
   defp apply_condition(query, _), do: query
 
   defp execute_actions(%EscalationRule{actions: actions, name: name}, %Ticket{} = ticket, repo) do
-    Enum.each(actions || [], fn action ->
-      try do
-        run_action(action, ticket, repo)
-      rescue
-        e ->
-          Logger.warning(
-            "Escalation action #{inspect(action["type"])} on ticket ##{ticket.id} failed: #{inspect(e)}"
-          )
-      end
-    end)
+    # Each action goes through TicketService / AssignmentService (mirroring
+    # Laravel's EscalationService), so department-changed, assigned, priority
+    # and status events, activity rows, workflows and assignment checks all
+    # run. The ticket is threaded through so each action sees the last one's
+    # result.
+    _ticket =
+      Enum.reduce(actions || [], ticket, fn action, current ->
+        try do
+          case run_action(action, current) do
+            {:ok, %Ticket{} = updated} ->
+              updated
+
+            {:error, reason} ->
+              Logger.warning(
+                "Escalation action #{inspect(action["type"])} on ticket ##{current.id} failed: #{inspect(reason)}"
+              )
+
+              current
+
+            _ ->
+              current
+          end
+        rescue
+          e ->
+            Logger.warning(
+              "Escalation action #{inspect(action["type"])} on ticket ##{current.id} failed: #{inspect(e)}"
+            )
+
+            current
+        end
+      end)
 
     maybe_log_escalation(actions || [], ticket, name, repo)
   end
 
-  defp run_action(%{"type" => "escalate"}, ticket, repo) do
-    ticket |> Ticket.changeset(%{status: "escalated"}) |> repo.update()
-  end
+  defp run_action(%{"type" => "escalate"}, ticket),
+    do: RuleActions.change_status(ticket, "escalated")
 
-  defp run_action(%{"type" => "change_priority", "value" => v}, ticket, repo) do
-    ticket |> Ticket.changeset(%{priority: to_string(v)}) |> repo.update()
-  end
+  defp run_action(%{"type" => "change_priority", "value" => v}, ticket),
+    do: RuleActions.change_priority(ticket, v)
 
-  defp run_action(%{"type" => "assign_to", "value" => v}, ticket, repo) do
-    ticket |> Ticket.changeset(%{assigned_to: v}) |> repo.update()
-  end
+  defp run_action(%{"type" => "assign_to", "value" => v}, ticket),
+    do: RuleActions.assign(ticket, v)
 
-  defp run_action(%{"type" => "change_department", "value" => v}, ticket, repo) do
-    ticket |> Ticket.changeset(%{department_id: to_int(v)}) |> repo.update()
-  end
+  defp run_action(%{"type" => "change_department", "value" => v}, ticket),
+    do: RuleActions.change_department(ticket, v)
 
-  defp run_action(_unknown, _ticket, _repo), do: :ok
+  defp run_action(_unknown, _ticket), do: :ok
 
   # Mirrors Laravel's TicketEscalated event: when a rule carries an
   # `escalate` action, record one activity-log entry per affected ticket.
+  # The `ticket.escalated` webhook comes from TicketService.transition_status/3.
   defp maybe_log_escalation(actions, ticket, rule_name, repo) do
     if Enum.any?(actions, &(&1["type"] == "escalate")) do
       %TicketActivity{}
@@ -160,11 +178,6 @@ defmodule Escalated.Services.EscalationService do
         details: %{"rule" => rule_name}
       })
       |> repo.insert()
-
-      # The escalate action writes the ticket through its changeset rather than
-      # TicketService, so the webhook is dispatched here. Reloaded so the
-      # payload carries the escalated status, not the one the rule matched on.
-      WebhookEvents.dispatch("ticket.escalated", %{ticket: repo.get(Ticket, ticket.id) || ticket})
     end
 
     :ok
