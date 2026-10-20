@@ -14,7 +14,8 @@ defmodule Escalated.Services.AutomationRunner do
   import Ecto.Query
   require Logger
 
-  alias Escalated.Schemas.{Automation, Reply, Tag, Ticket}
+  alias Escalated.Schemas.{Automation, Tag, Ticket}
+  alias Escalated.Services.{RuleActions, TicketService}
 
   @doc """
   Evaluate all active automations and apply their actions to matching
@@ -160,35 +161,44 @@ defmodule Escalated.Services.AutomationRunner do
     do: where(query, [t], field(t, ^field) == ^threshold)
 
   defp execute_actions(%Automation{actions: actions, id: aid}, %Ticket{} = ticket, repo) do
-    Enum.each(actions || [], fn action ->
+    # Field changes and notes go through TicketService / AssignmentService so
+    # their events, activity rows, workflows and assignment checks run. The
+    # ticket is threaded through so each action sees the last one's result.
+    Enum.reduce(actions || [], ticket, fn action, current ->
       try do
-        run_action(action, ticket, aid, repo)
+        case run_action(action, current, aid, repo) do
+          {:ok, %Ticket{} = updated} ->
+            updated
+
+          {:error, reason} ->
+            Logger.warning(
+              "Automation ##{aid} action #{inspect(action["type"])} on ticket ##{current.id} failed: #{inspect(reason)}"
+            )
+
+            current
+
+          _ ->
+            current
+        end
       rescue
         e ->
           Logger.warning(
-            "Automation ##{aid} action #{inspect(action["type"])} on ticket ##{ticket.id} failed: #{inspect(e)}"
+            "Automation ##{aid} action #{inspect(action["type"])} on ticket ##{current.id} failed: #{inspect(e)}"
           )
+
+          current
       end
     end)
   end
 
-  defp run_action(%{"type" => "change_status", "value" => v}, ticket, _aid, repo) do
-    ticket
-    |> Ticket.changeset(%{status: to_string(v)})
-    |> repo.update()
-  end
+  defp run_action(%{"type" => "change_status", "value" => v}, ticket, _aid, _repo),
+    do: RuleActions.change_status(ticket, v)
 
-  defp run_action(%{"type" => "change_priority", "value" => v}, ticket, _aid, repo) do
-    ticket
-    |> Ticket.changeset(%{priority: to_string(v)})
-    |> repo.update()
-  end
+  defp run_action(%{"type" => "change_priority", "value" => v}, ticket, _aid, _repo),
+    do: RuleActions.change_priority(ticket, v)
 
-  defp run_action(%{"type" => "assign", "value" => v}, ticket, _aid, repo) do
-    ticket
-    |> Ticket.changeset(%{assigned_to: v})
-    |> repo.update()
-  end
+  defp run_action(%{"type" => "assign", "value" => v}, ticket, _aid, _repo),
+    do: RuleActions.assign(ticket, v)
 
   defp run_action(%{"type" => "add_tag", "value" => v}, ticket, _aid, repo) do
     case repo.get_by(Tag, name: to_string(v)) do
@@ -202,15 +212,13 @@ defmodule Escalated.Services.AutomationRunner do
     end
   end
 
-  defp run_action(%{"type" => "add_note", "value" => v}, ticket, aid, repo) do
-    %Reply{}
-    |> Reply.changeset(%{
-      ticket_id: ticket.id,
-      body: to_string(v),
-      is_internal_note: true,
-      metadata: %{system_note: true, automation_id: aid}
-    })
-    |> repo.insert()
+  # An automation note is an internal, system-authored note: never shown to
+  # the requester. `is_internal` is the only flag Reply casts.
+  defp run_action(%{"type" => "add_note", "value" => v}, ticket, _aid, _repo) do
+    with {:ok, _reply} <-
+           TicketService.reply(ticket, %{body: to_string(v), is_internal: true, is_system: true}) do
+      {:ok, ticket}
+    end
   end
 
   defp run_action(_unknown, _ticket, _aid, _repo), do: :ok

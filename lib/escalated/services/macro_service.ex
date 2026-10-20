@@ -16,7 +16,8 @@ defmodule Escalated.Services.MacroService do
 
   require Logger
 
-  alias Escalated.Schemas.{Macro, Reply, Tag, Ticket}
+  alias Escalated.Schemas.{Macro, Tag, Ticket}
+  alias Escalated.Services.{RuleActions, TicketService}
 
   @doc """
   Macros visible to an agent: shared macros plus macros they created.
@@ -75,7 +76,20 @@ defmodule Escalated.Services.MacroService do
 
     Enum.reduce(actions || [], ticket, fn action, t ->
       try do
-        run_action(action, t, agent_id, macro_id, repo)
+        case run_action(action, t, agent_id, macro_id, repo) do
+          {:ok, %Ticket{} = updated} ->
+            updated
+
+          {:error, reason} ->
+            Logger.warning(
+              "Macro ##{macro_id} action #{inspect(action["type"])} on ticket ##{t.id} (agent #{agent_id}) failed: #{inspect(reason)}"
+            )
+
+            t
+
+          _ ->
+            t
+        end
       rescue
         e ->
           Logger.warning(
@@ -87,39 +101,25 @@ defmodule Escalated.Services.MacroService do
     end)
   end
 
-  defp run_action(%{"type" => type, "value" => v}, ticket, _agent_id, _mid, repo)
-       when type in ["change_status", "set_status"] do
-    {:ok, t} =
-      ticket
-      |> Ticket.changeset(%{status: to_string(v)})
-      |> repo.update()
+  # Field changes, replies and notes go through TicketService /
+  # AssignmentService (as Laravel's MacroService does), so status, priority
+  # and assignment events, activity rows, workflows, mentions and assignment
+  # checks all run, attributed to the agent who applied the macro.
+  defp run_action(%{"type" => type, "value" => v}, ticket, agent_id, _mid, _repo)
+       when type in ["change_status", "set_status"],
+       do: RuleActions.change_status(ticket, v, actor_id: agent_id)
 
-    t
-  end
+  defp run_action(%{"type" => type, "value" => v}, ticket, agent_id, _mid, _repo)
+       when type in ["change_priority", "set_priority"],
+       do: RuleActions.change_priority(ticket, v, actor_id: agent_id)
 
-  defp run_action(%{"type" => type, "value" => v}, ticket, _agent_id, _mid, repo)
-       when type in ["change_priority", "set_priority"] do
-    {:ok, t} =
-      ticket
-      |> Ticket.changeset(%{priority: to_string(v)})
-      |> repo.update()
-
-    t
-  end
-
-  defp run_action(%{"type" => "assign", "value" => v}, ticket, _agent_id, _mid, repo) do
-    {:ok, t} =
-      ticket
-      |> Ticket.changeset(%{assigned_to: v})
-      |> repo.update()
-
-    t
-  end
+  defp run_action(%{"type" => "assign", "value" => v}, ticket, agent_id, _mid, _repo),
+    do: RuleActions.assign(ticket, v, actor_id: agent_id)
 
   defp run_action(%{"type" => "add_tag", "value" => v}, ticket, _agent_id, _mid, repo) do
     case repo.get_by(Tag, name: to_string(v)) do
       nil ->
-        ticket
+        {:ok, ticket}
 
       %Tag{} = tag ->
         join_table =
@@ -131,37 +131,34 @@ defmodule Escalated.Services.MacroService do
           on_conflict: :nothing
         )
 
-        ticket
+        {:ok, ticket}
     end
   end
 
-  defp run_action(%{"type" => "add_reply", "value" => v}, ticket, agent_id, _mid, repo) do
-    create_reply(repo, ticket, agent_id, to_string(v), false)
-    ticket
-  end
+  defp run_action(%{"type" => "add_reply", "value" => v}, ticket, agent_id, _mid, _repo),
+    do: create_reply(ticket, agent_id, to_string(v), false)
 
-  defp run_action(%{"type" => "add_note", "value" => v}, ticket, agent_id, _mid, repo) do
-    create_reply(repo, ticket, agent_id, to_string(v), true)
-    ticket
-  end
+  defp run_action(%{"type" => "add_note", "value" => v}, ticket, agent_id, _mid, _repo),
+    do: create_reply(ticket, agent_id, to_string(v), true)
 
-  defp run_action(%{"type" => "insert_canned_reply", "value" => v}, ticket, agent_id, _mid, repo) do
+  defp run_action(%{"type" => "insert_canned_reply", "value" => v}, ticket, agent_id, _mid, _repo) do
     # Frontend resolves the canned response template before POSTing;
     # stored value here is the resolved text body.
-    create_reply(repo, ticket, agent_id, to_string(v), false)
-    ticket
+    create_reply(ticket, agent_id, to_string(v), false)
   end
 
-  defp run_action(_unknown, ticket, _agent_id, _mid, _repo), do: ticket
+  defp run_action(_unknown, ticket, _agent_id, _mid, _repo), do: {:ok, ticket}
 
-  defp create_reply(repo, ticket, author_id, body, is_internal) do
-    %Reply{}
-    |> Reply.changeset(%{
-      ticket_id: ticket.id,
-      author_id: author_id,
-      body: body,
-      is_internal_note: is_internal
-    })
-    |> repo.insert()
+  # `is_internal` is the flag Reply casts; a note must never become a public
+  # reply the requester can see.
+  defp create_reply(ticket, author_id, body, is_internal) do
+    with {:ok, _reply} <-
+           TicketService.reply(ticket, %{
+             author_id: author_id,
+             body: body,
+             is_internal: is_internal
+           }) do
+      {:ok, Escalated.repo().get(Ticket, ticket.id) || ticket}
+    end
   end
 end
