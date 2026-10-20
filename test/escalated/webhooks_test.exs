@@ -23,6 +23,34 @@ defmodule Escalated.WebhooksTest do
       refute changeset.valid?
     end
 
+    test "refuses URLs that are not http(s) or do not resolve to a public address" do
+      for url <- [
+            "http://169.254.169.254/latest/meta-data/",
+            "http://localhost:4000/hook",
+            "http://127.0.0.1/hook",
+            "http://192.168.0.10/hook",
+            "http://[fd00::1]/hook",
+            "ftp://hooks.test/hook",
+            "javascript:alert(1)",
+            "https://does-not-resolve.invalid/hook"
+          ] do
+        assert {:error, changeset} =
+                 Webhooks.create(repo(), %{url: url, events: ["ticket.created"]}),
+               url
+
+        assert changeset.errors[:url], url
+      end
+    end
+
+    test "refuses an update that points the URL at a private address" do
+      webhook = insert_webhook!()
+
+      assert {:error, changeset} =
+               Webhooks.update(repo(), webhook, %{url: "http://10.0.0.1/hook"})
+
+      assert changeset.errors[:url]
+    end
+
     test "updates a webhook" do
       webhook = insert_webhook!()
       {:ok, updated} = Webhooks.update(repo(), webhook, %{active: false})

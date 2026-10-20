@@ -44,22 +44,38 @@ defmodule Escalated.Webhooks do
     repo.get(Webhook, id)
   end
 
-  @doc "Create a webhook."
+  @doc """
+  Create a webhook. The URL must be http(s) and resolve only to public
+  addresses (see `Escalated.OutboundUrlGuard`).
+  """
   def create(repo, attrs) do
     repo = Escalated.Tenancy.scoped_repo(repo)
 
     %Webhook{}
     |> Webhook.changeset(attrs)
+    |> validate_public_url()
     |> repo.insert()
   end
 
-  @doc "Update a webhook."
+  @doc "Update a webhook. A changed URL is checked as in `create/2`."
   def update(repo, %Webhook{} = webhook, attrs) do
     repo = Escalated.Tenancy.scoped_repo(repo)
 
     webhook
     |> Webhook.changeset(attrs)
+    |> validate_public_url()
     |> repo.update()
+  end
+
+  # Mirrors Laravel's admin WebhookController check: refuse endpoints on
+  # loopback, private, link-local (cloud metadata) and other reserved ranges,
+  # since the delivery log shows an admin part of the response body.
+  defp validate_public_url(changeset) do
+    Ecto.Changeset.validate_change(changeset, :url, fn :url, url ->
+      if Escalated.OutboundUrlGuard.allows?(url),
+        do: [],
+        else: [url: "must use http or https and resolve to a public address"]
+    end)
   end
 
   @doc "Delete a webhook (cascades its deliveries)."
