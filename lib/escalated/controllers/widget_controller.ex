@@ -12,6 +12,21 @@ defmodule Escalated.Controllers.WidgetController do
   @excerpt_length 150
 
   def config(conn, _params) do
+    if Escalated.Plugs.EnsureWidgetEnabled.enabled?(),
+      do: enabled_config(conn),
+      else: disabled_config(conn)
+  end
+
+  # Matches Laravel: a disabled widget answers 403 `{"enabled": false}`, so the
+  # embed (and anything keyed on the status) can tell it is off.
+  defp disabled_config(conn) do
+    conn
+    |> put_resp_header("cache-control", "no-store")
+    |> put_status(403)
+    |> json(%{enabled: false})
+  end
+
+  defp enabled_config(conn) do
     base = widget_settings()
 
     settings =

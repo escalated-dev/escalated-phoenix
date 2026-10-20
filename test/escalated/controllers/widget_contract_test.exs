@@ -67,6 +67,17 @@ defmodule Escalated.Controllers.WidgetContractTest do
       assert body["widget"]["color"] == "#4F46E5"
     end
 
+    test "answers 403 enabled: false while the widget is disabled, as Laravel does" do
+      Application.put_env(:escalated, :widget_settings, %{enabled: false})
+
+      conn = request(:get, "/support/widget/config", nil, origin: @shop)
+
+      assert conn.status == 403
+      assert json(conn) == %{"enabled" => false}
+      # Still readable cross-origin, so the embed can see the widget is off.
+      assert get_resp_header(conn, "access-control-allow-origin") == [@shop]
+    end
+
     test "uses the host's colour and position" do
       Application.put_env(:escalated, :widget_settings, %{
         primary_color: "#112233",
