@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Live chat events (ADR 2026-10-21): `ChatSessionService` now emits
+  `chat.started`, `chat.assigned`, `chat.message` and `chat.ended` through
+  `Escalated.Events.emit/2`, so they reach outbound webhooks and workflows
+  (they were not emitted at all), and the webhook admin and the workflow
+  builder offer them. There is no chat transfer in this package, so
+  `chat.transferred` is neither offered nor emitted. The webhook payload is
+  `%{chat: %{session_id, ticket_id, status, agent_id, department_id}}`, plus
+  `reply_id`/`author_type` (`agent` or `visitor`) for a message and
+  `ended_by` (`agent`, `customer` or `system` for an idle close; new
+  `:ended_by` option on `end_session/2`) for an end. It never carries the
+  visitor's chat token, the visitor's email or the message body. Workflows on
+  chat events run against the chat's ticket. Webhooks and workflows saved
+  under `chat.session_started` / `chat.session_ended` receive `chat.started` /
+  `chat.ended`. The PubSub chat broadcasts are unchanged.
 - Ticket merge, as escalated-laravel's `TicketMergeService`:
   `Escalated.Services.TicketMergeService.merge/3` moves the source's replies
   and notes (and their attachments) to the target, adds a system note to both

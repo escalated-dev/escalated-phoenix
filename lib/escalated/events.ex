@@ -38,9 +38,9 @@ defmodule Escalated.Events do
     chat.started chat.assigned chat.transferred chat.message chat.ended
   )
 
-  # What this package emits today. Live chat events are canonical but have no
-  # emit site here yet, so they are neither offered nor fired.
-  @emitted @canonical -- ~w(chat.started chat.assigned chat.transferred chat.message chat.ended)
+  # What this package emits (and offers). There is no chat transfer here, so
+  # chat.transferred is neither offered nor fired.
+  @emitted @canonical -- ~w(chat.transferred)
 
   @legacy %{
     "ticket.replied" => "reply.created",
@@ -82,7 +82,7 @@ defmodule Escalated.Events do
   workflows.
 
   The context is the one `Escalated.Services.WebhookEvents.dispatch/2` takes
-  (`:ticket`, `:reply`, `:tag`, `:agent_id`), plus what
+  (`:ticket`, `:reply`, `:tag`, `:agent_id`, `:chat`), plus what
   `Escalated.Notifications` reads: `:actor_id` and `:from` (status changes),
   `:breach_type` (SLA breaches), and `:notify` / `:author` (replies).
   """
