@@ -40,6 +40,7 @@ host integration hooks and migration instructions.
 - **Ticket snooze** — Snooze tickets with presets (1h, 4h, tomorrow, next week); `mix escalated.wake_snoozed_tickets` Mix task auto-wakes them on schedule
 - **Saved views / custom queues** — Save, name, and share filter presets as reusable ticket views
 - **Embeddable support widget** — Lightweight `<script>` widget with KB search, ticket form, and status check, served at `/support/widget/embed.js` and embeddable on other sites you list ([guide](docs/embedding-the-widget.md))
+- **Notification emails** — New ticket, reply, assignment, status, escalation and SLA breach emails sent through your Swoosh mailer once you set `mailer:` ([guide](docs/notification-emails.md))
 - **Email threading** — Outbound emails include proper `In-Reply-To` and `References` headers for correct threading in mail clients
 - **Inbound email** — Single webhook endpoint with Postmark + Mailgun + AWS SES parsers, signed Reply-To verification, and Message-ID-based ticket resolution
 - **Branded email templates** — Configurable logo, primary color, and footer text for all outbound emails
@@ -378,6 +379,17 @@ library) before the router, or every guest shares the proxy's address.** Edge ra
 distributed traffic. Guest email proof also has a database-backed mailbox budget
 shared across tenants and nodes. Setup and request shapes are documented in
 [merchant and guest integration](docs/merchant-and-guest-access.md).
+
+## Notification emails
+
+Nothing is emailed until you name a mailer:
+
+```elixir
+config :escalated, mailer: MyApp.Mailer, from_email: "support@example.com"
+```
+
+Recipients, the delivery-function alternative and threading are in
+[notification emails](docs/notification-emails.md).
 
 ## Inbound email
 

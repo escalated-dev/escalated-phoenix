@@ -54,7 +54,11 @@ defmodule Escalated.MixProject do
       # selects; a host app depends on the one adapter it actually uses.
       {:ecto_sqlite3, "~> 0.15", only: :test},
       {:postgrex, "~> 0.17", only: :test},
-      {:myxql, "~> 0.6", only: :test}
+      {:myxql, "~> 0.6", only: :test},
+      # Notification emails go out through the host's Swoosh mailer when one is
+      # configured. Escalated builds the %Swoosh.Email{} at runtime, so Swoosh is
+      # only needed here to test that path, never forced on a host.
+      {:swoosh, "~> 1.16", only: :test}
     ]
   end
 

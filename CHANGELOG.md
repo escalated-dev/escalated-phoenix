@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Outbound notification emails, sent through the host's mailer:
+  `config :escalated, mailer: MyApp.Mailer` (a Swoosh mailer) or
+  `notification_delivery: &fun/1`. New ticket (requester and assignee), public
+  reply (requester, assignee and followers, never the author), assignment
+  (assignee), status change (requester and followers, never whoever changed
+  it), escalation (assignee) and SLA breach (assignee), following
+  escalated-laravel's notification listeners. Each carries the
+  `Escalated.Emails.TicketEmail` threading headers and branding, and a signed
+  `Reply-To` when `email_inbound_secret` is set. Internal notes and live chat
+  messages are not emailed. `notification_channels` without `:email` turns it
+  off. See `docs/notification-emails.md`.
+- `TicketService.reply/3` takes `notify: false` (no email for this reply) and
+  `author: :system` (a reply with no author written by Escalated itself).
+- `Escalated.Emails.TicketEmail.notice_email/4` and
+  `threading_headers_for_notice/1`.
+- **Upgrade note (emails):** nothing is emailed until `mailer` or
+  `notification_delivery` is configured, so existing installs are unchanged.
+  Once one is set, requesters receive a confirmation for every ticket they
+  open, including tickets created from inbound email.
 - Workflows run on every event this package emits, under the canonical names
   of the shared event vocabulary (escalated-developer-context
   `decisions/2026-10-21-event-vocabulary.md`): `ticket.updated`,

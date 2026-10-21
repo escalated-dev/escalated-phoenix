@@ -173,7 +173,8 @@ defmodule Escalated.Services.ChatSessionService do
       author_id: author_id
     }
 
-    with {:ok, reply} <- TicketService.reply(ticket, reply_attrs) do
+    # Chat messages reach the other side live; they are not emailed.
+    with {:ok, reply} <- TicketService.reply(ticket, reply_attrs, notify: false) do
       # Update last activity
       session
       |> ChatSession.changeset(%{last_activity_at: DateTime.utc_now()})

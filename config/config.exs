@@ -90,4 +90,8 @@ if Mix.env() == :test do
   # claim worth keeping under test. connection_test.exs sets it per case.
   config :escalated,
     repo: Escalated.TestRepo
+
+  # Swoosh is a test-only dependency (the notification tests use its Test
+  # adapter), so it has no HTTP client to start.
+  config :swoosh, api_client: false
 end

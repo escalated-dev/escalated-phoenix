@@ -23,6 +23,7 @@ defmodule Escalated.Events do
   workflow runner both log and swallow their own failures.
   """
 
+  alias Escalated.Notifications
   alias Escalated.Schemas.Ticket
   alias Escalated.Services.{WebhookEvents, WorkflowRunner}
 
@@ -77,13 +78,17 @@ defmodule Escalated.Events do
   end
 
   @doc """
-  Announce `event` to webhooks and, for a ticket, to workflows.
+  Announce `event` to webhooks, notification emails and, for a ticket, to
+  workflows.
 
   The context is the one `Escalated.Services.WebhookEvents.dispatch/2` takes
-  (`:ticket`, `:reply`, `:tag`, `:agent_id`).
+  (`:ticket`, `:reply`, `:tag`, `:agent_id`), plus what
+  `Escalated.Notifications` reads: `:actor_id` and `:from` (status changes),
+  `:breach_type` (SLA breaches), and `:notify` / `:author` (replies).
   """
   def emit(event, context) when is_binary(event) and is_map(context) do
     WebhookEvents.dispatch(event, context)
+    Notifications.notify(event, context)
 
     case Map.get(context, :ticket) do
       %Ticket{} = ticket -> WorkflowRunner.run_guarded(event, ticket)
