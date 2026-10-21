@@ -288,11 +288,11 @@ defmodule Escalated.Controllers.Admin.WorkflowContractTest do
         |> get_in(["props", "trigger_events"])
         |> option_values()
 
-      assert Enum.sort(advertised) ==
-               Enum.sort(~w(ticket.created reply.created ticket.status_changed))
+      assert Enum.sort(advertised) == Enum.sort(Escalated.Events.emitted())
 
-      # And each one really does run a workflow saved against it.
-      for event <- advertised do
+      # And each one really does run a workflow saved against it. These three
+      # are checked here; Escalated.EventVocabularyTest runs every one.
+      for event <- ~w(ticket.created reply.created ticket.status_changed) do
         wf = workflow!(%{name: "on #{event}", trigger_event: event})
         ticket = fire!(event)
 
@@ -310,7 +310,9 @@ defmodule Escalated.Controllers.Admin.WorkflowContractTest do
 
       assert @core_actions -- advertised == []
 
-      for type <- advertised do
+      # delay needs the rest of the run, so execute/3 handles it (with the
+      # workflow id WorkflowRunner passes); see Escalated.EventVocabularyTest.
+      for type <- advertised -- ["delay"] do
         result = WorkflowExecutor.dispatch_action(%Ticket{}, %{"type" => type, "value" => ""})
 
         refute match?({:error, _, reason} when reason in [:unknown, :handled_in_execute], result),

@@ -3,9 +3,9 @@ defmodule Escalated.Services.AssignmentService do
   Service for ticket assignment operations: assign, unassign, round-robin, bulk.
   """
 
+  alias Escalated.Events
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.Ticket
-  alias Escalated.Services.WebhookEvents
   import Ecto.Query
 
   @doc """
@@ -22,8 +22,8 @@ defmodule Escalated.Services.AssignmentService do
       {:ok, updated} ->
         log_activity(updated, "assigned", actor_id, %{agent_id: agent_id})
         Hooks.do_action("ticket_assigned", [updated, agent_id])
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
-        WebhookEvents.dispatch("ticket.assigned", %{ticket: updated, agent_id: agent_id})
+        Events.emit("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.assigned", %{ticket: updated, agent_id: agent_id})
         {:ok, updated}
 
       error ->
@@ -46,8 +46,8 @@ defmodule Escalated.Services.AssignmentService do
       {:ok, updated} ->
         log_activity(updated, "unassigned", actor_id, %{previous_agent_id: old_agent_id})
         Hooks.do_action("ticket_unassigned", [updated, old_agent_id])
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
-        WebhookEvents.dispatch("ticket.unassigned", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.unassigned", %{ticket: updated})
         {:ok, updated}
 
       error ->

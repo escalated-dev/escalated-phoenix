@@ -44,10 +44,15 @@ defmodule Escalated.Schemas.Workflow do
   On top of `changeset/2`, requires what workflow-admin-contract.md requires of
   that body: at least one action. A workflow with no actions does nothing when
   it matches, so the builder must not be able to save one.
+
+  A legacy trigger name posted by an older client (`ticket.replied`,
+  `ticket.tagged`, ...) is stored under its canonical name
+  (decisions/2026-10-21-event-vocabulary.md).
   """
   def form_changeset(workflow, attrs) do
     workflow
     |> changeset(attrs)
+    |> update_change(:trigger_event, &Escalated.Events.canonical/1)
     |> validate_required([:actions])
     |> validate_has_actions()
   end
@@ -63,18 +68,26 @@ defmodule Escalated.Schemas.Workflow do
     from(w in query, where: w.is_active == true, order_by: [asc: w.position])
   end
 
+  @doc "Workflows saved against `event`, under its canonical name or a legacy one."
   def for_event(query \\ __MODULE__, event) do
-    from(w in query, where: w.trigger_event == ^event)
+    names = Escalated.Events.names_for(event)
+    from(w in query, where: w.trigger_event in ^names)
   end
 
-  @doc "Serialize a workflow with a `trigger` alias for frontend compatibility."
+  @doc """
+  Serialize a workflow with a `trigger` alias for frontend compatibility. A
+  trigger stored under a legacy name is shown under its canonical one, so the
+  builder selects it.
+  """
   def to_json(%__MODULE__{} = workflow) do
+    trigger_event = Escalated.Events.canonical(workflow.trigger_event)
+
     %{
       id: workflow.id,
       name: workflow.name,
       description: workflow.description,
-      trigger_event: workflow.trigger_event,
-      trigger: workflow.trigger_event,
+      trigger_event: trigger_event,
+      trigger: trigger_event,
       conditions: workflow.conditions,
       actions: workflow.actions,
       position: workflow.position,

@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Workflows run on every event this package emits, under the canonical names
+  of the shared event vocabulary (escalated-developer-context
+  `decisions/2026-10-21-event-vocabulary.md`): `ticket.updated`,
+  `ticket.assigned`, `ticket.unassigned`, `ticket.priority_changed`,
+  `ticket.department_changed`, `ticket.tag_added`, `ticket.tag_removed`,
+  `ticket.resolved`, `ticket.closed`, `ticket.reopened`, `ticket.escalated`,
+  `note.created`, `sla.warning` and `sla.breached` join `ticket.created`,
+  `reply.created` and `ticket.status_changed`. The builder offers exactly
+  these. `Escalated.Events` holds the names and `Escalated.Events.emit/2`
+  announces each event to webhooks and workflows alike.
+- The workflow builder offers the `delay` action. A saved delay now defers the
+  actions after it (`mix escalated.run_due_delayed_actions` runs them); before,
+  the runner called the executor without the workflow id a delay needs, so the
+  delay failed and the later actions were skipped. The minutes may be a number,
+  a numeric string or `{"minutes": n}`.
+
+### Changed
+
+- Legacy event names are read as their canonical names: a workflow stored as
+  `ticket.replied`, `ticket.tagged` or `internal_note.added`, or a webhook
+  subscribed to them, runs on / receives `reply.created`, `ticket.tag_added`
+  and `note.created` (likewise `ticket.untagged`, `tag.added`, `tag.removed`,
+  `internal_note.created`, `chat.session_started`, `chat.session_ended`).
+  Workflows and webhooks saved through the admin are stored under the
+  canonical name, and the admin shows stored legacy names canonically. No
+  migration is needed.
+- Replies and notes written by a workflow (`add_note`, `insert_canned_reply`,
+  including from a delayed action) run no workflows, so a `reply.created` or
+  `note.created` workflow cannot answer itself.
+
+**Upgrade note:** workflows saved with a trigger nothing used to fire (for
+example `ticket.updated` or `ticket.assigned`, which the old builder did not
+offer but the API accepted) start running. Review inactive-looking workflows
+before upgrading. A `ticket.updated` workflow runs on every field change an
+agent, rule or delayed action makes; changes a workflow makes while it runs
+still trigger no further workflows.
+
 ## [0.2.2] - 2026-10-20
 
 ### Changed

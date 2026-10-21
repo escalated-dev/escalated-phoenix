@@ -31,6 +31,7 @@ defmodule Escalated.Schemas.Webhook do
   def changeset(webhook, attrs) do
     webhook
     |> cast(attrs, [:url, :events, :secret, :active])
+    |> update_change(:events, &Escalated.Events.canonicalize/1)
     |> validate_required([:url])
     |> validate_url_scheme()
     |> validate_events()
@@ -69,9 +70,13 @@ defmodule Escalated.Schemas.Webhook do
     from(w in query, where: w.active == true, order_by: [desc: w.id])
   end
 
-  @doc "True when this webhook subscribes to the given event name."
+  @doc """
+  True when this webhook subscribes to the given event name. Subscriptions
+  stored under a legacy name (`ticket.replied`, `internal_note.added`, ...)
+  match the canonical event (decisions/2026-10-21-event-vocabulary.md).
+  """
   def subscribed_to?(%__MODULE__{events: events}, event) when is_binary(event) do
-    event in (events || [])
+    Escalated.Events.canonical(event) in Escalated.Events.canonicalize(events || [])
   end
 
   @doc "Serialize a webhook row for the admin frontend."
@@ -79,7 +84,7 @@ defmodule Escalated.Schemas.Webhook do
     %{
       id: w.id,
       url: w.url,
-      events: w.events || [],
+      events: Escalated.Events.canonicalize(w.events || []),
       # Never expose the raw secret; surface only whether one is set.
       has_secret: is_binary(w.secret) and w.secret != "",
       active: w.active,
