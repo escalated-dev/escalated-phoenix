@@ -215,7 +215,9 @@ defmodule Escalated.Services.WorkflowExecutor do
   # A reply or note a workflow writes runs no workflows, so a reply.created or
   # note.created workflow never answers itself, inline or from a delayed action.
   defp workflow_reply(ticket, attrs) do
-    WorkflowRunner.without_workflows(fn -> TicketService.reply(ticket, attrs) end)
+    WorkflowRunner.without_workflows(fn ->
+      TicketService.reply(ticket, attrs, author: :system)
+    end)
   end
 
   # `delay` is handled inline by `execute/3` because it needs the list of

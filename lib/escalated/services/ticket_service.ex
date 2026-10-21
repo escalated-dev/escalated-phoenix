@@ -188,9 +188,19 @@ defmodule Escalated.Services.TicketService do
 
   The reply, its activity entry and the ticket's first response time are saved
   in one transaction; if any of them fails, none is kept. Hooks, mentions,
-  webhooks and workflows run only after that transaction commits.
+  webhooks, notification emails and workflows run only after that transaction
+  commits.
+
+  ## Options
+
+    * `:notify` - `false` sends no notification email for this reply (live
+      chat messages). Defaults to `true`.
+    * `:author` - `:system` marks a reply with no `author_id` as written by
+      Escalated itself (a workflow's canned reply), so it is emailed to the
+      requester. Otherwise a reply with no author is the requester's own (a
+      guest writing through the widget, the guest page or email).
   """
-  def reply(ticket, attrs) do
+  def reply(ticket, attrs, opts \\ []) do
     Escalated.TicketVisibility.assert_record!(ticket)
     repo = Escalated.repo()
 
@@ -219,7 +229,13 @@ defmodule Escalated.Services.TicketService do
         # Replies and notes a workflow writes run no workflows (see
         # WorkflowRunner.without_workflows/1), so neither event can recurse.
         event = if reply.is_internal, do: "note.created", else: "reply.created"
-        Events.emit(event, %{ticket: ticket, reply: reply})
+
+        Events.emit(event, %{
+          ticket: ticket,
+          reply: reply,
+          notify: Keyword.get(opts, :notify, true),
+          author: Keyword.get(opts, :author)
+        })
 
         {:ok, reply}
 
@@ -273,7 +289,13 @@ defmodule Escalated.Services.TicketService do
         log_activity(updated, "status_changed", actor_id, details)
         Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
         Events.emit("ticket.updated", %{ticket: updated})
-        Events.emit("ticket.status_changed", %{ticket: updated})
+
+        Events.emit("ticket.status_changed", %{
+          ticket: updated,
+          from: ticket.status,
+          actor_id: actor_id
+        })
+
         maybe_dispatch_status_hook(updated, new_status)
         maybe_dispatch_status_webhook(updated, new_status)
         {:ok, updated}

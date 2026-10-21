@@ -113,6 +113,20 @@ defmodule Escalated.Emails.TicketEmail do
     with_reply_to(headers, ticket)
   end
 
+  @doc """
+  Returns threading headers for any other notification about a ticket
+  (assignment, status change, escalation, SLA breach).
+
+  Sets `In-Reply-To` and `References` to the ticket's anchor so the message
+  joins the thread, and `Reply-To` when the inbound secret is configured. The
+  message keeps the Message-ID its mailer gives it.
+  """
+  def threading_headers_for_notice(ticket) do
+    ticket_mid = message_id_for_ticket(ticket)
+
+    with_reply_to([{"In-Reply-To", ticket_mid}, {"References", ticket_mid}], ticket)
+  end
+
   defp with_reply_to(headers, ticket) do
     case signed_reply_to(ticket) do
       nil -> headers
@@ -151,6 +165,24 @@ defmodule Escalated.Emails.TicketEmail do
       headers: threading_headers_for_reply(ticket, reply) |> Map.new(),
       html_body: render_html(:reply, %{ticket: ticket, reply: reply, branding: brand}),
       text_body: render_text(:reply, %{ticket: ticket, reply: reply, branding: brand})
+    }
+  end
+
+  @doc """
+  Builds a branded notice about a ticket: `lines` are the paragraphs of the
+  body. Threaded with `threading_headers_for_notice/1`.
+  """
+  def notice_email(ticket, to, subject, lines) when is_list(lines) do
+    brand = branding()
+    assigns = %{ticket: ticket, lines: lines, subject: subject, branding: brand}
+
+    %{
+      to: to,
+      from: from_address(brand),
+      subject: subject,
+      headers: threading_headers_for_notice(ticket) |> Map.new(),
+      html_body: render_html(:notice, assigns),
+      text_body: render_text(:notice, assigns)
     }
   end
 
@@ -216,6 +248,41 @@ defmodule Escalated.Emails.TicketEmail do
       </div>
     </body>
     </html>
+    """
+  end
+
+  defp render_html(:notice, assigns) do
+    subject = html_escape(assigns.subject)
+    accent_color = html_escape(assigns.branding.accent_color)
+    footer_text = html_escape(assigns.branding.footer_text)
+    paragraphs = Enum.map_join(assigns.lines, "\n", &"<p>#{html_escape(&1)}</p>")
+
+    """
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"></head>
+    <body style="font-family: -apple-system, sans-serif; margin: 0; padding: 0;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        #{logo_html(assigns.branding)}
+        <h2 style="color: #{accent_color};">#{subject}</h2>
+        <div style="padding: 16px; background: #f9fafb; border-radius: 8px; margin: 16px 0;">
+          #{paragraphs}
+        </div>
+        <p style="color: #6b7280; font-size: 12px;">#{footer_text}</p>
+      </div>
+    </body>
+    </html>
+    """
+  end
+
+  defp render_text(:notice, assigns) do
+    """
+    #{assigns.subject}
+
+    #{Enum.join(assigns.lines, "\n\n")}
+
+    --
+    #{assigns.branding.footer_text}
     """
   end
 

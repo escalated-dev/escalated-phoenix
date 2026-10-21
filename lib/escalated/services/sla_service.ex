@@ -290,7 +290,7 @@ defmodule Escalated.Services.SlaService do
 
     # After the commit, so a webhook never announces a breach that rolled back.
     case result do
-      {:ok, updated} -> Events.emit("sla.breached", %{ticket: updated})
+      {:ok, updated} -> Events.emit("sla.breached", %{ticket: updated, breach_type: breach_type})
       _error -> :ok
     end
 
