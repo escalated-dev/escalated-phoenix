@@ -19,7 +19,15 @@ defmodule Escalated.Services.WebhookOfferedEventsTest do
   import Plug.Test
 
   alias Escalated.Schemas.{Department, EscalationRule, Tag, Webhook, WebhookDelivery}
-  alias Escalated.Services.{AssignmentService, EscalationService, SlaService, TicketService}
+
+  alias Escalated.Services.{
+    AssignmentService,
+    ChatSessionService,
+    EscalationService,
+    SlaService,
+    TicketService
+  }
+
   alias Escalated.Test.Router
   alias Escalated.Webhooks
 
@@ -101,8 +109,19 @@ defmodule Escalated.Services.WebhookOfferedEventsTest do
       "sla.breached" => &breach_sla/0,
       "sla.warning" => &warn_sla/0,
       "ticket.tag_added" => fn -> TicketService.add_tags(ticket!(), [tag!().id]) end,
-      "ticket.tag_removed" => &remove_tag/0
+      "ticket.tag_removed" => &remove_tag/0,
+      "chat.started" => fn -> chat!() end,
+      "chat.assigned" => fn -> ChatSessionService.assign_agent(chat!(), 900) end,
+      "chat.message" => fn -> ChatSessionService.send_message(chat!(), "Hi") end,
+      "chat.ended" => fn -> ChatSessionService.end_session(chat!()) end
     }
+  end
+
+  defp chat! do
+    {:ok, _ticket, session} =
+      ChatSessionService.start_session(%{guest_name: "Visitor", message: "Hi"})
+
+    session
   end
 
   defp unassign do

@@ -32,6 +32,7 @@ defmodule Escalated.EventVocabularyTest do
 
   alias Escalated.Services.{
     AssignmentService,
+    ChatSessionService,
     EscalationService,
     SlaService,
     TicketService,
@@ -293,8 +294,19 @@ defmodule Escalated.EventVocabularyTest do
         tag = tag!()
         {:ok, tagged} = TicketService.add_tags(ticket!(), [tag.id])
         TicketService.remove_tags(tagged, [tag.id])
-      end
+      end,
+      "chat.started" => fn -> chat!() end,
+      "chat.assigned" => fn -> ChatSessionService.assign_agent(chat!(), 900) end,
+      "chat.message" => fn -> ChatSessionService.send_message(chat!(), "Hi") end,
+      "chat.ended" => fn -> ChatSessionService.end_session(chat!()) end
     }
+  end
+
+  defp chat! do
+    {:ok, _ticket, session} =
+      ChatSessionService.start_session(%{guest_name: "Visitor", message: "Hi"})
+
+    session
   end
 
   defp escalate_by_rule do

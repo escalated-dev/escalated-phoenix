@@ -59,6 +59,8 @@ defmodule Escalated.Services.ChatSessionService do
   end
 
   defp activate_guest_session(ticket, session) do
+    announce("chat.started", session, ticket)
+
     assigned =
       with {:ok, agent_id} when not is_nil(agent_id) <-
              ChatRoutingService.find_available_agent(ticket.department_id, ticket),
@@ -101,6 +103,8 @@ defmodule Escalated.Services.ChatSessionService do
 
     with {:ok, ticket} <- create_chat_ticket(ticket_attrs),
          {:ok, session} <- create_session(ticket, attrs) do
+      announce("chat.started", session, ticket)
+
       # Attempt auto-routing
       case ChatRoutingService.find_available_agent(ticket.department_id, ticket) do
         {:ok, agent_id} when not is_nil(agent_id) ->
@@ -140,9 +144,13 @@ defmodule Escalated.Services.ChatSessionService do
         # Also assign the ticket
         ticket = repo.get!(Ticket, updated.ticket_id)
 
-        ticket
-        |> Ticket.changeset(%{assigned_to: agent_id})
-        |> repo.update()
+        ticket =
+          case ticket |> Ticket.changeset(%{assigned_to: agent_id}) |> repo.update() do
+            {:ok, assigned} -> assigned
+            _ -> ticket
+          end
+
+        announce("chat.assigned", updated, ticket)
 
         Broadcasting.broadcast_chat_event("chat:agent_joined", %{
           session_id: updated.id,
@@ -180,6 +188,11 @@ defmodule Escalated.Services.ChatSessionService do
       |> ChatSession.changeset(%{last_activity_at: DateTime.utc_now()})
       |> repo.update()
 
+      announce("chat.message", session, ticket, %{
+        reply_id: reply.id,
+        author_type: if(is_agent, do: "agent", else: "visitor")
+      })
+
       Broadcasting.broadcast_chat_event("chat:message", %{
         session_id: session.id,
         ticket_id: ticket.id,
@@ -195,10 +208,15 @@ defmodule Escalated.Services.ChatSessionService do
 
   @doc """
   Ends a chat session and transitions the ticket to open.
+
+  `:causer_id` is the agent who ended it. `:ended_by` (`"agent"`,
+  `"customer"` or `"system"`) is what `chat.ended` reports; it defaults to
+  `"agent"` with a causer and `"customer"` without one.
   """
   def end_session(session, opts \\ []) do
     repo = Escalated.repo()
     causer_id = Keyword.get(opts, :causer_id)
+    ended_by = Keyword.get(opts, :ended_by, if(causer_id, do: "agent", else: "customer"))
     now = DateTime.utc_now()
 
     with {:ok, updated} <-
@@ -213,13 +231,20 @@ defmodule Escalated.Services.ChatSessionService do
         |> Map.put("ended_by", causer_id)
         |> maybe_add_duration(session)
 
-      ticket
-      |> Ticket.changeset(%{
-        status: "open",
-        chat_ended_at: now,
-        chat_metadata: chat_meta
-      })
-      |> repo.update()
+      ticket =
+        ticket
+        |> Ticket.changeset(%{
+          status: "open",
+          chat_ended_at: now,
+          chat_metadata: chat_meta
+        })
+        |> repo.update()
+        |> case do
+          {:ok, saved} -> saved
+          _ -> ticket
+        end
+
+      announce("chat.ended", updated, ticket, %{ended_by: ended_by})
 
       Broadcasting.broadcast_chat_event("chat:session_ended", %{
         session_id: updated.id,
@@ -264,7 +289,7 @@ defmodule Escalated.Services.ChatSessionService do
     sessions = repo.all(ChatSession.idle_before(threshold))
 
     Enum.reduce(sessions, 0, fn session, count ->
-      case end_session(session) do
+      case end_session(session, ended_by: "system") do
         {:ok, _} -> count + 1
         _ -> count
       end
@@ -323,6 +348,25 @@ defmodule Escalated.Services.ChatSessionService do
       last_activity_at: DateTime.utc_now()
     })
     |> repo.insert()
+  end
+
+  # Sends a chat event to webhooks and workflows (Escalated.Events.emit/2).
+  # The webhook payload is the :chat map only: never the visitor's chat token,
+  # email or message body. Workflows run against the chat's ticket.
+  defp announce(event, session, ticket, extra \\ %{}) do
+    chat =
+      Map.merge(
+        %{
+          session_id: session.id,
+          ticket_id: session.ticket_id,
+          status: session.status,
+          agent_id: session.agent_id,
+          department_id: ticket.department_id
+        },
+        extra
+      )
+
+    Escalated.Events.emit(event, %{ticket: ticket, chat: chat})
   end
 
   defp broadcast_session_started(ticket, session) do
