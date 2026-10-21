@@ -49,6 +49,10 @@ defmodule Escalated.Schemas.Ticket do
     field :resolved_at, :utc_datetime
     field :closed_at, :utc_datetime
 
+    # Set when this ticket was merged into another (TicketMergeService). Not
+    # cast by changeset/2: only a merge sets it.
+    field :merged_into_id, :id
+
     belongs_to :department, Escalated.Schemas.Department
     belongs_to :sla_policy, Escalated.Schemas.SlaPolicy
 

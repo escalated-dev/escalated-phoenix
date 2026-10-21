@@ -284,25 +284,43 @@ defmodule Escalated.Services.TicketService do
     |> repo.update()
     |> case do
       {:ok, updated} ->
-        details = %{from: ticket.status, to: new_status}
-        details = if note, do: Map.put(details, :note, note), else: details
-        log_activity(updated, "status_changed", actor_id, details)
-        Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
-        Events.emit("ticket.updated", %{ticket: updated})
-
-        Events.emit("ticket.status_changed", %{
-          ticket: updated,
-          from: ticket.status,
-          actor_id: actor_id
-        })
-
-        maybe_dispatch_status_hook(updated, new_status)
-        maybe_dispatch_status_webhook(updated, new_status)
+        announce_status_change(ticket, updated, actor_id: actor_id, note: note)
         {:ok, updated}
 
       error ->
         error
     end
+  end
+
+  @doc """
+  Records and announces a status change that has already been saved:
+  the activity row, the plugin hooks, and the `ticket.updated`,
+  `ticket.status_changed` and specific (`ticket.closed`, ...) events.
+
+  `transition_status/3` calls it after its update; a service that changes the
+  status as part of a larger transaction (a merge) calls it after the commit.
+  `previous` is the ticket as it was before the change.
+  """
+  def announce_status_change(%Ticket{} = previous, %Ticket{} = updated, opts \\ []) do
+    actor_id = Keyword.get(opts, :actor_id)
+    note = Keyword.get(opts, :note)
+    new_status = updated.status
+
+    details = %{from: previous.status, to: new_status}
+    details = if note, do: Map.put(details, :note, note), else: details
+    log_activity(updated, "status_changed", actor_id, details)
+    Hooks.do_action("ticket_status_changed", [updated, previous.status, new_status])
+    Events.emit("ticket.updated", %{ticket: updated})
+
+    Events.emit("ticket.status_changed", %{
+      ticket: updated,
+      from: previous.status,
+      actor_id: actor_id
+    })
+
+    maybe_dispatch_status_hook(updated, new_status)
+    maybe_dispatch_status_webhook(updated, new_status)
+    :ok
   end
 
   @doc """
