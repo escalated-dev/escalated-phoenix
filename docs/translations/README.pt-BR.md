@@ -46,7 +46,7 @@ Adicione `escalated` à sua lista de dependências em `mix.exs`:
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.2.2"}
+    {:escalated_phoenix, "~> 0.2.3"}
   ]
 end
 ```

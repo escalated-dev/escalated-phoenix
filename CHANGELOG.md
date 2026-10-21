@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-10-21
+
+### Upgrading
+
+- Run the new migration
+  `20261021000001_add_ticket_merged_into` (adds the nullable
+  `tickets.merged_into_id` column and its index) before deploying; the ticket
+  schema reads the column.
+- Nothing is emailed until `mailer` or
+  `notification_delivery` is configured, so existing installs are unchanged.
+  Once one is set, requesters receive a confirmation for every ticket they
+  open, including tickets created from inbound email.
+- Workflows saved with a trigger nothing used to fire (for
+  example `ticket.updated` or `ticket.assigned`, which the old builder did not
+  offer but the API accepted) start running. Review inactive-looking workflows
+  before upgrading. A `ticket.updated` workflow runs on every field change an
+  agent, rule or delayed action makes; changes a workflow makes while it runs
+  still trigger no further workflows.
+
 ### Added
 
 - Live chat events (ADR 2026-10-21): `ChatSessionService` now emits
@@ -38,10 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `department`, and `delete` for admins), each ticket through the usual
   services.
 - `TicketService.announce_status_change/3`.
-- **Upgrade note (merge):** run the new migration
-  `20261021000001_add_ticket_merged_into` (adds the nullable
-  `tickets.merged_into_id` column and its index) before deploying; the ticket
-  schema reads the column.
 - Outbound notification emails, sent through the host's mailer:
   `config :escalated, mailer: MyApp.Mailer` (a Swoosh mailer) or
   `notification_delivery: &fun/1`. New ticket (requester and assignee), public
@@ -57,10 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `author: :system` (a reply with no author written by Escalated itself).
 - `Escalated.Emails.TicketEmail.notice_email/4` and
   `threading_headers_for_notice/1`.
-- **Upgrade note (emails):** nothing is emailed until `mailer` or
-  `notification_delivery` is configured, so existing installs are unchanged.
-  Once one is set, requesters receive a confirmation for every ticket they
-  open, including tickets created from inbound email.
 - Workflows run on every event this package emits, under the canonical names
   of the shared event vocabulary (escalated-developer-context
   `decisions/2026-10-21-event-vocabulary.md`): `ticket.updated`,
@@ -90,13 +101,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replies and notes written by a workflow (`add_note`, `insert_canned_reply`,
   including from a delayed action) run no workflows, so a `reply.created` or
   `note.created` workflow cannot answer itself.
-
-**Upgrade note:** workflows saved with a trigger nothing used to fire (for
-example `ticket.updated` or `ticket.assigned`, which the old builder did not
-offer but the API accepted) start running. Review inactive-looking workflows
-before upgrading. A `ticket.updated` workflow runs on every field change an
-agent, rule or delayed action makes; changes a workflow makes while it runs
-still trigger no further workflows.
 
 ## [0.2.2] - 2026-10-20
 
