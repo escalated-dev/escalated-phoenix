@@ -3,9 +3,9 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
   Admin CRUD over event-driven Workflow rows.
 
   Workflows fire automatically the moment a matching ticket lifecycle
-  event occurs (`ticket.created`, `reply.created`, `ticket.status_changed`).
-  The runner is invoked inline from `Escalated.Services.TicketService` —
-  there is no auto-emitting event bus.
+  event occurs: every event `Escalated.Events.emit/2` announces, under the
+  canonical names of decisions/2026-10-21-event-vocabulary.md. There is no
+  auto-emitting event bus; the services call `emit/2` inline.
 
   What goes over the wire (page props, the create/update body, toggle and
   reorder) is fixed by escalated-developer-context/domain-model/
@@ -217,24 +217,38 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
     end
   end
 
-  # The events this package fires: TicketService runs workflows on
-  # ticket.created, reply.created (public replies only) and
-  # ticket.status_changed. The builder offers exactly this list, so naming an
-  # event nothing emits would let an admin save a workflow that never runs.
-  # ticket.updated and ticket.assigned are canonical triggers with no emit site
-  # here yet; add them when one exists.
+  @trigger_labels %{
+    "ticket.created" => "Ticket Created",
+    "ticket.updated" => "Ticket Updated",
+    "ticket.status_changed" => "Ticket Status Changed",
+    "ticket.resolved" => "Ticket Resolved",
+    "ticket.closed" => "Ticket Closed",
+    "ticket.reopened" => "Ticket Reopened",
+    "ticket.assigned" => "Ticket Assigned",
+    "ticket.unassigned" => "Ticket Unassigned",
+    "ticket.escalated" => "Ticket Escalated",
+    "ticket.priority_changed" => "Ticket Priority Changed",
+    "ticket.department_changed" => "Ticket Department Changed",
+    "ticket.tag_added" => "Tag Added",
+    "ticket.tag_removed" => "Tag Removed",
+    "reply.created" => "Reply Created",
+    "note.created" => "Internal Note Added",
+    "sla.warning" => "SLA Warning",
+    "sla.breached" => "SLA Breached"
+  }
+
+  # The events this package fires (Escalated.Events.emitted/0), each of which
+  # runs the workflows saved against it. The builder offers exactly this list,
+  # so naming an event nothing emits would let an admin save a workflow that
+  # never runs.
   defp available_trigger_events do
-    [
-      %{value: "ticket.created", label: "Ticket Created"},
-      %{value: "reply.created", label: "Reply Created"},
-      %{value: "ticket.status_changed", label: "Ticket Status Changed"}
-    ]
+    Enum.map(Escalated.Events.emitted(), fn event ->
+      %{value: event, label: Map.get(@trigger_labels, event, event)}
+    end)
   end
 
   # The actions WorkflowExecutor runs from a saved workflow: the core catalog
-  # plus add_follower. `delay` is not offered because WorkflowRunner calls the
-  # executor without the workflow id a delay needs, so it fails and skips every
-  # action after it. `send_webhook` has no executor clause.
+  # plus add_follower and delay. `send_webhook` has no executor clause.
   defp available_action_types do
     [
       %{value: "change_status", label: "Change Status"},
@@ -245,7 +259,8 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
       %{value: "assign_agent", label: "Assign Agent"},
       %{value: "add_note", label: "Add Internal Note"},
       %{value: "insert_canned_reply", label: "Insert Canned Reply"},
-      %{value: "add_follower", label: "Add Follower"}
+      %{value: "add_follower", label: "Add Follower"},
+      %{value: "delay", label: "Delay (minutes)"}
     ]
   end
 

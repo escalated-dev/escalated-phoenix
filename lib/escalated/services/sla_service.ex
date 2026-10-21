@@ -3,8 +3,8 @@ defmodule Escalated.Services.SlaService do
   Service for SLA policy management and breach detection.
   """
 
+  alias Escalated.Events
   alias Escalated.Schemas.{SlaPolicy, Ticket, TicketActivity}
-  alias Escalated.Services.WebhookEvents
   import Ecto.Query
 
   @open_statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated reopened)
@@ -113,7 +113,7 @@ defmodule Escalated.Services.SlaService do
           due_within(repo, :sla_resolution_due_at, :resolved_at, window_start, window_end)
 
       Enum.each(warned, fn ticket ->
-        WebhookEvents.dispatch("sla.warning", %{ticket: ticket})
+        Events.emit("sla.warning", %{ticket: ticket})
       end)
 
       warned
@@ -290,7 +290,7 @@ defmodule Escalated.Services.SlaService do
 
     # After the commit, so a webhook never announces a breach that rolled back.
     case result do
-      {:ok, updated} -> WebhookEvents.dispatch("sla.breached", %{ticket: updated})
+      {:ok, updated} -> Events.emit("sla.breached", %{ticket: updated})
       _error -> :ok
     end
 

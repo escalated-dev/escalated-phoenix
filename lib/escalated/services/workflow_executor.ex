@@ -35,7 +35,15 @@ defmodule Escalated.Services.WorkflowExecutor do
   """
 
   alias Escalated.Schemas.{DelayedAction, Tag}
-  alias Escalated.Services.{AssignmentService, Followers, TicketService, WorkflowEngine}
+
+  alias Escalated.Services.{
+    AssignmentService,
+    Followers,
+    TicketService,
+    WorkflowEngine,
+    WorkflowRunner
+  }
+
   import Ecto.Query
   require Logger
 
@@ -186,7 +194,7 @@ defmodule Escalated.Services.WorkflowExecutor do
   defp do_dispatch("add_note", _ticket, ""), do: {:error, "add_note", :blank_value}
 
   defp do_dispatch("add_note", ticket, body) do
-    case TicketService.reply(ticket, %{body: body, is_internal: true, author_id: nil}) do
+    case workflow_reply(ticket, %{body: body, is_internal: true, author_id: nil}) do
       {:ok, _reply} -> {:ok, "add_note"}
       {:error, _} -> {:error, "add_note", :insert_failed}
     end
@@ -198,10 +206,16 @@ defmodule Escalated.Services.WorkflowExecutor do
   defp do_dispatch("insert_canned_reply", ticket, template) do
     body = WorkflowEngine.interpolate(template, ticket_to_map(ticket))
 
-    case TicketService.reply(ticket, %{body: body, is_internal: false, author_id: nil}) do
+    case workflow_reply(ticket, %{body: body, is_internal: false, author_id: nil}) do
       {:ok, _reply} -> {:ok, "insert_canned_reply"}
       {:error, _} -> {:error, "insert_canned_reply", :insert_failed}
     end
+  end
+
+  # A reply or note a workflow writes runs no workflows, so a reply.created or
+  # note.created workflow never answers itself, inline or from a delayed action.
+  defp workflow_reply(ticket, attrs) do
+    WorkflowRunner.without_workflows(fn -> TicketService.reply(ticket, attrs) end)
   end
 
   # `delay` is handled inline by `execute/3` because it needs the list of
@@ -226,21 +240,36 @@ defmodule Escalated.Services.WorkflowExecutor do
   @doc false
   @spec handle_delay(map(), action(), [action()], keyword()) :: execution_result()
   def handle_delay(ticket, action, remaining, opts) do
-    value = to_string(action["value"] || "")
     workflow_id = Keyword.get(opts, :workflow_id)
 
-    if is_nil(workflow_id) do
-      {:error, "delay", :no_workflow_id}
-    else
-      case Integer.parse(value) do
-        {minutes, ""} when minutes > 0 ->
-          persist_delayed_actions(workflow_id, ticket, remaining, minutes)
+    cond do
+      is_nil(workflow_id) ->
+        {:error, "delay", :no_workflow_id}
 
-        _ ->
-          {:error, "delay", :invalid_minutes}
-      end
+      minutes = delay_minutes(action["value"]) ->
+        persist_delayed_actions(workflow_id, ticket, remaining, minutes)
+
+      true ->
+        {:error, "delay", :invalid_minutes}
     end
   end
+
+  # The builder sends the minutes as a number; older workflows stored a string
+  # or `{"minutes": n}`. Returns nil unless it is a positive whole number.
+  defp delay_minutes(%{"minutes" => minutes}), do: delay_minutes(minutes)
+  defp delay_minutes(minutes) when is_integer(minutes) and minutes > 0, do: minutes
+
+  defp delay_minutes(minutes) when is_float(minutes) and minutes > 0,
+    do: delay_minutes(trunc(minutes))
+
+  defp delay_minutes(minutes) when is_binary(minutes) do
+    case Integer.parse(String.trim(minutes)) do
+      {int, ""} -> delay_minutes(int)
+      _ -> nil
+    end
+  end
+
+  defp delay_minutes(_), do: nil
 
   defp persist_delayed_actions(workflow_id, ticket, remaining, minutes) do
     execute_at =

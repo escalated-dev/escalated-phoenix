@@ -3,11 +3,11 @@ defmodule Escalated.Services.WorkflowEngine do
 
   @operators ~w(equals not_equals contains not_contains starts_with ends_with greater_than less_than greater_or_equal less_or_equal is_empty is_not_empty)
   @action_types ~w(change_status assign_agent change_priority add_tag remove_tag set_department add_note send_webhook set_type delay add_follower send_notification)
-  @trigger_events ~w(ticket.created ticket.updated ticket.status_changed ticket.assigned ticket.priority_changed ticket.tagged ticket.department_changed reply.created reply.agent_reply sla.warning sla.breached ticket.reopened)
 
   def operators, do: @operators
   def action_types, do: @action_types
-  def trigger_events, do: @trigger_events
+  @doc "The events workflows run on: the canonical names this package emits."
+  def trigger_events, do: Escalated.Events.emitted()
 
   def evaluate_conditions(%{"all" => conditions}, ticket) when is_list(conditions) do
     Enum.all?(conditions, &evaluate_single(&1, ticket))

@@ -19,6 +19,70 @@ defmodule Escalated.Services.WorkflowRunner do
   import Ecto.Query
   require Logger
 
+  @doc """
+  Run the workflows for `trigger_event` on behalf of a lifecycle event, as
+  `Escalated.Events.emit/2` does.
+
+  Phoenix has no application event bus, so the runner is invoked inline from
+  the site that changed the ticket. Two safeguards keep a misbehaving workflow
+  from breaking that change:
+
+    1. Re-entrancy guard. Workflow actions (`add_note`, `change_status`, ...)
+       change the ticket through the same services, which emit further events.
+       A process-scoped flag lets only the outermost event run workflows;
+       events raised while workflows run (or inside `without_workflows/1`) run
+       none, so a workflow cannot trigger itself without end.
+    2. Rescue. A crash in the engine is logged and swallowed, so the ticket
+       operation that emitted the event still succeeds.
+  """
+  def run_guarded(trigger_event, ticket) do
+    key = guard_key()
+
+    if Process.get(key) do
+      :ok
+    else
+      Process.put(key, true)
+
+      try do
+        run_for_event(trigger_event, ticket)
+      rescue
+        error ->
+          Logger.error(
+            "[WorkflowRunner] workflow engine crashed for #{trigger_event} on ticket ##{ticket.id}: " <>
+              Exception.message(error)
+          )
+      after
+        Process.delete(key)
+      end
+
+      :ok
+    end
+  end
+
+  @doc """
+  Run `fun` with workflows switched off for events it raises, the way they are
+  while a workflow's own actions run. Used for the replies and notes a
+  workflow writes, so a `reply.created` / `note.created` workflow never answers
+  itself, including when a delayed action writes it later.
+  """
+  def without_workflows(fun) when is_function(fun, 0) do
+    key = guard_key()
+
+    if Process.get(key) do
+      fun.()
+    else
+      Process.put(key, true)
+
+      try do
+        fun.()
+      after
+        Process.delete(key)
+      end
+    end
+  end
+
+  defp guard_key, do: {:escalated_workflows_running, Escalated.Tenancy.current_id!()}
+
   @type execution_outcome ::
           {:matched_and_executed, [any()]}
           | {:matched_and_failed, String.t()}
@@ -55,8 +119,12 @@ defmodule Escalated.Services.WorkflowRunner do
   defp load_active_workflows(trigger_event) do
     repo = Escalated.repo()
 
+    # A workflow saved under a legacy name (`ticket.replied`, `ticket.tagged`,
+    # ...) still runs on its canonical event.
+    names = Escalated.Events.names_for(trigger_event)
+
     from(w in Workflow,
-      where: w.trigger_event == ^trigger_event and w.is_active == true,
+      where: w.trigger_event in ^names and w.is_active == true,
       order_by: [asc: w.position]
     )
     |> repo.all()
@@ -115,7 +183,7 @@ defmodule Escalated.Services.WorkflowRunner do
     do: WorkflowEngine.evaluate_conditions(conditions, condition_map)
 
   defp execute_safely(ticket, %Workflow{} = wf) do
-    {:ok, _actions, results} = WorkflowExecutor.execute(ticket, wf.actions)
+    {:ok, _actions, results} = WorkflowExecutor.execute(ticket, wf.actions, workflow_id: wf.id)
     {:ok, results}
   rescue
     e -> {:error, Exception.message(e)}
@@ -138,6 +206,9 @@ defmodule Escalated.Services.WorkflowRunner do
 
       {:error, type, reason} ->
         %{"type" => type, "status" => "error", "reason" => to_string(reason)}
+
+      {:deferred, count} ->
+        %{"type" => "delay", "status" => "deferred", "deferred_actions" => count}
 
       other ->
         %{"raw" => inspect(other)}

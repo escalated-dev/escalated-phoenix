@@ -13,25 +13,9 @@ defmodule Escalated.Controllers.Admin.WebhookController do
   alias Escalated.Services.WebhookDispatcher
   alias Escalated.Webhooks
 
-  @available_events [
-    "ticket.created",
-    "ticket.updated",
-    "ticket.status_changed",
-    "ticket.resolved",
-    "ticket.closed",
-    "ticket.reopened",
-    "ticket.assigned",
-    "ticket.unassigned",
-    "ticket.escalated",
-    "ticket.priority_changed",
-    "ticket.department_changed",
-    "reply.created",
-    "note.created",
-    "sla.breached",
-    "sla.warning",
-    "ticket.tag_added",
-    "ticket.tag_removed"
-  ]
+  # The canonical names this package emits (decisions/2026-10-21-event-vocabulary.md).
+  # Legacy names are still honoured on stored webhooks but never offered.
+  @available_events Escalated.Events.emitted()
 
   def index(conn, _params) do
     UIRenderer.render_page(conn, "Escalated/Admin/Webhooks/Index", %{

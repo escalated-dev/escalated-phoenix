@@ -3,9 +3,10 @@ defmodule Escalated.Services.TicketService do
   Core service for ticket operations: create, reply, status transitions, etc.
   """
 
+  alias Escalated.Events
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.{GuestAccess, MentionService, WebhookEvents, WorkflowRunner}
+  alias Escalated.Services.{GuestAccess, MentionService}
   import Ecto.Query
   require Logger
 
@@ -76,8 +77,7 @@ defmodule Escalated.Services.TicketService do
     log_activity(ticket, "created", nil, %{})
     maybe_attach_sla(ticket)
     Hooks.do_action("ticket_created", [ticket])
-    WebhookEvents.dispatch("ticket.created", %{ticket: ticket})
-    run_workflows("ticket.created", ticket)
+    Events.emit("ticket.created", %{ticket: ticket})
   end
 
   # A 40-bit reference collides about once in 2^40 draws, so two collisions in
@@ -216,14 +216,10 @@ defmodule Escalated.Services.TicketService do
         # requester, not other agents). Mirrors the Laravel reference.
         if reply.is_internal, do: process_mentions(reply, ticket)
 
-        webhook_event = if reply.is_internal, do: "note.created", else: "reply.created"
-        WebhookEvents.dispatch(webhook_event, %{ticket: ticket, reply: reply})
-
-        # Only public replies fire the `reply.created` Workflow trigger;
-        # internal notes have no canonical trigger (and firing on them would
-        # let an `add_note` action recurse). See developer-context
-        # domain-model/workflows-automations-macros.md.
-        unless reply.is_internal, do: run_workflows("reply.created", ticket)
+        # Replies and notes a workflow writes run no workflows (see
+        # WorkflowRunner.without_workflows/1), so neither event can recurse.
+        event = if reply.is_internal, do: "note.created", else: "reply.created"
+        Events.emit(event, %{ticket: ticket, reply: reply})
 
         {:ok, reply}
 
@@ -276,11 +272,10 @@ defmodule Escalated.Services.TicketService do
         details = if note, do: Map.put(details, :note, note), else: details
         log_activity(updated, "status_changed", actor_id, details)
         Hooks.do_action("ticket_status_changed", [updated, ticket.status, new_status])
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
-        WebhookEvents.dispatch("ticket.status_changed", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.status_changed", %{ticket: updated})
         maybe_dispatch_status_hook(updated, new_status)
         maybe_dispatch_status_webhook(updated, new_status)
-        run_workflows("ticket.status_changed", updated)
         {:ok, updated}
 
       error ->
@@ -307,8 +302,8 @@ defmodule Escalated.Services.TicketService do
         })
 
         Hooks.do_action("ticket_priority_changed", [updated, ticket.priority, new_priority])
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
-        WebhookEvents.dispatch("ticket.priority_changed", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.priority_changed", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -342,8 +337,8 @@ defmodule Escalated.Services.TicketService do
           to_name: department.name
         })
 
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
-        WebhookEvents.dispatch("ticket.department_changed", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.department_changed", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -374,7 +369,7 @@ defmodule Escalated.Services.TicketService do
         log_activity(updated, "tags_added", actor_id, %{tag_ids: Enum.map(new_tags, & &1.id)})
 
         Enum.each(new_tags, fn tag ->
-          WebhookEvents.dispatch("ticket.tag_added", %{ticket: updated, tag: tag})
+          Events.emit("ticket.tag_added", %{ticket: updated, tag: tag})
         end)
 
         {:ok, updated}
@@ -405,7 +400,7 @@ defmodule Escalated.Services.TicketService do
 
         # Only tags the ticket actually had: removing an absent tag changes nothing.
         Enum.each(removed, fn tag ->
-          WebhookEvents.dispatch("ticket.tag_removed", %{ticket: updated, tag: tag})
+          Events.emit("ticket.tag_removed", %{ticket: updated, tag: tag})
         end)
 
         {:ok, updated}
@@ -452,7 +447,7 @@ defmodule Escalated.Services.TicketService do
           previous_status: ticket.status
         })
 
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -579,7 +574,7 @@ defmodule Escalated.Services.TicketService do
           restored_status: restore_status
         })
 
-        WebhookEvents.dispatch("ticket.updated", %{ticket: updated})
+        Events.emit("ticket.updated", %{ticket: updated})
         {:ok, updated}
 
       error ->
@@ -659,50 +654,10 @@ defmodule Escalated.Services.TicketService do
 
   # Private helpers
 
-  # Fire event-driven Workflows for a ticket lifecycle event.
-  #
-  # Phoenix has no application event bus, so the runner is invoked inline
-  # from the lifecycle site (the canonical "Phoenix uses explicit helpers,
-  # no auto-emit" bridge — see escalated-developer-context
-  # domain-model/workflows-automations-macros.md).
-  #
-  # Two safeguards keep a misbehaving workflow from breaking the mutation
-  # that triggered it:
-  #
-  #   1. Re-entrancy guard. Workflow actions (`add_note`, `change_status`,
-  #      `insert_canned_reply`, ...) mutate the ticket through this same
-  #      service, which would otherwise fire further workflows and could
-  #      loop forever. A process-scoped flag ensures only the top-level
-  #      lifecycle event runs the engine; nested runs are suppressed.
-  #   2. Rescue. Any crash in the engine is logged and swallowed so the
-  #      underlying ticket operation still succeeds.
-  defp run_workflows(trigger_event, %Ticket{} = ticket) do
-    workflow_key = {:escalated_workflows_running, Escalated.Tenancy.current_id!()}
-
-    if Process.get(workflow_key) do
-      :ok
-    else
-      Process.put(workflow_key, true)
-
-      try do
-        WorkflowRunner.run_for_event(trigger_event, ticket)
-      rescue
-        error ->
-          Logger.error(
-            "[TicketService] workflow engine crashed for #{trigger_event} on ticket ##{ticket.id}: #{Exception.message(error)}"
-          )
-      after
-        Process.delete(workflow_key)
-      end
-
-      :ok
-    end
-  end
-
   # Extract, resolve and record @mentions in an internal note, delegating
   # delivery to the host via the `agent_mentioned` hook. Rescued so a bad
   # mention resolution can never break the note insert that triggered it
-  # (same safety contract as `run_workflows/2`).
+  # (same safety contract as `WorkflowRunner.run_guarded/2`).
   defp process_mentions(reply, ticket) do
     MentionService.process_reply_mentions(reply, ticket)
     :ok
@@ -729,12 +684,12 @@ defmodule Escalated.Services.TicketService do
   defp status_hook("reopened"), do: "ticket_reopened"
   defp status_hook(_status), do: nil
 
-  # Fire the specialized webhook event for terminal, reopen and escalation
-  # transitions, in addition to the generic ticket.status_changed event.
+  # Emit the specific event for terminal, reopen and escalation transitions,
+  # in addition to the generic ticket.status_changed event.
   defp maybe_dispatch_status_webhook(ticket, status) do
     case status_webhook_event(status) do
       nil -> :ok
-      event -> WebhookEvents.dispatch(event, %{ticket: ticket})
+      event -> Events.emit(event, %{ticket: ticket})
     end
   end
 
