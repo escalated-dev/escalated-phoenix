@@ -191,6 +191,11 @@ defmodule Escalated.Router do
 
           get "/dashboard", DashboardController, :index
           get "/tickets", TicketController, :index
+
+          # The shared BulkActionBar (escalated.agent.tickets.bulk). Declared
+          # ahead of the :reference routes; `alias: false` because the
+          # controller is shared with the admin scope.
+          post "/tickets/bulk", Escalated.Controllers.BulkActionController, :bulk, alias: false
           get "/tickets/:reference", TicketController, :show
           post "/tickets/:reference/reply", TicketController, :reply
           post "/tickets/:reference/note", TicketController, :note
@@ -225,6 +230,14 @@ defmodule Escalated.Router do
           pipe_through Escalated.Plugs.EnsureAdmin
 
           get "/tickets", TicketController, :index
+
+          # Ticket merge (the shared TicketMergeDialog) and bulk actions
+          # (BulkActionBar). merge-search is declared ahead of
+          # /tickets/:reference so the literal segment is never read as a
+          # reference.
+          get "/tickets/merge-search", TicketMergeController, :search
+          post "/tickets/bulk", Escalated.Controllers.BulkActionController, :bulk, alias: false
+          post "/tickets/:reference/merge", TicketMergeController, :merge
           get "/tickets/:reference", TicketController, :show
           post "/tickets/:reference/reply", TicketController, :reply
           post "/tickets/:reference/note", TicketController, :note

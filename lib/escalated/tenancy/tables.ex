@@ -399,6 +399,7 @@ defmodule Escalated.Tenancy.Tables do
       local_refs: %{
         contact_id: {"contacts", :id},
         department_id: {"departments", :id},
+        merged_into_id: {"tickets", :id},
         sla_policy_id: {"sla_policies", :id}
       },
       host_refs: [:assigned_to, :snoozed_by],

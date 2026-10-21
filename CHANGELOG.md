@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ticket merge, as escalated-laravel's `TicketMergeService`:
+  `Escalated.Services.TicketMergeService.merge/3` moves the source's replies
+  and notes (and their attachments) to the target, adds a system note to both
+  tickets, and closes the source with `merged_into_id` set, in one
+  transaction; the close is then announced like any status change
+  (`ticket.status_changed`, `ticket.closed`). Self-merges, re-merges and
+  merges into a merged ticket are refused. Admin routes for the shared merge
+  dialog: `GET {prefix}/admin/tickets/merge-search?q=` and
+  `POST {prefix}/admin/tickets/:reference/merge` (`target_reference`).
+- Bulk ticket actions for the shared `BulkActionBar`:
+  `POST {prefix}/admin/tickets/bulk` and `POST {prefix}/agent/tickets/bulk`
+  with `{ticket_ids, action, value}` (`status`, `priority`, `assign`, `tags`,
+  `department`, and `delete` for admins), each ticket through the usual
+  services.
+- `TicketService.announce_status_change/3`.
+- **Upgrade note (merge):** run the new migration
+  `20261021000001_add_ticket_merged_into` (adds the nullable
+  `tickets.merged_into_id` column and its index) before deploying; the ticket
+  schema reads the column.
 - Outbound notification emails, sent through the host's mailer:
   `config :escalated, mailer: MyApp.Mailer` (a Swoosh mailer) or
   `notification_delivery: &fun/1`. New ticket (requester and assignee), public
