@@ -30,6 +30,10 @@ defmodule Escalated.Services.EscalationService do
   """
   @spec evaluate_rules(module()) :: non_neg_integer()
   def evaluate_rules(repo) when is_atom(repo) do
+    if Escalated.Import.Context.importing?(), do: 0, else: do_evaluate_rules(repo)
+  end
+
+  defp do_evaluate_rules(repo) do
     repo = Escalated.Tenancy.scoped_repo(repo)
 
     rules =

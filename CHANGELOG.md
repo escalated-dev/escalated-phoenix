@@ -9,6 +9,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The admin Import wizard and the import framework behind it, as
+  escalated-laravel's. The shared `Admin/Import/Index`, `Connect`, `Mapping`,
+  `Review` and `Progress` pages render on Laravel's paths and props:
+  `GET {prefix}/admin/import`, `GET /admin/import/:platform/connect`,
+  `POST /admin/import/:platform/test-connection` (`{success[, error]}`, 422
+  when the source raises), `GET /admin/import/:platform/mapping`,
+  `POST /admin/import/:platform/review` (writes nothing),
+  `POST /admin/import/:platform/start`, `GET /admin/import/progress/:job_id`,
+  `GET /admin/import/status/:job_id` and
+  `POST /admin/import/{pause,resume,cancel}/:job_id`. Admin only.
+  - Sources are modules implementing the `Escalated.ImportAdapter` behaviour,
+    added to the `"import.adapters"` filter (config `:filters` or an active
+    plugin's `handle_filter/3`). Core ships none: a Zendesk or Freshdesk
+    adapter comes from the host or a plugin.
+  - `Escalated.Schemas.ImportJob` (status machine, per-entity progress and
+    cursors, error log, sealed credentials) and `ImportSourceMap`, and
+    `Escalated.Services.ImportService`, which skips what is already mapped (so
+    a paused, failed or interrupted run resumes without duplicates), resolves
+    references through the map and stops between batches when the job is
+    paused or cancelled. Contacts the host has as users import as those users;
+    others become `Escalated.Schemas.Contact`s on guest tickets.
+  - Tested credentials wait in the session, sealed with a key derived from
+    `:import_secret` (or `:guest_access_secret`), until the import starts, and
+    are never sent to the browser. A completed or cancelled job drops them.
+  - Runs are tasks under `Escalated.ImportTaskSupervisor`, carrying the
+    request's tenant. Set `:import_dispatcher` to a 1-arity function to hand
+    the job id to your own queue and call `Escalated.Import.Runner.run/1` there.
+  - Import mode (`Escalated.Import.Context`, per process) holds back SLA
+    attachment, breach and warning checks, escalation rules and automations.
+
 - Custom ticket statuses (`Escalated.Schemas.TicketStatus`): admin-defined
   sub-statuses of five categories, `new`, `open`, `pending`, `on_hold` and
   `solved`. All lifecycle logic keys off the category: giving a ticket a
@@ -243,6 +273,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
+- Run the migrations: `20261025000101_create_import_tables` adds
+  `import_jobs` and `import_source_maps`, both tenant-owned.
+- Set `:import_secret` (32 bytes or more) unless `:guest_access_secret` is set;
+  starting an import refuses without one.
 - Run the new migration `20261024000001_create_ticket_statuses`: it creates
   `ticket_statuses` (with one system row per built-in status for the
   single-tenant namespace; a merchant namespace gets its rows when its admin

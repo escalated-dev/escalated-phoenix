@@ -76,7 +76,14 @@ defmodule PhoenixTenancyMigrationProbe do
     legacy_tables =
       Escalated.Tenancy.Tables.entries()
       |> Enum.reject(
-        &(&1.name in ["guest_challenges", "guest_grants", "department_agent", "ticket_statuses"])
+        &(&1.name in [
+            "guest_challenges",
+            "guest_grants",
+            "department_agent",
+            "ticket_statuses",
+            "import_jobs",
+            "import_source_maps"
+          ])
       )
       |> Enum.map(&Escalated.table_name(&1.name))
 
