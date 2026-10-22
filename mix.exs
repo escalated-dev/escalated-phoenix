@@ -96,7 +96,8 @@ defmodule Escalated.MixProject do
       extras: [
         "README.md",
         "docs/merchant-and-guest-access.md",
-        "docs/embedding-the-widget.md"
+        "docs/embedding-the-widget.md",
+        "docs/api-tokens.md"
       ]
     ]
   end

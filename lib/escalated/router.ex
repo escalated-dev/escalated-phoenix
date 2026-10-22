@@ -410,6 +410,13 @@ defmodule Escalated.Router do
           patch "/users/:user_id/role", UserController, :update_role
 
           # Roles and the permissions they grant (Laravel's resource routes).
+          # API tokens for the JSON ticket API (Admin/ApiTokens/Index).
+          get "/api-tokens", ApiTokenController, :index
+          post "/api-tokens", ApiTokenController, :create
+          patch "/api-tokens/:id", ApiTokenController, :update
+          put "/api-tokens/:id", ApiTokenController, :update
+          delete "/api-tokens/:id", ApiTokenController, :delete
+
           get "/roles/create", RoleController, :new
           get "/roles/:id/edit", RoleController, :edit
           resources "/roles", RoleController, only: [:index, :create, :update, :delete]
