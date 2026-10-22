@@ -167,7 +167,10 @@ defmodule Escalated.Tenancy.Tables do
     %{
       name: "departments",
       schema: Escalated.Schemas.Department,
-      local_refs: %{default_sla_policy_id: {"sla_policies", :id}},
+      local_refs: %{
+        default_sla_policy_id: {"sla_policies", :id},
+        business_schedule_id: {"business_schedules", :id}
+      },
       host_refs: [],
       unique_keys: [[:name], [:slug]]
     },
@@ -346,7 +349,10 @@ defmodule Escalated.Tenancy.Tables do
     %{
       name: "sla_policies",
       schema: Escalated.Schemas.SlaPolicy,
-      local_refs: %{department_id: {"departments", :id}},
+      local_refs: %{
+        department_id: {"departments", :id},
+        business_schedule_id: {"business_schedules", :id}
+      },
       host_refs: [],
       unique_keys: [[:name]]
     },

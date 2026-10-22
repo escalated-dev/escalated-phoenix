@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Business hours and holidays (escalated-laravel's `BusinessSchedule`,
+  `Holiday` and `BusinessHoursCalculator`). A schedule has a time zone, opening
+  hours per weekday and holidays (one date, or every year on that day).
+  - SLA deadlines count against a schedule when business hours apply
+    (`sla.business_hours_only`): the policy's `business_schedule_id`, else the
+    ticket department's, else the default schedule. With no schedule set up,
+    the configured `sla.business_hours` apply exactly as before.
+  - `Escalated.Services.BusinessHoursCalculator` counts business time in the
+    schedule's zone: weekends and holidays are skipped, a ticket that arrives
+    after hours starts at the next opening, `24:00` closes at midnight, an end
+    before the start is an overnight shift, and daylight-saving days are
+    measured in real time. A schedule with no opening hours at all falls back
+    to calendar time.
+  - `Admin/BusinessHours/Index` and `Form` render at `/admin/business-hours`,
+    `/create` and `/:id/edit` with Laravel's props (`schedules` with their
+    `holidays`, `schedule`, `timezones`). Store and update take `name`,
+    `timezone`, `is_default`, `schedule` and `holidays`; making a schedule the
+    default unsets the previous one, update replaces the holidays, and delete
+    clears the schedule from policies and departments.
+  - SLA policies and departments take `business_schedule_id`; a save that does
+    not send it leaves it alone.
+
 ### Fixed
 
 - The ticket pages now get the props the shared Vue pages read
@@ -109,8 +133,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Filters: `user_id`, `action`, `auditable_type`, `date_from`, `date_to`.
   - `users` lists the people who appear in the log, not every host user.
 - Not rendered, because this backend has no such feature:
-  - `Admin/BusinessHours/*`. Business hours are package configuration here;
-    the schedule and holiday tables are not used.
   - `Admin/CustomFields/*` and `Admin/CustomObjects/*`. They exist as tables
     only.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
@@ -134,6 +156,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
+- Run the new migration `20261022000001_add_business_schedule_refs` (adds the
+  nullable `business_schedule_id` to SLA policies and departments). Nothing
+  changes until a schedule exists: deadlines keep the configured hours.
+  Once a schedule is marked default, business-hours deadlines use it.
+- The package now depends on `tz` for time zone data. It is passed to the
+  calculator explicitly and does not replace the host's time zone database.
 - A policy's `business_hours_only` is reported from the package-wide
   `sla.business_hours_only` setting; a value posted with a policy is not
   stored, as business hours are not per policy here.
