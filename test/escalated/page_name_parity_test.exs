@@ -32,9 +32,6 @@ defmodule Escalated.PageNameParityTest do
   @not_yet_rendered ~w(
     Escalated/Admin/ApiTokens/Index
     Escalated/Admin/Reports/AgentDetail
-    Escalated/Admin/Settings/DatabaseConnection
-    Escalated/Admin/Settings/EmailSettings
-    Escalated/Admin/Settings/PublicTickets
     Escalated/Admin/Settings/Sandbox
     Escalated/Admin/Settings/SsoSettings
     Escalated/Admin/Settings/TwoFactor

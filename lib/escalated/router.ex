@@ -429,6 +429,16 @@ defmodule Escalated.Router do
           get "/settings/data-retention", DataRetentionController, :index
           post "/settings/data-retention", DataRetentionController, :update
 
+          # Read-only view of the repo Escalated's tables live on; the
+          # connection is set in config, so update only says so.
+          get "/settings/database", DatabaseConnectionController, :index
+          post "/settings/database/test", DatabaseConnectionController, :test
+          post "/settings/database", DatabaseConnectionController, :update
+
+          # Support email addresses and the default reply address.
+          get "/settings/email", EmailSettingsController, :index
+          post "/settings/email", EmailSettingsController, :update
+
           # Event-driven admin Workflows (fired inline from TicketService on
           # ticket lifecycle events — distinct from time-based Automations
           # and agent-applied Macros; see escalated-developer-context).
@@ -488,6 +498,8 @@ defmodule Escalated.Router do
           post "/webhook-deliveries/:id/retry", WebhookController, :retry
 
           get "/settings/public-tickets", SettingsController, :public_tickets
+          # The shared page posts; PUT is kept for existing clients.
+          post "/settings/public-tickets", SettingsController, :update_public_tickets
           put "/settings/public-tickets", SettingsController, :update_public_tickets
 
           if Application.compile_env(:escalated, :enable_newsletters, false) do
