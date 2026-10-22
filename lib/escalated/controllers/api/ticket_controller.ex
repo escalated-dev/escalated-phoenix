@@ -12,7 +12,8 @@ defmodule Escalated.Controllers.Api.TicketController do
     AssignmentService,
     CustomFieldService,
     TicketActionRegistry,
-    TicketService
+    TicketService,
+    TicketStatusService
   }
 
   def index(conn, params) do
@@ -50,6 +51,7 @@ defmodule Escalated.Controllers.Api.TicketController do
             updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
           }
           |> Map.merge(TicketSerializer.computed_fields(t))
+          |> Map.merge(TicketStatusService.ticket_fields(t))
         end)
     })
   end
@@ -206,6 +208,7 @@ defmodule Escalated.Controllers.Api.TicketController do
     }
     |> Map.merge(TicketSerializer.computed_fields(t))
     |> Map.merge(TicketSerializer.detail_fields(t))
+    |> Map.merge(TicketStatusService.ticket_fields(t))
   end
 
   defp serialize_custom_actions(ticket, user) do

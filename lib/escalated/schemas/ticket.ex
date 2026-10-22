@@ -56,6 +56,12 @@ defmodule Escalated.Schemas.Ticket do
     belongs_to :department, Escalated.Schemas.Department
     belongs_to :sla_policy, Escalated.Schemas.SlaPolicy
 
+    # The custom status (Escalated.Schemas.TicketStatus), if any. `status`
+    # stays the built-in status every lifecycle rule reads. Not cast by
+    # changeset/2: TicketService.transition_status/3 sets it, and any other
+    # change of `status` clears it.
+    belongs_to :ticket_status, Escalated.Schemas.TicketStatus
+
     has_many :replies, Escalated.Schemas.Reply
     has_many :activities, Escalated.Schemas.TicketActivity
     has_many :attachments, Escalated.Schemas.Attachment
@@ -114,6 +120,7 @@ defmodule Escalated.Schemas.Ticket do
     |> validate_inclusion(:ticket_type, @ticket_types ++ [nil])
     |> unique_constraint(:reference)
     |> maybe_set_reference()
+    |> clear_custom_status_on_status_change()
   end
 
   # Crockford's base32: the digits and the uppercase letters without I, L, O and
@@ -241,6 +248,15 @@ defmodule Escalated.Schemas.Ticket do
   end
 
   # Private
+
+  # A built-in status set by any path (snooze, merge, chat, ...) replaces the
+  # custom one. transition_status/3 puts ticket_status_id after this.
+  defp clear_custom_status_on_status_change(changeset) do
+    if changeset.data.__meta__.state == :loaded and get_change(changeset, :status) != nil and
+         get_field(changeset, :ticket_status_id) != nil,
+       do: put_change(changeset, :ticket_status_id, nil),
+       else: changeset
+  end
 
   defp maybe_set_reference(changeset) do
     case get_field(changeset, :reference) do

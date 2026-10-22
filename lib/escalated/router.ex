@@ -329,6 +329,13 @@ defmodule Escalated.Router do
           resources "/custom-fields", CustomFieldController,
             only: [:index, :create, :update, :delete]
 
+          # Custom ticket statuses (escalated.admin.statuses.*, Laravel's
+          # paths).
+          get "/statuses/create", StatusController, :new
+          get "/statuses/:id/edit", StatusController, :edit
+
+          resources "/statuses", StatusController, only: [:index, :create, :update, :delete]
+
           get "/custom-objects/create", CustomObjectController, :new
           get "/custom-objects/:id/edit", CustomObjectController, :edit
           get "/custom-objects/:id/records", CustomObjectController, :records

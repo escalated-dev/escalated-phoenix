@@ -5,8 +5,15 @@ defmodule Escalated.Services.TicketService do
 
   alias Escalated.Events
   alias Escalated.Plugins.Hooks
-  alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.{CustomFieldService, GuestAccess, MentionService}
+  alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity, TicketStatus}
+
+  alias Escalated.Services.{
+    CustomFieldService,
+    GuestAccess,
+    MentionService,
+    TicketStatusService
+  }
+
   import Ecto.Query
   require Logger
 
@@ -314,7 +321,10 @@ defmodule Escalated.Services.TicketService do
   end
 
   @doc """
-  Transitions a ticket to a new status.
+  Transitions a ticket to a new status: a built-in status, or a custom
+  status's slug (`Escalated.Schemas.TicketStatus`). A custom status sets the
+  built-in status to its category's anchor and records itself in
+  `ticket_status_id`; a built-in status clears `ticket_status_id`.
   """
   def transition_status(ticket, new_status, opts \\ []) do
     Escalated.TicketVisibility.assert_record!(ticket)
@@ -322,28 +332,52 @@ defmodule Escalated.Services.TicketService do
     actor_id = Keyword.get(opts, :actor_id)
     note = Keyword.get(opts, :note)
 
-    updates = %{status: new_status}
+    {new_status, custom} = status_target(new_status)
+
+    # A move between custom statuses with the same anchor keeps the
+    # lifecycle stamps and does not repeat ticket.resolved and the like.
+    sub_status_move? = custom != nil and new_status == ticket.status
 
     updates =
-      case new_status do
-        "resolved" -> Map.put(updates, :resolved_at, DateTime.utc_now())
-        "closed" -> Map.put(updates, :closed_at, DateTime.utc_now())
-        "reopened" -> Map.merge(updates, %{resolved_at: nil, closed_at: nil})
-        _ -> updates
-      end
+      if sub_status_move?,
+        do: %{status: new_status},
+        else: Map.merge(%{status: new_status}, status_stamps(new_status))
 
     ticket
     |> Ticket.changeset(updates)
+    |> Ecto.Changeset.put_change(:ticket_status_id, custom && custom.id)
     |> repo.update()
     |> case do
       {:ok, updated} ->
-        announce_status_change(ticket, updated, actor_id: actor_id, note: note)
+        announce_status_change(ticket, updated,
+          actor_id: actor_id,
+          note: note,
+          custom_status: custom && custom.slug,
+          sub_status_move: sub_status_move?
+        )
+
         {:ok, updated}
 
       error ->
         error
     end
   end
+
+  # A custom status's slug sets the built-in status to its category's anchor
+  # and records the custom status; a built-in status clears it. An unknown
+  # value is passed on for the changeset to reject.
+  defp status_target(value) do
+    case TicketStatusService.resolve(value) do
+      {:custom, status} -> {TicketStatus.anchor(status.category), status}
+      {:builtin, status} -> {status, nil}
+      :unknown -> {value, nil}
+    end
+  end
+
+  defp status_stamps("resolved"), do: %{resolved_at: DateTime.utc_now()}
+  defp status_stamps("closed"), do: %{closed_at: DateTime.utc_now()}
+  defp status_stamps("reopened"), do: %{resolved_at: nil, closed_at: nil}
+  defp status_stamps(_status), do: %{}
 
   @doc """
   Records and announces a status change that has already been saved:
@@ -361,6 +395,13 @@ defmodule Escalated.Services.TicketService do
 
     details = %{from: previous.status, to: new_status}
     details = if note, do: Map.put(details, :note, note), else: details
+
+    details =
+      case Keyword.get(opts, :custom_status) do
+        nil -> details
+        slug -> Map.put(details, :custom_status, slug)
+      end
+
     log_activity(updated, "status_changed", actor_id, details)
     Hooks.do_action("ticket_status_changed", [updated, previous.status, new_status])
     Events.emit("ticket.updated", %{ticket: updated})
@@ -371,8 +412,11 @@ defmodule Escalated.Services.TicketService do
       actor_id: actor_id
     })
 
-    maybe_dispatch_status_hook(updated, new_status)
-    maybe_dispatch_status_webhook(updated, new_status)
+    unless Keyword.get(opts, :sub_status_move, false) do
+      maybe_dispatch_status_hook(updated, new_status)
+      maybe_dispatch_status_webhook(updated, new_status)
+    end
+
     :ok
   end
 
@@ -697,7 +741,7 @@ defmodule Escalated.Services.TicketService do
 
     query =
       Ticket
-      |> maybe_filter(:status, filters)
+      |> maybe_status(filters)
       |> maybe_filter(:priority, filters)
       |> maybe_filter(:department_id, filters)
       |> maybe_filter(:assigned_to, filters)
@@ -820,6 +864,17 @@ defmodule Escalated.Services.TicketService do
       value -> from(t in query, where: field(t, ^key) == ^value)
     end
   end
+
+  # A custom status's slug filters by the custom status; anything else by the
+  # built-in status, as before.
+  defp maybe_status(query, %{status: value} = filters) when is_binary(value) do
+    case TicketStatusService.resolve(value) do
+      {:custom, status} -> from(t in query, where: t.ticket_status_id == ^status.id)
+      _ -> maybe_filter(query, :status, filters)
+    end
+  end
+
+  defp maybe_status(query, filters), do: maybe_filter(query, :status, filters)
 
   defp maybe_search(query, %{search: term}) when is_binary(term) and term != "" do
     Ticket.search(query, term)

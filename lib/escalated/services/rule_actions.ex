@@ -12,12 +12,13 @@ defmodule Escalated.Services.RuleActions do
   # `{:error, reason}`.
 
   alias Escalated.Schemas.{Department, Ticket}
-  alias Escalated.Services.{AssignmentService, TicketService}
+  alias Escalated.Services.{AssignmentService, TicketService, TicketStatusService}
 
+  # `value` is a built-in status or a custom status's slug.
   def change_status(%Ticket{} = ticket, value, opts \\ []) do
     status = to_string(value)
 
-    if ticket.status == status,
+    if TicketStatusService.current?(ticket, status),
       do: {:ok, ticket},
       else: TicketService.transition_status(ticket, status, opts)
   end

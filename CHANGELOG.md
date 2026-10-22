@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Custom ticket statuses (`Escalated.Schemas.TicketStatus`): admin-defined
+  sub-statuses of five categories, `new`, `open`, `pending`, `on_hold` and
+  `solved`. All lifecycle logic keys off the category: giving a ticket a
+  custom status sets its built-in `status` to the category's anchor (`open`,
+  `open`, `waiting_on_customer`, `in_progress`, `resolved`) and records the
+  custom one in the new `ticket_status_id`, through
+  `TicketService.transition_status/3`, so `resolved_at`/`closed_at`, SLA,
+  the activity row, hooks, `ticket.status_changed` (plus `ticket.resolved`
+  etc.), notifications and workflows all follow the anchor. A move between
+  custom statuses with the same anchor is saved and announced with
+  `ticket.status_changed`, without a second `ticket.resolved` and without
+  re-stamping `resolved_at`. Setting any built-in status (snooze, merge,
+  chat, reopen on reply...) clears the custom status.
+  - The status inputs (agent and admin `status`, the bulk action,
+    `PATCH /api/v1/tickets/:reference/status`, workflow `change_status`,
+    macro and automation `set_status`/`change_status`) take a custom status's
+    slug as well as a built-in status; unknown values are rejected as before.
+    `TicketService.list/1` filters by a custom slug.
+  - Staff ticket props (queue rows, `Agent/TicketShow`, `Admin/Tickets/Show`)
+    and the API ticket JSON gain `custom_status` (`{id, label, slug, color,
+    category}` or null) and `status_category`. The customer and guest views
+    show the built-in status only.
+  - The `status_changed` activity row records `custom_status` (the slug).
+    Webhook payloads are unchanged.
+  - `Escalated/Admin/Statuses/Index` (`statuses` by category then position,
+    `categories`) and `Form` (`categories`, plus `status` on edit) at
+    `/admin/statuses`, `/create` and `/:id/edit`, with store, update and
+    delete, admin-only, with Laravel's validation. The slug is the label
+    joined with `_`, de-duplicated with `_2`, `_3` (a built-in status's name
+    counts as taken). `is_default` is exclusive within a category. The
+    built-in statuses are listed as system rows: label, colour, description,
+    position and the default flag can be edited; slug and category cannot,
+    and they cannot be deleted.
+  - Deleting a custom status leaves its tickets in their built-in status with
+    no custom status. Changing a status's category does not move tickets
+    already in it; tickets given it afterwards take the new anchor.
+
 - Custom fields and custom objects (escalated-laravel's `CustomField`,
   `CustomFieldValue`, `CustomObject` and `CustomObjectRecord`). The schemas
   and tables existed; nothing used them.
@@ -197,6 +234,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   page-name parity test keeps a ledger of the shipped pages not rendered yet.
 
 ### Upgrading
+
+- Run the new migration `20261024000001_create_ticket_statuses`: it creates
+  `ticket_statuses` (with one system row per built-in status for the
+  single-tenant namespace; a merchant namespace gets its rows when its admin
+  first opens the statuses page) and adds a nullable, indexed
+  `ticket_status_id` to tickets (no foreign key, like `merged_into_id`).
+  Existing tickets keep their status and get no custom status; nothing
+  changes until an admin adds one.
 
 - Run the new migration `20261022000001_add_business_schedule_refs` (adds the
   nullable `business_schedule_id` to SLA policies and departments). Nothing
