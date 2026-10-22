@@ -79,6 +79,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `action_details`. `/admin/workflows/:id/logs` redirects to the filtered
   page. `Admin/Workflows/Builder` is not rendered, and neither does Laravel
   render it; the builder lives inside `Workflows/Form`.
+- Report screens. Each takes `days` (or `period`) and defaults to 30 days:
+  - `Admin/Reports` at `/admin/reports`
+  - `Reports/Dashboard` at `/reports/dashboard`
+  - `AgentMetrics` at `/reports/agents`
+  - `SlaReport` at `/reports/sla`
+  - `CsatReport` at `/reports/csat`
+  - `Comparison` at `/reports/comparison`
+  - `ResponseTimes` at `/reports/response-times` and `/reports/frt`
+  - `ResolutionTimes` at `/reports/resolution-times` and `/reports/resolution`
+  - `AgentRanking` at `/reports/agent-ranking`
+  - `SlaTrends` at `/reports/sla-trends` (`group_by` day, week or month)
+  - `Cohorts` at `/reports/cohorts`
+
+  Each sends the props escalated-laravel's `ReportController` sends:
+  - Charts get `%{label, value}` lists.
+  - Agent tables get `agent_id` and `agent_name`, resolved from the host's
+    users.
+  - Which SLA deadline was missed is derived from the due dates, as this
+    backend keeps one `sla_breached` flag. A ticket counts as breached when
+    the flag is set or either deadline was missed.
+
+  Not yet rendered: `Reports/AgentDetail`. Report exports are not available.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and
