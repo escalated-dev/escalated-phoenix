@@ -16,7 +16,7 @@ defmodule Escalated.Controllers.BulkActionController do
   import Ecto.Query
 
   alias Escalated.Schemas.{Department, Ticket}
-  alias Escalated.Services.{AssignmentService, TicketService}
+  alias Escalated.Services.{AssignmentService, TicketService, TicketStatusService}
 
   require Logger
 
@@ -105,7 +105,7 @@ defmodule Escalated.Controllers.BulkActionController do
   defp change(ticket, "status", value, actor_id) do
     value = to_string(value)
 
-    if value in Ticket.statuses(),
+    if value in Ticket.statuses() or TicketStatusService.find_custom(value) != nil,
       do: TicketService.transition_status(ticket, value, actor_id: actor_id),
       else: :skip
   end

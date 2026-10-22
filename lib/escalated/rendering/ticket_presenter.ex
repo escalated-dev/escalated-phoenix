@@ -28,6 +28,7 @@ defmodule Escalated.Rendering.TicketPresenter do
   }
 
   alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Services.TicketStatusService
 
   @activity_limit 20
 
@@ -37,7 +38,7 @@ defmodule Escalated.Rendering.TicketPresenter do
 
   @doc "Queue rows for a list of tickets."
   def rows(tickets) do
-    tickets = Escalated.repo().preload(tickets, :department)
+    tickets = Escalated.repo().preload(tickets, [:department, :ticket_status])
     directory = UserDirectory.lookup(Enum.map(tickets, & &1.assigned_to))
     tags = tags_by_ticket(Enum.map(tickets, & &1.id))
     Enum.map(tickets, &row(&1, directory, Map.get(tags, &1.id, [])))
@@ -76,6 +77,7 @@ defmodule Escalated.Rendering.TicketPresenter do
       updated_at: iso(ticket.updated_at)
     }
     |> Map.merge(computed)
+    |> Map.merge(TicketStatusService.ticket_fields(ticket))
   end
 
   @doc "The ticket for `Agent/TicketShow` and `Admin/Tickets/Show`."

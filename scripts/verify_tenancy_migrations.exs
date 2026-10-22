@@ -75,7 +75,9 @@ defmodule PhoenixTenancyMigrationProbe do
 
     legacy_tables =
       Escalated.Tenancy.Tables.entries()
-      |> Enum.reject(&(&1.name in ["guest_challenges", "guest_grants", "department_agent"]))
+      |> Enum.reject(
+        &(&1.name in ["guest_challenges", "guest_grants", "department_agent", "ticket_statuses"])
+      )
       |> Enum.map(&Escalated.table_name(&1.name))
 
     check!(length(legacy_tables) == 56, "Expected the fixed 56-table pre-tenancy baseline")

@@ -385,6 +385,13 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: [[:parent_ticket_id, :child_ticket_id, :link_type]]
     },
     %{
+      name: "ticket_statuses",
+      schema: Escalated.Schemas.TicketStatus,
+      local_refs: %{},
+      host_refs: [],
+      unique_keys: [[:slug]]
+    },
+    %{
       name: "ticket_subjects",
       schema: Escalated.Schemas.TicketSubject,
       local_refs: %{ticket_id: {"tickets", :id}},
@@ -406,7 +413,8 @@ defmodule Escalated.Tenancy.Tables do
         contact_id: {"contacts", :id},
         department_id: {"departments", :id},
         merged_into_id: {"tickets", :id},
-        sla_policy_id: {"sla_policies", :id}
+        sla_policy_id: {"sla_policies", :id},
+        ticket_status_id: {"ticket_statuses", :id}
       },
       host_refs: [:assigned_to, :snoozed_by],
       unique_keys: [],
