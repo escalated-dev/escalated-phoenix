@@ -44,17 +44,8 @@ defmodule Escalated.PageNameParityTest do
     Escalated/Admin/Import/Mapping
     Escalated/Admin/Import/Progress
     Escalated/Admin/Import/Review
-    Escalated/Admin/Reports
     Escalated/Admin/Reports/AgentDetail
-    Escalated/Admin/Reports/AgentMetrics
-    Escalated/Admin/Reports/AgentRanking
     Escalated/Admin/Reports/Cohorts
-    Escalated/Admin/Reports/Comparison
-    Escalated/Admin/Reports/CsatReport
-    Escalated/Admin/Reports/Dashboard
-    Escalated/Admin/Reports/ResolutionTimes
-    Escalated/Admin/Reports/ResponseTimes
-    Escalated/Admin/Reports/SlaReport
     Escalated/Admin/Reports/SlaTrends
     Escalated/Admin/Settings/DatabaseConnection
     Escalated/Admin/Settings/EmailSettings

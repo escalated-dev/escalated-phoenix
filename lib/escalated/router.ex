@@ -315,6 +315,19 @@ defmodule Escalated.Router do
           resources "/sla-policies", SlaPolicyController,
             only: [:index, :create, :update, :delete]
 
+          # Report screens (escalated.admin.reports.*, Laravel's paths).
+          get "/reports", ReportController, :index
+          get "/reports/dashboard", ReportController, :dashboard
+          get "/reports/agents", ReportController, :agents
+          get "/reports/sla", ReportController, :sla
+          get "/reports/csat", ReportController, :csat
+          get "/reports/comparison", ReportController, :comparison
+          get "/reports/frt", ReportController, :response_times
+          get "/reports/response-times", ReportController, :response_times
+          get "/reports/resolution", ReportController, :resolution_times
+          get "/reports/resolution-times", ReportController, :resolution_times
+          get "/reports/agent-ranking", ReportController, :agent_ranking
+
           resources "/departments", DepartmentController, except: [:edit]
           resources "/tags", TagController, except: [:edit]
 
