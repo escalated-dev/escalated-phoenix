@@ -381,6 +381,7 @@ defmodule Escalated.Router do
           get "/reports/resolution", ReportController, :resolution_times
           get "/reports/resolution-times", ReportController, :resolution_times
           get "/reports/agent-ranking", ReportController, :agent_ranking
+          get "/reports/agent/:id/detail", ReportController, :agent_detail
           get "/reports/sla-trends", ReportController, :sla_trends
           get "/reports/cohorts", ReportController, :cohorts
 
