@@ -82,7 +82,8 @@ defmodule PhoenixTenancyMigrationProbe do
             "department_agent",
             "ticket_statuses",
             "import_jobs",
-            "import_source_maps"
+            "import_source_maps",
+            "api_tokens"
           ])
       )
       |> Enum.map(&Escalated.table_name(&1.name))

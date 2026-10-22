@@ -56,6 +56,13 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: [[:user_id, :skill_id]]
     },
     %{
+      name: "api_tokens",
+      schema: Escalated.Schemas.ApiToken,
+      local_refs: %{},
+      host_refs: [:user_id],
+      unique_keys: [[:token]]
+    },
+    %{
       name: "article_categories",
       schema: Escalated.Schemas.ArticleCategory,
       local_refs: %{parent_id: {"article_categories", :id}},

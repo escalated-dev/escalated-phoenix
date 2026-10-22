@@ -35,7 +35,9 @@ defmodule Escalated.Controllers.AgentDetailReportTest do
 
   test "sends the declared props and the figures behind them", ctx do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    created = DateTime.add(now, -2 * 86_400)
+    # 10:00 two days ago, so the reply and the resolution land on the same day
+    # whatever time the suite runs.
+    {:ok, created} = DateTime.new(Date.add(DateTime.to_date(now), -2), ~T[10:00:00], "Etc/UTC")
 
     answered =
       ticket!(%{

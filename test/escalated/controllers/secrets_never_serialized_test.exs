@@ -10,10 +10,10 @@ defmodule Escalated.Controllers.SecretsNeverSerializedTest do
 
   Surfaces Laravel has that this package does not: SSO settings (no SSO here),
   inbound email secrets on a settings page (they are host config,
-  `:email_inbound_secret`, never a stored setting) and API tokens (the host
-  authenticates API requests, `Escalated.Api.HostAuth`; there is no token
-  table). Two-factor records have no page or JSON surface; their schema still
-  redacts the seed and recovery codes.
+  `:email_inbound_secret`, never a stored setting). API tokens are covered in
+  `Escalated.Controllers.ApiTokenPagesTest`: neither a token nor its digest
+  reaches the page. Two-factor records have no page or JSON surface; their
+  schema still redacts the seed and recovery codes.
   """
   use Escalated.PageCase
 

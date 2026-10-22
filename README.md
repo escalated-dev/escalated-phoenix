@@ -165,6 +165,7 @@ config :escalated,
 | `user_key_type` | `:integer` | Column type for host-user references: `:integer` (default), `:binary_id` (UUID), or `:string`. Set to match your `user_schema` primary key so UUID/string-keyed apps migrate cleanly. |
 | `ui_enabled` | `true` | Mount Inertia.js UI routes |
 | `api_enabled` | `false` | Mount JSON API routes |
+| `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
 | `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
 | `default_priority` | `:medium` | Default ticket priority |
@@ -324,7 +325,8 @@ public. Its ticket endpoints (`/support/api/v1/tickets/*`) are for agents. The
 caller is the `current_user` your pipeline assigns or, failing that, the user
 your `:api_token_validator` callback returns for an `Authorization: Bearer
 <token>` header, and must pass `:agent_check`. A request with neither is
-answered 401; a user who is not an agent, 403.
+answered 401; a user who is not an agent, 403. Admins can also issue API
+tokens from the admin panel; see [API tokens](docs/api-tokens.md).
 
 ```elixir
 config :escalated,
