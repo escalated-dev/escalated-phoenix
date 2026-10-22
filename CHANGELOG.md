@@ -45,6 +45,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `/admin/escalation-rules/create` and `/:id/edit` render the form.
   - Failed SLA policy, escalation rule and webhook writes from an Inertia form
     go back with the errors in the session. JSON clients still get a 422.
+- Knowledge base pages:
+  - `Admin/KnowledgeBase/Articles/Form` renders at `/admin/kb-articles/create`
+    and `/:id/edit`.
+  - The admin and reader article lists send paginators (the pages read
+    `articles.data`), and each article carries its `category`.
+  - Reader categories carry `articles_count`, and both reader pages send
+    `feedbackEnabled`. These replace `article_count` and `feedback_enabled`,
+    which the pages never read.
+  - Article feedback redirects back to the article for an Inertia visit.
+  - The admin pages' own paths, `/admin/kb-articles` and
+    `/admin/kb-categories`, are mounted. The `/admin/kb/...` paths stay.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and

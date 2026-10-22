@@ -210,17 +210,20 @@ defmodule Escalated.Controllers.Admin.GeneralSettingsContractTest do
     {:ok, _} =
       GeneralSettings.update(%{"knowledge_base_enabled" => true, "knowledge_base_public" => true})
 
-    refute page(visit(:get, "/support/kb/#{article.slug}", nil, nil))["props"]["feedback_enabled"]
+    refute page(visit(:get, "/support/kb/#{article.slug}", nil, nil))["props"]["feedbackEnabled"]
 
     assert visit(:post, "/support/kb/#{article.slug}/feedback", %{"helpful" => true}, nil).status ==
              404
 
     assert Escalated.repo().reload!(article).helpful_count == 0
     {:ok, _} = GeneralSettings.update(%{"knowledge_base_feedback_enabled" => true})
-    assert page(visit(:get, "/support/kb/#{article.slug}", nil, nil))["props"]["feedback_enabled"]
+    assert page(visit(:get, "/support/kb/#{article.slug}", nil, nil))["props"]["feedbackEnabled"]
 
-    assert visit(:post, "/support/kb/#{article.slug}/feedback", %{"helpful" => true}, nil).status ==
-             200
+    # An Inertia visit (the shared Article page) is sent back to the article.
+    assert visit(:post, "/support/kb/#{article.slug}/feedback", %{"helpful" => true}, nil).status in [
+             302,
+             303
+           ]
 
     assert Escalated.repo().reload!(article).helpful_count == 1
   end

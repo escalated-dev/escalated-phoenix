@@ -7,22 +7,51 @@ defmodule Escalated.Controllers.Admin.ArticleController do
   import Plug.Conn
   import Ecto.Query
 
-  alias Escalated.Rendering.UIRenderer
+  alias Escalated.Controllers.FormResponse
+  alias Escalated.Rendering.{Paginator, UIRenderer}
   alias Escalated.Schemas.{Article, ArticleCategory}
 
   def index(conn, params) do
     repo = Escalated.repo()
 
-    articles = params |> build_query() |> repo.all() |> Enum.map(&Article.to_json/1)
+    names = category_names(repo)
 
-    categories =
-      ArticleCategory.ordered() |> repo.all() |> Enum.map(&%{id: &1.id, name: &1.name})
+    articles =
+      Paginator.paginate_query(
+        build_query(params),
+        repo,
+        Map.put_new(params, "per_page", "20"),
+        index_path(),
+        &article_json(&1, names)
+      )
 
     UIRenderer.render_page(conn, "Escalated/Admin/KnowledgeBase/Articles/Index", %{
       articles: articles,
-      categories: categories,
+      categories: categories(repo),
       filters: Map.take(params, ["search", "status", "category_id"])
     })
+  end
+
+  def new(conn, _params) do
+    UIRenderer.render_page(conn, "Escalated/Admin/KnowledgeBase/Articles/Form", %{
+      article: nil,
+      categories: categories(Escalated.repo())
+    })
+  end
+
+  def edit(conn, %{"id" => id}) do
+    repo = Escalated.repo()
+
+    case repo.get(Article, id) do
+      nil ->
+        conn |> put_status(404) |> json(%{error: "Article not found"})
+
+      article ->
+        UIRenderer.render_page(conn, "Escalated/Admin/KnowledgeBase/Articles/Form", %{
+          article: article_json(article, category_names(repo)),
+          categories: categories(repo)
+        })
+    end
   end
 
   def show(conn, %{"id" => id}) do
@@ -43,7 +72,7 @@ defmodule Escalated.Controllers.Admin.ArticleController do
     |> Escalated.repo().insert()
     |> case do
       {:ok, _} -> conn |> put_flash(:info, "Article created.") |> redirect(to: index_path())
-      {:error, cs} -> conn |> put_status(422) |> json(%{errors: format_errors(cs)})
+      {:error, cs} -> FormResponse.invalid(conn, cs, index_path() <> "/create")
     end
   end
 
@@ -63,7 +92,7 @@ defmodule Escalated.Controllers.Admin.ArticleController do
         |> repo.update()
         |> case do
           {:ok, _} -> conn |> put_flash(:info, "Article updated.") |> redirect(to: index_path())
-          {:error, cs} -> conn |> put_status(422) |> json(%{errors: format_errors(cs)})
+          {:error, cs} -> FormResponse.invalid(conn, cs, "#{index_path()}/#{id}/edit")
         end
     end
   end
@@ -79,6 +108,25 @@ defmodule Escalated.Controllers.Admin.ArticleController do
         repo.delete(article)
         conn |> put_flash(:info, "Article deleted.") |> redirect(to: index_path())
     end
+  end
+
+  defp categories(repo) do
+    ArticleCategory.ordered() |> repo.all() |> Enum.map(&%{id: &1.id, name: &1.name})
+  end
+
+  defp category_names(repo) do
+    ArticleCategory |> repo.all() |> Map.new(&{&1.id, &1.name})
+  end
+
+  # The pages read `article.category.name`.
+  defp article_json(article, names) do
+    category =
+      case Map.fetch(names, article.category_id) do
+        {:ok, name} -> %{id: article.category_id, name: name}
+        :error -> nil
+      end
+
+    article |> Article.to_json() |> Map.put(:category, category)
   end
 
   defp build_query(params) do
@@ -104,13 +152,5 @@ defmodule Escalated.Controllers.Admin.ArticleController do
 
   defp filter_category(query, _), do: query
 
-  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb/articles"
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
-  end
+  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb-articles"
 end
