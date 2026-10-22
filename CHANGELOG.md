@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-10-22
+
+### Upgrading
+- Run the new migration `20261026000001_create_api_tokens` (creates the
+  tenant-owned `api_tokens` table; SQLite, PostgreSQL and MySQL). Nothing else
+  changes: the API ignores these tokens until `api_tokens_enabled` is set, and
+  host-authenticated setups (`current_user`, `:api_token_validator`) keep
+  working with it on.
+
 ### Added
 - API tokens, as escalated-laravel's: admins issue, rename, re-scope and revoke
   them on the shared `Admin/ApiTokens/Index` page (`/support/admin/api-tokens`,
@@ -29,13 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `%{label, value, values: [public replies, resolved]}`), `workload` (tickets
   created per day), `csat_breakdown` (`N stars` counts), and `prev_*` for the
   same number of days before. It reads `days` (or `period`, default 30).
-
-### Upgrading
-- Run the new migration `20261026000001_create_api_tokens` (creates the
-  tenant-owned `api_tokens` table; SQLite, PostgreSQL and MySQL). Nothing else
-  changes: the API ignores these tokens until `api_tokens_enabled` is set, and
-  host-authenticated setups (`current_user`, `:api_token_validator`) keep
-  working with it on.
 
 ## [0.2.4] - 2026-10-22
 
