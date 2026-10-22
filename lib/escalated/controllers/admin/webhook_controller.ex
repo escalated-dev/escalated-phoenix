@@ -78,7 +78,7 @@ defmodule Escalated.Controllers.Admin.WebhookController do
         not_found(conn, "Webhook not found")
 
       %Webhook{} = webhook ->
-        case Webhooks.update(repo, webhook, params) do
+        case Webhooks.update(repo, webhook, secret_params(params)) do
           {:ok, _} ->
             conn |> put_flash(:info, "Webhook updated.") |> redirect(to: admin_webhooks_path())
 
@@ -139,6 +139,20 @@ defmodule Escalated.Controllers.Admin.WebhookController do
         conn
         |> put_flash(:info, "Webhook delivery retried.")
         |> redirect(to: admin_webhooks_path())
+    end
+  end
+
+  # The form never receives the stored secret, so a blank or missing one means
+  # "leave it as it is"; `clear_secret: true` removes it; anything else
+  # replaces it (escalated-laravel's `WebhookController::update`).
+  defp secret_params(params) do
+    {secret, params} = Map.pop(params, "secret")
+    {clear, params} = Map.pop(params, "clear_secret")
+
+    cond do
+      clear in [true, "true", "1", 1, "on"] -> Map.put(params, "secret", nil)
+      is_binary(secret) and String.trim(secret) != "" -> Map.put(params, "secret", secret)
+      true -> params
     end
   end
 

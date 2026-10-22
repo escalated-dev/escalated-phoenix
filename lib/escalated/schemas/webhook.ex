@@ -18,8 +18,9 @@ defmodule Escalated.Schemas.Webhook do
     # List of subscribed event-name strings, e.g. ["ticket.created"].
     field :events, {:array, :string}, default: []
     # Optional shared secret; when set, deliveries carry an HMAC-SHA256
-    # signature header derived from the raw request body.
-    field :secret, :string
+    # signature header derived from the raw request body. Never serialized:
+    # pages see `has_secret` (`to_json/1`), and `inspect/1` redacts it.
+    field :secret, :string, redact: true
     field :active, :boolean, default: true
 
     has_many :deliveries, Escalated.Schemas.WebhookDelivery, foreign_key: :webhook_id

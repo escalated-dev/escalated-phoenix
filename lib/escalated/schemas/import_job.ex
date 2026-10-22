@@ -28,7 +28,10 @@ defmodule Escalated.Schemas.ImportJob do
     field :user_id, @user_id_type
     field :platform, :string
     field :status, :string, default: "pending"
-    field :credentials, :string
+    # Sealed source-platform credentials, read server-side by the import run
+    # only. Never sent to a page (see `ImportController.job_json/1`), and
+    # redacted from `inspect/1`.
+    field :credentials, :string, redact: true
     field :field_mappings, :map, default: %{}
     field :progress, :map, default: %{}
     field :error_log, {:array, :map}, default: []
