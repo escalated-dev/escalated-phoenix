@@ -254,6 +254,7 @@ defmodule Escalated.Router do
           post "/chat/sessions/:id/accept", ChatController, :accept
           post "/chat/sessions/:id/message", ChatController, :send_message
           post "/chat/sessions/:id/end", ChatController, :end_session
+          post "/chat/sessions/:id/transfer", ChatController, :transfer
         end
 
         # Admin routes

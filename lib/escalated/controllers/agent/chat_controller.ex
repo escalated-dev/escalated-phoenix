@@ -8,7 +8,10 @@ defmodule Escalated.Controllers.Agent.ChatController do
   use Phoenix.Controller, formats: [:json]
   import Plug.Conn
 
+  alias Escalated.Schemas.ChatSession
   alias Escalated.Services.ChatSessionService
+
+  @user_id_type Application.compile_env(:escalated, :user_key_type, :integer)
 
   @doc """
   Lists active and waiting chat sessions.
@@ -79,6 +82,91 @@ defmodule Escalated.Controllers.Agent.ChatController do
           conn |> put_status(404) |> json(%{error: "Active session not found"})
         end
     end
+  end
+
+  @doc """
+  Transfers a chat to another agent and/or department (escalated-laravel
+  `escalated.admin.chat.transfer`).
+
+  The body is `{"agent_id", "department_id"}` (either or both). The shared
+  `ChatActionBar`'s `{"type": "agent" | "department", "id"}` is read too.
+  """
+  def transfer(conn, %{"id" => ticket_id} = params) do
+    case ChatSessionService.find_by_ticket(ticket_id) do
+      nil ->
+        conn |> put_status(404) |> json(%{error: "Session not found"})
+
+      session ->
+        if ChatSession.active?(session) or ChatSession.waiting?(session) do
+          transfer_open_session(conn, session, ticket_id, params)
+        else
+          unprocessable(conn, "Chat is already ended.")
+        end
+    end
+  end
+
+  defp transfer_open_session(conn, session, ticket_id, params) do
+    params = action_bar_params(conn, params)
+
+    with {:ok, agent_id} <- cast_id(@user_id_type, params["agent_id"], "agent_id"),
+         {:ok, department_id} <- cast_id(:id, params["department_id"], "department_id"),
+         :ok <- department_exists(department_id),
+         {:ok, _} <-
+           ChatSessionService.transfer_session(session,
+             to_agent_id: agent_id,
+             to_department_id: department_id
+           ) do
+      json(conn, %{
+        message: "Chat transferred.",
+        session: session_json(ChatSessionService.find_by_ticket(ticket_id))
+      })
+    else
+      {:invalid, message} -> unprocessable(conn, message)
+      {:error, :no_target} -> unprocessable(conn, "Provide an agent_id or department_id.")
+      {:error, :agent_cannot_access} -> unprocessable(conn, "The agent cannot access this chat.")
+      {:error, _} -> conn |> put_status(500) |> json(%{error: "Failed to transfer"})
+    end
+  end
+
+  # The route's :id (the chat ticket) shadows a body "id" in params, so the
+  # ChatActionBar's target is read from the body itself.
+  defp action_bar_params(conn, params) do
+    body = if is_map(conn.body_params), do: conn.body_params, else: %{}
+
+    case body do
+      %{"type" => "agent", "id" => id} -> Map.put_new(params, "agent_id", id)
+      %{"type" => "department", "id" => id} -> Map.put_new(params, "department_id", id)
+      _ -> params
+    end
+  end
+
+  defp cast_id(_type, value, _field) when value in [nil, ""], do: {:ok, nil}
+
+  defp cast_id(type, value, field) do
+    case Ecto.Type.cast(type, value) do
+      {:ok, id} -> {:ok, id}
+      _ -> {:invalid, "The #{field} is invalid."}
+    end
+  end
+
+  defp department_exists(nil), do: :ok
+
+  defp department_exists(id) do
+    if Escalated.repo().get(Escalated.Schemas.Department, id),
+      do: :ok,
+      else: {:invalid, "The selected department_id is invalid."}
+  end
+
+  defp unprocessable(conn, message),
+    do: conn |> put_status(422) |> json(%{message: message})
+
+  defp session_json(session) do
+    %{
+      id: session.id,
+      ticket_id: session.ticket_id,
+      status: session.status,
+      agent_id: session.agent_id
+    }
   end
 
   @doc """

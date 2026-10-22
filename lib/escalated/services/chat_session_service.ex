@@ -166,6 +166,125 @@ defmodule Escalated.Services.ChatSessionService do
   end
 
   @doc """
+  Transfers a chat to another agent and/or department, as escalated-laravel's
+  `ChatSessionService::transferChat` does.
+
+  Options: `:to_agent_id` and `:to_department_id` (at least one). With an
+  agent, the session and its ticket are reassigned to that agent, who must be
+  able to see the ticket. With a department, the ticket moves there; without
+  an agent too, the chat goes back to the queue (unassigned, `waiting`) and
+  routing looks for an agent in its new department.
+
+  An internal system note records the transfer, so the visitor's transcript
+  does not show it. `chat.transferred` adds `from_agent_id`, `to_agent_id` and
+  `to_department_id` to the chat payload.
+
+  Returns `{:ok, session}`, `{:error, :no_target}` or
+  `{:error, :agent_cannot_access}`.
+  """
+  def transfer_session(session, opts) do
+    to_agent_id = Keyword.get(opts, :to_agent_id)
+    to_department_id = Keyword.get(opts, :to_department_id)
+    Escalated.TicketVisibility.assert_record!(session)
+    repo = Escalated.repo()
+    ticket = repo.get!(Ticket, session.ticket_id)
+
+    cond do
+      is_nil(to_agent_id) and is_nil(to_department_id) ->
+        {:error, :no_target}
+
+      not is_nil(to_agent_id) and
+          not Escalated.TicketVisibility.can_assign?(
+            %{ticket | department_id: to_department_id || ticket.department_id},
+            to_agent_id
+          ) ->
+        {:error, :agent_cannot_access}
+
+      true ->
+        do_transfer(repo, session, ticket, to_agent_id, to_department_id)
+    end
+  end
+
+  defp do_transfer(repo, session, ticket, to_agent_id, to_department_id) do
+    from_agent_id = session.agent_id
+
+    {session_changes, ticket_changes} =
+      case {to_agent_id, to_department_id} do
+        {nil, department_id} ->
+          {%{agent_id: nil, status: "waiting"}, %{assigned_to: nil, department_id: department_id}}
+
+        {agent_id, nil} ->
+          {%{agent_id: agent_id}, %{assigned_to: agent_id}}
+
+        {agent_id, department_id} ->
+          {%{agent_id: agent_id}, %{assigned_to: agent_id, department_id: department_id}}
+      end
+
+    result =
+      repo.transaction(fn ->
+        with {:ok, updated} <- session |> ChatSession.changeset(session_changes) |> repo.update(),
+             {:ok, saved} <- ticket |> Ticket.changeset(ticket_changes) |> repo.update(),
+             {:ok, _note} <- transfer_note(repo, saved, to_agent_id, to_department_id) do
+          {updated, saved}
+        else
+          {:error, error} -> repo.rollback(error)
+        end
+      end)
+
+    with {:ok, {updated, saved}} <- result do
+      transfer = %{
+        from_agent_id: from_agent_id,
+        to_agent_id: to_agent_id,
+        to_department_id: to_department_id
+      }
+
+      announce("chat.transferred", updated, saved, transfer)
+
+      Broadcasting.broadcast_chat_event(
+        "chat:transferred",
+        Map.merge(%{session_id: updated.id, ticket_id: updated.ticket_id}, transfer)
+      )
+
+      {:ok, maybe_reroute(updated, saved, to_agent_id)}
+    end
+  end
+
+  defp maybe_reroute(session, _ticket, to_agent_id) when not is_nil(to_agent_id), do: session
+
+  defp maybe_reroute(session, ticket, nil) do
+    with {:ok, agent_id} when not is_nil(agent_id) <-
+           ChatRoutingService.find_available_agent(ticket.department_id, ticket),
+         {:ok, assigned} <- assign_agent(session, agent_id) do
+      assigned
+    else
+      _ -> session
+    end
+  end
+
+  defp transfer_note(repo, ticket, to_agent_id, to_department_id) do
+    department =
+      if to_department_id do
+        case repo.get(Escalated.Schemas.Department, to_department_id) do
+          nil -> "department #{to_department_id}"
+          department -> "department #{department.name}"
+        end
+      end
+
+    agent = if to_agent_id, do: "agent #{to_agent_id}"
+    target = [agent, department] |> Enum.reject(&is_nil/1) |> Enum.join(" in ")
+
+    %Reply{}
+    |> Reply.changeset(%{
+      ticket_id: ticket.id,
+      body: "Chat transferred to #{target}.",
+      is_internal: true,
+      is_system: true,
+      author_id: nil
+    })
+    |> repo.insert()
+  end
+
+  @doc """
   Sends a chat message (creates a reply on the underlying ticket).
   """
   def send_message(session, body, opts \\ []) do

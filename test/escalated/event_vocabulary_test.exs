@@ -297,6 +297,9 @@ defmodule Escalated.EventVocabularyTest do
       end,
       "chat.started" => fn -> chat!() end,
       "chat.assigned" => fn -> ChatSessionService.assign_agent(chat!(), 900) end,
+      "chat.transferred" => fn ->
+        ChatSessionService.transfer_session(chat!(), to_agent_id: 901)
+      end,
       "chat.message" => fn -> ChatSessionService.send_message(chat!(), "Hi") end,
       "chat.ended" => fn -> ChatSessionService.end_session(chat!()) end
     }
