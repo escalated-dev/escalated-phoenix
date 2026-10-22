@@ -31,6 +31,10 @@ defmodule Escalated.Services.AutomationRunner do
   """
   @spec run(module()) :: non_neg_integer()
   def run(repo) when is_atom(repo) do
+    if Escalated.Import.Context.importing?(), do: 0, else: do_run(repo)
+  end
+
+  defp do_run(repo) do
     repo = Escalated.Tenancy.scoped_repo(repo)
 
     automations =
