@@ -312,6 +312,11 @@ defmodule Escalated.Router do
           get "/users", UserController, :index
           patch "/users/:user_id/role", UserController, :update_role
 
+          # Roles and the permissions they grant (Laravel's resource routes).
+          get "/roles/create", RoleController, :new
+          get "/roles/:id/edit", RoleController, :edit
+          resources "/roles", RoleController, only: [:index, :create, :update, :delete]
+
           # @mention autocomplete: matching agents by name/email.
           get "/agents/search", AgentSearchController, :search
 
