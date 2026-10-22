@@ -94,7 +94,9 @@ defmodule Escalated.Tenancy.CustomerVisibilityTest do
         |> Map.fetch!(:resp_body)
         |> Jason.decode!()
 
-      assert detail["ticket"]["last_reply_at"] == DateTime.to_iso8601(public_time)
+      # The page payload is the CustomerTicketPayload allow-list, which carries
+      # no last-reply metadata at all; above all not the internal note's.
+      refute detail["ticket"]["last_reply_at"] == DateTime.to_iso8601(now)
       assert is_nil(detail["ticket"]["last_reply_author"])
       assert [%{"body" => "Public answer"}] = detail["ticket"]["replies"]
       assert TicketSerializer.computed_fields(ticket).last_reply_at == DateTime.to_iso8601(now)

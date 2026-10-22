@@ -4,7 +4,7 @@ defmodule Escalated.Application do
 
   @impl true
   def start(_type, _args) do
-    Supervisor.start_link([Escalated.RateLimiter],
+    Supervisor.start_link([Escalated.RateLimiter, Escalated.Presence],
       strategy: :one_for_one,
       name: Escalated.Supervisor
     )

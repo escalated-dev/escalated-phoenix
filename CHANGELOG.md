@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The ticket pages now get the props the shared Vue pages read
+  (escalated-laravel's Agent, Admin and Customer `TicketController` and agent
+  `DashboardController`):
+  - `Admin/Tickets/Index` sent a bare list, so the admin queue rendered no
+    tickets. Both queues now send Laravel's length-aware paginator (`page`,
+    `per_page`) of rows carrying `requester`, `assignee`, `department`, `tags`,
+    `latest_reply` and the SLA fields, plus `departments` and `tags`; the admin
+    queue adds `agents` and `savedViews`.
+  - `Admin/Tickets/Show` sent the replies and activities beside the ticket,
+    where the page never looks. Both show pages now put `replies` (newest
+    first, with `author` and `is_internal_note`), `pinned_notes`, `activities`,
+    `satisfaction_rating` and `sla_policy` on the ticket, and send
+    `departments`, `tags`, `cannedResponses`, `macros`, `is_following` and
+    `followers_count`. Admin adds `agents` and `is_snoozed`.
+  - `Agent/Dashboard` sends `stats` (`open`, `my_assigned`, `unassigned`,
+    `sla_breached`, `resolved_today`), `recentTickets`, `needsAttention` and
+    `myPerformance` in place of `recent_tickets` and the old stat keys.
+  - `Customer/Index` sends a paginator; `Customer/Show` sends the requester-safe
+    allow-list (no internal notes, staff by display name, no assignee or
+    metadata), with `department` and `satisfaction_rating`.
+- The writes the ticket pages post now have routes: `status` and `priority` as
+  POST (the PATCH routes stay), `follow`, `macro`, `presence` and
+  `replies/:reply_id/pin` on both desks, POST `tags`/`department` on the admin
+  desk, and customer `close`/`reopen`. Customer ticket creation reads the flat
+  form the shared Create page posts; snooze and unsnooze redirect back for an
+  Inertia visit.
+- `test/fixtures/escalated-pages.json` is refreshed to frontend 0.12.3 and the
+  page-name parity test keeps a ledger of the shipped pages not rendered yet.
+
+### Upgrading
+
+- Hosts reading the agent dashboard props directly: `recent_tickets` is now
+  `recentTickets`, and `stats.my_open` / `stats.total_open` are now
+  `stats.my_assigned` / `stats.open`.
+- Ticket presence (who else is viewing) is kept per node for 60 seconds.
+
 ## [0.2.3] - 2026-10-21
 
 ### Upgrading

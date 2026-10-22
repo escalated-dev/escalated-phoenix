@@ -179,7 +179,10 @@ defmodule Escalated.TicketVisibilityTest do
     end)
 
     response = request(:get, "/support/agent/dashboard")
-    assert Jason.decode!(response.resp_body)["props"]["stats"]["total_open"] == 1
+    # The dashboard sends Laravel's stat keys, which the shared page reads.
+    stats = Jason.decode!(response.resp_body)["props"]["stats"]
+    assert stats["open"] == 1
+    assert stats["sla_breached"] == 0
   end
 
   @tag :visibility_control

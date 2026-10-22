@@ -24,6 +24,61 @@ defmodule Escalated.PageNameParityTest do
   # and persistent consumers. No blank-page exceptions remain.
   @known_blank []
 
+  # Shipped pages no controller renders yet: a ledger of what the shared UI
+  # offers that this backend does not serve. It has to match exactly, so a page
+  # that starts rendering is taken off it, and a page the frontend adds shows
+  # up here as owed rather than going unnoticed. A page whose feature this
+  # backend does not have stays on it; see the CHANGELOG for which those are.
+  @not_yet_rendered ~w(
+    Escalated/Admin/ApiTokens/Index
+    Escalated/Admin/AuditLog/Index
+    Escalated/Admin/BusinessHours/Form
+    Escalated/Admin/BusinessHours/Index
+    Escalated/Admin/CustomFields/Form
+    Escalated/Admin/CustomFields/Index
+    Escalated/Admin/CustomObjects/Form
+    Escalated/Admin/CustomObjects/Index
+    Escalated/Admin/CustomObjects/Records
+    Escalated/Admin/Import/Connect
+    Escalated/Admin/Import/Index
+    Escalated/Admin/Import/Mapping
+    Escalated/Admin/Import/Progress
+    Escalated/Admin/Import/Review
+    Escalated/Admin/KnowledgeBase/Articles/Form
+    Escalated/Admin/Reports
+    Escalated/Admin/Reports/AgentDetail
+    Escalated/Admin/Reports/AgentMetrics
+    Escalated/Admin/Reports/AgentRanking
+    Escalated/Admin/Reports/Cohorts
+    Escalated/Admin/Reports/Comparison
+    Escalated/Admin/Reports/CsatReport
+    Escalated/Admin/Reports/Dashboard
+    Escalated/Admin/Reports/ResolutionTimes
+    Escalated/Admin/Reports/ResponseTimes
+    Escalated/Admin/Reports/SlaReport
+    Escalated/Admin/Reports/SlaTrends
+    Escalated/Admin/Roles/Form
+    Escalated/Admin/Roles/Index
+    Escalated/Admin/Settings/DatabaseConnection
+    Escalated/Admin/Settings/EmailSettings
+    Escalated/Admin/Settings/PublicTickets
+    Escalated/Admin/Settings/Sandbox
+    Escalated/Admin/Settings/SsoSettings
+    Escalated/Admin/Settings/TwoFactor
+    Escalated/Admin/SlaPolicies/Form
+    Escalated/Admin/SlaPolicies/Index
+    Escalated/Admin/Statuses/Form
+    Escalated/Admin/Statuses/Index
+    Escalated/Admin/Webhooks/Form
+    Escalated/Admin/Workflows/Builder
+    Escalated/Admin/Workflows/Logs
+    Escalated/Auth/TwoFactorChallenge
+    Escalated/Error
+    Escalated/Guest/Create
+    Escalated/Guest/Show
+    Escalated/Plugin/Page
+  )
+
   @page_name ~r/"(Escalated\/[A-Za-z0-9\/_]+)"/
 
   test "renders only page names the frontend ships" do
@@ -62,6 +117,16 @@ defmodule Escalated.PageNameParityTest do
     assert stale == [],
            "these names are on the blank-screen exception list but no longer need to be, " <>
              "remove them:\n  " <> Enum.join(stale, "\n  ")
+  end
+
+  test "the not-yet-rendered ledger names exactly the shipped pages nothing renders" do
+    rendered = rendered_pages()
+    unrendered = shipped_pages() |> Enum.reject(&Map.has_key?(rendered, &1)) |> Enum.sort()
+
+    assert unrendered == Enum.sort(@not_yet_rendered),
+           "update @not_yet_rendered.\n  now rendered: " <>
+             inspect(@not_yet_rendered -- unrendered) <>
+             "\n  not rendered and not listed: " <> inspect(unrendered -- @not_yet_rendered)
   end
 
   defp shipped_pages do

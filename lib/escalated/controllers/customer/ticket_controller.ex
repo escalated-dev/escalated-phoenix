@@ -7,11 +7,9 @@ defmodule Escalated.Controllers.Customer.TicketController do
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
-  import Ecto.Query, only: [where: 3]
 
-  alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.{Attachment, Ticket}
-  alias Escalated.Serializers.TicketSerializer
+  alias Escalated.Rendering.{Paginator, TicketPresenter, UIRenderer}
+  alias Escalated.Schemas.Ticket
   alias Escalated.Services.TicketService
   alias Escalated.TicketAccess
 
@@ -30,10 +28,11 @@ defmodule Escalated.Controllers.Customer.TicketController do
           |> Enum.filter(&TicketAccess.requester?(&1, user))
       end
 
+    path = Escalated.config(:route_prefix, "/support") <> "/tickets"
+
     UIRenderer.render_page(conn, "Escalated/Customer/Index", %{
-      # TicketList reads `tickets.data`; see the agent controller.
-      tickets: %{data: Enum.map(tickets, &ticket_json/1)},
-      filters: %{status: params["status"]}
+      tickets: tickets |> Paginator.paginate(params, path, &TicketPresenter.customer_row/1),
+      filters: Map.take(params, ~w(status priority ticket_type search sort_by sort_dir))
     })
   end
 
@@ -50,7 +49,18 @@ defmodule Escalated.Controllers.Customer.TicketController do
     })
   end
 
-  def create(conn, %{"ticket" => ticket_params}) when is_map(ticket_params) do
+  # The shared Create page posts its fields at the top level; older clients
+  # nest them under "ticket". Both are read.
+  def create(conn, %{"ticket" => ticket_params}) when is_map(ticket_params),
+    do: create_ticket(conn, ticket_params)
+
+  def create(conn, %{"subject" => _} = params), do: create_ticket(conn, params)
+
+  def create(conn, _params) do
+    conn |> put_status(422) |> Phoenix.Controller.json(%{error: "A ticket object is required"})
+  end
+
+  defp create_ticket(conn, ticket_params) do
     case TicketAccess.user_id(conn.assigns[:current_user]) do
       nil ->
         conn |> put_status(401) |> Phoenix.Controller.json(%{error: "Authentication required"})
@@ -58,10 +68,6 @@ defmodule Escalated.Controllers.Customer.TicketController do
       user_id ->
         create_for_requester(conn, ticket_params, user_id)
     end
-  end
-
-  def create(conn, _params) do
-    conn |> put_status(422) |> Phoenix.Controller.json(%{error: "A ticket object is required"})
   end
 
   defp create_for_requester(conn, ticket_params, user_id) do
@@ -93,20 +99,41 @@ defmodule Escalated.Controllers.Customer.TicketController do
         conn |> put_status(status) |> Phoenix.Controller.json(%{error: message})
 
       {:ok, ticket} ->
-        repo = Escalated.repo()
-        ticket = repo.preload(ticket, attachments: where(Attachment, [a], is_nil(a.reply_id)))
-
-        replies =
-          Escalated.Schemas.Reply.chronological()
-          |> where([r], r.ticket_id == ^ticket.id and r.is_internal == false)
-          |> repo.all()
-          |> repo.preload(:attachments)
-
         UIRenderer.render_page(conn, "Escalated/Customer/Show", %{
-          # The reply thread reads `ticket.replies`.
-          ticket: Map.put(ticket_detail_json(ticket), :replies, Enum.map(replies, &reply_json/1)),
+          ticket: TicketPresenter.customer_detail(ticket),
           allow_close: Escalated.config(:allow_customer_close, true)
         })
+    end
+  end
+
+  @doc "Close the requester's own ticket, when `allow_customer_close` is on."
+  def close(conn, %{"reference" => reference}) do
+    if Escalated.config(:allow_customer_close, true) do
+      change_own_status(conn, reference, "closed", "Ticket closed.")
+    else
+      conn
+      |> put_status(403)
+      |> Phoenix.Controller.json(%{error: "Customers cannot close tickets"})
+    end
+  end
+
+  @doc "Reopen the requester's own ticket."
+  def reopen(conn, %{"reference" => reference}),
+    do: change_own_status(conn, reference, "reopened", "Ticket reopened.")
+
+  defp change_own_status(conn, reference, status, message) do
+    user = conn.assigns[:current_user]
+
+    with {:ok, ticket} <- find_own_ticket(reference, user),
+         {:ok, _} <-
+           TicketService.transition_status(ticket, status, actor_id: TicketAccess.user_id(user)) do
+      conn |> put_flash(:info, message) |> redirect(to: ticket_path(conn, ticket))
+    else
+      {:error, status, message} when is_integer(status) ->
+        conn |> put_status(status) |> Phoenix.Controller.json(%{error: message})
+
+      {:error, changeset} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
     end
   end
 
@@ -158,57 +185,6 @@ defmodule Escalated.Controllers.Customer.TicketController do
   defp ticket_path(conn, ticket) do
     prefix = Escalated.config(:route_prefix, "/support")
     "#{prefix}/tickets/#{ticket.reference}"
-  end
-
-  defp ticket_json(ticket) do
-    %{
-      id: ticket.id,
-      reference: ticket.reference,
-      subject: ticket.subject,
-      status: ticket.status,
-      priority: ticket.priority,
-      created_at: ticket.inserted_at && DateTime.to_iso8601(ticket.inserted_at),
-      updated_at: ticket.updated_at && DateTime.to_iso8601(ticket.updated_at)
-    }
-    |> Map.merge(TicketSerializer.computed_fields(ticket, public: true))
-  end
-
-  defp ticket_detail_json(ticket) do
-    ticket_json(ticket)
-    |> Map.merge(%{
-      description: ticket.description,
-      ticket_type: ticket.ticket_type,
-      department_id: ticket.department_id,
-      attachments: serialize_attachments(ticket)
-    })
-  end
-
-  defp reply_json(reply) do
-    %{
-      id: reply.id,
-      body: reply.body,
-      is_internal: reply.is_internal,
-      author_id: reply.author_id,
-      attachments: serialize_attachments(reply),
-      created_at: reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
-    }
-  end
-
-  defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
-    Enum.map(attachments, &attachment_json/1)
-  end
-
-  defp serialize_attachments(_), do: []
-
-  defp attachment_json(a) do
-    %{
-      id: a.id,
-      original_filename: a.original_filename,
-      mime_type: a.mime_type,
-      size: a.size,
-      url: Attachment.url(a),
-      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
-    }
   end
 
   defp format_errors(changeset) do

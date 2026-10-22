@@ -42,4 +42,44 @@ defmodule Escalated.Services.Followers do
     |> Escalated.repo().all()
     |> follower_recipients(exclude_user_id)
   end
+
+  @doc "Whether `user_id` follows the ticket."
+  def following?(ticket_id, user_id) do
+    from(f in TicketFollower,
+      where: f.ticket_id == ^ticket_id and f.user_id == ^to_string(user_id),
+      select: count(f.id)
+    )
+    |> Escalated.repo().one()
+    |> Kernel.>(0)
+  end
+
+  @doc "How many users follow the ticket."
+  def count(ticket_id) do
+    from(f in TicketFollower, where: f.ticket_id == ^ticket_id, select: count(f.id))
+    |> Escalated.repo().one()
+  end
+
+  @doc "Stops `user_id` following the ticket."
+  def remove_follower(ticket_id, user_id) do
+    from(f in TicketFollower,
+      where: f.ticket_id == ^ticket_id and f.user_id == ^to_string(user_id)
+    )
+    |> Escalated.repo().delete_all()
+
+    :ok
+  end
+
+  @doc """
+  Follows the ticket, or unfollows it when `user_id` already follows it.
+  Returns `:followed` or `:unfollowed`.
+  """
+  def toggle(ticket_id, user_id) do
+    if following?(ticket_id, user_id) do
+      remove_follower(ticket_id, user_id)
+      :unfollowed
+    else
+      {:ok, _} = add_follower(ticket_id, user_id)
+      :followed
+    end
+  end
 end
