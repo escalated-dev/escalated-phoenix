@@ -315,6 +315,13 @@ defmodule Escalated.Router do
           resources "/sla-policies", SlaPolicyController,
             only: [:index, :create, :update, :delete]
 
+          # Business hours (Laravel's resource routes: /create and /:id/edit).
+          get "/business-hours/create", BusinessHoursController, :new
+          get "/business-hours/:id/edit", BusinessHoursController, :edit
+
+          resources "/business-hours", BusinessHoursController,
+            only: [:index, :create, :update, :delete]
+
           get "/audit-log", AuditLogController, :index
 
           # Report screens (escalated.admin.reports.*, Laravel's paths).

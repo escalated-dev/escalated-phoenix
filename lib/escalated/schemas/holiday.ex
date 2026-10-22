@@ -21,5 +21,6 @@ defmodule Escalated.Schemas.Holiday do
     holiday
     |> cast(attrs, [:name, :date, :is_recurring, :business_schedule_id])
     |> validate_required([:name, :date, :business_schedule_id])
+    |> validate_length(:name, max: 255)
   end
 end

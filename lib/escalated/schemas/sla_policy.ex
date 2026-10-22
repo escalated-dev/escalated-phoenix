@@ -19,6 +19,9 @@ defmodule Escalated.Schemas.SlaPolicy do
     field :first_response_hours, :map
     field :resolution_hours, :map
     field :ticket_type, :string
+    # The business schedule deadlines count against when business hours apply;
+    # nil falls through to the department's, then the default schedule.
+    field :business_schedule_id, :integer
     belongs_to :department, Escalated.Schemas.Department
 
     has_many :tickets, Escalated.Schemas.Ticket
@@ -38,7 +41,8 @@ defmodule Escalated.Schemas.SlaPolicy do
       :first_response_hours,
       :resolution_hours,
       :department_id,
-      :ticket_type
+      :ticket_type,
+      :business_schedule_id
     ])
     |> validate_required([:name, :first_response_hours, :resolution_hours])
     |> unique_constraint(:name)

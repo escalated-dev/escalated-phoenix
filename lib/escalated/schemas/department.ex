@@ -13,6 +13,9 @@ defmodule Escalated.Schemas.Department do
     field :description, :string
     field :email, :string
     field :is_active, :boolean, default: true
+    # Business schedule for this department's SLA deadlines when its policy
+    # names none (`Escalated.Services.SlaService`).
+    field :business_schedule_id, :integer
 
     belongs_to :default_sla_policy, Escalated.Schemas.SlaPolicy
 
@@ -24,7 +27,15 @@ defmodule Escalated.Schemas.Department do
   @doc false
   def changeset(department, attrs) do
     department
-    |> cast(attrs, [:name, :slug, :description, :email, :is_active, :default_sla_policy_id])
+    |> cast(attrs, [
+      :name,
+      :slug,
+      :description,
+      :email,
+      :is_active,
+      :default_sla_policy_id,
+      :business_schedule_id
+    ])
     |> validate_required([:name])
     |> validate_format(:email, ~r/@/, message: "must be a valid email")
     |> unique_constraint(:name)

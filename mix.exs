@@ -40,6 +40,10 @@ defmodule Escalated.MixProject do
       {:inertia, "~> 2.6", optional: true},
       {:plug, "~> 1.14"},
       {:gettext, "~> 1.0"},
+      # IANA time zone data for business hours (schedules keep wall-clock
+      # hours in their own zone). Passed explicitly, never installed as the
+      # host's global time zone database.
+      {:tz, "~> 0.28"},
 
       # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
       # from escalated-dev/escalated-locale. Once that Hex package is actually

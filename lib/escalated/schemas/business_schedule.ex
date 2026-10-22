@@ -1,6 +1,10 @@
 defmodule Escalated.Schemas.BusinessSchedule do
   @moduledoc """
   Ecto schema for business hours schedules with timezone support.
+
+  `hours` (the `schedule` the admin pages read and post) maps each weekday to
+  `%{"start" => "09:00", "end" => "17:00"}`; empty times close the day. Rows
+  written before the admin pages may carry `"enabled" => false` instead.
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -35,39 +39,21 @@ defmodule Escalated.Schemas.BusinessSchedule do
     schedule
     |> cast(attrs, [:name, :timezone, :hours, :is_default, :is_active])
     |> validate_required([:name, :timezone])
+    |> validate_length(:name, max: 255)
+    |> validate_change(:timezone, fn :timezone, zone ->
+      if Escalated.Timezones.known?(zone) or
+           Escalated.Services.BusinessHoursCalculator.valid_timezone?(zone),
+         do: [],
+         else: [timezone: "is not a valid time zone"]
+    end)
   end
 
-  @doc "Check if a given datetime falls within this schedule's business hours."
-  def within_business_hours?(%__MODULE__{hours: hours, holidays: holidays}, %DateTime{} = dt) do
-    day_name = dt |> Calendar.strftime("%A") |> String.downcase()
-    day_config = Map.get(hours, day_name)
-
-    cond do
-      is_nil(day_config) ->
-        false
-
-      not Map.get(day_config, "enabled", false) ->
-        false
-
-      holiday?(holidays, dt) ->
-        false
-
-      true ->
-        time_str = Calendar.strftime(dt, "%H:%M")
-
-        time_str >= Map.get(day_config, "start", "00:00") and
-          time_str <= Map.get(day_config, "end", "23:59")
-    end
-  end
+  @doc """
+  Check if a given datetime falls within this schedule's business hours,
+  holidays included (`Escalated.Services.BusinessHoursCalculator`).
+  """
+  def within_business_hours?(%__MODULE__{} = schedule, %DateTime{} = dt),
+    do: Escalated.Services.BusinessHoursCalculator.within_business_hours?(schedule, dt)
 
   def within_business_hours?(_, _), do: false
-
-  defp holiday?(%Ecto.Association.NotLoaded{}, _dt), do: false
-
-  defp holiday?(holidays, dt) when is_list(holidays) do
-    date = DateTime.to_date(dt)
-    Enum.any?(holidays, fn h -> Date.compare(h.date, date) == :eq end)
-  end
-
-  defp holiday?(_, _), do: false
 end

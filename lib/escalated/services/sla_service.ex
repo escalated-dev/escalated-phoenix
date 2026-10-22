@@ -4,7 +4,8 @@ defmodule Escalated.Services.SlaService do
   """
 
   alias Escalated.Events
-  alias Escalated.Schemas.{SlaPolicy, Ticket, TicketActivity}
+  alias Escalated.Schemas.{BusinessSchedule, Department, SlaPolicy, Ticket, TicketActivity}
+  alias Escalated.Services.BusinessHoursCalculator
   import Ecto.Query
 
   @open_statuses ~w(open in_progress waiting_on_customer waiting_on_agent escalated reopened)
@@ -25,12 +26,13 @@ defmodule Escalated.Services.SlaService do
       policy ->
         first_response_hours = SlaPolicy.first_response_hours_for(policy, ticket.priority)
         resolution_hours = SlaPolicy.resolution_hours_for(policy, ticket.priority)
+        schedule = business_schedule_for(ticket, policy)
 
         ticket
         |> Ticket.changeset(%{
           sla_policy_id: policy.id,
-          sla_first_response_due_at: due_for(ticket, first_response_hours),
-          sla_resolution_due_at: due_for(ticket, resolution_hours)
+          sla_first_response_due_at: due_for(ticket, first_response_hours, schedule),
+          sla_resolution_due_at: due_for(ticket, resolution_hours, schedule)
         })
         |> repo.update()
     end
@@ -209,12 +211,69 @@ defmodule Escalated.Services.SlaService do
     end
   end
 
+  @doc """
+  The business schedule a ticket's deadlines count against under `policy`, or
+  nil. Only when business hours apply (`sla: %{business_hours_only: true}`):
+  the policy's schedule, else the ticket department's, else the default one.
+  With none of those, `calculate_due_date/2` keeps the configured hours.
+  """
+  def business_schedule_for(ticket, policy) do
+    if Escalated.configuration().sla[:business_hours_only] do
+      tenant = Map.get(ticket, :tenant_id, "")
+
+      [
+        fn -> policy && policy.business_schedule_id end,
+        fn -> department_schedule_id(ticket) end
+      ]
+      |> Enum.find_value(fn id_fun -> schedule_by_id(id_fun.(), tenant) end)
+      |> Kernel.||(default_schedule(tenant))
+    end
+  end
+
   # Private
 
-  defp due_for(ticket, hours) do
+  defp due_for(_ticket, nil, _schedule), do: nil
+
+  defp due_for(ticket, hours, %BusinessSchedule{} = schedule),
+    do: BusinessHoursCalculator.add_business_hours(due_start(ticket), hours, schedule)
+
+  defp due_for(ticket, hours, nil), do: calculate_due_date(hours, due_start(ticket))
+
+  defp due_start(ticket) do
     if Escalated.config(:targeted_slas, false),
-      do: calculate_due_date(hours, ticket.inserted_at),
-      else: calculate_due_date(hours)
+      do: ticket.inserted_at,
+      else: DateTime.utc_now()
+  end
+
+  defp department_schedule_id(%{department_id: nil}), do: nil
+
+  defp department_schedule_id(%{department_id: id}) do
+    case Escalated.repo().get(Department, id) do
+      %Department{business_schedule_id: schedule_id} -> schedule_id
+      nil -> nil
+    end
+  end
+
+  defp schedule_by_id(nil, _tenant), do: nil
+
+  defp schedule_by_id(id, tenant) do
+    Escalated.repo().one(
+      from(s in BusinessSchedule,
+        where: s.id == ^id and s.tenant_id == ^tenant,
+        preload: [:holidays]
+      )
+    )
+  end
+
+  defp default_schedule(tenant) do
+    Escalated.repo().one(
+      from(s in BusinessSchedule,
+        where: s.is_default == true and s.tenant_id == ^tenant,
+        order_by: [asc: s.id],
+        limit: 1,
+        preload: [:holidays]
+      )
+    )
   end
 
   defp find_policy_for(ticket) do

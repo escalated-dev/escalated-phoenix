@@ -6,7 +6,9 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
 
   Business hours are global here (`sla: %{business_hours_only: ...}` in the
   package configuration), not per policy, so `business_hours_only` is reported from that
-  setting and a value posted with a policy is not stored.
+  setting and a value posted with a policy is not stored. `business_schedule_id`
+  (the business schedule the policy's deadlines count against) is stored when
+  posted and left alone when not.
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
@@ -16,7 +18,7 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.{Department, SlaPolicy, Ticket}
 
-  @fields ~w(name description is_default is_active first_response_hours resolution_hours department_id ticket_type)
+  @fields ~w(name description is_default is_active first_response_hours resolution_hours department_id ticket_type business_schedule_id)
 
   def index(conn, _params) do
     repo = repo()
@@ -115,6 +117,7 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
       business_hours_only: business_hours_only?(),
       department_id: p.department_id,
       ticket_type: p.ticket_type,
+      business_schedule_id: p.business_schedule_id,
       created_at: p.inserted_at && DateTime.to_iso8601(p.inserted_at),
       updated_at: p.updated_at && DateTime.to_iso8601(p.updated_at)
     }
