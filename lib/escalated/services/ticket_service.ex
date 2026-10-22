@@ -6,7 +6,7 @@ defmodule Escalated.Services.TicketService do
   alias Escalated.Events
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.{Contact, Reply, Ticket, TicketActivity}
-  alias Escalated.Services.{GuestAccess, MentionService}
+  alias Escalated.Services.{CustomFieldService, GuestAccess, MentionService}
   import Ecto.Query
   require Logger
 
@@ -17,20 +17,34 @@ defmodule Escalated.Services.TicketService do
   `:contact_id`, a Contact is resolved/created (Pattern B dedupe)
   and `:contact_id` is injected into the changeset attrs.
   """
-  def create(attrs) do
-    if Escalated.TicketVisibility.enabled?() or Escalated.TicketVisibility.accounts?() do
+  def create(attrs), do: create(attrs, [])
+
+  @doc """
+  Creates a ticket with custom field values.
+
+  ## Options
+
+    * `:custom_fields` - the checked changes from
+      `Escalated.Services.CustomFieldService.validate/2`, stored with the
+      ticket in the same transaction, before the created events fire.
+  """
+  def create(attrs, opts) do
+    changes = Keyword.get(opts, :custom_fields, [])
+
+    if changes != [] or Escalated.TicketVisibility.enabled?() or
+         Escalated.TicketVisibility.accounts?() do
       Escalated.repo().transaction(fn ->
-        case do_create(attrs) do
+        case do_create(attrs, changes) do
           {:ok, ticket} -> ticket
           {:error, reason} -> Escalated.repo().rollback(reason)
         end
       end)
     else
-      do_create(attrs)
+      do_create(attrs, changes)
     end
   end
 
-  defp do_create(attrs) do
+  defp do_create(attrs, changes) do
     repo = Escalated.repo()
     attrs = resolve_contact(attrs, repo)
 
@@ -38,11 +52,50 @@ defmodule Escalated.Services.TicketService do
     |> insert()
     |> case do
       {:ok, ticket} ->
+        CustomFieldService.save(ticket.id, changes)
         created(ticket)
         {:ok, ticket}
 
       error ->
         error
+    end
+  end
+
+  @doc """
+  Checks and stores the `custom_fields` a ticket update sent (keyed by slug).
+  Only the keys sent are checked and written. Returns `:ok` or
+  `{:error, %{"custom_fields.<slug>" => [message]}}`.
+  """
+  def save_custom_fields(%Ticket{} = ticket, sent) do
+    with {:ok, changes} <- CustomFieldService.validate(sent, :update) do
+      CustomFieldService.save(ticket.id, changes)
+    end
+  end
+
+  @doc """
+  Updates a ticket's subject and description (escalated-laravel's agent
+  `tickets.update`) and the `custom_fields` it sent, together. Everything is
+  checked before anything is written. Emits `ticket.updated`.
+  """
+  def update_details(%Ticket{} = ticket, params, opts \\ []) do
+    Escalated.TicketVisibility.assert_record!(ticket)
+    attrs = Map.take(params, ["subject", "description"])
+    changeset = Ticket.changeset(ticket, attrs)
+
+    with {:ok, changes} <- CustomFieldService.validate(CustomFieldService.param(params), :update),
+         true <- changeset.valid? || {:error, changeset},
+         {:ok, updated} <-
+           Escalated.repo().transaction(fn ->
+             updated = Escalated.repo().update!(changeset)
+             CustomFieldService.save(ticket.id, changes)
+             updated
+           end) do
+      log_activity(updated, "updated", Keyword.get(opts, :actor_id), %{
+        fields: Map.keys(attrs) ++ Enum.map(changes, fn {f, _} -> "custom_fields.#{f.slug}" end)
+      })
+
+      Events.emit("ticket.updated", %{ticket: updated})
+      {:ok, updated}
     end
   end
 

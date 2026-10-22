@@ -1,6 +1,9 @@
 defmodule Escalated.Schemas.CustomObject do
   @moduledoc """
   Ecto schema for custom object definitions (enterprise custom data models).
+
+  `fields_schema` (escalated-laravel's name) is stored in the existing
+  `field_definitions` column; see `Escalated.Types.FieldsSchema`.
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -10,7 +13,7 @@ defmodule Escalated.Schemas.CustomObject do
     field :name, :string
     field :slug, :string
     field :description, :string
-    field :field_definitions, :map
+    field :fields_schema, Escalated.Types.FieldsSchema, source: :field_definitions
     field :is_active, :boolean, default: true
 
     has_many :records, Escalated.Schemas.CustomObjectRecord
@@ -21,7 +24,7 @@ defmodule Escalated.Schemas.CustomObject do
   @doc false
   def changeset(custom_object, attrs) do
     custom_object
-    |> cast(attrs, [:name, :slug, :description, :field_definitions, :is_active])
+    |> cast(attrs, [:name, :slug, :description, :fields_schema, :is_active])
     |> validate_required([:name])
     |> unique_constraint(:slug)
     |> Escalated.Tenancy.Constraints.add_unique_constraints()

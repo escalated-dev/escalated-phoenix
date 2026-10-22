@@ -15,7 +15,14 @@ defmodule Escalated.Controllers.TicketDesk do
 
   alias Escalated.Rendering.{Paginator, TicketPresenter, UserDirectory}
   alias Escalated.Schemas.{CannedResponse, Department, Macro, Reply, Tag}
-  alias Escalated.Services.{Followers, MacroService, SavedViewService, TicketService}
+
+  alias Escalated.Services.{
+    CustomFieldService,
+    Followers,
+    MacroService,
+    SavedViewService,
+    TicketService
+  }
 
   @filter_keys ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type account_type account_id)
 
@@ -57,7 +64,8 @@ defmodule Escalated.Controllers.TicketDesk do
       cannedResponses: canned_responses(user_id),
       macros: macros(user_id),
       is_following: Followers.following?(ticket.id, user_id),
-      followers_count: Followers.count(ticket.id)
+      followers_count: Followers.count(ticket.id),
+      custom_fields: CustomFieldService.ticket_values(ticket)
     }
   end
 

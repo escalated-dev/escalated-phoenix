@@ -10,7 +10,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
   alias Escalated.Rendering.{Paginator, TicketPresenter, UIRenderer}
   alias Escalated.Schemas.Ticket
-  alias Escalated.Services.TicketService
+  alias Escalated.Services.{CustomFieldService, TicketService}
   alias Escalated.TicketAccess
 
   def index(conn, params) do
@@ -45,7 +45,8 @@ defmodule Escalated.Controllers.Customer.TicketController do
 
     UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
       departments: Enum.map(departments, &%{id: &1.id, name: &1.name}),
-      priorities: Ticket.priorities()
+      priorities: Ticket.priorities(),
+      custom_fields: CustomFieldService.ticket_definitions()
     })
   end
 
@@ -79,18 +80,28 @@ defmodule Escalated.Controllers.Customer.TicketController do
       |> Map.put("requester_id", user_id)
       |> Map.put("requester_type", to_string(Escalated.user_schema()))
 
-    case TicketService.create(attrs) do
-      {:ok, ticket} ->
-        conn
-        |> put_flash(:info, "Ticket created successfully.")
-        |> redirect(to: ticket_path(conn, ticket))
+    # Custom field values are checked before anything is written.
+    with {:ok, changes} <-
+           CustomFieldService.validate(CustomFieldService.param(ticket_params), :create),
+         {:ok, ticket} <- TicketService.create(attrs, custom_fields: changes) do
+      conn
+      |> put_flash(:info, "Ticket created successfully.")
+      |> redirect(to: ticket_path(conn, ticket))
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render_create_errors(conn, format_errors(changeset), customer_fields)
 
-      {:error, changeset} ->
-        UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
-          errors: format_errors(changeset),
-          ticket: customer_fields
-        })
+      {:error, errors} ->
+        render_create_errors(conn, errors, customer_fields)
     end
+  end
+
+  defp render_create_errors(conn, errors, customer_fields) do
+    UIRenderer.render_page(conn, "Escalated/Customer/Create", %{
+      errors: errors,
+      ticket: customer_fields,
+      custom_fields: CustomFieldService.ticket_definitions()
+    })
   end
 
   def show(conn, %{"reference" => reference}) do
@@ -101,6 +112,7 @@ defmodule Escalated.Controllers.Customer.TicketController do
       {:ok, ticket} ->
         UIRenderer.render_page(conn, "Escalated/Customer/Show", %{
           ticket: TicketPresenter.customer_detail(ticket),
+          custom_fields: CustomFieldService.ticket_values(ticket),
           allow_close: Escalated.config(:allow_customer_close, true)
         })
     end

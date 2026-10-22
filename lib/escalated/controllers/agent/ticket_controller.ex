@@ -5,7 +5,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Controllers.TicketDesk
+  alias Escalated.Controllers.{FormResponse, TicketDesk}
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Reply
   alias Escalated.Serializers.TicketSerializer
@@ -34,6 +34,30 @@ defmodule Escalated.Controllers.Agent.TicketController do
           )
 
         UIRenderer.render_page(conn, "Escalated/Agent/TicketShow", props)
+    end
+  end
+
+  @doc """
+  Updates the ticket's subject, description and `custom_fields`
+  (escalated-laravel's `escalated.agent.tickets.update`).
+  """
+  def update(conn, %{"reference" => reference} = params) do
+    user = conn.assigns[:current_user]
+
+    case TicketService.find(reference) do
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      ticket ->
+        case TicketService.update_details(ticket, params, actor_id: user.id) do
+          {:ok, _updated} ->
+            conn
+            |> put_flash(:info, "Ticket updated.")
+            |> redirect(to: agent_ticket_path(conn, ticket))
+
+          {:error, errors} ->
+            FormResponse.invalid(conn, errors, agent_ticket_path(conn, ticket))
+        end
     end
   end
 

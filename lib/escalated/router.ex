@@ -217,6 +217,9 @@ defmodule Escalated.Router do
           # controller is shared with the admin scope.
           post "/tickets/bulk", Escalated.Controllers.BulkActionController, :bulk, alias: false
           get "/tickets/:reference", TicketController, :show
+          # escalated.agent.tickets.update: subject, description, custom_fields.
+          put "/tickets/:reference", TicketController, :update
+          patch "/tickets/:reference", TicketController, :update
           post "/tickets/:reference/reply", TicketController, :reply
           post "/tickets/:reference/note", TicketController, :note
           patch "/tickets/:reference/status", TicketController, :status
@@ -316,6 +319,27 @@ defmodule Escalated.Router do
             only: [:index, :create, :update, :delete]
 
           # Business hours (Laravel's resource routes: /create and /:id/edit).
+          # Custom fields and custom objects (escalated.admin.custom-fields.*,
+          # escalated.admin.custom-objects.*, Laravel's paths). The literal
+          # segments are declared before the :id routes.
+          get "/custom-fields/create", CustomFieldController, :new
+          post "/custom-fields/reorder", CustomFieldController, :reorder
+          get "/custom-fields/:id/edit", CustomFieldController, :edit
+
+          resources "/custom-fields", CustomFieldController,
+            only: [:index, :create, :update, :delete]
+
+          get "/custom-objects/create", CustomObjectController, :new
+          get "/custom-objects/:id/edit", CustomObjectController, :edit
+          get "/custom-objects/:id/records", CustomObjectController, :records
+          post "/custom-objects/:id/records", CustomObjectController, :create_record
+          put "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
+          patch "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
+          delete "/custom-objects/:id/records/:record_id", CustomObjectController, :delete_record
+
+          resources "/custom-objects", CustomObjectController,
+            only: [:index, :create, :update, :delete]
+
           get "/business-hours/create", BusinessHoursController, :new
           get "/business-hours/:id/edit", BusinessHoursController, :edit
 
