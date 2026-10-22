@@ -11,8 +11,10 @@ defmodule Escalated.Schemas.TwoFactor do
     field :tenant_id, :string, default: ""
     field :user_id, @user_id_type
     field :method, :string, default: "totp"
-    field :secret, :string
-    field :recovery_codes, {:array, :string}
+    # The TOTP seed and recovery codes are never serialized, and redacted
+    # from `inspect/1`.
+    field :secret, :string, redact: true
+    field :recovery_codes, {:array, :string}, redact: true
     field :is_enabled, :boolean, default: false
     field :verified_at, :utc_datetime
 

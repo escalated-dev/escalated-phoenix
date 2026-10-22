@@ -196,22 +196,22 @@ defmodule Escalated.Controllers.Admin.ImportController do
   end
 
   @doc """
-  The job as the screens read it. Laravel sends the model as is; its
-  credentials are left out here: they are a secret, and no screen reads them.
+  The job as the screens read it, as Laravel's `ImportJob::toPageProps()`.
+  Built from an explicit field list, so a column added later is not sent to
+  the browser by default; the credentials never are. The error log is its
+  last 50 entries, as the status poll sends.
   """
   def job_json(%ImportJob{} = job) do
     %{
       id: job.id,
-      user_id: job.user_id,
       platform: job.platform,
       status: job.status,
-      field_mappings: job.field_mappings || %{},
       progress: job.progress || %{},
-      error_log: job.error_log || [],
+      field_mappings: job.field_mappings || %{},
+      error_log: Enum.take(job.error_log || [], -50),
       started_at: job.started_at,
       completed_at: job.completed_at,
-      created_at: job.inserted_at,
-      updated_at: job.updated_at
+      created_at: job.inserted_at
     }
   end
 

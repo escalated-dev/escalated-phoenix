@@ -347,6 +347,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `recentTickets`, and `stats.my_open` / `stats.total_open` are now
   `stats.my_assigned` / `stats.open`.
 - Ticket presence (who else is viewing) is kept per node for 60 seconds.
+- Saving a webhook with the secret field left blank (or left out) now keeps
+  the stored secret, because the edit form never receives it. Send
+  `clear_secret: true` to remove it; any other value replaces it, as before.
+  The shared frontend posts `secret: ''` with `clear_secret` and reads
+  `webhook.has_secret`. This backend has no SSO settings, so there is no SSO
+  mask to post back.
+- The import pages' `job` (and each of `jobs`) is now exactly Laravel's field
+  list: `user_id` and `updated_at` are no longer sent, and `error_log` is its
+  last 50 entries.
+
+### Security
+
+- **Stored secrets are guarded from every admin page.** Saving a webhook with
+  the secret field left blank, which is what the edit form sends since it
+  never shows the secret, silently removed the signing secret; it is now kept
+  (see Upgrading). The webhook pages and import pages already sent
+  `has_secret` and an explicit job field list rather than the secret or the
+  credentials; a new router-level test (`SecretsNeverSerializedTest`) now
+  checks the webhook index, edit and delivery-log pages, every import step and
+  the status JSON, and the settings pages for the raw secret, so a later
+  change cannot start sending it. `Webhook.secret`, `ImportJob.credentials`
+  and `TwoFactor.secret` / `recovery_codes` are now `redact: true`, so they
+  no longer appear in `inspect/1` output (logs, crash reports). None of these
+  schemas has a JSON encoder. Not applicable here: SSO settings and API token
+  stores do not exist in this backend, and inbound email secrets are host
+  config, not a stored setting.
 
 ## [0.2.3] - 2026-10-21
 
