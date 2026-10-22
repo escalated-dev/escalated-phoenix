@@ -118,8 +118,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     well as the older nested `department` body. A failed Inertia save goes back
     with field errors; non-Inertia requests answer as before.
 
+- The admin Settings sub-pages the shared UI ships, with escalated-laravel's
+  props, routes and validation (all admin-only, saved in the existing
+  `escalated_settings` store):
+  - `Escalated/Admin/Settings/DatabaseConnection` at `/admin/settings/database`:
+    a read-only view of the repo Escalated's tables live on (`connections`
+    with one entry, `current`, `hostDefault`, `pinnedByConfig: true`,
+    `tablePrefix`). The repo is set in config, so `POST
+    /admin/settings/database` only answers with an error flash, and `POST
+    /admin/settings/database/test` describes it as JSON. Not served with
+    tenancy enabled (Laravel shows it to platform admins only).
+  - `Escalated/Admin/Settings/EmailSettings` at `/admin/settings/email`:
+    `addresses` (`email`, `display_name`, `department_id`, `dkim_status`) and
+    `defaultReplyAddress`, kept in the `email_addresses` and
+    `default_reply_address` settings. Stored only, as in Laravel: outbound mail
+    and the `email_channels` table are unchanged.
+  - `Escalated/Admin/Settings/PublicTickets` at `/admin/settings/public-tickets`
+    over the guest-policy keys the widget already reads. The page posts, so
+    `POST` is accepted beside the existing `PUT`.
+  - `mix escalated.purge_expired` now enforces closed-ticket retention as well
+    (`Escalated.Services.RetentionPurge`), see Changed.
+
+### Changed
+
+- `mix escalated.purge_expired` deletes closed tickets older than
+  `retention_closed_tickets` (it only reported them before), with their
+  replies, activities, attachments and stored files, tags, followers,
+  ratings, links, side conversations, workflow logs, delayed actions, guest
+  grants and custom field values. The ticket schema has no soft delete, so
+  unlike Laravel there is no 30-day grace period. Every retention setting
+  still defaults to `never`, which deletes nothing. Purged attachments'
+  local files are removed too. `--dry-run` reports without deleting.
+- `GET /admin/settings/public-tickets` renders the shared page; a JSON client
+  (`Accept: application/json`, not an Inertia visit) still gets the JSON
+  settings. Saves are validated as in Laravel: an unknown
+  `guest_policy_mode` or `guest_user` without a user id is now refused (a
+  422 for JSON clients, field errors for the page) instead of being coerced
+  to `unassigned`.
+- CSAT and data-retention saves are validated as in Laravel (scale, trigger,
+  delay 0..168, retention options, `retention_user_data_gdpr` required
+  boolean) and a failed Inertia save goes back with field errors.
+  `csat_delay_hours` is rendered as an integer.
+
 ### Fixed
 
+- `Escalated/Admin/Settings/DataRetention` gets its purge preview as
+  `purgePreview`, the prop the page reads (it was sent as `purge_preview`, so
+  the counts always showed 0).
 - The ticket pages now get the props the shared Vue pages read
   (escalated-laravel's Agent, Admin and Customer `TicketController` and agent
   `DashboardController`):
@@ -243,6 +288,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
+- If `retention_closed_tickets` is set to anything but `never`, the next
+  `mix escalated.purge_expired` run deletes the closed tickets it used to only
+  report. Run it with `--dry-run` first to see the count. Schedule it daily
+  from the host (cron, Quantum, Oban cron); the package schedules nothing.
 - Run the new migration `20261024000001_create_ticket_statuses`: it creates
   `ticket_statuses` (with one system row per built-in status for the
   single-tenant namespace; a merchant namespace gets its rows when its admin
