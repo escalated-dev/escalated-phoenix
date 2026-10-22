@@ -88,12 +88,32 @@ defmodule Escalated.Controllers.SatisfactionRatingController do
     |> Escalated.repo().insert()
     |> case do
       {:ok, _rating} ->
-        conn
-        |> put_status(201)
-        |> Phoenix.Controller.json(%{ok: true, message: "Thanks for your feedback."})
+        rated(conn, ticket, params)
 
       {:error, changeset} ->
         conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+    end
+  end
+
+  # The shared SatisfactionRating component posts as an Inertia visit, which
+  # needs a redirect back to the ticket page; other clients keep the 201.
+  defp rated(conn, ticket, params) do
+    if Escalated.Controllers.FormResponse.inertia?(conn) do
+      prefix = Escalated.config(:route_prefix, "/support")
+
+      back =
+        case params["token"] do
+          token when is_binary(token) and token != "" -> "#{prefix}/guest/#{token}"
+          _ -> "#{prefix}/tickets/#{ticket.reference}"
+        end
+
+      conn
+      |> Phoenix.Controller.put_flash(:info, "Thanks for your feedback.")
+      |> Phoenix.Controller.redirect(to: back)
+    else
+      conn
+      |> put_status(201)
+      |> Phoenix.Controller.json(%{ok: true, message: "Thanks for your feedback."})
     end
   end
 

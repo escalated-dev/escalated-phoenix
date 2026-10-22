@@ -164,6 +164,24 @@ defmodule Escalated.Router do
           post "/tickets/:token/rate",
                Escalated.Controllers.SatisfactionRatingController,
                :store_guest
+
+          # The guest portal pages (escalated.guest.tickets.*). /create is
+          # declared ahead of /:token so it is never read as a token.
+          get "/create", Escalated.Controllers.Guest.TicketController, :create
+          get "/:token", Escalated.Controllers.Guest.TicketController, :show
+
+          post "/:token/rate", Escalated.Controllers.SatisfactionRatingController, :store_guest,
+            as: :guest_page_rate
+
+          scope "/" do
+            pipe_through Escalated.Plugs.GuestTicketRateLimit
+            post "/", Escalated.Controllers.Guest.TicketController, :store
+          end
+
+          scope "/" do
+            pipe_through Escalated.Plugs.GuestReplyRateLimit
+            post "/:token/reply", Escalated.Controllers.Guest.TicketController, :reply
+          end
         end
 
         # Customer routes

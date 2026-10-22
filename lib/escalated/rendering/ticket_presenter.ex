@@ -185,7 +185,8 @@ defmodule Escalated.Rendering.TicketPresenter do
   The ticket for `Customer/Show` (and, with the guest-link expiry, for
   `Guest/Show`): Laravel's `CustomerTicketPayload::customerWeb/1`.
   """
-  def customer_detail(%Ticket{} = ticket) do
+  def customer_detail(%Ticket{} = ticket, opts \\ []) do
+    url = Keyword.get(opts, :attachment_url, &Attachment.url/1)
     repo = Escalated.repo()
     ticket = repo.preload(ticket, :department)
 
@@ -208,7 +209,7 @@ defmodule Escalated.Rendering.TicketPresenter do
       priority: ticket.priority,
       channel: ticket.channel,
       department: ticket.department && %{name: ticket.department.name},
-      attachments: ticket_attachments(ticket),
+      attachments: ticket_attachments(ticket, url),
       replies:
         Enum.map(replies, fn reply ->
           %{
@@ -217,7 +218,7 @@ defmodule Escalated.Rendering.TicketPresenter do
             is_internal_note: false,
             is_pinned: reply.is_pinned,
             author: %{name: customer_author_name(ticket, reply, directory, computed)},
-            attachments: Enum.map(reply.attachments, &attachment/1),
+            attachments: Enum.map(reply.attachments, &attachment(&1, url)),
             created_at: iso(reply.inserted_at)
           }
         end),
@@ -249,21 +250,21 @@ defmodule Escalated.Rendering.TicketPresenter do
   # ---------------------------------------------------------------------------
 
   @doc "An attachment as the pages' AttachmentList reads it."
-  def attachment(%Attachment{} = a) do
+  def attachment(%Attachment{} = a, url \\ &Attachment.url/1) do
     %{
       id: a.id,
       original_filename: a.original_filename,
       mime_type: a.mime_type,
       size: a.size,
-      url: Attachment.url(a),
+      url: url.(a),
       created_at: iso(a.inserted_at)
     }
   end
 
-  defp ticket_attachments(ticket) do
+  defp ticket_attachments(ticket, url \\ &Attachment.url/1) do
     from(a in Attachment, where: a.ticket_id == ^ticket.id and is_nil(a.reply_id))
     |> Escalated.repo().all()
-    |> Enum.map(&attachment/1)
+    |> Enum.map(&attachment(&1, url))
   end
 
   defp satisfaction_rating(ticket) do
