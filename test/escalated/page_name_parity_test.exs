@@ -57,8 +57,6 @@ defmodule Escalated.PageNameParityTest do
     Escalated/Admin/Reports/ResponseTimes
     Escalated/Admin/Reports/SlaReport
     Escalated/Admin/Reports/SlaTrends
-    Escalated/Admin/Roles/Form
-    Escalated/Admin/Roles/Index
     Escalated/Admin/Settings/DatabaseConnection
     Escalated/Admin/Settings/EmailSettings
     Escalated/Admin/Settings/PublicTickets

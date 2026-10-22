@@ -45,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `/admin/escalation-rules/create` and `/:id/edit` render the form.
   - Failed SLA policy, escalation rule and webhook writes from an Inertia form
     go back with the errors in the session. JSON clients still get a 422.
+- Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
+  `/create` and `/:id/edit`): `roles` with `users_count` (active agent
+  profiles holding the role), and `permissions` grouped by `group`. Store and
+  update take `name`, `description` and `permissions` (ids), replace the role's
+  permissions, and refuse unknown ids; system roles cannot be deleted.
+- Not rendered, because this backend has no such feature: `Admin/ApiTokens/Index`
+  (API tokens are validated by the host's `api_token_validator`; there is no
+  token store).
 - Not rendered, because this backend has no such feature: `Admin/Statuses/*`.
   Statuses are a fixed set here.
 - The writes the ticket pages post now have routes: `status` and `priority` as
