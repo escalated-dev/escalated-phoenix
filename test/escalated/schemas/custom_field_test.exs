@@ -15,8 +15,10 @@ defmodule Escalated.Schemas.CustomFieldTest do
   end
 
   test "changeset auto-generates slug from name" do
-    changeset = CustomField.changeset(%CustomField{}, %{name: "My Custom Field", field_type: "text"})
-    assert Ecto.Changeset.get_field(changeset, :slug) == "my-custom-field"
+    changeset =
+      CustomField.changeset(%CustomField{}, %{name: "My Custom Field", field_type: "text"})
+
+    assert Ecto.Changeset.get_field(changeset, :slug) == "my_custom_field"
   end
 
   test "field_types returns all expected types" do

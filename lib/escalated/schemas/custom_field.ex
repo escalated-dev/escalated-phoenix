@@ -1,6 +1,11 @@
 defmodule Escalated.Schemas.CustomField do
   @moduledoc """
   Ecto schema for custom field definitions.
+
+  The columns keep their original names (`field_type`, `entity_type`,
+  `is_required`, `is_active`); the admin pages and ticket payloads use
+  escalated-laravel's (`type`, `context`, `required`, `active`), mapped in
+  `Escalated.Services.CustomFieldService`.
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -19,6 +24,9 @@ defmodule Escalated.Schemas.CustomField do
     field :entity_type, :string, default: "ticket"
     field :position, :integer, default: 0
     field :is_active, :boolean, default: true
+    field :placeholder, :string
+    field :validation_rules, Escalated.Types.JsonText
+    field :conditions, Escalated.Types.JsonText
 
     has_many :values, Escalated.Schemas.CustomFieldValue
 
@@ -40,7 +48,10 @@ defmodule Escalated.Schemas.CustomField do
       :default_value,
       :entity_type,
       :position,
-      :is_active
+      :is_active,
+      :placeholder,
+      :validation_rules,
+      :conditions
     ])
     |> validate_required([:name, :field_type, :entity_type])
     |> validate_inclusion(:field_type, @field_types)
@@ -49,15 +60,19 @@ defmodule Escalated.Schemas.CustomField do
     |> maybe_generate_slug()
   end
 
+  @doc "The slug a field named `name` gets: lowercase words joined by `_`."
+  def slugify(name) do
+    name
+    |> to_string()
+    |> String.downcase()
+    |> String.replace(~r/[^a-z0-9]+/, "_")
+    |> String.trim("_")
+  end
+
   defp maybe_generate_slug(changeset) do
     case get_field(changeset, :slug) do
-      nil ->
-        name = get_field(changeset, :name) || ""
-
-        slug =
-          name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-") |> String.trim("-")
-
-        put_change(changeset, :slug, slug)
+      slug when slug in [nil, ""] ->
+        put_change(changeset, :slug, slugify(get_field(changeset, :name) || ""))
 
       _ ->
         changeset

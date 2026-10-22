@@ -7,7 +7,13 @@ defmodule Escalated.Controllers.Api.TicketController do
 
   alias Escalated.Schemas.Attachment
   alias Escalated.Serializers.TicketSerializer
-  alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
+
+  alias Escalated.Services.{
+    AssignmentService,
+    CustomFieldService,
+    TicketActionRegistry,
+    TicketService
+  }
 
   def index(conn, params) do
     filters =
@@ -60,6 +66,7 @@ defmodule Escalated.Controllers.Api.TicketController do
 
         data =
           ticket_json(ticket)
+          |> Map.put(:custom_fields, CustomFieldService.ticket_values(ticket))
           |> Map.put(
             :custom_actions,
             serialize_custom_actions(ticket, conn.assigns[:current_user])
@@ -98,12 +105,21 @@ defmodule Escalated.Controllers.Api.TicketController do
   end
 
   def create(conn, %{"ticket" => params}) do
-    case TicketService.create(params) do
-      {:ok, ticket} ->
-        conn |> put_status(201) |> json(%{data: ticket_json(ticket)})
+    # Custom field values are checked before anything is written.
+    with {:ok, changes} <- CustomFieldService.validate(CustomFieldService.param(params), :create),
+         {:ok, ticket} <- TicketService.create(params, custom_fields: changes) do
+      data =
+        ticket
+        |> ticket_json()
+        |> Map.put(:custom_fields, CustomFieldService.ticket_values(ticket))
 
-      {:error, changeset} ->
+      conn |> put_status(201) |> json(%{data: data})
+    else
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn |> put_status(422) |> json(%{errors: format_errors(changeset)})
+
+      {:error, errors} ->
+        conn |> put_status(422) |> json(%{errors: errors})
     end
   end
 

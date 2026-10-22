@@ -31,11 +31,6 @@ defmodule Escalated.PageNameParityTest do
   # backend does not have stays on it; see the CHANGELOG for which those are.
   @not_yet_rendered ~w(
     Escalated/Admin/ApiTokens/Index
-    Escalated/Admin/CustomFields/Form
-    Escalated/Admin/CustomFields/Index
-    Escalated/Admin/CustomObjects/Form
-    Escalated/Admin/CustomObjects/Index
-    Escalated/Admin/CustomObjects/Records
     Escalated/Admin/Import/Connect
     Escalated/Admin/Import/Index
     Escalated/Admin/Import/Mapping
