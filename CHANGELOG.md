@@ -101,6 +101,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     the flag is set or either deadline was missed.
 
   Not yet rendered: `Reports/AgentDetail`. Report exports are not available.
+- `Admin/AuditLog/Index` renders at `/admin/audit-log`.
+  - It sends `logs` as a paginator of 50 a page, newest first. Each log
+    carries `auditable_type`/`auditable_id` (this backend's
+    `entity_type`/`entity_id`) and the acting `user`.
+  - It also sends `filters`, `users`, `actions` and `resourceTypes`.
+  - Filters: `user_id`, `action`, `auditable_type`, `date_from`, `date_to`.
+  - `users` lists the people who appear in the log, not every host user.
+- Not rendered, because this backend has no such feature:
+  - `Admin/BusinessHours/*`. Business hours are package configuration here;
+    the schedule and holiday tables are not used.
+  - `Admin/CustomFields/*` and `Admin/CustomObjects/*`. They exist as tables
+    only.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and

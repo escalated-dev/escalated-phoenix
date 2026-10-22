@@ -315,6 +315,8 @@ defmodule Escalated.Router do
           resources "/sla-policies", SlaPolicyController,
             only: [:index, :create, :update, :delete]
 
+          get "/audit-log", AuditLogController, :index
+
           # Report screens (escalated.admin.reports.*, Laravel's paths).
           get "/reports", ReportController, :index
           get "/reports/dashboard", ReportController, :dashboard
