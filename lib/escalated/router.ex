@@ -290,6 +290,13 @@ defmodule Escalated.Router do
           post "/tickets/:reference/unsnooze", TicketController, :unsnooze
           post "/tickets/:reference/split", TicketController, :split
 
+          # SLA policies (Laravel's resource routes: /create and /:id/edit).
+          get "/sla-policies/create", SlaPolicyController, :new
+          get "/sla-policies/:id/edit", SlaPolicyController, :edit
+
+          resources "/sla-policies", SlaPolicyController,
+            only: [:index, :create, :update, :delete]
+
           resources "/departments", DepartmentController, except: [:edit]
           resources "/tags", TagController, except: [:edit]
 
@@ -339,6 +346,10 @@ defmodule Escalated.Router do
 
           # Time-based escalation rules (evaluated by
           # `mix escalated.evaluate_escalations`).
+          # The shared pages link to /create and /:id/edit (Laravel's resource
+          # routes); declared ahead of the resource so "create" is no id.
+          get "/escalation-rules/create", EscalationRuleController, :new
+          get "/escalation-rules/:id/edit", EscalationRuleController, :edit
           resources "/escalation-rules", EscalationRuleController, except: [:edit, :new]
           post "/escalation-rules/run", EscalationRuleController, :run
 
@@ -364,7 +375,10 @@ defmodule Escalated.Router do
 
           # Outbound webhooks: CRUD over subscriptions plus the per-webhook
           # delivery log and a manual delivery retry.
+          get "/webhooks/create", WebhookController, :new
+          get "/webhooks/:id/edit", WebhookController, :edit
           resources "/webhooks", WebhookController, only: [:index, :create, :update, :delete]
+          post "/webhooks/deliveries/:id/retry", WebhookController, :retry
           get "/webhooks/:id/deliveries", WebhookController, :deliveries
           post "/webhook-deliveries/:id/retry", WebhookController, :retry
 

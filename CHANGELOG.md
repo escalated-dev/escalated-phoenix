@@ -29,6 +29,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Customer/Index` sends a paginator; `Customer/Show` sends the requester-safe
     allow-list (no internal notes, staff by display name, no assignee or
     metadata), with `department` and `satisfaction_rating`.
+- Admin configuration pages:
+  - SLA policies have admin pages for the first time (`Admin/SlaPolicies/Index`
+    and `Form`, at `/admin/sla-policies`, `/create` and `/:id/edit`), with the
+    props Laravel's `SlaPolicyController` sends: `policies` with
+    `tickets_count`, then `priorities`, `targeted`, `departments` and
+    `ticketTypes`. Deleting a policy unlinks its tickets.
+  - `Admin/Webhooks/Form` renders at `/admin/webhooks/create` and
+    `/:id/edit`.
+  - The webhook index sends each webhook's recent `deliveries`, which is where
+    the page reads the last delivery.
+  - `Admin/Webhooks/DeliveryLog` sends a paginator with `created_at`.
+  - Retry also answers on Laravel's `/admin/webhooks/deliveries/:id/retry`.
+  - The escalation rule index lists inactive rules as well, and
+    `/admin/escalation-rules/create` and `/:id/edit` render the form.
+  - Failed SLA policy, escalation rule and webhook writes from an Inertia form
+    go back with the errors in the session. JSON clients still get a 422.
+- Not rendered, because this backend has no such feature: `Admin/Statuses/*`.
+  Statuses are a fixed set here.
 - The writes the ticket pages post now have routes: `status` and `priority` as
   POST (the PATCH routes stay), `follow`, `macro`, `presence` and
   `replies/:reply_id/pin` on both desks, POST `tags`/`department` on the admin
@@ -40,6 +58,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Upgrading
 
+- A policy's `business_hours_only` is reported from the package-wide
+  `sla.business_hours_only` setting; a value posted with a policy is not
+  stored, as business hours are not per policy here.
 - Hosts reading the agent dashboard props directly: `recent_tickets` is now
   `recentTickets`, and `stats.my_open` / `stats.total_open` are now
   `stats.my_assigned` / `stats.open`.
