@@ -72,6 +72,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The guest rate limits and privacy headers apply to all of these.
 - A CSAT rating posted as an Inertia visit, from the customer or guest page,
   redirects back to the ticket instead of answering JSON.
+- `Admin/Workflows/Logs` renders at `/admin/workflows/logs` with `logs` and
+  `workflows`, newest first, optionally filtered with `?workflow=id`. Each log
+  carries `workflow_name`, `ticket_reference`, `event`, `matched`, `status`,
+  `duration_ms`, `error`, a count in `actions_executed` and the actions in
+  `action_details`. `/admin/workflows/:id/logs` redirects to the filtered
+  page. `Admin/Workflows/Builder` is not rendered, and neither does Laravel
+  render it; the builder lives inside `Workflows/Form`.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and

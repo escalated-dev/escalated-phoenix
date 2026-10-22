@@ -369,6 +369,9 @@ defmodule Escalated.Router do
           # domain-model/workflow-admin-contract.md. reorder is declared ahead
           # of the resource so the literal segment is never read as an :id.
           post "/workflows/reorder", WorkflowController, :reorder
+          # The run log, ahead of the resource so "logs" is never read as an id.
+          get "/workflows/logs", WorkflowController, :logs
+          get "/workflows/:id/logs", WorkflowController, :workflow_logs
           post "/workflows/:id/toggle", WorkflowController, :toggle
           resources "/workflows", WorkflowController
 
