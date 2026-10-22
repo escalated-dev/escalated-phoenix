@@ -5,66 +5,42 @@ defmodule Escalated.Controllers.Admin.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.{Attachment, Department, Reply, Tag, Ticket, TicketActivity}
+  alias Escalated.Controllers.TicketDesk
+  alias Escalated.Rendering.{UIRenderer, UserDirectory}
+  alias Escalated.Schemas.Department
   alias Escalated.Serializers.TicketSerializer
   alias Escalated.Services.{AssignmentService, TicketService}
-  import Ecto.Query
 
   def index(conn, params) do
-    repo = Escalated.repo()
-    tickets = TicketService.list(atomize_filters(params))
-
-    departments = repo.all(Department.active() |> Department.ordered())
-    tags = repo.all(Tag.ordered())
-
-    UIRenderer.render_page(conn, "Escalated/Admin/Tickets/Index", %{
-      tickets: Enum.map(tickets, &ticket_list_json/1),
-      meta: %{total: length(tickets)},
-      filters: params,
-      departments: Enum.map(departments, &%{id: &1.id, name: &1.name}),
-      tags: Enum.map(tags, &%{id: &1.id, name: &1.name, color: &1.color}),
-      statuses: Ticket.statuses(),
-      priorities: Ticket.priorities(),
-      ticket_types: Ticket.ticket_types()
-    })
+    UIRenderer.render_page(
+      conn,
+      "Escalated/Admin/Tickets/Index",
+      TicketDesk.queue_props(conn, params, "admin")
+    )
   end
 
   def show(conn, %{"reference" => reference}) do
-    repo = Escalated.repo()
-
     case TicketService.find(reference) do
       nil ->
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
       ticket ->
-        ticket = repo.preload(ticket, :attachments)
+        props =
+          conn
+          |> TicketDesk.show_props(ticket)
+          |> Map.merge(%{
+            agents: UserDirectory.agents(),
+            is_snoozed: TicketSerializer.computed_fields(ticket).is_snoozed
+          })
 
-        replies =
-          repo.all(from(r in Reply, where: r.ticket_id == ^ticket.id) |> Reply.chronological())
-          |> repo.preload(:attachments)
-
-        activities =
-          repo.all(
-            from(a in TicketActivity, where: a.ticket_id == ^ticket.id)
-            |> TicketActivity.reverse_chronological()
-            |> limit(50)
-          )
-
-        departments = repo.all(Department.active() |> Department.ordered())
-        tags = repo.all(Tag.ordered())
-
-        UIRenderer.render_page(conn, "Escalated/Admin/Tickets/Show", %{
-          ticket: ticket_detail_json(ticket),
-          replies: Enum.map(replies, &reply_json/1),
-          activities: Enum.map(activities, &activity_json/1),
-          departments: Enum.map(departments, &%{id: &1.id, name: &1.name}),
-          tags: Enum.map(tags, &%{id: &1.id, name: &1.name, color: &1.color}),
-          statuses: Ticket.statuses(),
-          priorities: Ticket.priorities()
-        })
+        UIRenderer.render_page(conn, "Escalated/Admin/Tickets/Show", props)
     end
   end
+
+  def follow(conn, params), do: TicketDesk.follow(conn, params, "admin")
+  def macro(conn, params), do: TicketDesk.apply_macro(conn, params, "admin")
+  def pin(conn, params), do: TicketDesk.pin(conn, params, "admin")
+  defdelegate presence(conn, params), to: TicketDesk
 
   def reply(conn, %{"reference" => reference, "body" => body}) do
     user = conn.assigns[:current_user]
@@ -202,97 +178,6 @@ defmodule Escalated.Controllers.Admin.TicketController do
   defp admin_ticket_path(conn, ticket) do
     prefix = Escalated.config(:route_prefix, "/support")
     "#{prefix}/admin/tickets/#{ticket.reference}"
-  end
-
-  defp atomize_filters(params) do
-    params
-    |> Map.take(
-      ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type account_type account_id)
-    )
-    |> Enum.reduce(%{}, fn
-      {_key, ""}, acc -> acc
-      {_key, nil}, acc -> acc
-      {"unassigned", "true"}, acc -> Map.put(acc, :unassigned, true)
-      {"sla_breached", "true"}, acc -> Map.put(acc, :sla_breached, true)
-      {key, val}, acc -> Map.put(acc, String.to_existing_atom(key), val)
-    end)
-  end
-
-  defp ticket_list_json(t) do
-    %{
-      id: t.id,
-      reference: t.reference,
-      subject: t.subject,
-      status: t.status,
-      priority: t.priority,
-      ticket_type: t.ticket_type,
-      assigned_to: t.assigned_to,
-      department_id: t.department_id,
-      sla_breached: t.sla_breached,
-      created_at: t.inserted_at && DateTime.to_iso8601(t.inserted_at),
-      updated_at: t.updated_at && DateTime.to_iso8601(t.updated_at)
-    }
-    |> Map.merge(TicketSerializer.computed_fields(t))
-  end
-
-  defp ticket_detail_json(t) do
-    ticket_list_json(t)
-    |> Map.merge(%{
-      description: t.description,
-      metadata: t.metadata,
-      sla_policy_id: t.sla_policy_id,
-      attachments: serialize_attachments(t),
-      sla_first_response_due_at:
-        t.sla_first_response_due_at && DateTime.to_iso8601(t.sla_first_response_due_at),
-      sla_resolution_due_at:
-        t.sla_resolution_due_at && DateTime.to_iso8601(t.sla_resolution_due_at),
-      first_response_at: t.first_response_at && DateTime.to_iso8601(t.first_response_at),
-      resolved_at: t.resolved_at && DateTime.to_iso8601(t.resolved_at),
-      closed_at: t.closed_at && DateTime.to_iso8601(t.closed_at)
-    })
-    |> Map.merge(TicketSerializer.detail_fields(t))
-  end
-
-  defp reply_json(r) do
-    %{
-      id: r.id,
-      body: r.body,
-      is_internal: r.is_internal,
-      is_system: r.is_system,
-      is_pinned: r.is_pinned,
-      author_id: r.author_id,
-      attachments: serialize_attachments(r),
-      created_at: r.inserted_at && DateTime.to_iso8601(r.inserted_at)
-    }
-  end
-
-  defp activity_json(a) do
-    %{
-      id: a.id,
-      action: a.action,
-      description: a.description,
-      causer_id: a.causer_id,
-      details: a.details,
-      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at),
-      created_at_human: TicketSerializer.human_time(a.inserted_at)
-    }
-  end
-
-  defp serialize_attachments(%{attachments: attachments}) when is_list(attachments) do
-    Enum.map(attachments, &attachment_json/1)
-  end
-
-  defp serialize_attachments(_), do: []
-
-  defp attachment_json(a) do
-    %{
-      id: a.id,
-      original_filename: a.original_filename,
-      mime_type: a.mime_type,
-      size: a.size,
-      url: Attachment.url(a),
-      created_at: a.inserted_at && DateTime.to_iso8601(a.inserted_at)
-    }
   end
 
   defp format_errors(changeset) do

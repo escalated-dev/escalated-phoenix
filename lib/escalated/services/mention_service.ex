@@ -212,7 +212,10 @@ defmodule Escalated.Services.MentionService do
     end
   end
 
-  defp restrict_to_agents(query, schema) do
+  @doc false
+  # Narrows a host user query to agents and admins. Shared with
+  # Escalated.Rendering.UserDirectory, which lists the agent picker.
+  def restrict_to_agents(query, schema) do
     cond do
       Escalated.Tenancy.enabled?() ->
         Escalated.Permissions.tenant_agents(query)

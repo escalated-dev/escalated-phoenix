@@ -173,6 +173,8 @@ defmodule Escalated.Router do
           post "/tickets", TicketController, :create
           get "/tickets/:reference", TicketController, :show
           post "/tickets/:reference/reply", TicketController, :reply
+          post "/tickets/:reference/close", TicketController, :close
+          post "/tickets/:reference/reopen", TicketController, :reopen
         end
 
         # Customer-facing knowledge base (read + feedback), gated by the
@@ -203,6 +205,14 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/priority", TicketController, :priority
           post "/tickets/:reference/assign", TicketController, :assign
           post "/tickets/:reference/actions/:action", TicketController, :custom_action
+          # The shared ticket page posts these (escalated.agent.tickets.*). Status
+          # and priority are POST there; the PATCH routes stay for API clients.
+          post "/tickets/:reference/status", TicketController, :status
+          post "/tickets/:reference/priority", TicketController, :priority
+          post "/tickets/:reference/follow", TicketController, :follow
+          post "/tickets/:reference/macro", TicketController, :macro
+          post "/tickets/:reference/presence", TicketController, :presence
+          post "/tickets/:reference/replies/:reply_id/pin", TicketController, :pin
 
           resources "/saved-views", SavedViewController, except: [:new, :edit]
           post "/tickets/:reference/snooze", TicketController, :snooze
@@ -245,6 +255,16 @@ defmodule Escalated.Router do
           patch "/tickets/:reference/priority", TicketController, :priority
           post "/tickets/:reference/assign", TicketController, :assign
           patch "/tickets/:reference/tags", TicketController, :tags
+          # The shared ticket page posts these (escalated.admin.tickets.*). Status
+          # and priority are POST there; the PATCH routes stay for API clients.
+          post "/tickets/:reference/status", TicketController, :status
+          post "/tickets/:reference/priority", TicketController, :priority
+          post "/tickets/:reference/follow", TicketController, :follow
+          post "/tickets/:reference/macro", TicketController, :macro
+          post "/tickets/:reference/presence", TicketController, :presence
+          post "/tickets/:reference/replies/:reply_id/pin", TicketController, :pin
+          post "/tickets/:reference/tags", TicketController, :tags
+          post "/tickets/:reference/department", TicketController, :department
           post "/tickets/:reference/subjects", TicketSubjectController, :create
           delete "/tickets/:reference/subjects/:id", TicketSubjectController, :delete
 
