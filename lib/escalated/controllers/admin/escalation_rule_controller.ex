@@ -9,6 +9,9 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
+  import Ecto.Query, only: [from: 2]
+
+  alias Escalated.Controllers.FormResponse
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.EscalationRule
   alias Escalated.Services.EscalationService
@@ -16,15 +19,20 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
   def index(conn, _params) do
     repo = Escalated.repo()
 
-    rules =
-      EscalationRule
-      |> EscalationRule.active()
-      |> repo.all()
+    # Every rule, inactive ones too: the page shows the active flag and is
+    # where a disabled rule is turned back on.
+    rules = repo.all(from(r in EscalationRule, order_by: [asc: r.order, asc: r.id]))
 
     UIRenderer.render_page(conn, "Escalated/Admin/EscalationRules/Index", %{
       rules: Enum.map(rules, &EscalationRule.to_json/1)
     })
   end
+
+  def new(conn, _params) do
+    UIRenderer.render_page(conn, "Escalated/Admin/EscalationRules/Form", %{rule: nil})
+  end
+
+  def edit(conn, params), do: show(conn, params)
 
   def show(conn, %{"id" => id}) do
     repo = Escalated.repo()
@@ -54,7 +62,7 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
         conn |> put_flash(:info, "Escalation rule created.") |> redirect(to: admin_path(conn))
 
       {:error, changeset} ->
-        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+        FormResponse.invalid(conn, changeset, admin_path(conn) <> "/create")
     end
   end
 
@@ -77,7 +85,7 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
             conn |> put_flash(:info, "Escalation rule updated.") |> redirect(to: admin_path(conn))
 
           {:error, cs} ->
-            conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(cs)})
+            FormResponse.invalid(conn, cs, "#{admin_path(conn)}/#{id}/edit")
         end
     end
   end
@@ -104,13 +112,5 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
   defp admin_path(_conn) do
     prefix = Escalated.config(:route_prefix, "/support")
     "#{prefix}/admin/escalation-rules"
-  end
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
   end
 end
