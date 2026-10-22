@@ -59,9 +59,7 @@ defmodule Escalated.Controllers.Agent.SavedViewController do
             conn |> put_status(403) |> Phoenix.Controller.json(%{error: "Not authorized"})
 
           {:error, changeset} ->
-            conn
-            |> put_status(422)
-            |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+            conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
         end
     end
   end
@@ -82,9 +80,7 @@ defmodule Escalated.Controllers.Agent.SavedViewController do
             conn |> put_status(403) |> Phoenix.Controller.json(%{error: "Not authorized"})
 
           {:error, _} ->
-            conn
-            |> put_status(422)
-            |> Phoenix.Controller.json(%{error: "Could not delete saved view"})
+            conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Could not delete saved view"})
         end
     end
   end

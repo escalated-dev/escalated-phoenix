@@ -2,51 +2,32 @@ defmodule Escalated.Services.WorkflowEngineTest do
   use ExUnit.Case, async: true
   alias Escalated.Services.WorkflowEngine
 
-  @ticket %{
-    status: "open",
-    priority: "medium",
-    subject: "Test billing issue",
-    description: "desc",
-    reference: "ESC-001"
-  }
+  @ticket %{status: "open", priority: "medium", subject: "Test billing issue", description: "desc", reference: "ESC-001"}
 
   test "evaluates AND conditions" do
-    conditions = %{
-      "all" => [
-        %{"field" => "status", "operator" => "equals", "value" => "open"},
-        %{"field" => "priority", "operator" => "equals", "value" => "medium"}
-      ]
-    }
-
+    conditions = %{"all" => [
+      %{"field" => "status", "operator" => "equals", "value" => "open"},
+      %{"field" => "priority", "operator" => "equals", "value" => "medium"}
+    ]}
     assert WorkflowEngine.evaluate_conditions(conditions, @ticket) == true
   end
 
   test "evaluates OR conditions" do
-    conditions = %{
-      "any" => [
-        %{"field" => "status", "operator" => "equals", "value" => "closed"},
-        %{"field" => "status", "operator" => "equals", "value" => "open"}
-      ]
-    }
-
+    conditions = %{"any" => [
+      %{"field" => "status", "operator" => "equals", "value" => "closed"},
+      %{"field" => "status", "operator" => "equals", "value" => "open"}
+    ]}
     assert WorkflowEngine.evaluate_conditions(conditions, @ticket) == true
   end
 
   test "contains operator" do
-    conditions = %{
-      "all" => [%{"field" => "subject", "operator" => "contains", "value" => "billing"}]
-    }
-
+    conditions = %{"all" => [%{"field" => "subject", "operator" => "contains", "value" => "billing"}]}
     assert WorkflowEngine.evaluate_conditions(conditions, @ticket) == true
   end
 
   test "is_empty operator" do
     ticket = %{description: ""}
-
-    conditions = %{
-      "all" => [%{"field" => "description", "operator" => "is_empty", "value" => ""}]
-    }
-
+    conditions = %{"all" => [%{"field" => "description", "operator" => "is_empty", "value" => ""}]}
     assert WorkflowEngine.evaluate_conditions(conditions, ticket) == true
   end
 
