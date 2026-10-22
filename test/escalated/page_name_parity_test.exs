@@ -45,8 +45,6 @@ defmodule Escalated.PageNameParityTest do
     Escalated/Admin/Import/Progress
     Escalated/Admin/Import/Review
     Escalated/Admin/Reports/AgentDetail
-    Escalated/Admin/Reports/Cohorts
-    Escalated/Admin/Reports/SlaTrends
     Escalated/Admin/Settings/DatabaseConnection
     Escalated/Admin/Settings/EmailSettings
     Escalated/Admin/Settings/PublicTickets

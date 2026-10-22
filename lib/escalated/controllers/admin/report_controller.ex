@@ -17,7 +17,8 @@ defmodule Escalated.Controllers.Admin.ReportController do
     comparison: "Escalated/Admin/Reports/Comparison",
     response_times: "Escalated/Admin/Reports/ResponseTimes",
     resolution_times: "Escalated/Admin/Reports/ResolutionTimes",
-    agent_ranking: "Escalated/Admin/Reports/AgentRanking"
+    agent_ranking: "Escalated/Admin/Reports/AgentRanking",
+    cohorts: "Escalated/Admin/Reports/Cohorts"
   }
 
   def index(conn, params), do: screen(conn, params, :overview)
@@ -29,6 +30,13 @@ defmodule Escalated.Controllers.Admin.ReportController do
   def response_times(conn, params), do: screen(conn, params, :response_times)
   def resolution_times(conn, params), do: screen(conn, params, :resolution_times)
   def agent_ranking(conn, params), do: screen(conn, params, :agent_ranking)
+  def cohorts(conn, params), do: screen(conn, params, :cohorts)
+
+  def sla_trends(conn, params) do
+    group_by = if params["group_by"] in ["week", "month"], do: params["group_by"], else: "day"
+    props = ReportScreens.sla_trends(ReportScreens.period_days(params), group_by)
+    UIRenderer.render_page(conn, "Escalated/Admin/Reports/SlaTrends", props)
+  end
 
   defp screen(conn, params, name) do
     props = apply(ReportScreens, name, [ReportScreens.period_days(params)])

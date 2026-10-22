@@ -89,6 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ResponseTimes` at `/reports/response-times` and `/reports/frt`
   - `ResolutionTimes` at `/reports/resolution-times` and `/reports/resolution`
   - `AgentRanking` at `/reports/agent-ranking`
+  - `SlaTrends` at `/reports/sla-trends` (`group_by` day, week or month)
+  - `Cohorts` at `/reports/cohorts`
 
   Each sends the props escalated-laravel's `ReportController` sends:
   - Charts get `%{label, value}` lists.
@@ -98,8 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     backend keeps one `sla_breached` flag. A ticket counts as breached when
     the flag is set or either deadline was missed.
 
-  Not yet rendered: `Reports/SlaTrends`, `Reports/Cohorts` and
-  `Reports/AgentDetail`. Report exports are not available.
+  Not yet rendered: `Reports/AgentDetail`. Report exports are not available.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and

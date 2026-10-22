@@ -292,6 +292,73 @@ defmodule Escalated.Rendering.ReportScreens do
     %{period_days: days, agents: agents}
   end
 
+  @doc "`Escalated/Admin/Reports/SlaTrends`. `group_by` is day, week or month."
+  def sla_trends(days, group_by \\ "day") do
+    tickets = tickets(days)
+    breached = Enum.filter(tickets, &breached?/1)
+    departments = department_names(tickets)
+    period = &period_label(&1.inserted_at, group_by)
+
+    trend =
+      breached
+      |> Enum.group_by(period)
+      |> Enum.sort_by(&elem(&1, 0))
+      |> Enum.map(fn {label, rows} ->
+        {frt, res} = count_types(rows)
+        {label, length(rows), frt, res}
+      end)
+
+    {frt_total, res_total} = count_types(breached)
+
+    %{
+      period_days: days,
+      breach_trend: Enum.map(trend, fn {label, total, _, _} -> %{label: label, value: total} end),
+      breach_by_type_trend:
+        Enum.map(trend, fn {label, _, frt, res} -> %{label: label, values: [frt, res]} end),
+      breach_by_department:
+        breach_rates(tickets, &Map.get(departments, &1.department_id, "Unassigned")),
+      breach_by_priority: breach_rates(tickets, &label(&1.priority)),
+      at_risk_tickets: at_risk_tickets(),
+      total_breaches: length(breached),
+      breach_rate: percent(length(breached), length(tickets), 0.0),
+      first_response_breaches: frt_total,
+      resolution_breaches: res_total
+    }
+  end
+
+  @doc "`Escalated/Admin/Reports/Cohorts`."
+  def cohorts(days) do
+    tickets = tickets(days)
+    ratings = ratings(days) |> Enum.group_by(& &1.ticket_id, & &1.rating)
+    departments = department_names(tickets)
+    tags = tag_names(Enum.map(tickets, & &1.id))
+
+    by = fn key_fun ->
+      tickets
+      |> Enum.flat_map(fn t -> t |> key_fun.() |> List.wrap() |> Enum.map(&{label(&1), t}) end)
+      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+      |> Enum.map(fn {name, rows} ->
+        %{
+          name: name,
+          volume: length(rows),
+          avg_resolution: avg(Enum.map(rows, &resolution_hours/1)),
+          breach_rate: percent(Enum.count(rows, &breached?/1), length(rows), 0.0),
+          csat: avg(Enum.flat_map(rows, &Map.get(ratings, &1.id, [])))
+        }
+      end)
+      |> Enum.sort_by(& &1.volume, :desc)
+    end
+
+    %{
+      period_days: days,
+      by_tag: by.(&Map.get(tags, &1.id, [])),
+      by_department: by.(&Map.get(departments, &1.department_id, "Unassigned")),
+      by_channel: by.(& &1.channel),
+      by_type: by.(& &1.ticket_type),
+      by_priority: by.(& &1.priority)
+    }
+  end
+
   # ---------------------------------------------------------------------------
   # Figures
   # ---------------------------------------------------------------------------
@@ -411,6 +478,98 @@ defmodule Escalated.Rendering.ReportScreens do
     met = Enum.count(under_policy, &(not breached?(&1)))
     percent(met, length(under_policy), 100.0)
   end
+
+  defp count_types(tickets) do
+    Enum.reduce(tickets, {0, 0}, fn t, {frt, res} ->
+      {f, r} = breach_types(t)
+      {frt + if(f, do: 1, else: 0), res + if(r, do: 1, else: 0)}
+    end)
+  end
+
+  defp breach_rates(tickets, key_fun) do
+    tickets
+    |> Enum.group_by(key_fun)
+    |> Enum.map(fn {name, rows} ->
+      %{label: name, value: percent(Enum.count(rows, &breached?/1), length(rows), 0.0)}
+    end)
+    |> Enum.sort_by(& &1.label)
+  end
+
+  # Open tickets whose next unmet SLA deadline falls in the next 8 hours,
+  # soonest first; the screen sorts them into <=1h, <=4h and <=8h itself.
+  defp at_risk_tickets do
+    now = DateTime.utc_now()
+    deadline = DateTime.add(now, 8 * 3600, :second)
+    open = ~w(open in_progress waiting_on_customer waiting_on_agent escalated reopened)
+
+    from(t in Ticket,
+      where:
+        t.status in ^open and
+          ((is_nil(t.first_response_at) and t.sla_first_response_due_at >= ^now and
+              t.sla_first_response_due_at <= ^deadline) or
+             (is_nil(t.resolved_at) and t.sla_resolution_due_at >= ^now and
+                t.sla_resolution_due_at <= ^deadline))
+    )
+    |> Escalated.repo().all()
+    |> Enum.map(fn t ->
+      due =
+        [
+          if(is_nil(t.first_response_at), do: t.sla_first_response_due_at),
+          if(is_nil(t.resolved_at), do: t.sla_resolution_due_at)
+        ]
+        |> Enum.reject(&is_nil/1)
+        |> Enum.filter(&within?(&1, now, deadline))
+        |> Enum.min_by(&DateTime.to_unix/1)
+
+      %{
+        id: t.id,
+        reference: t.reference,
+        subject: t.subject,
+        hours_remaining: Float.round(DateTime.diff(due, now, :second) / 3600, 1)
+      }
+    end)
+    |> Enum.sort_by(& &1.hours_remaining)
+    |> Enum.take(50)
+  end
+
+  defp within?(at, from, to),
+    do: DateTime.compare(at, from) != :lt and DateTime.compare(at, to) != :gt
+
+  defp tag_names([]), do: %{}
+
+  defp tag_names(ticket_ids) do
+    links =
+      from(tt in Escalated.Schemas.TicketTag,
+        where: tt.ticket_id in ^ticket_ids,
+        select: {tt.ticket_id, tt.tag_id}
+      )
+      |> Escalated.repo().all()
+
+    names =
+      case links |> Enum.map(&elem(&1, 1)) |> Enum.uniq() do
+        [] ->
+          %{}
+
+        ids ->
+          from(t in Escalated.Schemas.Tag, where: t.id in ^ids, select: {t.id, t.name})
+          |> Escalated.repo().all()
+          |> Map.new()
+      end
+
+    links
+    |> Enum.filter(fn {_ticket, tag} -> Map.has_key?(names, tag) end)
+    |> Enum.group_by(&elem(&1, 0), &Map.fetch!(names, elem(&1, 1)))
+  end
+
+  defp period_label(dt, "week") do
+    date = DateTime.to_date(dt)
+    date |> Date.add(1 - Date.day_of_week(date)) |> Date.to_iso8601()
+  end
+
+  defp period_label(dt, "month"),
+    do: dt |> DateTime.to_date() |> Date.to_iso8601() |> String.slice(0, 7)
+
+  defp period_label(dt, _day), do: date(dt)
 
   defp assignees([]), do: %{}
 

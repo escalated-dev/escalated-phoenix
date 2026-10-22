@@ -209,6 +209,51 @@ defmodule Escalated.Controllers.ReportPagesTest do
     assert agent["resolution_rate"] == 50.0
   end
 
+  test "SlaTrends", ctx do
+    {:ok, at_risk} =
+      Escalated.Services.TicketService.create(%{subject: "Due soon", description: "x"})
+
+    at_risk
+    |> Ecto.Changeset.change(
+      sla_first_response_due_at:
+        DateTime.utc_now() |> DateTime.add(2 * 3600) |> DateTime.truncate(:second)
+    )
+    |> repo().update!()
+
+    props = screen(ctx, "/sla-trends?group_by=week", "Escalated/Admin/Reports/SlaTrends")
+
+    assert_keys(
+      props,
+      ~w(period_days breach_trend breach_by_type_trend breach_by_department breach_by_priority at_risk_tickets total_breaches breach_rate first_response_breaches resolution_breaches)
+    )
+
+    assert props["total_breaches"] == 1
+    assert props["first_response_breaches"] == 1
+    assert_series(props["breach_trend"], "breach_trend")
+    assert [%{"values" => [1, 0]}] = props["breach_by_type_trend"]
+    assert_series(props["breach_by_priority"], "breach_by_priority")
+    assert [risk] = props["at_risk_tickets"]
+    assert_keys(risk, ~w(id reference subject hours_remaining), "at-risk ticket")
+    assert risk["hours_remaining"] > 1.5 and risk["hours_remaining"] <= 2.0
+  end
+
+  test "Cohorts", ctx do
+    props = screen(ctx, "/cohorts", "Escalated/Admin/Reports/Cohorts")
+
+    assert_keys(props, ~w(period_days by_tag by_department by_channel by_type by_priority))
+
+    for key <- ~w(by_department by_channel by_type by_priority) do
+      Enum.each(
+        props[key],
+        &assert_keys(&1, ~w(name volume avg_resolution breach_rate csat), key)
+      )
+    end
+
+    billing = Enum.find(props["by_department"], &(&1["name"] == "Billing"))
+    assert billing["volume"] == 1
+    assert billing["csat"] == 4.0
+  end
+
   test "agents only see the reports of an admin's desk", ctx do
     assert visit(:get, "/support/admin/reports/dashboard", ctx.agent).status == 403
   end
