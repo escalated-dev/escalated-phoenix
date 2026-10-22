@@ -46,7 +46,7 @@
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.2.4"}
+    {:escalated_phoenix, "~> 0.2.5"}
   ]
 end
 ```
