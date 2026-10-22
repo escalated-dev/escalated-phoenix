@@ -7,8 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [0.2.4] - 2026-10-22
 
+### Upgrading
+- If `retention_closed_tickets` is set to anything but `never`, the next
+  `mix escalated.purge_expired` run deletes the closed tickets it used to only
+  report. Run it with `--dry-run` first to see the count. Schedule it daily
+  from the host (cron, Quantum, Oban cron); the package schedules nothing.
+- Run the migrations: `20261025000101_create_import_tables` adds
+  `import_jobs` and `import_source_maps`, both tenant-owned.
+- Set `:import_secret` (32 bytes or more) unless `:guest_access_secret` is set;
+  starting an import refuses without one.
+- Run the new migration `20261024000001_create_ticket_statuses`: it creates
+  `ticket_statuses` (with one system row per built-in status for the
+  single-tenant namespace; a merchant namespace gets its rows when its admin
+  first opens the statuses page) and adds a nullable, indexed
+  `ticket_status_id` to tickets (no foreign key, like `merged_into_id`).
+  Existing tickets keep their status and get no custom status; nothing
+  changes until an admin adds one.
+
+- Run the new migration `20261022000001_add_business_schedule_refs` (adds the
+  nullable `business_schedule_id` to SLA policies and departments). Nothing
+  changes until a schedule exists: deadlines keep the configured hours.
+  Once a schedule is marked default, business-hours deadlines use it.
+- The package now depends on `tz` for time zone data. It is passed to the
+  calculator explicitly and does not replace the host's time zone database.
+- A policy's `business_hours_only` is reported from the package-wide
+  `sla.business_hours_only` setting; a value posted with a policy is not
+  stored, as business hours are not per policy here.
+- Hosts reading the agent dashboard props directly: `recent_tickets` is now
+  `recentTickets`, and `stats.my_open` / `stats.total_open` are now
+  `stats.my_assigned` / `stats.open`.
+- Ticket presence (who else is viewing) is kept per node for 60 seconds.
+- Saving a webhook with the secret field left blank (or left out) now keeps
+  the stored secret, because the edit form never receives it. Send
+  `clear_secret: true` to remove it; any other value replaces it, as before.
+  The shared frontend posts `secret: ''` with `clear_secret` and reads
+  `webhook.has_secret`. This backend has no SSO settings, so there is no SSO
+  mask to post back.
+- The import pages' `job` (and each of `jobs`) is now exactly Laravel's field
+  list: `user_id` and `updated_at` are no longer sent, and `error_log` is its
+  last 50 entries.
+
+### Added
 - The admin Import wizard and the import framework behind it, as
   escalated-laravel's. The shared `Admin/Import/Index`, `Connect`, `Mapping`,
   `Review` and `Progress` pages render on Laravel's paths and props:
@@ -170,7 +211,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (`Escalated.Services.RetentionPurge`), see Changed.
 
 ### Changed
-
 - `mix escalated.purge_expired` deletes closed tickets older than
   `retention_closed_tickets` (it only reported them before), with their
   replies, activities, attachments and stored files, tags, followers,
@@ -191,7 +231,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `csat_delay_hours` is rendered as an integer.
 
 ### Fixed
-
 - `Escalated/Admin/Settings/DataRetention` gets its purge preview as
   `purgePreview`, the prop the page reads (it was sent as `purge_preview`, so
   the counts always showed 0).
@@ -316,49 +355,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `test/fixtures/escalated-pages.json` is refreshed to frontend 0.12.3 and the
   page-name parity test keeps a ledger of the shipped pages not rendered yet.
 
-### Upgrading
-
-- If `retention_closed_tickets` is set to anything but `never`, the next
-  `mix escalated.purge_expired` run deletes the closed tickets it used to only
-  report. Run it with `--dry-run` first to see the count. Schedule it daily
-  from the host (cron, Quantum, Oban cron); the package schedules nothing.
-- Run the migrations: `20261025000101_create_import_tables` adds
-  `import_jobs` and `import_source_maps`, both tenant-owned.
-- Set `:import_secret` (32 bytes or more) unless `:guest_access_secret` is set;
-  starting an import refuses without one.
-- Run the new migration `20261024000001_create_ticket_statuses`: it creates
-  `ticket_statuses` (with one system row per built-in status for the
-  single-tenant namespace; a merchant namespace gets its rows when its admin
-  first opens the statuses page) and adds a nullable, indexed
-  `ticket_status_id` to tickets (no foreign key, like `merged_into_id`).
-  Existing tickets keep their status and get no custom status; nothing
-  changes until an admin adds one.
-
-- Run the new migration `20261022000001_add_business_schedule_refs` (adds the
-  nullable `business_schedule_id` to SLA policies and departments). Nothing
-  changes until a schedule exists: deadlines keep the configured hours.
-  Once a schedule is marked default, business-hours deadlines use it.
-- The package now depends on `tz` for time zone data. It is passed to the
-  calculator explicitly and does not replace the host's time zone database.
-- A policy's `business_hours_only` is reported from the package-wide
-  `sla.business_hours_only` setting; a value posted with a policy is not
-  stored, as business hours are not per policy here.
-- Hosts reading the agent dashboard props directly: `recent_tickets` is now
-  `recentTickets`, and `stats.my_open` / `stats.total_open` are now
-  `stats.my_assigned` / `stats.open`.
-- Ticket presence (who else is viewing) is kept per node for 60 seconds.
-- Saving a webhook with the secret field left blank (or left out) now keeps
-  the stored secret, because the edit form never receives it. Send
-  `clear_secret: true` to remove it; any other value replaces it, as before.
-  The shared frontend posts `secret: ''` with `clear_secret` and reads
-  `webhook.has_secret`. This backend has no SSO settings, so there is no SSO
-  mask to post back.
-- The import pages' `job` (and each of `jobs`) is now exactly Laravel's field
-  list: `user_id` and `updated_at` are no longer sent, and `error_log` is its
-  last 50 entries.
-
 ### Security
-
 - **Stored secrets are guarded from every admin page.** Saving a webhook with
   the secret field left blank, which is what the edit form sends since it
   never shows the secret, silently removed the signing secret; it is now kept
