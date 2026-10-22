@@ -336,6 +336,20 @@ defmodule Escalated.Router do
 
           resources "/statuses", StatusController, only: [:index, :create, :update, :delete]
 
+          # Import wizard (escalated.admin.import.*, Laravel's paths). The
+          # literal segments come before the :platform ones.
+          get "/import", ImportController, :index
+          get "/import/progress/:job_id", ImportController, :progress
+          get "/import/status/:job_id", ImportController, :status
+          post "/import/pause/:job_id", ImportController, :pause
+          post "/import/resume/:job_id", ImportController, :resume
+          post "/import/cancel/:job_id", ImportController, :cancel
+          get "/import/:platform/connect", ImportController, :connect
+          post "/import/:platform/test-connection", ImportController, :test_connection
+          get "/import/:platform/mapping", ImportController, :mapping
+          post "/import/:platform/review", ImportController, :review
+          post "/import/:platform/start", ImportController, :start
+
           get "/custom-objects/create", CustomObjectController, :new
           get "/custom-objects/:id/edit", CustomObjectController, :edit
           get "/custom-objects/:id/records", CustomObjectController, :records

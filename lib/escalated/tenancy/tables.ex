@@ -196,6 +196,20 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: []
     },
     %{
+      name: "import_jobs",
+      schema: Escalated.Schemas.ImportJob,
+      local_refs: %{},
+      host_refs: [:user_id],
+      unique_keys: []
+    },
+    %{
+      name: "import_source_maps",
+      schema: Escalated.Schemas.ImportSourceMap,
+      local_refs: %{import_job_id: {"import_jobs", :id}},
+      host_refs: [],
+      unique_keys: [[:import_job_id, :entity_type, :source_id]]
+    },
+    %{
       name: "macros",
       schema: Escalated.Schemas.Macro,
       local_refs: %{},

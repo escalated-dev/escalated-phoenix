@@ -14,6 +14,13 @@ defmodule Escalated.Services.SlaService do
   Attaches an SLA policy to a ticket and calculates due dates.
   """
   def attach_policy(ticket, policy \\ nil) do
+    # Import mode (Escalated.Import.Context): imported history gets no SLA clock.
+    if Escalated.Import.Context.importing?(),
+      do: {:ok, ticket},
+      else: do_attach_policy(ticket, policy)
+  end
+
+  defp do_attach_policy(ticket, policy) do
     repo = Escalated.repo()
 
     Escalated.TicketVisibility.assert_record!(ticket)
@@ -48,6 +55,8 @@ defmodule Escalated.Services.SlaService do
   def check_breaches do
     config = Escalated.configuration()
     unless Escalated.Config.sla_enabled?(config), do: throw(:sla_disabled)
+    # Import mode (Escalated.Import.Context): imported history is not breached.
+    if Escalated.Import.Context.importing?(), do: throw(:sla_disabled)
 
     repo = Escalated.repo()
     now = DateTime.utc_now()
@@ -105,7 +114,8 @@ defmodule Escalated.Services.SlaService do
   `check_breaches/0`.
   """
   def check_warnings(minutes \\ 30) do
-    if Escalated.Config.sla_enabled?(Escalated.configuration()) do
+    if Escalated.Config.sla_enabled?(Escalated.configuration()) and
+         not Escalated.Import.Context.importing?() do
       repo = Escalated.repo()
       window_start = DateTime.truncate(DateTime.utc_now(), :second)
       window_end = DateTime.add(window_start, minutes * 60, :second)
