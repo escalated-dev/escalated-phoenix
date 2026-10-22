@@ -108,7 +108,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     default unsets the previous one, update replaces the holidays, and delete
     clears the schedule from policies and departments.
   - SLA policies and departments take `business_schedule_id`; a save that does
-    not send it leaves it alone.
+    not send it leaves it alone, and an id that names no schedule is a field
+    error. The `Admin/SlaPolicies/Form` and `Admin/Departments/Form` pages
+    receive a `schedules` prop (`[{id, name}]`, by name) for the shared
+    frontend's **Business hours schedule** picker, and the department form's
+    `department` carries `business_schedule_id`.
+  - Departments: `GET /admin/departments/:id/edit` renders the form (the shared
+    Index links there), and store/update take the shared form's flat fields as
+    well as the older nested `department` body. A failed Inertia save goes back
+    with field errors; non-Inertia requests answer as before.
 
 ### Fixed
 

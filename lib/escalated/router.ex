@@ -370,7 +370,7 @@ defmodule Escalated.Router do
           get "/reports/sla-trends", ReportController, :sla_trends
           get "/reports/cohorts", ReportController, :cohorts
 
-          resources "/departments", DepartmentController, except: [:edit]
+          resources "/departments", DepartmentController
           resources "/tags", TagController, except: [:edit]
 
           resources "/skills", SkillController, except: [:show]

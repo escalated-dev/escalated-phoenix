@@ -25,7 +25,12 @@ defmodule Escalated.Schemas.SavedViewTest do
         })
 
       assert changeset.valid?
-      assert Ecto.Changeset.get_field(changeset, :filters) == %{"priority" => "high", "status" => "open"}
+
+      assert Ecto.Changeset.get_field(changeset, :filters) == %{
+               "priority" => "high",
+               "status" => "open"
+             }
+
       assert Ecto.Changeset.get_field(changeset, :is_shared) == true
       assert Ecto.Changeset.get_field(changeset, :position) == 3
     end

@@ -43,10 +43,11 @@ defmodule Escalated.Services.TicketSplittingTest do
       subject = "Split from #{original.reference}: #{original.subject}"
       assert subject == "Split from ESC-2604-ABC123: Original issue"
 
-      expected_metadata = Map.merge(original.metadata, %{
-        "split_from_ticket_id" => original.id,
-        "split_from_reply_id" => reply.id
-      })
+      expected_metadata =
+        Map.merge(original.metadata, %{
+          "split_from_ticket_id" => original.id,
+          "split_from_reply_id" => reply.id
+        })
 
       assert expected_metadata["source"] == "email"
       assert expected_metadata["split_from_ticket_id"] == 1

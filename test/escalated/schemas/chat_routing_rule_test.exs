@@ -16,22 +16,30 @@ defmodule Escalated.Schemas.ChatRoutingRuleTest do
     end
 
     test "validates strategy inclusion" do
-      changeset = ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", strategy: "invalid"})
+      changeset =
+        ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", strategy: "invalid"})
+
       refute changeset.valid?
     end
 
     test "accepts valid strategies" do
       for strategy <- ~w(round_robin least_active department) do
-        changeset = ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", strategy: strategy})
+        changeset =
+          ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", strategy: strategy})
+
         assert changeset.valid?, "expected #{strategy} to be valid"
       end
     end
 
     test "validates max_concurrent_chats > 0" do
-      changeset = ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", max_concurrent_chats: 0})
+      changeset =
+        ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", max_concurrent_chats: 0})
+
       refute changeset.valid?
 
-      changeset = ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", max_concurrent_chats: 5})
+      changeset =
+        ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Test", max_concurrent_chats: 5})
+
       assert changeset.valid?
     end
   end
