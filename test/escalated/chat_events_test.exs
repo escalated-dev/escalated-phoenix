@@ -4,9 +4,9 @@ defmodule Escalated.ChatEventsTest do
   `decisions/2026-10-21-event-vocabulary.md`) reach outbound webhooks and
   workflows, through the widget and agent chat routes.
 
-  This package has no chat transfer, so `chat.transferred` is neither emitted
-  nor offered. A chat webhook payload never carries the visitor's chat token,
-  the visitor's email or the message body.
+  `chat.transferred` is covered by `chat_transfer_test.exs`. A chat webhook
+  payload never carries the visitor's chat token, the visitor's email or the
+  message body.
   """
   use Escalated.DataCase, async: false
 
@@ -71,8 +71,6 @@ defmodule Escalated.ChatEventsTest do
     for event <- @emitted do
       assert event in Escalated.Events.emitted()
     end
-
-    refute "chat.transferred" in Escalated.Events.emitted()
 
     webhooks = agent(:get, "/support/admin/webhooks", nil, inertia: true) |> page()
     assert Enum.all?(@emitted, &(&1 in webhooks["props"]["available_events"]))

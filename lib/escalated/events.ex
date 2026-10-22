@@ -38,9 +38,8 @@ defmodule Escalated.Events do
     chat.started chat.assigned chat.transferred chat.message chat.ended
   )
 
-  # What this package emits (and offers). There is no chat transfer here, so
-  # chat.transferred is neither offered nor fired.
-  @emitted @canonical -- ~w(chat.transferred)
+  # What this package emits (and offers): every canonical name.
+  @emitted @canonical
 
   @legacy %{
     "ticket.replied" => "reply.created",

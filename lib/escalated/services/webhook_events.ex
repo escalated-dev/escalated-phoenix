@@ -26,8 +26,8 @@ defmodule Escalated.Services.WebhookEvents do
       `AssignmentService` changes a ticket's own fields (status, priority,
       department, assignee, snooze)
     * `reply.created` (public reply), `note.created` (internal note)
-    * `ChatSessionService`: `chat.started`, `chat.assigned`, `chat.message`,
-      `chat.ended` (there is no chat transfer, so no `chat.transferred`)
+    * `ChatSessionService`: `chat.started`, `chat.assigned`,
+      `chat.transferred`, `chat.message`, `chat.ended`
 
   ## Payload shape
 
@@ -35,7 +35,9 @@ defmodule Escalated.Services.WebhookEvents do
     * reply/note events: `%{ticket: %{id, reference}, reply: %{id, is_internal_note}}`
     * chat events: `%{chat: %{session_id, ticket_id, status, agent_id,
       department_id}}`, plus `reply_id` and `author_type` (`agent` or
-      `visitor`) for `chat.message` and `ended_by` for `chat.ended`. A chat
+      `visitor`) for `chat.message`, `from_agent_id`, `to_agent_id` and
+      `to_department_id` for `chat.transferred`, and `ended_by` for
+      `chat.ended`. A chat
       payload never carries the visitor's chat token, email or message body.
 
   Optional `:tag` (`%{id, name}`) and `:agent_id` keys are included when present
