@@ -30,7 +30,6 @@ defmodule Escalated.PageNameParityTest do
   # up here as owed rather than going unnoticed. A page whose feature this
   # backend does not have stays on it; see the CHANGELOG for which those are.
   @not_yet_rendered ~w(
-    Escalated/Admin/ApiTokens/Index
     Escalated/Admin/Reports/AgentDetail
     Escalated/Admin/Settings/Sandbox
     Escalated/Admin/Settings/SsoSettings

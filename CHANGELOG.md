@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- API tokens, as escalated-laravel's: admins issue, rename, re-scope and revoke
+  them on the shared `Admin/ApiTokens/Index` page (`/support/admin/api-tokens`,
+  props `tokens`, `users`, `api_enabled`). Only the SHA-256 digest is stored;
+  the token is shown once, in `flash.plain_text_token`. Tokens carry abilities
+  (`agent`, `admin`, `*`), an optional 1-365 day expiry, and `last_used_at` /
+  `last_used_ip` (written at most every five minutes). See `docs/api-tokens.md`.
+- With `config :escalated, api_tokens_enabled: true`, the JSON ticket API
+  (`/support/api/v1/tickets/*`) accepts `Authorization: Bearer <token>` and
+  runs the request as the token's owner: 401 for an expired token or a missing
+  owner, 403 for a token without the `agent` ability or an owner who is no
+  longer an agent. A bearer value Escalated did not issue still goes to the
+  host's `:api_token_validator`.
+
+### Upgrading
+- Run the new migration `20261026000001_create_api_tokens` (creates the
+  tenant-owned `api_tokens` table; SQLite, PostgreSQL and MySQL). Nothing else
+  changes: the API ignores these tokens until `api_tokens_enabled` is set, and
+  host-authenticated setups (`current_user`, `:api_token_validator`) keep
+  working with it on.
+
 ## [0.2.4] - 2026-10-22
 
 ### Upgrading
