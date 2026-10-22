@@ -21,7 +21,7 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
   import Ecto.Query
 
   alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.Workflow
+  alias Escalated.Schemas.{Ticket, Workflow, WorkflowLog}
   alias Escalated.Services.WorkflowEngine
 
   def index(conn, _params) do
@@ -48,6 +48,84 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
   end
 
   def show(conn, %{"id" => _} = params), do: edit(conn, params)
+
+  @logs_limit 200
+
+  @doc """
+  The run log, newest first, optionally for one workflow (`?workflow=id`):
+  `Escalated/Admin/Workflows/Logs` with the shape escalated-laravel's
+  `WorkflowController::logs` sends.
+  """
+  def logs(conn, params) do
+    repo = Escalated.repo()
+
+    query =
+      from(l in WorkflowLog, order_by: [desc: l.inserted_at, desc: l.id], limit: @logs_limit)
+
+    query =
+      case Integer.parse(to_string(params["workflow"] || "")) do
+        {id, ""} -> where(query, [l], l.workflow_id == ^id)
+        _ -> query
+      end
+
+    logs = repo.all(query)
+    workflows = repo.all(from(w in Workflow, order_by: [asc: w.position, asc: w.id]))
+    names = Map.new(workflows, &{&1.id, &1.name})
+
+    references =
+      case logs |> Enum.map(& &1.ticket_id) |> Enum.reject(&is_nil/1) |> Enum.uniq() do
+        [] ->
+          %{}
+
+        ids ->
+          from(t in Ticket, where: t.id in ^ids, select: {t.id, t.reference})
+          |> repo.all()
+          |> Map.new()
+      end
+
+    UIRenderer.render_page(conn, "Escalated/Admin/Workflows/Logs", %{
+      logs: Enum.map(logs, &log_json(&1, names, references)),
+      workflows: Enum.map(workflows, &%{id: &1.id, name: &1.name})
+    })
+  end
+
+  @doc "A workflow's own log link: the log page filtered to it."
+  def workflow_logs(conn, %{"id" => id}) do
+    prefix = Escalated.config(:route_prefix, "/support")
+    redirect(conn, to: "#{prefix}/admin/workflows/logs?" <> URI.encode_query(%{workflow: id}))
+  end
+
+  defp log_json(log, names, references) do
+    details = log.actions_executed || []
+
+    %{
+      id: log.id,
+      workflow_id: log.workflow_id,
+      workflow_name: Map.get(names, log.workflow_id),
+      ticket_id: log.ticket_id,
+      ticket_reference: Map.get(references, log.ticket_id),
+      event: log.trigger_event,
+      trigger_event: log.trigger_event,
+      matched: log.conditions_matched,
+      status: log.status,
+      error: log.error_message,
+      duration_ms:
+        log.started_at && log.completed_at &&
+          DateTime.diff(log.completed_at, log.started_at, :millisecond),
+      # The page's "Actions" column is a count; the actions go out as details.
+      actions_executed: length(details),
+      action_details:
+        Enum.map(details, fn detail ->
+          %{
+            action_type: detail["type"],
+            status: detail["status"],
+            error: detail["reason"],
+            message: detail["reason"]
+          }
+        end),
+      created_at: log.inserted_at && DateTime.to_iso8601(log.inserted_at)
+    }
+  end
 
   # The same Form page serves create and edit; `workflow` is nil on create.
   defp render_form(conn, workflow) do

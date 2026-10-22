@@ -65,7 +65,6 @@ defmodule Escalated.PageNameParityTest do
     Escalated/Admin/Statuses/Form
     Escalated/Admin/Statuses/Index
     Escalated/Admin/Workflows/Builder
-    Escalated/Admin/Workflows/Logs
     Escalated/Auth/TwoFactorChallenge
     Escalated/Error
     Escalated/Plugin/Page
