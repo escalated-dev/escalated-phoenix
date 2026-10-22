@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.Admin.ArticleCategoryController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
+  alias Escalated.Controllers.FormResponse
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.ArticleCategory
 
@@ -29,7 +30,7 @@ defmodule Escalated.Controllers.Admin.ArticleCategoryController do
     |> Escalated.repo().insert()
     |> case do
       {:ok, _} -> conn |> put_flash(:info, "Category created.") |> redirect(to: index_path())
-      {:error, cs} -> conn |> put_status(422) |> json(%{errors: format_errors(cs)})
+      {:error, cs} -> FormResponse.invalid(conn, cs, index_path())
     end
   end
 
@@ -49,7 +50,7 @@ defmodule Escalated.Controllers.Admin.ArticleCategoryController do
         |> repo.update()
         |> case do
           {:ok, _} -> conn |> put_flash(:info, "Category updated.") |> redirect(to: index_path())
-          {:error, cs} -> conn |> put_status(422) |> json(%{errors: format_errors(cs)})
+          {:error, cs} -> FormResponse.invalid(conn, cs, index_path())
         end
     end
   end
@@ -67,13 +68,5 @@ defmodule Escalated.Controllers.Admin.ArticleCategoryController do
     end
   end
 
-  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb/categories"
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
-  end
+  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb-categories"
 end

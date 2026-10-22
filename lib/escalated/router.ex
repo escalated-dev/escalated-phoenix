@@ -306,6 +306,16 @@ defmodule Escalated.Router do
           resources "/kb/categories", ArticleCategoryController, except: [:edit, :new, :show]
           resources "/kb/articles", ArticleController, except: [:edit, :new]
 
+          # The shared pages' paths (escalated.admin.kb-articles.* and
+          # kb-categories.*, Laravel's resource routes). The /kb/ paths above
+          # stay for existing links.
+          get "/kb-articles/create", ArticleController, :new
+          get "/kb-articles/:id/edit", ArticleController, :edit
+          resources "/kb-articles", ArticleController, only: [:index, :create, :update, :delete]
+
+          resources "/kb-categories", ArticleCategoryController,
+            only: [:index, :create, :update, :delete]
+
           # Users (host User model: list + grant/revoke admin/agent).
           # Surfaces the host's `users` table for an admin to flip the
           # `is_admin` / `is_agent` columns from the panel.

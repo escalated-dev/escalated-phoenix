@@ -10,17 +10,27 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
   import Plug.Conn
   import Ecto.Query
 
-  alias Escalated.Rendering.UIRenderer
+  alias Escalated.Controllers.FormResponse
+  alias Escalated.Rendering.{Paginator, UIRenderer}
   alias Escalated.Schemas.{Article, ArticleCategory}
 
   def index(conn, params) do
     repo = Escalated.repo()
+    names = category_names(repo)
+    path = Escalated.config(:route_prefix, "/support") <> "/kb"
 
     UIRenderer.render_page(conn, "Escalated/Customer/KnowledgeBase/Index", %{
       categories: category_tree(repo),
-      articles: Enum.map(published_articles(repo, params), &Article.to_json/1),
+      articles:
+        Paginator.paginate_query(
+          published_query(params),
+          repo,
+          params,
+          path,
+          &article_json(&1, names)
+        ),
       filters: Map.take(params, ["search", "category"]),
-      feedback_enabled: feedback_enabled?()
+      feedbackEnabled: feedback_enabled?()
     })
   end
 
@@ -35,9 +45,10 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
         increment_views(repo, article.id)
 
         UIRenderer.render_page(conn, "Escalated/Customer/KnowledgeBase/Article", %{
-          article: Article.to_json(%{article | view_count: article.view_count + 1}),
+          article:
+            article_json(%{article | view_count: article.view_count + 1}, category_names(repo)),
           related: related_articles(repo, article),
-          feedback_enabled: feedback_enabled?()
+          feedbackEnabled: feedback_enabled?()
         })
     end
   end
@@ -59,7 +70,16 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
       article ->
         field = if truthy?(params["helpful"]), do: :helpful_count, else: :not_helpful_count
         repo.update_all(from(a in Article, where: a.id == ^article.id), inc: [{field, 1}])
-        conn |> put_flash(:info, "Thank you for your feedback!") |> json(%{ok: true})
+        conn = put_flash(conn, :info, "Thank you for your feedback!")
+
+        # The shared Article page posts as an Inertia visit, which needs a
+        # redirect back to the article; other clients keep the JSON answer.
+        if FormResponse.inertia?(conn),
+          do:
+            redirect(conn,
+              to: "#{Escalated.config(:route_prefix, "/support")}/kb/#{article.slug}"
+            ),
+          else: json(conn, %{ok: true})
     end
   end
 
@@ -72,7 +92,7 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
     |> Enum.map(fn category ->
       category
       |> ArticleCategory.to_json()
-      |> Map.put(:article_count, Map.get(counts, category.id, 0))
+      |> Map.put(:articles_count, Map.get(counts, category.id, 0))
     end)
   end
 
@@ -86,12 +106,24 @@ defmodule Escalated.Controllers.Customer.KnowledgeBaseController do
     |> Map.new()
   end
 
-  defp published_articles(repo, params) do
+  defp published_query(params) do
     Article.published()
     |> maybe_search(params["search"])
     |> maybe_category(params["category"])
-    |> order_by([a], desc: a.published_at)
-    |> repo.all()
+    |> order_by([a], desc: a.published_at, desc: a.id)
+  end
+
+  defp category_names(repo), do: ArticleCategory |> repo.all() |> Map.new(&{&1.id, &1.name})
+
+  # The pages read `article.category.name`.
+  defp article_json(article, names) do
+    category =
+      case Map.fetch(names, article.category_id) do
+        {:ok, name} -> %{id: article.category_id, name: name}
+        :error -> nil
+      end
+
+    article |> Article.to_json() |> Map.put(:category, category)
   end
 
   defp maybe_search(query, term) when is_binary(term) and term != "",
