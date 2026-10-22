@@ -8,7 +8,8 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
   package configuration), not per policy, so `business_hours_only` is reported from that
   setting and a value posted with a policy is not stored. `business_schedule_id`
   (the business schedule the policy's deadlines count against) is stored when
-  posted and left alone when not.
+  posted and left alone when not; an id that names no schedule is a field
+  error. The form gets the schedules to pick from as `schedules`.
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
@@ -16,7 +17,7 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
 
   alias Escalated.Controllers.FormResponse
   alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.{Department, SlaPolicy, Ticket}
+  alias Escalated.Schemas.{BusinessSchedule, Department, SlaPolicy, Ticket}
 
   @fields ~w(name description is_default is_active first_response_hours resolution_hours department_id ticket_type business_schedule_id)
 
@@ -61,6 +62,7 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
   def create(conn, params) do
     %SlaPolicy{}
     |> SlaPolicy.changeset(Map.take(params, @fields))
+    |> BusinessSchedule.validate_reference()
     |> repo().insert()
     |> case do
       {:ok, _} ->
@@ -79,6 +81,7 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
       policy ->
         policy
         |> SlaPolicy.changeset(Map.take(params, @fields))
+        |> BusinessSchedule.validate_reference()
         |> repo().update()
         |> case do
           {:ok, _} ->
@@ -130,7 +133,8 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
       departments:
         repo().all(Department.active() |> Department.ordered())
         |> Enum.map(&%{id: &1.id, name: &1.name}),
-      ticketTypes: Ticket.ticket_types()
+      ticketTypes: Ticket.ticket_types(),
+      schedules: BusinessSchedule.options()
     }
   end
 

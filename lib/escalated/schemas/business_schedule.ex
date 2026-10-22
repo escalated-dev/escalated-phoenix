@@ -49,6 +49,30 @@ defmodule Escalated.Schemas.BusinessSchedule do
   end
 
   @doc """
+  Every schedule as `%{id, name}`, by name: the `schedules` prop of the SLA
+  policy and department forms (escalated-laravel passes
+  `BusinessSchedule::orderBy('name')->get(['id', 'name'])`).
+  """
+  def options do
+    import Ecto.Query, only: [from: 2]
+
+    from(s in __MODULE__, order_by: [asc: s.name, asc: s.id], select: %{id: s.id, name: s.name})
+    |> Escalated.repo().all()
+  end
+
+  @doc """
+  Refuses a `business_schedule_id` change that names no schedule. A nil
+  (clearing it) and an unchanged value pass.
+  """
+  def validate_reference(%Ecto.Changeset{} = changeset) do
+    validate_change(changeset, :business_schedule_id, fn :business_schedule_id, id ->
+      if Escalated.repo().get(__MODULE__, id),
+        do: [],
+        else: [business_schedule_id: "The selected business schedule is invalid."]
+    end)
+  end
+
+  @doc """
   Check if a given datetime falls within this schedule's business hours,
   holidays included (`Escalated.Services.BusinessHoursCalculator`).
   """
