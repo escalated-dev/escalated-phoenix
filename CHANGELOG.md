@@ -56,6 +56,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Article feedback redirects back to the article for an Inertia visit.
   - The admin pages' own paths, `/admin/kb-articles` and
     `/admin/kb-categories`, are mounted. The `/admin/kb/...` paths stay.
+- Guest portal pages on the existing verified guest access:
+  - `GET {prefix}/guest/create` renders `Guest/Create` with `departments`,
+    `priorities`, `verification_url` and `lookup_url`.
+  - `POST {prefix}/guest` creates the ticket from the verified form. It
+    consumes the email code exactly as the JSON guest API does, then redirects
+    to the ticket's private link. A bad code goes back with a
+    `verification_code` error.
+  - `GET {prefix}/guest/:token` renders `Guest/Show`. It sends the
+    requester-safe ticket with `guest_access_expires_at`, guest attachment
+    URLs and the `token`. A bad, expired or revoked token is a 404.
+  - `POST {prefix}/guest/:token/reply` replies as the guest, and refuses closed
+    tickets.
+  - `POST {prefix}/guest/:token/rate` rates the ticket.
+  - The guest rate limits and privacy headers apply to all of these.
+- A CSAT rating posted as an Inertia visit, from the customer or guest page,
+  redirects back to the ticket instead of answering JSON.
 - Roles have admin pages (`Admin/Roles/Index` and `Form`, at `/admin/roles`,
   `/create` and `/:id/edit`): `roles` with `users_count` (active agent
   profiles holding the role), and `permissions` grouped by `group`. Store and
