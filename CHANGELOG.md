@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owner, 403 for a token without the `agent` ability or an owner who is no
   longer an agent. A bearer value Escalated did not issue still goes to the
   host's `:api_token_validator`.
+- `Escalated/Admin/Reports/AgentDetail` at `GET /admin/reports/agent/:id/detail`
+  (`escalated.admin.reports.agent-detail`), the per-agent screen the agent
+  ranking links to, admins only, with the props the shared page declares:
+  `period_days`, `agent %{id, name, email}`, `total_tickets`,
+  `resolved_tickets`, `avg_frt`, `avg_resolution`, `csat_score` (nil without
+  ratings), `response_percentiles %{p50..p99}`, `productivity` (per day
+  `%{label, value, values: [public replies, resolved]}`), `workload` (tickets
+  created per day), `csat_breakdown` (`N stars` counts), and `prev_*` for the
+  same number of days before. It reads `days` (or `period`, default 30).
 
 ### Upgrading
 - Run the new migration `20261026000001_create_api_tokens` (creates the

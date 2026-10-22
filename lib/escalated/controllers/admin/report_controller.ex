@@ -38,6 +38,12 @@ defmodule Escalated.Controllers.Admin.ReportController do
     UIRenderer.render_page(conn, "Escalated/Admin/Reports/SlaTrends", props)
   end
 
+  @doc "One agent's report, the screen the agent ranking links to."
+  def agent_detail(conn, %{"id" => id} = params) do
+    props = ReportScreens.agent_detail(id, ReportScreens.period_days(params))
+    UIRenderer.render_page(conn, "Escalated/Admin/Reports/AgentDetail", props)
+  end
+
   defp screen(conn, params, name) do
     props = apply(ReportScreens, name, [ReportScreens.period_days(params)])
     UIRenderer.render_page(conn, Map.fetch!(@screens, name), props)

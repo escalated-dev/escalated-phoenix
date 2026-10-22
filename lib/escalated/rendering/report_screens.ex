@@ -17,7 +17,7 @@ defmodule Escalated.Rendering.ReportScreens do
   import Ecto.Query
 
   alias Escalated.Rendering.UserDirectory
-  alias Escalated.Schemas.{Department, SatisfactionRating, SlaPolicy, Ticket}
+  alias Escalated.Schemas.{Department, Reply, SatisfactionRating, SlaPolicy, Ticket}
   alias Escalated.Services.ReportingService
 
   @first_response_target_hours 4
@@ -357,6 +357,151 @@ defmodule Escalated.Rendering.ReportScreens do
       by_type: by.(& &1.ticket_type),
       by_priority: by.(& &1.priority)
     }
+  end
+
+  @doc """
+  `Escalated/Admin/Reports/AgentDetail`: one agent's last `days` days against
+  the `days` before them, under the names the shared page declares (as
+  escalated-rails, -go, -spring, -nestjs and -dotnet send them;
+  escalated-laravel #260 brings Laravel to the same shape).
+  """
+  def agent_detail(agent_id, days) do
+    now = DateTime.utc_now()
+    start = DateTime.add(now, -days * 86_400, :second)
+    # The previous period ends the second before the current one starts, so a
+    # ticket on the boundary is counted once.
+    previous_end = DateTime.add(start, -1, :second)
+    previous_start = DateTime.add(previous_end, -days * 86_400, :second)
+
+    current = agent_window(agent_id, start, now)
+    previous = agent_window(agent_id, previous_start, previous_end)
+    person = UserDirectory.get(UserDirectory.lookup([agent_id]), agent_id)
+
+    Map.merge(current, %{
+      period_days: days,
+      agent: %{
+        id: (person && person.id) || agent_id,
+        name: person && person.name,
+        email: person && person.email
+      },
+      prev_total_tickets: previous.total_tickets,
+      prev_resolved_tickets: previous.resolved_tickets,
+      prev_avg_frt: previous.avg_frt,
+      prev_avg_resolution: previous.avg_resolution,
+      prev_csat_score: previous.csat_score
+    })
+  end
+
+  # The agent's tickets created between `from` and `to`, their KPIs and charts.
+  # `csat_score` is nil without ratings, rather than a zero that reads like a
+  # rating.
+  defp agent_window(agent_id, from, to) do
+    tickets =
+      case cast_user_key(Ticket, :assigned_to, agent_id) do
+        nil ->
+          []
+
+        key ->
+          from(t in Ticket,
+            where: t.assigned_to == ^key and t.inserted_at >= ^from and t.inserted_at <= ^to,
+            order_by: [asc: t.inserted_at, asc: t.id]
+          )
+          |> Escalated.repo().all()
+      end
+
+    ratings =
+      case Enum.map(tickets, & &1.id) do
+        [] ->
+          []
+
+        ids ->
+          from(r in SatisfactionRating, where: r.ticket_id in ^ids, select: r.rating)
+          |> Escalated.repo().all()
+      end
+
+    response = tickets |> Enum.map(&first_response_hours/1) |> Enum.reject(&is_nil/1)
+
+    %{
+      total_tickets: length(tickets),
+      resolved_tickets: Enum.count(tickets, & &1.resolved_at),
+      avg_frt: avg(response),
+      avg_resolution: avg(Enum.map(tickets, &resolution_hours/1)),
+      csat_score: if(ratings == [], do: nil, else: avg(ratings)),
+      response_percentiles:
+        Map.new([50, 75, 90, 95, 99], &{"p#{&1}", interpolated_percentile(response, &1)}),
+      productivity: agent_productivity(agent_id, from, to),
+      workload: volume(tickets),
+      csat_breakdown:
+        ratings
+        |> Enum.frequencies()
+        |> Enum.sort()
+        |> Enum.map(fn {stars, count} -> %{label: "#{stars} stars", value: count} end)
+    }
+  end
+
+  # Public replies the agent wrote, and the agent's tickets resolved, per day.
+  defp agent_productivity(agent_id, from, to) do
+    written =
+      case cast_user_key(Reply, :author_id, agent_id) do
+        nil ->
+          []
+
+        key ->
+          from(r in Reply,
+            where:
+              r.author_id == ^key and r.is_internal == false and r.is_system == false and
+                r.inserted_at >= ^from and r.inserted_at <= ^to,
+            select: r.inserted_at
+          )
+          |> Escalated.repo().all()
+      end
+
+    resolved =
+      case cast_user_key(Ticket, :assigned_to, agent_id) do
+        nil ->
+          []
+
+        key ->
+          from(t in Ticket,
+            where: t.assigned_to == ^key and t.resolved_at >= ^from and t.resolved_at <= ^to,
+            select: t.resolved_at
+          )
+          |> Escalated.repo().all()
+      end
+
+    days =
+      Enum.reduce(written, %{}, fn at, acc ->
+        Map.update(acc, date(at), {1, 0}, fn {w, r} -> {w + 1, r} end)
+      end)
+
+    resolved
+    |> Enum.reduce(days, fn at, acc ->
+      Map.update(acc, date(at), {0, 1}, fn {w, r} -> {w, r + 1} end)
+    end)
+    |> Enum.sort()
+    |> Enum.map(fn {day, {w, r}} -> %{label: day, value: w + r, values: [w, r]} end)
+  end
+
+  defp cast_user_key(schema, field, value) do
+    case Ecto.Type.cast(schema.__schema__(:type, field), value) do
+      {:ok, key} -> key
+      _ -> nil
+    end
+  end
+
+  # Linear interpolation between closest ranks, as Laravel's
+  # `ReportingService::percentile` (the per-agent screen's percentiles).
+  defp interpolated_percentile([], _p), do: 0.0
+
+  defp interpolated_percentile(values, p) do
+    sorted = values |> Enum.sort() |> List.to_tuple()
+    count = tuple_size(sorted)
+    index = p / 100 * (count - 1)
+    lower = trunc(index)
+    upper = min(lower + 1, count - 1)
+    low = elem(sorted, lower)
+
+    Float.round((low + (index - lower) * (elem(sorted, upper) - low)) * 1.0, 1)
   end
 
   # ---------------------------------------------------------------------------
