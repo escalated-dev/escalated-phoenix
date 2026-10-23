@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-10-22
+
 ### Added
 - Live chat transfer (escalated-laravel `escalated.admin.chat.transfer`):
   `POST /agent/chat/sessions/:id/transfer`, behind the agent check like the
