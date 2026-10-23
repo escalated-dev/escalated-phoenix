@@ -259,6 +259,10 @@ defmodule Escalated.Router do
           # keyed by the chat ticket's id and stays for existing callers).
           post "/chat/:session/end", ChatController, :end_chat
           post "/chat/sessions/:id/transfer", ChatController, :transfer
+          # escalated-laravel `escalated.admin.chat.transfer`: keyed by the
+          # ChatSession id the ticket page carries as `chat_session_id` (the
+          # route above is keyed by the chat ticket's id and stays as it is).
+          post "/chat/:session/transfer", ChatController, :transfer_by_session
         end
 
         # Admin routes
