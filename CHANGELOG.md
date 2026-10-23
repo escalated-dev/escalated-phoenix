@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- End Chat from the agent ticket page (escalated-laravel
+  `escalated.admin.chat.end`): `POST /agent/chat/:session/end`, behind the
+  agent check like the rest of the chat console. `:session` is the
+  ChatSession's id, which the ticket page carries as `chat_session_id`; the
+  shared `ChatActionBar` posts `{}` there. Answers 200
+  `{"message": "Chat ended."}`, 422 `{"message": "Chat is already ended."}`
+  for a chat that is no longer waiting or active, and 404 for an unknown
+  session. Phoenix has no Ziggy, so a host's `window.route` shim must map
+  `escalated.admin.chat.end` to `{prefix}/agent/chat/:session/end`; without
+  that mapping the End Chat button does nothing. The existing
+  `POST /agent/chat/sessions/:id/end` (keyed by the chat ticket's id) is
+  unchanged and keeps its response.
 - Live chat transfer (escalated-laravel `escalated.admin.chat.transfer`):
   `POST /agent/chat/sessions/:id/transfer`, behind the agent check like the
   rest of the chat console (`:id` is the chat ticket's id). The body is
