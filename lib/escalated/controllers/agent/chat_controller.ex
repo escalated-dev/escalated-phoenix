@@ -186,4 +186,32 @@ defmodule Escalated.Controllers.Agent.ChatController do
         end
     end
   end
+
+  @doc """
+  Ends a chat by its ChatSession id (escalated-laravel
+  `escalated.admin.chat.end`, `POST /agent/chat/:session/end`). The shared
+  ticket page posts `{}` here with its `chat_session_id`.
+
+  404 for an unknown session, 422 `{"message": "Chat is already ended."}` when
+  it is no longer waiting or active, otherwise 200 `{"message": "Chat ended."}`.
+  """
+  def end_chat(conn, %{"session" => session_id}) do
+    with {:ok, id} <- Ecto.Type.cast(:id, session_id),
+         %ChatSession{} = session <- Escalated.repo().get(ChatSession, id) do
+      end_open_chat(conn, session)
+    else
+      _ -> conn |> put_status(404) |> json(%{message: "Chat session not found."})
+    end
+  end
+
+  defp end_open_chat(conn, session) do
+    if ChatSession.active?(session) or ChatSession.waiting?(session) do
+      case ChatSessionService.end_session(session, causer_id: conn.assigns[:current_user].id) do
+        {:ok, _} -> json(conn, %{message: "Chat ended."})
+        {:error, _} -> conn |> put_status(500) |> json(%{message: "Failed to end chat."})
+      end
+    else
+      unprocessable(conn, "Chat is already ended.")
+    end
+  end
 end

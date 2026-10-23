@@ -254,6 +254,10 @@ defmodule Escalated.Router do
           post "/chat/sessions/:id/accept", ChatController, :accept
           post "/chat/sessions/:id/message", ChatController, :send_message
           post "/chat/sessions/:id/end", ChatController, :end_session
+          # escalated-laravel `escalated.admin.chat.end`: keyed by the ChatSession
+          # id the ticket page carries as `chat_session_id` (the route above is
+          # keyed by the chat ticket's id and stays for existing callers).
+          post "/chat/:session/end", ChatController, :end_chat
           post "/chat/sessions/:id/transfer", ChatController, :transfer
         end
 
