@@ -39,16 +39,13 @@ defmodule Escalated.ChatTransferSessionTest do
   end
 
   test "transfers the chat named by the ticket page's chat_session_id to another agent" do
-    # A decoy chat with extra sessions pushes session ids away from ticket ids,
-    # so a route that read the ticket id would not find this chat.
+    # The chat's session id must differ from its ticket id, so a route that
+    # read the ticket id would not find this chat. The two come from separate
+    # sequences whose distance depends on what earlier tests inserted (MySQL
+    # keeps auto-increment values after a rolled-back test), so extra ended
+    # sessions on a decoy chat move the session sequence until they differ.
     {_decoy_token, decoy} = start_chat()
-
-    for _ <- 1..3 do
-      repo().insert!(%ChatSession{ticket_id: decoy.id, status: "ended"})
-    end
-
-    {_token, ticket} = accepted_chat()
-    session = repo().get_by!(ChatSession, ticket_id: ticket.id)
+    {ticket, session} = chat_with_distinct_ids(decoy)
     refute session.id == ticket.id
 
     page = agent(:get, "/support/agent/tickets/#{ticket.reference}", nil, inertia: true)
@@ -123,6 +120,16 @@ defmodule Escalated.ChatTransferSessionTest do
     conn = agent(:post, "/support/agent/chat/sessions/#{ticket.id}/transfer", %{"agent_id" => 2})
     assert conn.status == 200, conn.resp_body
     assert repo().get_by!(ChatSession, ticket_id: ticket.id).agent_id == 2
+  end
+
+  defp chat_with_distinct_ids(decoy) do
+    repo().insert!(%ChatSession{ticket_id: decoy.id, status: "ended"})
+    {_token, ticket} = accepted_chat()
+    session = repo().get_by!(ChatSession, ticket_id: ticket.id)
+
+    # Each pass moves the session sequence one further than the ticket
+    # sequence, so the ids can match on at most one pass.
+    if session.id == ticket.id, do: chat_with_distinct_ids(decoy), else: {ticket, session}
   end
 
   defp accepted_chat do
