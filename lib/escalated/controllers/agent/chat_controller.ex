@@ -97,15 +97,35 @@ defmodule Escalated.Controllers.Agent.ChatController do
         conn |> put_status(404) |> json(%{error: "Session not found"})
 
       session ->
-        if ChatSession.active?(session) or ChatSession.waiting?(session) do
-          transfer_open_session(conn, session, ticket_id, params)
-        else
-          unprocessable(conn, "Chat is already ended.")
-        end
+        transfer_chat(conn, session, params)
     end
   end
 
-  defp transfer_open_session(conn, session, ticket_id, params) do
+  @doc """
+  Transfers a chat by its ChatSession id (escalated-laravel
+  `escalated.admin.chat.transfer`, `POST /agent/chat/:session/transfer`). The
+  shared ticket page posts here with its `chat_session_id`. Body and answers
+  are those of `transfer/2`; 404 `{"message": "Chat session not found."}` for
+  an unknown session.
+  """
+  def transfer_by_session(conn, %{"session" => session_id} = params) do
+    with {:ok, id} <- Ecto.Type.cast(:id, session_id),
+         %ChatSession{} = session <- Escalated.repo().get(ChatSession, id) do
+      transfer_chat(conn, session, params)
+    else
+      _ -> conn |> put_status(404) |> json(%{message: "Chat session not found."})
+    end
+  end
+
+  defp transfer_chat(conn, session, params) do
+    if ChatSession.active?(session) or ChatSession.waiting?(session) do
+      transfer_open_session(conn, session, params)
+    else
+      unprocessable(conn, "Chat is already ended.")
+    end
+  end
+
+  defp transfer_open_session(conn, session, params) do
     params = action_bar_params(conn, params)
 
     with {:ok, agent_id} <- cast_id(@user_id_type, params["agent_id"], "agent_id"),
@@ -118,7 +138,7 @@ defmodule Escalated.Controllers.Agent.ChatController do
            ) do
       json(conn, %{
         message: "Chat transferred.",
-        session: session_json(ChatSessionService.find_by_ticket(ticket_id))
+        session: session_json(Escalated.repo().get(ChatSession, session.id))
       })
     else
       {:invalid, message} -> unprocessable(conn, message)

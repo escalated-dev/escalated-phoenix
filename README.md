@@ -549,6 +549,18 @@ Node.js SSR adapter must also explicitly depend on `nodejs` 3.1.4+ below 4.0.
 Review the [upstream migration guide](https://github.com/inertiajs/inertia-phoenix/blob/v3.0.1/guides/upgrading_to_v3.md)
 before changing the server adapter major.
 
+Phoenix has no Ziggy, so the host's `window.route` shim maps the Laravel route
+names the shared pages call. The live chat bar on the agent ticket page passes
+the ticket's `chat_session_id` (a ChatSession id, not the ticket id):
+
+| Route name | Path |
+|---|---|
+| `escalated.admin.chat.transfer` | `POST {prefix}/agent/chat/:session/transfer` |
+| `escalated.admin.chat.end` | `POST {prefix}/agent/chat/:session/end` |
+
+Do not map them to `/agent/chat/sessions/:id/...`; those console routes take
+the chat ticket's id.
+
 Maintainers can run `MIX_ENV=test mix run --no-start scripts/verify_package.exs`
 to build and unpack the actual Hex package, install it in isolated hosts, audit
 the resolved graph, test JSON fallback without the optional Inertia dependency,
