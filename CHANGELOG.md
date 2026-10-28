@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Mobile guest API under `{prefix}/api/v1/mobile/guest` (only while the JSON
+  API is mounted): `POST verification`, `POST lookup`, `POST tickets`,
+  `GET tickets/:token` and `POST tickets/:token/replies`, per the shared
+  contract (escalated-developer-context `domain-model/mobile-guest-api.md`).
+  They reuse the verified guest access codes, grants and per-IP guest budgets,
+  and answer with the allow-listed mobile ticket object. New
+  `guest_tickets_enabled` setting (default `true`) turns the mobile guest
+  ticket routes off. See docs/merchant-and-guest-access.md.
+
 ### Upgrading
 - Widget chat routes now answer an ended chat as escalated-laravel does. A
   widget or client that treated these 404s as "chat over" should read the 422
@@ -18,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now flags in 2.2.0.
 
 ### Changed
+- `Escalated.Plugs.GuestPrivacy` also sets its headers just before a response
+  is sent, so a plug later in the pipeline that answers on its own (a
+  rate-limit 429) still sends `Cache-Control: private, no-store` and
+  `Referrer-Policy: no-referrer`.
 - `POST {prefix}/widget/chat/start` also returns `agent_name` (the assigned
   agent's name, or `null`), so its answer matches escalated-laravel's
   `{ id, session_id, expires_at, ticket_reference, status, agent_name }`.
