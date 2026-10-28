@@ -56,13 +56,19 @@ defmodule Escalated.Controllers.WidgetChatController do
     end
   end
 
+  # As in escalated-laravel: an unknown or expired chat grant is 404; a chat
+  # that has ended refuses messages, typing and a second end with 422, and
+  # rating waits for the end (422).
   def send_message(conn, params) do
     with {:ok, _ticket, session, _grant} <- session(conn, params),
-         true <- session.status in ["waiting", "active"],
-         body when is_binary(body) and byte_size(body) in 1..20_000 <- params["body"],
+         :open <- open(session),
+         {:body, body} when is_binary(body) and byte_size(body) in 1..20_000 <-
+           {:body, params["body"]},
          {:ok, _reply} <- ChatSessionService.send_message(session, body) do
       conn |> put_status(201) |> json(%{data: %{status: "sent"}})
     else
+      :ended -> ended(conn, "Chat has ended.")
+      {:body, _} -> ended(conn, "The message is required.")
       _ -> AccessController.error(conn, :not_found)
     end
   end
@@ -106,7 +112,7 @@ defmodule Escalated.Controllers.WidgetChatController do
 
   def typing(conn, params) do
     with {:ok, _, session, _} <- session(conn, params),
-         true <- session.status in ["waiting", "active"] do
+         :open <- open(session) do
       Broadcasting.broadcast_chat_event("chat:typing", %{
         ticket_id: session.ticket_id,
         session_id: session.id,
@@ -116,22 +122,25 @@ defmodule Escalated.Controllers.WidgetChatController do
 
       json(conn, %{message: "Typing updated."})
     else
+      :ended -> ended(conn, "Chat has ended.")
       _ -> AccessController.error(conn, :not_found)
     end
   end
 
   def end_session(conn, params) do
     with {:ok, _, session, _} <- session(conn, params),
+         :open <- open(session),
          {:ok, _} <- ChatSessionService.end_session(session) do
       json(conn, %{data: %{status: "ended"}})
     else
+      :ended -> ended(conn, "Chat has already ended.")
       _ -> AccessController.error(conn, :not_found)
     end
   end
 
   def rate(conn, params) do
     with {:ok, ticket, session, _} <- session(conn, params),
-         true <- session.status == "ended",
+         {:ended, true} <- {:ended, session.status == "ended"},
          {:ok, _} <-
            %SatisfactionRating{}
            |> SatisfactionRating.changeset(%{
@@ -142,10 +151,16 @@ defmodule Escalated.Controllers.WidgetChatController do
            |> Escalated.repo().insert() do
       conn |> put_status(201) |> json(%{message: "Rating submitted."})
     else
+      {:ended, false} -> ended(conn, "Chat must be ended before rating.")
       {:error, %Ecto.Changeset{}} -> AccessController.error(conn, :invalid)
       _ -> AccessController.error(conn, :not_found)
     end
   end
+
+  defp open(%ChatSession{status: status}) when status in ["waiting", "active"], do: :open
+  defp open(_session), do: :ended
+
+  defp ended(conn, message), do: conn |> put_status(422) |> json(%{message: message})
 
   # The agent who joined the chat, as the widget shows them, or nil.
   defp agent(session, agents \\ nil)

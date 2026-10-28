@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- Widget chat routes now answer an ended chat as escalated-laravel does. A
+  widget or client that treated these 404s as "chat over" should read the 422
+  (or the `ended: true` it already gets from `GET .../messages`). Chat grants
+  are unchanged: they already expired and were stored hashed.
+
+### Changed
+- `POST widget/chat/{token}/messages` (and `/message`) and `/typing` on an
+  ended chat answer 422 `{message: "Chat has ended."}` (was 404); a second
+  `/end` answers 422 `{message: "Chat has already ended."}` (it ended the chat
+  again and answered 200); `/rate` before the chat has ended answers 422
+  `{message: "Chat must be ended before rating."}` (was 404); an empty or
+  oversized message is 422 (was 404). An unknown or expired grant is still a
+  404 on every chat route. The same applies to the `chat/sessions/{reference}`
+  routes.
+
 ## [0.2.7] - 2026-10-22
 
 ### Fixed
