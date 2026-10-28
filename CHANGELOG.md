@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-10-28
+
+### Upgrading
+- Widget chat routes now answer an ended chat as escalated-laravel does. A
+  widget or client that treated these 404s as "chat over" should read the 422
+  (or the `ended: true` it already gets from `GET .../messages`). Chat grants
+  are unchanged: they already expired and were stored hashed.
+
 ### Added
 - Mobile guest API under `{prefix}/api/v1/mobile/guest` (only while the JSON
   API is mounted): `POST verification`, `POST lookup`, `POST tickets`,
@@ -16,12 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and answer with the allow-listed mobile ticket object. New
   `guest_tickets_enabled` setting (default `true`) turns the mobile guest
   ticket routes off. See docs/merchant-and-guest-access.md.
-
-### Upgrading
-- Widget chat routes now answer an ended chat as escalated-laravel does. A
-  widget or client that treated these 404s as "chat over" should read the 422
-  (or the `ended: true` it already gets from `GET .../messages`). Chat grants
-  are unchanged: they already expired and were stored hashed.
 
 ### Security
 - `plug_crypto` is locked at 2.2.1 (EEF-CVE-2026-105963), which `mix hex.audit`
