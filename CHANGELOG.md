@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (or the `ended: true` it already gets from `GET .../messages`). Chat grants
   are unchanged: they already expired and were stored hashed.
 
+### Security
+- `plug_crypto` is locked at 2.2.1 (EEF-CVE-2026-105963), which `mix hex.audit`
+  now flags in 2.2.0.
+
 ### Changed
 - `POST widget/chat/{token}/messages` (and `/message`) and `/typing` on an
   ended chat answer 422 `{message: "Chat has ended."}` (was 404); a second
