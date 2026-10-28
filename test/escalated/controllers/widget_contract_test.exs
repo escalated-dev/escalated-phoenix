@@ -311,6 +311,44 @@ defmodule Escalated.Controllers.WidgetContractTest do
     end
   end
 
+  describe "ended and expired chats" do
+    test "an ended chat refuses messages, typing and a second end with 422 but stays readable and rateable" do
+      id = json(request(:post, "/support/widget/chat/start", chat_params()))["id"]
+      path = "/support/widget/chat/#{id}"
+
+      assert request(:post, path <> "/rate", %{"rating" => 5}).status == 422
+      assert request(:post, path <> "/end", %{}).status == 200
+      assert request(:post, path <> "/messages", %{"body" => "Late"}).status == 422
+      assert request(:post, path <> "/typing", %{}).status == 422
+      assert request(:post, path <> "/end", %{}).status == 422
+      assert json(request(:get, path <> "/messages"))["ended"] == true
+      assert request(:post, path <> "/rate", %{"rating" => 4}).status == 201
+    end
+
+    test "an empty message is a 422, not a 404" do
+      id = json(request(:post, "/support/widget/chat/start", chat_params()))["id"]
+
+      assert request(:post, "/support/widget/chat/#{id}/messages", %{"body" => ""}).status == 422
+    end
+
+    test "every chat route answers 404 once the chat grant has expired" do
+      id = json(request(:post, "/support/widget/chat/start", chat_params()))["id"]
+      path = "/support/widget/chat/#{id}"
+
+      TestRepo.update_all(Escalated.Schemas.GuestGrant,
+        set: [
+          expires_at: DateTime.add(DateTime.utc_now(), -60, :second) |> DateTime.truncate(:second)
+        ]
+      )
+
+      assert request(:get, path <> "/messages").status == 404
+      assert request(:post, path <> "/messages", %{"body" => "Hi"}).status == 404
+      assert request(:post, path <> "/typing", %{}).status == 404
+      assert request(:post, path <> "/end", %{}).status == 404
+      assert request(:post, path <> "/rate", %{"rating" => 5}).status == 404
+    end
+  end
+
   describe "verified status view" do
     test "shows the status label and who wrote each reply" do
       conn = request(:post, "/support/widget/tickets", ticket_params())
