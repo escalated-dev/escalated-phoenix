@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now flags in 2.2.0.
 
 ### Changed
+- `POST {prefix}/widget/chat/start` also returns `agent_name` (the assigned
+  agent's name, or `null`), so its answer matches escalated-laravel's
+  `{ id, session_id, expires_at, ticket_reference, status, agent_name }`.
 - `POST widget/chat/{token}/messages` (and `/message`) and `/typing` on an
   ended chat answer 422 `{message: "Chat has ended."}` (was 404); a second
   `/end` answers 422 `{message: "Chat has already ended."}` (it ended the chat

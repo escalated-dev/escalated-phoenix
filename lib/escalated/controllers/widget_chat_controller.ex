@@ -33,7 +33,11 @@ defmodule Escalated.Controllers.WidgetChatController do
       case ChatSessionService.start_guest(params, attrs) do
         {:ok, ticket, session, result} ->
           token = result["guest_access_token"]
+          agent = agent(session)
 
+          # The same answer as escalated-laravel: id and session_id are both
+          # the chat token, with expires_at, ticket_reference, status and
+          # agent_name.
           payload = %{
             id: token,
             session_id: token,
@@ -41,8 +45,9 @@ defmodule Escalated.Controllers.WidgetChatController do
             guest_access_token: token,
             expires_at: result["expires_at"],
             status: session.status,
+            agent_name: agent && agent.name,
             messages: [],
-            agent: agent(session)
+            agent: agent
           }
 
           conn |> put_status(201) |> json(Map.put(payload, :data, payload))

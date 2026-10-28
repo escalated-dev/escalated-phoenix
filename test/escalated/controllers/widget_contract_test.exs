@@ -279,6 +279,23 @@ defmodule Escalated.Controllers.WidgetContractTest do
       assert TestRepo.one!(Ticket).department_id == sales.id
     end
 
+    test "answers start with the same fields as escalated-laravel" do
+      conn = request(:post, "/support/widget/chat/start", chat_params())
+      body = json(conn)
+      ticket = TestRepo.one!(Ticket)
+
+      assert conn.status == 201
+      # id and session_id are both the chat token, as in escalated-laravel.
+      assert is_binary(body["id"])
+      assert body["session_id"] == body["id"]
+      assert {:ok, _, _} = DateTime.from_iso8601(body["expires_at"])
+      assert body["ticket_reference"] == ticket.reference
+      assert body["status"] == "waiting"
+      assert Map.has_key?(body, "agent_name")
+      assert body["agent_name"] == nil
+      refute Map.has_key?(body, "ticket_id")
+    end
+
     test "names the author of every message" do
       conn = request(:post, "/support/widget/chat/start", chat_params())
       id = json(conn)["id"]
