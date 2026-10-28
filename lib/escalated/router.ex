@@ -620,6 +620,28 @@ defmodule Escalated.Router do
                 post "/tickets/:token/replies", GuestTicketController, :reply
               end
             end
+
+            # The mobile guest API (domain-model/mobile-guest-api.md in
+            # escalated-developer-context): the same codes, grants and per-IP
+            # guest budgets as the routes above. GuestPrivacy runs first so
+            # rate-limit refusals carry its headers too.
+            scope "/mobile/guest", as: :mobile_guest do
+              pipe_through [Escalated.Plugs.GuestPrivacy, Escalated.Plugs.GuestRateLimit]
+
+              get "/tickets/:token", MobileGuestController, :show
+
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestTicketRateLimit
+                post "/verification", MobileGuestController, :verification
+                post "/tickets", MobileGuestController, :create
+              end
+
+              scope "/" do
+                pipe_through Escalated.Plugs.GuestReplyRateLimit
+                post "/lookup", MobileGuestController, :lookup
+                post "/tickets/:token/replies", MobileGuestController, :reply
+              end
+            end
           end
 
           # The ticket endpoints read and change any ticket, so they need a

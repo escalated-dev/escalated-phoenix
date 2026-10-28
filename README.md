@@ -165,6 +165,7 @@ config :escalated,
 | `user_key_type` | `:integer` | Column type for host-user references: `:integer` (default), `:binary_id` (UUID), or `:string`. Set to match your `user_schema` primary key so UUID/string-keyed apps migrate cleanly. |
 | `ui_enabled` | `true` | Mount Inertia.js UI routes |
 | `api_enabled` | `false` | Mount JSON API routes |
+| `guest_tickets_enabled` | `true` | Allow guest ticket codes, lookups and creates on the mobile guest API (`false` answers them 403) |
 | `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
 | `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
@@ -317,7 +318,7 @@ This mounts:
 - **Customer routes** at `/support/tickets/*` -- view/create/reply to the signed-in user's own tickets. Creation accepts subject, description, priority, ticket type and department; requester identity and staff-controlled fields come from the server. CSAT by reference requires the authenticated requester. API reply authors are taken from the authenticated agent.
 - **Agent routes** at `/support/agent/*` -- agent dashboard and ticket management
 - **Admin routes** at `/support/admin/*` -- full administration (departments, tags, settings)
-- **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`)
+- **API routes** at `/support/api/v1/*` -- JSON API (when `api_enabled: true`), including the mobile guest API at `/support/api/v1/mobile/guest/*` (see [verified guest access](docs/merchant-and-guest-access.md#mobile-guest-api))
 - **Widget routes** at `/support/widget/*` -- the public support widget and its `embed.js` (unless `widget: false`)
 
 The API's auth, guest-ticket, knowledge-base, department and tag endpoints are
@@ -346,10 +347,13 @@ are counted per /64. Limits run before controller work and return HTTP 429 with
 `Retry-After` and `Cache-Control: no-store` when exhausted.
 
 On top of those shared budgets, the guest writes have per-IP limits of their own:
-5 ticket creations (`POST /widget/tickets`, `POST /api/v1/guest/tickets`) and 10
-replies (`POST /widget/tickets/:reference/reply`,
-`POST /api/v1/guest/tickets/:token/replies`) per minute, each with its own
-counter. The reply limit runs before the guest token is resolved, so wrong-token
+5 ticket creations (`POST /widget/tickets`, `POST /api/v1/guest/tickets`,
+`POST /api/v1/mobile/guest/tickets` and `POST /api/v1/mobile/guest/verification`)
+and 10 replies (`POST /widget/tickets/:reference/reply`,
+`POST /api/v1/guest/tickets/:token/replies`,
+`POST /api/v1/mobile/guest/tickets/:token/replies` and
+`POST /api/v1/mobile/guest/lookup`) per minute, each with its own
+counter shared by every surface. The reply limit runs before the guest token is resolved, so wrong-token
 guesses count too. Set `enabled: false` only when you already throttle these
 routes upstream.
 

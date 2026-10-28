@@ -207,6 +207,61 @@ lookup, ticket or chat traffic is served. The `/guest` and API guest routes are
 unaffected. All public grant paths send no-store/no-referrer headers. Configure access-log redaction for token
 path segments at the host proxy; the package cannot control upstream logs.
 
+## Mobile guest API
+
+While the JSON API is mounted (`api_enabled: true`, or `escalated_routes(prefix,
+api: true)`; off by default, so hosts that never enabled it get no new routes),
+the mobile guest routes live under `{prefix}/api/v1/mobile` (default
+`/support/api/v1/mobile`). They follow the shared contract,
+<https://github.com/escalated-dev/escalated-developer-context/blob/main/domain-model/mobile-guest-api.md>,
+and reuse everything above: the same codes, proof consumption, grants, lookup
+and per-IP guest budgets.
+
+| Method | Path | Guest budgets |
+| --- | --- | --- |
+| POST | `/guest/verification` | `guest_rate_limit` + ticket submissions |
+| POST | `/guest/lookup` | `guest_rate_limit` + replies |
+| POST | `/guest/tickets` | `guest_rate_limit` + ticket submissions |
+| GET | `/guest/tickets/:token` | `guest_rate_limit` |
+| POST | `/guest/tickets/:token/replies` | `guest_rate_limit` + replies |
+
+- `verification` and `lookup` are the shared handlers. `ticket` and `lookup`
+  codes, lookups and creates answer 403 `{"message": "Guest tickets are not
+  enabled."}` while `guest_tickets_enabled` is `false` (default `true`; it
+  gates the mobile routes only). `chat` codes follow the widget's
+  `widget_settings.enabled`, which also gates chat start.
+- Create takes `name`, `email`, `subject`, `description`, `verification_id`,
+  `verification_code`, optional `priority` (default `default_priority`) and
+  `department_id`. Checks run in the contract's order: 403 switch, 422 field
+  errors (`{"message", "errors": {field: [..]}}`), then 422 on
+  `verification_code` for a bad proof, with nothing created. The ticket gets
+  channel `web`; status, assignee, metadata and any other field are ignored.
+  `201 {"data": <mobile ticket>, "message": "Ticket created."}`.
+- `:token` is the grant itself, sent in the path. A grant from any surface
+  opens the others; a malformed, over-long, expired, rotated or chat grant is
+  404.
+- Show answers `{"data": <mobile ticket>}` with the latest 100 public replies,
+  newest first, and attachment links bound to the grant.
+- Reply: 404 bad grant, 422 `{"message": "This ticket is closed."}`, 422 field
+  errors, 403 when `email` (trimmed, lower-cased) is not the ticket's guest
+  email, then a public reply with no author. `201 {"message": "Reply sent."}`.
+- Every answer, 4xx and 429 included, carries `Cache-Control: private,
+  no-store` and `Referrer-Policy: no-referrer`.
+
+The mobile ticket object is allow-listed (`Escalated.Rendering.MobileTicketPresenter`):
+`metadata` is always `{}`, staff appear by display name (or "Support") with
+`id: 0` and an empty email, and internal notes, `chat_metadata` and staff
+ids/emails never appear.
+
+Differences from the contract in this port: there is no separate API-layer
+limiter (no `X-RateLimit-*` headers; the guest budgets above are the limit),
+and the guest defaults stay as configured above (20 requests and 10 replies a
+minute, where Laravel uses 60 and 30). Attachments are not accepted on create
+or reply: this package has no upload storage yet. An identical retry of a
+consumed proof (same code, email and request) replays the original ticket and
+grant instead of answering 422, as on every other guest surface; a reused code
+with any other request is 422.
+
 Authenticated API profile/token callbacks require membership before mutation.
 Merchant registration requires the explicit `api_tenant_registrar(params, tenant)`
 callback and a returned member (directly or under `user`); the legacy global
