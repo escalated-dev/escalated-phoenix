@@ -4,9 +4,10 @@ defmodule Escalated.Controllers.Admin.RoleController do
   `Escalated/Admin/Roles/Index` and `Escalated/Admin/Roles/Form` with the props
   escalated-laravel's `RoleController` sends.
 
-  A role's users are the active agent profiles whose `role` is the role's
-  slug, which is how `Escalated.Permissions.list_slugs_for_user/1` resolves
-  permissions. System roles cannot be deleted.
+  A role's users are the `role_user` rows holding it, which is how
+  `Escalated.Permissions.list_slugs_for_user/1` resolves permissions. System
+  roles cannot be deleted. The routes are mounted only while roles &
+  permissions is switched on (`Escalated.AccessFeatures`).
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
@@ -14,14 +15,13 @@ defmodule Escalated.Controllers.Admin.RoleController do
 
   alias Escalated.Controllers.FormResponse
   alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.{AgentProfile, Permission, Role, RolePermission}
+  alias Escalated.Schemas.{Permission, Role, RolePermission, RoleUser}
 
   def index(conn, _params) do
     counts =
-      from(ap in AgentProfile,
-        where: ap.is_active == true,
-        group_by: ap.role,
-        select: {ap.role, count(ap.id)}
+      from(ru in RoleUser,
+        group_by: ru.role_id,
+        select: {ru.role_id, count(ru.user_id)}
       )
       |> repo().all()
       |> Map.new()
@@ -29,7 +29,7 @@ defmodule Escalated.Controllers.Admin.RoleController do
     roles =
       from(r in Role, order_by: [asc: r.name])
       |> repo().all()
-      |> Enum.map(&Map.put(role_json(&1), :users_count, Map.get(counts, &1.slug, 0)))
+      |> Enum.map(&Map.put(role_json(&1), :users_count, Map.get(counts, &1.id, 0)))
 
     UIRenderer.render_page(conn, "Escalated/Admin/Roles/Index", %{roles: roles})
   end
@@ -99,6 +99,7 @@ defmodule Escalated.Controllers.Admin.RoleController do
       role ->
         repo().transaction(fn ->
           from(rp in RolePermission, where: rp.role_id == ^role.id) |> repo().delete_all()
+          from(ru in RoleUser, where: ru.role_id == ^role.id) |> repo().delete_all()
           repo().delete!(role)
         end)
 

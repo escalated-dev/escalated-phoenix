@@ -167,6 +167,7 @@ config :escalated,
 | `api_enabled` | `false` | Mount JSON API routes |
 | `guest_tickets_enabled` | `true` | Allow guest ticket codes, lookups and creates on the mobile guest API (`false` answers them 403) |
 | `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
+| `access` | `[]` | Install-level access switches, all off by default: `roles_permissions` (env `ESCALATED_ROLES_PERMISSIONS`), `two_factor`, `sso`. See [access control](docs/access-control.md) |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
 | `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
 | `default_priority` | `:medium` | Default ticket priority |

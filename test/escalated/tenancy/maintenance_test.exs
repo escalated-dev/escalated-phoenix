@@ -164,7 +164,7 @@ defmodule Escalated.Tenancy.MaintenanceTest do
   test "provisioning is tenant-local and idempotent, without creating staff membership" do
     for tenant <- ["merchant-a", "merchant-b"] do
       Tenancy.run(tenant, fn ->
-        assert {:ok, %{roles: 2, permissions: count}} = Provisioner.seed()
+        assert {:ok, %{roles: 3, permissions: count}} = Provisioner.seed()
         assert count == length(Escalated.Permissions.Catalog.all())
         assert {:ok, _} = Provisioner.seed()
 
@@ -172,9 +172,14 @@ defmodule Escalated.Tenancy.MaintenanceTest do
         admin = repo.get_by!(Role, slug: "admin") |> repo.preload(:permissions)
         agent = repo.get_by!(Role, slug: "agent") |> repo.preload(:permissions)
         assert length(admin.permissions) == count
-        assert agent.permissions == []
 
-        permission = hd(admin.permissions)
+        assert agent.permissions |> Enum.map(& &1.slug) |> Enum.sort() ==
+                 Escalated.Permissions.Catalog.expand(
+                   Enum.find(Escalated.Permissions.Catalog.roles(), &(&1.slug == "agent")).permissions
+                 )
+                 |> Enum.sort()
+
+        permission = Enum.find(admin.permissions, &(&1.slug == "settings.manage"))
 
         repo.insert!(
           Ecto.Changeset.change(%RolePermission{},
@@ -184,12 +189,15 @@ defmodule Escalated.Tenancy.MaintenanceTest do
         )
 
         assert {:ok, _} = Provisioner.seed()
-        assert [kept] = repo.preload(agent, :permissions).permissions
-        assert kept.id == permission.id
+
+        assert permission.id in Enum.map(
+                 repo.preload(agent, :permissions, force: true).permissions,
+                 & &1.id
+               )
       end)
     end
 
-    assert TestRepo.aggregate(Role, :count) == 4
+    assert TestRepo.aggregate(Role, :count) == 6
 
     assert TestRepo.aggregate(Permission, :count) ==
              2 * length(Escalated.Permissions.Catalog.all())

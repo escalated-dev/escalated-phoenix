@@ -304,6 +304,13 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: [[:role_id, :permission_id]]
     },
     %{
+      name: "role_user",
+      schema: Escalated.Schemas.RoleUser,
+      local_refs: %{role_id: {"roles", :id}},
+      host_refs: [:user_id],
+      unique_keys: [[:role_id, :user_id]]
+    },
+    %{
       name: "roles",
       schema: Escalated.Schemas.Role,
       local_refs: %{},

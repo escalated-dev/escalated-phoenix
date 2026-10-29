@@ -3,12 +3,15 @@ defmodule Escalated.Controllers.PeoplePagesTest do
   The people pages -- users and roles -- against the props the shared Vue
   pages read and the routes their forms post to (escalated-laravel's
   `UserController` and `RoleController`).
+
+  The roles screens exist only while roles & permissions is switched on, so
+  these run with it on and the admin holding a role that grants them.
   """
   use Escalated.PageCase
 
   import Ecto.Query, only: [from: 2]
 
-  alias Escalated.Schemas.{AgentProfile, Permission, Role, RolePermission}
+  alias Escalated.Schemas.{Permission, Role, RolePermission}
 
   defp repo, do: Escalated.repo()
 
@@ -33,6 +36,24 @@ defmodule Escalated.Controllers.PeoplePagesTest do
         })
       )
 
+    Application.put_env(:escalated, :access, roles_permissions: true)
+    on_exit(fn -> Application.delete_env(:escalated, :access) end)
+
+    grants =
+      for slug <- ~w(role.view role.manage user.view) do
+        repo().insert!(
+          Permission.changeset(%Permission{}, %{slug: slug, name: slug, group: "Roles"})
+        )
+      end
+
+    manager =
+      repo().insert!(Role.changeset(%Role{}, %{name: "People manager", slug: "people-manager"}))
+
+    for permission <- grants,
+        do: repo().insert!(%RolePermission{role_id: manager.id, permission_id: permission.id})
+
+    {:ok, _} = Escalated.Roles.assign(admin.id, "people-manager")
+
     %{admin: admin, manage: manage, view: view}
   end
 
@@ -54,11 +75,11 @@ defmodule Escalated.Controllers.PeoplePagesTest do
   test "Roles/Index lists roles with their user counts", %{admin: admin} do
     role = repo().insert!(Role.changeset(%Role{}, %{name: "Supervisor", slug: "supervisor"}))
 
-    repo().insert!(%AgentProfile{user_id: admin.id, role: "supervisor", is_active: true})
+    {:ok, _} = Escalated.Roles.assign(admin.id, "supervisor")
 
     props = visit(:get, "/support/admin/roles", admin) |> page!("Escalated/Admin/Roles/Index")
 
-    assert [row] = props["roles"]
+    assert row = Enum.find(props["roles"], &(&1["id"] == role.id))
     assert_keys(row, ~w(id name description is_system users_count), "role")
     assert row["id"] == role.id
     assert row["users_count"] == 1
