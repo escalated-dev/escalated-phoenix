@@ -31,7 +31,6 @@ defmodule Escalated.PageNameParityTest do
   # backend does not have stays on it; see the CHANGELOG for which those are.
   @not_yet_rendered ~w(
     Escalated/Admin/Settings/Sandbox
-    Escalated/Admin/Settings/SsoSettings
     Escalated/Admin/Workflows/Builder
     Escalated/Error
     Escalated/Plugin/Page

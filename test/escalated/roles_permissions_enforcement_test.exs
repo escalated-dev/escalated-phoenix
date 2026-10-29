@@ -161,13 +161,13 @@ defmodule Escalated.RolesPermissionsEnforcementTest do
     refute AccessFeatures.roles_permissions?()
   end
 
-  test "SSO stays reported off until this package enforces it" do
+  test "SSO is reported on once it is switched on" do
     Application.put_env(:escalated, :access, sso: true)
 
-    refute AccessFeatures.sso?()
+    assert AccessFeatures.sso?()
 
     props = shared_props("/support/admin/departments", staff!(:admin))
-    assert props["features"]["sso"] == false
+    assert props["features"]["sso"] == true
   end
 
   test "newsletter permissions apply only while the switch is on" do

@@ -167,7 +167,8 @@ config :escalated,
 | `api_enabled` | `false` | Mount JSON API routes |
 | `guest_tickets_enabled` | `true` | Allow guest ticket codes, lookups and creates on the mobile guest API (`false` answers them 403) |
 | `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
-| `access` | `[]` | Install-level access switches, all off by default: `roles_permissions` (env `ESCALATED_ROLES_PERMISSIONS`), `two_factor` (env `ESCALATED_TWO_FACTOR`), `sso`. See [access control](docs/access-control.md) |
+| `access` | `[]` | Install-level access switches, all off by default: `roles_permissions` (env `ESCALATED_ROLES_PERMISSIONS`), `two_factor` (env `ESCALATED_TWO_FACTOR`), `sso` (env `ESCALATED_SSO`). See [access control](docs/access-control.md) |
+| `sso` | `[]` | Single sign-on rules: `sign_in` (your callback that signs the resolved user in), `base_url`, `jwt_audience`, `clock_skew`, `create_users`, `sync_roles`, `redirect_to`, `http_adapter`. Mount `escalated_sso_routes/1` outside your sign-in pipeline. See [access control](docs/access-control.md#single-sign-on) |
 | `two_factor` | `[]` | `required` (env `ESCALATED_TWO_FACTOR_REQUIRED`), `issuer` (default `"Escalated"`), `login_session_key` (default `"user_token"`). See [access control](docs/access-control.md#two-factor-authentication) |
 | `two_factor_secret` | `nil` | 32+ byte key for encrypting two-factor secrets and recovery codes (falls back to `guest_access_secret`) |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
@@ -310,6 +311,11 @@ defmodule MyAppWeb.Router do
   end
 end
 ```
+
+Single sign-on, when you switch it on, needs its routes outside your sign-in
+pipeline too: mount `escalated_sso_routes("/support")` in a pipeline with a
+session but without `:protect_from_forgery`, and pass `sso: false` to
+`escalated_routes/2` (see [access control](docs/access-control.md#mounting-the-routes)).
 
 Existing routers that call `escalated_routes("/support")` alone keep working
 unchanged: it still mounts the widget routes, inside your pipeline. Split them

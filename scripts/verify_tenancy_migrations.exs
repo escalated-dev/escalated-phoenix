@@ -84,7 +84,8 @@ defmodule PhoenixTenancyMigrationProbe do
             "import_jobs",
             "import_source_maps",
             "api_tokens",
-            "role_user"
+            "role_user",
+            "sso_message_ids"
           ])
       )
       |> Enum.map(&Escalated.table_name(&1.name))

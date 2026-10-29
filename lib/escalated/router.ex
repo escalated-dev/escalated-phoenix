@@ -24,7 +24,12 @@ defmodule Escalated.Router do
   defmacro __using__(_opts) do
     quote do
       import Escalated.Router,
-        only: [escalated_routes: 1, escalated_routes: 2, escalated_widget_routes: 1]
+        only: [
+          escalated_routes: 1,
+          escalated_routes: 2,
+          escalated_widget_routes: 1,
+          escalated_sso_routes: 1
+        ]
     end
   end
 
@@ -38,6 +43,43 @@ defmodule Escalated.Router do
   README's router setup.
   """
   defmacro escalated_widget_routes(prefix), do: widget_scope(prefix)
+
+  @doc """
+  Mounts only the single sign-on routes (`{prefix}/sso/*`).
+
+  People who use them are not signed in yet, and the identity provider posts
+  to the SAML and JWT callbacks from its own site, so they need a pipeline
+  without your sign-in requirement and without `:protect_from_forgery`
+  (the OAuth `state`, the signed single-use JWT and the signed assertion are
+  what authenticate those requests). Pass `sso: false` to
+  `escalated_routes/2` when you mount them this way. See
+  `docs/access-control.md`.
+  """
+  defmacro escalated_sso_routes(prefix) do
+    quote do
+      scope unquote(prefix), as: :escalated do
+        pipe_through [Escalated.Plugs.ResolveTenant, Escalated.Plugs.TicketVisibility]
+        unquote(sso_scope())
+      end
+    end
+  end
+
+  # Single sign-on (ADR 2026-10-29-configurable-access-features): 404 while
+  # it is switched off, and for any provider but the chosen one.
+  defp sso_scope do
+    quote do
+      scope "/sso", Escalated.Controllers, as: :sso do
+        pipe_through Escalated.Plugs.EnsureFeatureEnabled.Sso
+
+        get "/login", SsoController, :login
+        get "/saml/metadata", SsoController, :saml_metadata
+        post "/saml/acs", SsoController, :saml_acs
+        get "/oauth/callback", SsoController, :oauth_callback
+        get "/jwt/callback", SsoController, :jwt_callback
+        post "/jwt/callback", SsoController, :jwt_callback
+      end
+    end
+  end
 
   # Widget routes (public, rate-limited). Everything but /config and embed.js
   # is refused while the widget is disabled. WidgetCors runs first so CORS
@@ -136,11 +178,14 @@ defmodule Escalated.Router do
     * `:api` - whether to mount API routes (default: value of `config :escalated, :api_enabled`)
     * `:widget` - `false` leaves out the widget routes, for hosts that mount
       them with `escalated_widget_routes/1` (default: `true`)
+    * `:sso` - `false` leaves out the single sign-on routes, for hosts that
+      mount them with `escalated_sso_routes/1` (default: `true`)
   """
   defmacro escalated_routes(prefix, opts \\ []) do
     # `widget: false` leaves the widget routes to `escalated_widget_routes/1`,
     # mounted by the host in a pipeline of their own.
     widget = if Keyword.get(opts, :widget, true) == false, do: nil, else: widget_scope(prefix)
+    sso = if Keyword.get(opts, :sso, true) == false, do: nil, else: sso_scope()
 
     quote do
       unquote(widget)
@@ -234,6 +279,8 @@ defmodule Escalated.Router do
             post "/challenge", TwoFactorChallengeController, :verify
           end
         end
+
+        unquote(sso)
 
         # Agent routes
         scope "/agent", Escalated.Controllers.Agent, as: :agent do
@@ -505,6 +552,15 @@ defmodule Escalated.Router do
           # Support email addresses and the default reply address.
           get "/settings/email", EmailSettingsController, :index
           post "/settings/email", EmailSettingsController, :update
+
+          # The SSO provider and its fields: only while single sign-on is
+          # switched on (404 otherwise; Escalated.AccessFeatures).
+          scope "/" do
+            pipe_through Escalated.Plugs.EnsureFeatureEnabled.Sso
+
+            get "/settings/sso", SsoSettingsController, :index
+            post "/settings/sso", SsoSettingsController, :update
+          end
 
           # Event-driven admin Workflows (fired inline from TicketService on
           # ticket lifecycle events — distinct from time-based Automations

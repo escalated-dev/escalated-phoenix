@@ -340,6 +340,13 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: [[:key]]
     },
     %{
+      name: "sso_message_ids",
+      schema: Escalated.Schemas.SsoMessageId,
+      local_refs: %{},
+      host_refs: [],
+      unique_keys: [[:kind, :message_id]]
+    },
+    %{
       name: "side_conversation_replies",
       schema: Escalated.Schemas.SideConversationReply,
       local_refs: %{side_conversation_id: {"side_conversations", :id}},

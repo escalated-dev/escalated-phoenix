@@ -17,8 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - While it is off, the shared `escalated.permissions` prop is `["*"]` for
     staff (it was the slugs of the agent profile's role, which nothing
     enforced) and `[]` for everyone else. `escalated.features` gains
-    `roles_permissions`, `two_factor` and `sso` (`sso` is always `false`:
-    this package does not enforce it yet).
+    `roles_permissions`, `two_factor` and `sso`.
   - A user's permissions now come from the roles they hold in the new
     `role_user` table, not from their agent profile's `role`. Run the
     migration (`mix ecto.migrate`).
@@ -41,6 +40,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   set `two_factor: [login_session_key: ...]` or call
   `Escalated.TwoFactorSession.forget/1` on login and logout, so every new
   login is challenged. See docs/access-control.md.
+- **Single sign-on is now an install-level switch, off by default**
+  (`config :escalated, access: [sso: true]`, or env `ESCALATED_SSO=true`).
+  Nothing signed anyone in through SSO before. While it is off, the SSO
+  settings screen and every `{prefix}/sso/*` route answer 404. To use it: run
+  the migration (`mix ecto.migrate`, creates `sso_message_ids`), add an
+  `sso: [sign_in: ...]` callback that signs the resolved user in, mount
+  `escalated_sso_routes/1` in a pipeline without your sign-in requirement and
+  CSRF check (and pass `sso: false` to `escalated_routes/2`), set the switch,
+  choose OAuth or JWT in Admin > Settings > SSO, and decide on
+  `sso: [create_users:]` and `sync_roles:` (both off by default). SAML is not
+  available yet. See docs/access-control.md.
 - `Escalated.Schemas.TwoFactor` now stores `secret` and `recovery_codes`
   encrypted (`Escalated.Types.EncryptedString`). Rows written before are read
   as they are and encrypted the next time they are saved.
@@ -77,6 +87,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   user: setup flashes `two_factor_setup: {qr_uri, recovery_codes}`, confirm
   flashes `two_factor_confirmed: {recovery_codes}`. Props `enabled`,
   `pending`, `required`.
+- **Single sign-on works when switched on.** `GET {prefix}/sso/login`
+  starts sign-in with the provider chosen in the admin. OAuth 2 / OIDC
+  (`assent`) uses a session-bound single-use `state` and PKCE S256, exchanges
+  the code server to server and reads the userinfo endpoint. JWT (`joken`)
+  pins the configured algorithm (so `alg: none` and algorithm switching are
+  refused) and requires `exp`, `aud` and a single-use `jti`. Users are matched
+  by email, case-insensitively; `sso: [create_users: true]` creates unknown
+  ones and `sso: [sync_roles: true]` maps the role claim to an Escalated role
+  while roles & permissions is on. Signing in through SSO clears the
+  two-factor mark, so the challenge still applies. New routes
+  `{prefix}/sso/login`, `/sso/saml/metadata`, `/sso/saml/acs`,
+  `/sso/oauth/callback`, `GET|POST /sso/jwt/callback`, and
+  `Escalated/Admin/Settings/SsoSettings` at `{prefix}/admin/settings/sso`
+  (props `settings`, with secrets masked, and `endpoints`). New dependencies:
+  `joken` and `assent`.
+- SAML sign-in is refused: with `sso_provider` `saml` stored, `sso/login`,
+  the metadata and every posted response answer 403, and the settings page
+  will not save `saml`. No maintained Elixir SAML library meets the ADR's
+  checks on the supported Elixir and OTP versions (`esaml` has open
+  advisories and its `cowlib` does not build on OTP 26).
 - `config :escalated, two_factor: [required: true]` (env
   `ESCALATED_TWO_FACTOR_REQUIRED`), or the new `two_factor_required` general
   setting (which wins once saved), sends staff without an enrolment to enrol
@@ -243,8 +273,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the stored secret, because the edit form never receives it. Send
   `clear_secret: true` to remove it; any other value replaces it, as before.
   The shared frontend posts `secret: ''` with `clear_secret` and reads
-  `webhook.has_secret`. This backend has no SSO settings, so there is no SSO
-  mask to post back.
+  `webhook.has_secret`. The SSO settings page masks its secrets the same
+  way and keeps a posted-back mask.
 - The import pages' `job` (and each of `jobs`) is now exactly Laravel's field
   list: `user_id` and `updated_at` are no longer sent, and `error_log` is its
   last 50 entries.

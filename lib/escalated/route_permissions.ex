@@ -185,6 +185,7 @@ defmodule Escalated.RoutePermissions do
       Admin.DataRetentionController => settings_screen(),
       Admin.EmailSettingsController => settings_screen(),
       Admin.DatabaseConnectionController => settings_screen(),
+      Admin.SsoSettingsController => settings_screen(),
       Admin.ImportController => %{*: ["settings.manage"]},
 
       # The signed-in user's own two-factor enrolment: every staff user, no
