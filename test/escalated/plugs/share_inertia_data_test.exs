@@ -22,7 +22,21 @@ defmodule Escalated.Plugs.ShareInertiaDataTest do
       assert props.permissions == []
     end
 
-    test "returns is_admin and permissions for an agent profile role" do
+    test "shares a wildcard for staff while roles & permissions is off" do
+      user = %{id: 42, email: "agent@example.com", name: "Agent"}
+      insert_agent_profile!(user_id: user.id, role: "admin")
+
+      props = ShareInertiaData.escalated_props(user, Escalated.configuration())
+
+      assert props.is_admin == true
+      assert props.permissions == ["*"]
+      assert props.features.roles_permissions == false
+    end
+
+    test "shares the user's role permissions while roles & permissions is on" do
+      Application.put_env(:escalated, :access, roles_permissions: true)
+      on_exit(fn -> Application.delete_env(:escalated, :access) end)
+
       admin_role = insert_role!(slug: "admin", name: "Admin")
       manage = insert_permission!(slug: "newsletters.manage", name: "Manage newsletters")
       send_perm = insert_permission!(slug: "newsletters.send", name: "Send newsletters")
@@ -31,11 +45,13 @@ defmodule Escalated.Plugs.ShareInertiaDataTest do
 
       user = %{id: 42, email: "agent@example.com", name: "Agent"}
       insert_agent_profile!(user_id: user.id, role: "admin")
+      {:ok, _} = Escalated.Roles.assign(user.id, "admin")
 
       props = ShareInertiaData.escalated_props(user, Escalated.configuration())
 
       assert props.is_admin == true
       assert props.permissions == ["newsletters.manage", "newsletters.send"]
+      assert props.features.roles_permissions == true
     end
 
     test "uses admin_check when configured" do
@@ -45,7 +61,7 @@ defmodule Escalated.Plugs.ShareInertiaDataTest do
       props = ShareInertiaData.escalated_props(user, Escalated.configuration())
 
       assert props.is_admin == true
-      assert props.permissions == []
+      assert props.permissions == ["*"]
     end
 
     test "host is_admin without agent profile" do
@@ -54,20 +70,36 @@ defmodule Escalated.Plugs.ShareInertiaDataTest do
       props = ShareInertiaData.escalated_props(user, Escalated.configuration())
 
       assert props.is_admin == true
-      assert props.permissions == []
+      assert props.permissions == ["*"]
     end
   end
 
   describe "Permissions.list_slugs_for_user/1" do
-    test "returns slugs only for the user's role" do
+    test "returns the union of the user's roles' slugs" do
       agent_role = insert_role!(slug: "agent", name: "Agent")
+      other_role = insert_role!(slug: "other", name: "Other")
       manage = insert_permission!(slug: "newsletters.manage", name: "Manage newsletters")
-      _send_perm = insert_permission!(slug: "newsletters.send", name: "Send newsletters")
+      send_perm = insert_permission!(slug: "newsletters.send", name: "Send newsletters")
+      _unheld = insert_permission!(slug: "ticket.view", name: "View tickets")
 
       link_role_permissions!(agent_role, [manage])
-      insert_agent_profile!(user_id: 1, role: "agent")
+      link_role_permissions!(other_role, [manage, send_perm])
+      {:ok, _} = Escalated.Roles.assign(1, "agent")
+      {:ok, _} = Escalated.Roles.assign(1, "other")
 
-      assert Permissions.list_slugs_for_user(%{id: 1}) == ["newsletters.manage"]
+      assert Permissions.list_slugs_for_user(%{id: 1}) == [
+               "newsletters.manage",
+               "newsletters.send"
+             ]
+    end
+
+    test "an agent profile role grants nothing by itself" do
+      admin_role = insert_role!(slug: "admin", name: "Admin")
+      manage = insert_permission!(slug: "newsletters.manage", name: "Manage newsletters")
+      link_role_permissions!(admin_role, [manage])
+      insert_agent_profile!(user_id: 1, role: "admin")
+
+      assert Permissions.list_slugs_for_user(%{id: 1}) == []
     end
   end
 

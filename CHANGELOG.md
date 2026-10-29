@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- **Roles & permissions is now an install-level switch, off by default**
+  (`config :escalated, access: [roles_permissions: true]`, or env
+  `ESCALATED_ROLES_PERMISSIONS=true`; ADR 2026-10-29-configurable-access-features).
+  Roles were stored but never enforced, so off is how every install already
+  behaved, with these visible differences:
+  - While it is off, the roles screens (`{prefix}/admin/roles*`) answer 404.
+  - While it is off, the shared `escalated.permissions` prop is `["*"]` for
+    staff (it was the slugs of the agent profile's role, which nothing
+    enforced) and `[]` for everyone else. `escalated.features` gains
+    `roles_permissions`, `two_factor` and `sso` (the last two are always
+    `false`: this package does not enforce them yet).
+  - A user's permissions now come from the roles they hold in the new
+    `role_user` table, not from their agent profile's `role`. Run the
+    migration (`mix ecto.migrate`).
+  To enforce roles: run the migration, seed the permissions and system roles
+  (`mix escalated.seed_permissions`), give every staff user a role (start with
+  `mix escalated.roles.assign you@example.com admin`), then set the switch.
+  Passing the admin gate grants no permission by itself, so an admin without
+  a role is refused everywhere. See docs/access-control.md.
+- `mix escalated.seed_permissions` now seeds escalated-laravel's whole
+  permission set (`ticket.*`, `reply.*`, `kb.*`, ... `newsletters.*`) and a
+  third system role, `light_agent`. The `agent` and `light_agent` roles get
+  their default permissions on top of whatever they already grant.
+
+### Added
+- **Roles & permissions are enforced when switched on.** Every admin, agent
+  and staff API route needs its permission from the user's roles as well as
+  the host gate (`Escalated.Plugs.EnforceRoutePermissions`, map in
+  `Escalated.RoutePermissions`; unmapped routes are refused, and a test checks
+  every route is mapped). Status changes to `resolved`/`closed`/`reopened`
+  also need `ticket.close`, bulk actions need each action's permission, and
+  the staff API checks the token owner's permissions. Failing answers 403.
+  While the switch is on, the newsletter screens check `newsletters.*` from
+  the user's roles instead of letting every admin through.
+- `mix escalated.roles.assign USER [ROLE]` gives a user a role by email or ID.
+- `PUT {prefix}/admin/users/:user_id/roles` (needs `role.manage`, only while
+  the switch is on) replaces a user's roles; you cannot remove your own
+  `role.manage`. While roles are on, the users page also receives each user's
+  `roles` and the assignable `roles`.
+- `Escalated.AccessFeatures` (the three install-level switches) and
+  `Escalated.Plugs.EnsureFeatureEnabled` (404 while a feature is off).
+
 ## [0.2.8] - 2026-10-28
 
 ### Upgrading

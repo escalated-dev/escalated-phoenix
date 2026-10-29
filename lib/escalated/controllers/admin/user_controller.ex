@@ -44,12 +44,102 @@ defmodule Escalated.Controllers.Admin.UserController do
       |> offset(^((page - 1) * @page_size))
       |> repo.all()
 
-    UIRenderer.render_page(conn, "Escalated/Admin/Users/Index", %{
+    props = %{
       users: paginate(rows, page, total, search),
       filters: %{search: search},
       currentUserId: current_user_id(conn)
-    })
+    }
+
+    UIRenderer.render_page(conn, "Escalated/Admin/Users/Index", with_roles(props))
   end
+
+  # Escalated roles, only while roles & permissions is enforced: each user's
+  # role slugs, and the roles an admin can give them.
+  defp with_roles(props) do
+    if Escalated.AccessFeatures.roles_permissions?() do
+      held = props.users.data |> Enum.map(& &1.id) |> Escalated.Roles.slugs_by_user()
+
+      props
+      |> put_in(
+        [:users, :data],
+        Enum.map(props.users.data, &Map.put(&1, :roles, Map.get(held, &1.id, [])))
+      )
+      |> Map.put(:roles, Escalated.Roles.options())
+    else
+      props
+    end
+  end
+
+  @doc """
+  PUT /support/admin/users/:user_id/roles -- replace a user's Escalated
+  roles. Body: `{role_ids: [id]}`. Mounted only while roles & permissions is
+  switched on, and needs `role.manage`.
+
+  Safety: you cannot remove your own `role.manage`, which would leave nobody
+  able to undo it.
+  """
+  def update_roles(conn, %{"user_id" => user_id} = params) do
+    if Escalated.Tenancy.enabled?(),
+      do: tenant_denied(conn),
+      else: legacy_update_roles(conn, user_id, params)
+  end
+
+  defp legacy_update_roles(conn, user_id, params) do
+    with {:ok, role_ids} <- validate_role_ids(Map.get(params, "role_ids")),
+         {:ok, target} <- find_user(user_id) do
+      cond do
+        self_target?(conn, target) and not Escalated.Roles.grants?(role_ids, "role.manage") ->
+          conn
+          |> put_flash(:error, "You cannot remove your own role management.")
+          |> redirect_back()
+
+        Escalated.Roles.replace(Map.get(target, :id), role_ids) == :ok ->
+          conn |> put_flash(:info, "User updated.") |> redirect_back()
+
+        true ->
+          conn |> put_status(422) |> Phoenix.Controller.json(%{error: "unknown role"})
+      end
+    else
+      {:error, :not_found} ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "User not found"})
+
+      {:error, message} ->
+        conn |> put_status(422) |> Phoenix.Controller.json(%{error: message})
+    end
+  end
+
+  defp find_user(user_id) do
+    case Escalated.user_repo().get(Escalated.user_schema(), user_id) do
+      nil -> {:error, :not_found}
+      user -> {:ok, user}
+    end
+  rescue
+    Ecto.Query.CastError -> {:error, :not_found}
+  end
+
+  @doc false
+  def validate_role_ids(ids) when is_list(ids) do
+    parsed =
+      Enum.map(ids, fn
+        id when is_integer(id) ->
+          id
+
+        id when is_binary(id) ->
+          case Integer.parse(id) do
+            {n, ""} -> n
+            _ -> nil
+          end
+
+        _ ->
+          nil
+      end)
+
+    if Enum.any?(parsed, &is_nil/1),
+      do: {:error, "role_ids must be role ids"},
+      else: {:ok, Enum.uniq(parsed)}
+  end
+
+  def validate_role_ids(_), do: {:error, "role_ids must be a list"}
 
   @doc """
   PATCH /support/admin/users/:user_id/role — grant or revoke admin/agent

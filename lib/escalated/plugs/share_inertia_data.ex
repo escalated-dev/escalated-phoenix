@@ -41,10 +41,13 @@ defmodule Escalated.Plugs.ShareInertiaData do
       priorities: Escalated.Schemas.Ticket.priorities(),
       statuses: Escalated.Schemas.Ticket.statuses(),
       is_admin: Escalated.Permissions.admin?(user),
-      permissions: Escalated.Permissions.list_slugs_for_user(user),
-      features: %{
-        newsletters: newsletters_enabled?()
-      }
+      # The user's role slugs while roles & permissions is on; ["*"] for
+      # staff while it is off (the gates decide everything).
+      permissions: Escalated.Permissions.shared_slugs(user),
+      # roles_permissions, two_factor and sso: the install-level access
+      # switches (Escalated.AccessFeatures). The layout hides their screens.
+      features:
+        Map.merge(%{newsletters: newsletters_enabled?()}, Escalated.AccessFeatures.shared())
     }
   end
 

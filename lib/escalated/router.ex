@@ -207,7 +207,9 @@ defmodule Escalated.Router do
 
         # Agent routes
         scope "/agent", Escalated.Controllers.Agent, as: :agent do
-          pipe_through Escalated.Plugs.EnsureAgent
+          # Roles & permissions, when switched on, adds each route's
+          # permission (Escalated.RoutePermissions) on top of the agent gate.
+          pipe_through [Escalated.Plugs.EnsureAgent, Escalated.Plugs.EnforceRoutePermissions]
 
           get "/dashboard", DashboardController, :index
           get "/tickets", TicketController, :index
@@ -267,7 +269,9 @@ defmodule Escalated.Router do
 
         # Admin routes
         scope "/admin", Escalated.Controllers.Admin, as: :admin do
-          pipe_through Escalated.Plugs.EnsureAdmin
+          # Roles & permissions, when switched on, adds each route's
+          # permission (Escalated.RoutePermissions) on top of the admin gate.
+          pipe_through [Escalated.Plugs.EnsureAdmin, Escalated.Plugs.EnforceRoutePermissions]
 
           get "/tickets", TicketController, :index
 
@@ -419,7 +423,6 @@ defmodule Escalated.Router do
           get "/users", UserController, :index
           patch "/users/:user_id/role", UserController, :update_role
 
-          # Roles and the permissions they grant (Laravel's resource routes).
           # API tokens for the JSON ticket API (Admin/ApiTokens/Index).
           get "/api-tokens", ApiTokenController, :index
           post "/api-tokens", ApiTokenController, :create
@@ -427,9 +430,16 @@ defmodule Escalated.Router do
           put "/api-tokens/:id", ApiTokenController, :update
           delete "/api-tokens/:id", ApiTokenController, :delete
 
-          get "/roles/create", RoleController, :new
-          get "/roles/:id/edit", RoleController, :edit
-          resources "/roles", RoleController, only: [:index, :create, :update, :delete]
+          # Roles screens and role assignment: only while roles & permissions
+          # is switched on (404 otherwise; Escalated.AccessFeatures).
+          scope "/" do
+            pipe_through Escalated.Plugs.EnsureFeatureEnabled.RolesPermissions
+
+            get "/roles/create", RoleController, :new
+            get "/roles/:id/edit", RoleController, :edit
+            resources "/roles", RoleController, only: [:index, :create, :update, :delete]
+            put "/users/:user_id/roles", UserController, :update_roles
+          end
 
           # @mention autocomplete: matching agents by name/email.
           get "/agents/search", AgentSearchController, :search
@@ -650,7 +660,11 @@ defmodule Escalated.Router do
           # user who is not an agent. Laravel guards the same endpoints with
           # an agent token.
           scope "/api/v1", Escalated.Controllers.Api, as: :api do
-            pipe_through [Escalated.Plugs.ApiAuthenticate, Escalated.Plugs.EnsureAgent]
+            pipe_through [
+              Escalated.Plugs.ApiAuthenticate,
+              Escalated.Plugs.EnsureAgent,
+              Escalated.Plugs.EnforceRoutePermissions
+            ]
 
             get "/tickets", TicketController, :index
             get "/tickets/:reference", TicketController, :show

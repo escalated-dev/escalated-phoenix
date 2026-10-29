@@ -33,6 +33,11 @@ defmodule Escalated.Services.Newsletter.Permission do
       not is_nil(check) ->
         false
 
+      # Roles & permissions on: only the user's roles grant it, as on every
+      # other screen (ADR 2026-10-29-configurable-access-features).
+      Escalated.AccessFeatures.roles_permissions?() ->
+        permission in Escalated.Permissions.list_slugs_for_user(user)
+
       admin_user?(user) ->
         true
 

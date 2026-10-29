@@ -5,7 +5,7 @@ defmodule Escalated.Permissions do
 
   import Ecto.Query
 
-  alias Escalated.Schemas.{AgentProfile, Permission, Role}
+  alias Escalated.Schemas.{AgentProfile, Permission, RoleUser}
 
   @doc """
   Returns true when the user is an Escalated admin.
@@ -54,25 +54,27 @@ defmodule Escalated.Permissions do
   end
 
   @doc """
-  Permission slugs granted to the user via their agent profile role.
+  Permission slugs the user holds: the union of their Escalated roles'
+  permissions (`role_user` and `role_permissions`). Nothing else grants one,
+  not the admin gate and not `is_admin` (ADR 2026-10-29-configurable-access-features).
 
-  Returns `[]` when there is no user, RBAC tables are absent, or the user has no profile.
+  Returns `[]` when there is no user, RBAC tables are absent, or the user holds
+  no role.
   """
   def list_slugs_for_user(nil), do: []
 
   def list_slugs_for_user(user) do
     with user_id when not is_nil(user_id) <- user_id(user),
          true <- Escalated.Tenancy.member?(user),
-         true <- rbac_tables_ready?() do
+         true <- table_ready?("role_user") do
       repo = Escalated.repo()
 
       from(p in Permission,
         join: rp in ^role_permissions_table(),
         on: rp.permission_id == p.id,
-        join: r in Role,
-        on: r.id == rp.role_id,
-        join: ap in AgentProfile,
-        on: ap.role == r.slug and ap.user_id == ^user_id and ap.is_active == true,
+        join: ru in RoleUser,
+        on: ru.role_id == rp.role_id,
+        where: ru.user_id == ^user_id,
         select: p.slug,
         distinct: true,
         order_by: [asc: p.slug]
@@ -80,6 +82,33 @@ defmodule Escalated.Permissions do
       |> repo.all()
     else
       _ -> []
+    end
+  rescue
+    Ecto.Query.CastError -> []
+  end
+
+  @doc """
+  Whether the user may do what `slug` covers. While roles & permissions is
+  switched off the host gates decide everything, so this is always true;
+  callers have already checked the gate. While it is on, the user's roles
+  must grant the slug.
+  """
+  def allows?(user, slug) when is_binary(slug) do
+    not Escalated.AccessFeatures.roles_permissions?() or slug in list_slugs_for_user(user)
+  end
+
+  @doc """
+  The `permissions` shared with every page: the user's slugs while roles &
+  permissions is on; while it is off, `["*"]` for staff (the gates decide)
+  and `[]` for anyone else.
+  """
+  def shared_slugs(nil), do: []
+
+  def shared_slugs(user) do
+    cond do
+      Escalated.AccessFeatures.roles_permissions?() -> list_slugs_for_user(user)
+      agent?(user) -> ["*"]
+      true -> []
     end
   end
 
@@ -116,11 +145,16 @@ defmodule Escalated.Permissions do
 
   defp truthy?(value), do: value in [true, 1, "1", "true"]
 
-  defp rbac_tables_ready? do
-    repo = Escalated.storage_repo()
-    roles = Escalated.table_name("roles")
+  defp rbac_tables_ready?, do: table_ready?("roles")
 
-    case Ecto.Adapters.SQL.query(repo, "SELECT 1 FROM #{roles} LIMIT 0", []) do
+  # An install that has not run the role_user migration yet holds no roles
+  # (so, with roles & permissions on, every route is refused) rather than
+  # failing the request.
+  defp table_ready?(name) do
+    repo = Escalated.storage_repo()
+    table = Escalated.table_name(name)
+
+    case Ecto.Adapters.SQL.query(repo, "SELECT 1 FROM #{table} LIMIT 0", []) do
       {:ok, _} -> true
       {:error, _} -> false
     end

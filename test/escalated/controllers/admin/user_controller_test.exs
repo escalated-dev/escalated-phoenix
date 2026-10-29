@@ -95,7 +95,9 @@ defmodule Escalated.Controllers.Admin.UserControllerTest do
       # (see lib/escalated/router.ex), so user routes inherit it.
       router_source = File.read!(@router_path)
 
-      assert router_source =~ "pipe_through Escalated.Plugs.EnsureAdmin"
+      assert router_source =~
+               "pipe_through [Escalated.Plugs.EnsureAdmin, Escalated.Plugs.EnforceRoutePermissions]"
+
       assert router_source =~ ~s("/users", UserController, :index)
       assert router_source =~ ~s("/users/:user_id/role", UserController, :update_role)
     end

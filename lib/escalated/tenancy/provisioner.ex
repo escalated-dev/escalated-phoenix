@@ -2,13 +2,16 @@ defmodule Escalated.Tenancy.Provisioner do
   @moduledoc """
   Idempotent permission and default-role provisioning in the current tenant.
 
-  Call `seed/0` inside `Tenancy.run/2` after the host creates a merchant. The
-  admin role receives all tenant permissions. New agent roles start without
-  elevated permissions: today's catalog contains only newsletter management
-  and sending. Existing agent grants and custom roles are preserved.
+  Call `seed/0` inside `Tenancy.run/2` after the host creates a merchant (or
+  run `mix escalated.seed_permissions`). It upserts every permission in
+  `Escalated.Permissions.Catalog` and the system roles `admin`, `agent` and
+  `light_agent`. The admin role receives every permission; the agent and
+  light agent roles receive their catalog defaults on top of whatever they
+  already grant. Existing grants and custom roles are preserved.
 
-  This creates no staff membership and adopts no legacy rows. The host must
-  explicitly provision its tenant membership and active agent/admin profiles.
+  This creates no staff membership, assigns no roles and adopts no legacy
+  rows. Give users roles with `mix escalated.roles.assign` or the admin users
+  page.
   """
 
   alias Escalated.Permissions.Catalog
@@ -24,16 +27,31 @@ defmodule Escalated.Tenancy.Provisioner do
         upsert(repo, Permission, attrs)
       end)
 
-      admin = upsert(repo, Role, %{slug: "admin", name: "Admin", is_system: true})
-      upsert(repo, Role, %{slug: "agent", name: "Agent", is_system: true})
+      permissions = repo.all(Permission)
+      slugs = Enum.map(permissions, & &1.slug)
 
-      admin
-      |> repo.preload(:permissions)
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:permissions, repo.all(Permission))
-      |> repo.update!()
+      Enum.each(Catalog.roles(), fn definition ->
+        role =
+          repo
+          |> upsert(
+            Role,
+            Map.take(definition, [:slug, :name, :description]) |> Map.put(:is_system, true)
+          )
+          |> repo.preload(:permissions)
 
-      %{permissions: length(Catalog.all()), roles: 2}
+        wanted = Catalog.expand(definition.permissions, slugs)
+
+        grants =
+          (role.permissions ++ Enum.filter(permissions, &(&1.slug in wanted)))
+          |> Enum.uniq_by(& &1.id)
+
+        role
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.put_assoc(:permissions, grants)
+        |> repo.update!()
+      end)
+
+      %{permissions: length(Catalog.all()), roles: length(Catalog.roles())}
     end)
   end
 
