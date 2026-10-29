@@ -161,14 +161,12 @@ defmodule Escalated.RolesPermissionsEnforcementTest do
     refute AccessFeatures.roles_permissions?()
   end
 
-  test "two-factor and SSO stay reported off until this package enforces them" do
-    Application.put_env(:escalated, :access, two_factor: true, sso: true)
+  test "SSO stays reported off until this package enforces it" do
+    Application.put_env(:escalated, :access, sso: true)
 
-    refute AccessFeatures.two_factor?()
     refute AccessFeatures.sso?()
 
     props = shared_props("/support/admin/departments", staff!(:admin))
-    assert props["features"]["two_factor"] == false
     assert props["features"]["sso"] == false
   end
 

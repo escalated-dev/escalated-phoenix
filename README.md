@@ -167,7 +167,9 @@ config :escalated,
 | `api_enabled` | `false` | Mount JSON API routes |
 | `guest_tickets_enabled` | `true` | Allow guest ticket codes, lookups and creates on the mobile guest API (`false` answers them 403) |
 | `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
-| `access` | `[]` | Install-level access switches, all off by default: `roles_permissions` (env `ESCALATED_ROLES_PERMISSIONS`), `two_factor`, `sso`. See [access control](docs/access-control.md) |
+| `access` | `[]` | Install-level access switches, all off by default: `roles_permissions` (env `ESCALATED_ROLES_PERMISSIONS`), `two_factor` (env `ESCALATED_TWO_FACTOR`), `sso`. See [access control](docs/access-control.md) |
+| `two_factor` | `[]` | `required` (env `ESCALATED_TWO_FACTOR_REQUIRED`), `issuer` (default `"Escalated"`), `login_session_key` (default `"user_token"`). See [access control](docs/access-control.md#two-factor-authentication) |
+| `two_factor_secret` | `nil` | 32+ byte key for encrypting two-factor secrets and recovery codes (falls back to `guest_access_secret`) |
 | `admin_check` | `nil` | Function `(user -> boolean)` for admin access |
 | `agent_check` | `nil` | Function `(user -> boolean)` for agent access |
 | `default_priority` | `:medium` | Default ticket priority |

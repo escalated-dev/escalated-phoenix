@@ -32,7 +32,8 @@ defmodule Escalated.Roles do
     end
   end
 
-  defp find_user(identifier) do
+  @doc "The host user found by email, then by ID; nil when there is none."
+  def find_user(identifier) do
     repo = Escalated.user_repo()
     schema = Escalated.user_schema()
 

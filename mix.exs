@@ -44,6 +44,8 @@ defmodule Escalated.MixProject do
       # hours in their own zone). Passed explicitly, never installed as the
       # host's global time zone database.
       {:tz, "~> 0.28"},
+      # TOTP (RFC 6238) for two-factor authentication.
+      {:nimble_totp, "~> 1.0"},
 
       # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
       # from escalated-dev/escalated-locale. Once that Hex package is actually

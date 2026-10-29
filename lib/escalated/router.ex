@@ -205,11 +205,46 @@ defmodule Escalated.Router do
           post "/:slug/feedback", KnowledgeBaseController, :feedback
         end
 
+        # Two-factor authentication (ADR 2026-10-29-configurable-access-features),
+        # 404 while it is switched off. Enrolment is about the signed-in user's
+        # own account, so every staff user reaches it, not only admins; it keeps
+        # escalated-laravel's /admin/settings/two-factor URLs.
+        scope "/admin/settings/two-factor", Escalated.Controllers.Admin, as: :admin_two_factor do
+          pipe_through [
+            Escalated.Plugs.EnsureFeatureEnabled.TwoFactor,
+            Escalated.Plugs.EnsureAgent,
+            Escalated.Plugs.RequireTwoFactor.Enrolment
+          ]
+
+          get "/", TwoFactorController, :index
+          post "/setup", TwoFactorController, :setup
+          post "/confirm", TwoFactorController, :confirm
+          post "/disable", TwoFactorController, :disable
+        end
+
+        # The challenge after the host's password login
+        # (escalated.two-factor.challenge / escalated.two-factor.verify).
+        scope "/two-factor", Escalated.Controllers, as: :two_factor do
+          pipe_through Escalated.Plugs.EnsureFeatureEnabled.TwoFactor
+
+          get "/challenge", TwoFactorChallengeController, :show
+
+          scope "/" do
+            pipe_through Escalated.Plugs.TwoFactorRateLimit
+            post "/challenge", TwoFactorChallengeController, :verify
+          end
+        end
+
         # Agent routes
         scope "/agent", Escalated.Controllers.Agent, as: :agent do
           # Roles & permissions, when switched on, adds each route's
           # permission (Escalated.RoutePermissions) on top of the agent gate.
-          pipe_through [Escalated.Plugs.EnsureAgent, Escalated.Plugs.EnforceRoutePermissions]
+          # Two-factor, when switched on, challenges first.
+          pipe_through [
+            Escalated.Plugs.EnsureAgent,
+            Escalated.Plugs.RequireTwoFactor,
+            Escalated.Plugs.EnforceRoutePermissions
+          ]
 
           get "/dashboard", DashboardController, :index
           get "/tickets", TicketController, :index
@@ -271,7 +306,12 @@ defmodule Escalated.Router do
         scope "/admin", Escalated.Controllers.Admin, as: :admin do
           # Roles & permissions, when switched on, adds each route's
           # permission (Escalated.RoutePermissions) on top of the admin gate.
-          pipe_through [Escalated.Plugs.EnsureAdmin, Escalated.Plugs.EnforceRoutePermissions]
+          # Two-factor, when switched on, challenges first.
+          pipe_through [
+            Escalated.Plugs.EnsureAdmin,
+            Escalated.Plugs.RequireTwoFactor,
+            Escalated.Plugs.EnforceRoutePermissions
+          ]
 
           get "/tickets", TicketController, :index
 
