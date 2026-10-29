@@ -47,7 +47,9 @@ defmodule Escalated.Plugs.ShareInertiaData do
       # roles_permissions, two_factor and sso: the install-level access
       # switches (Escalated.AccessFeatures). The layout hides their screens.
       features:
-        Map.merge(%{newsletters: newsletters_enabled?()}, Escalated.AccessFeatures.shared())
+        Map.merge(%{newsletters: newsletters_enabled?()}, Escalated.AccessFeatures.shared()),
+      # Whether this staff user must set up two-factor before using anything.
+      two_factor_required: Escalated.Services.TwoFactorService.must_enrol?(user)
     }
   end
 

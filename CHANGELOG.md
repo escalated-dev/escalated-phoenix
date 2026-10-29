@@ -17,8 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - While it is off, the shared `escalated.permissions` prop is `["*"]` for
     staff (it was the slugs of the agent profile's role, which nothing
     enforced) and `[]` for everyone else. `escalated.features` gains
-    `roles_permissions`, `two_factor` and `sso` (the last two are always
-    `false`: this package does not enforce them yet).
+    `roles_permissions`, `two_factor` and `sso` (`sso` is always `false`:
+    this package does not enforce it yet).
   - A user's permissions now come from the roles they hold in the new
     `role_user` table, not from their agent profile's `role`. Run the
     migration (`mix ecto.migrate`).
@@ -27,6 +27,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `mix escalated.roles.assign you@example.com admin`), then set the switch.
   Passing the admin gate grants no permission by itself, so an admin without
   a role is refused everywhere. See docs/access-control.md.
+- **Two-factor authentication is now an install-level switch, off by
+  default** (`config :escalated, access: [two_factor: true]`, or env
+  `ESCALATED_TWO_FACTOR=true`). Enrolments were stored but no login was ever
+  challenged. While it is off, nothing is challenged and the new enrolment
+  and challenge routes answer 404; enrolments are kept. To enforce it: set
+  `:two_factor_secret` (32 bytes or more; `:guest_access_secret` is used when
+  it is unset) so secrets and recovery codes are stored encrypted, run the
+  migration (`mix ecto.migrate`, adds the nullable
+  `two_factors.last_used_step`), then set the switch. Staff who already have
+  an enabled enrolment are challenged from their next visit. If your login
+  does not keep `"user_token"` in the session (as `mix phx.gen.auth` does),
+  set `two_factor: [login_session_key: ...]` or call
+  `Escalated.TwoFactorSession.forget/1` on login and logout, so every new
+  login is challenged. See docs/access-control.md.
+- `Escalated.Schemas.TwoFactor` now stores `secret` and `recovery_codes`
+  encrypted (`Escalated.Types.EncryptedString`). Rows written before are read
+  as they are and encrypted the next time they are saved.
+  `TwoFactorService.enable/3` now records `verified_at`.
 - `mix escalated.seed_permissions` now seeds escalated-laravel's whole
   permission set (`ticket.*`, `reply.*`, `kb.*`, ... `newsletters.*`) and a
   third system role, `light_agent`. The `agent` and `light_agent` roles get
@@ -47,6 +65,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the switch is on) replaces a user's roles; you cannot remove your own
   `role.manage`. While roles are on, the users page also receives each user's
   `roles` and the assignable `roles`.
+- **Two-factor is enforced when switched on.** A staff user with a confirmed
+  enrolment must pass `Escalated/Auth/TwoFactorChallenge`
+  (`GET|POST {prefix}/two-factor/challenge`, throttled to 5 attempts a minute
+  per user) with a TOTP or single-use recovery code before any admin or agent
+  route, once per login (`Escalated.Plugs.RequireTwoFactor`). JSON requests
+  get 403 with `two_factor_required: true`. A TOTP code cannot be used twice.
+  The token API is not challenged.
+- `Escalated/Admin/Settings/TwoFactor` at `{prefix}/admin/settings/two-factor`
+  (with `POST .../setup`, `.../confirm`, `.../disable`), open to every staff
+  user: setup flashes `two_factor_setup: {qr_uri, recovery_codes}`, confirm
+  flashes `two_factor_confirmed: {recovery_codes}`. Props `enabled`,
+  `pending`, `required`.
+- `config :escalated, two_factor: [required: true]` (env
+  `ESCALATED_TWO_FACTOR_REQUIRED`), or the new `two_factor_required` general
+  setting (which wins once saved), sends staff without an enrolment to enrol
+  first. Shared prop `escalated.two_factor_required` is true for a user in
+  that position.
+- `mix escalated.two_factor.reset USER` removes a user's enrolment (lost
+  device).
+- TOTP uses `nimble_totp` (new dependency) for RFC 6238 codes, accepting one
+  step of clock drift either side.
 - `Escalated.AccessFeatures` (the three install-level switches) and
   `Escalated.Plugs.EnsureFeatureEnabled` (404 while a feature is off).
 

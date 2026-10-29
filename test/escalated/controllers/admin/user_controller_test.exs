@@ -96,7 +96,7 @@ defmodule Escalated.Controllers.Admin.UserControllerTest do
       router_source = File.read!(@router_path)
 
       assert router_source =~
-               "pipe_through [Escalated.Plugs.EnsureAdmin, Escalated.Plugs.EnforceRoutePermissions]"
+               ~r/pipe_through \[\s*Escalated\.Plugs\.EnsureAdmin,\s*Escalated\.Plugs\.RequireTwoFactor,\s*Escalated\.Plugs\.EnforceRoutePermissions\s*\]/
 
       assert router_source =~ ~s("/users", UserController, :index)
       assert router_source =~ ~s("/users/:user_id/role", UserController, :update_role)

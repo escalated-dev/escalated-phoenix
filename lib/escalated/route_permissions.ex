@@ -187,6 +187,10 @@ defmodule Escalated.RoutePermissions do
       Admin.DatabaseConnectionController => settings_screen(),
       Admin.ImportController => %{*: ["settings.manage"]},
 
+      # The signed-in user's own two-factor enrolment: every staff user, no
+      # permission (ADR 2026-10-29, "personal screens").
+      Admin.TwoFactorController => %{*: []},
+
       # ---- Newsletters (ADR 2026-05-19-newsletter-system) --------------------
       Admin.NewsletterController => newsletters,
       Admin.NewsletterListController => newsletters,

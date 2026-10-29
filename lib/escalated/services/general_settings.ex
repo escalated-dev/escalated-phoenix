@@ -15,7 +15,9 @@ defmodule Escalated.Services.GeneralSettings do
     knowledge_base_enabled: false,
     knowledge_base_public: false,
     knowledge_base_feedback_enabled: false,
-    show_powered_by: true
+    show_powered_by: true,
+    # Read while two-factor is switched on (Escalated.Services.TwoFactorService).
+    two_factor_required: false
   }
   @boolean_keys @defaults |> Map.keys() |> Enum.map(&Atom.to_string/1)
 
@@ -38,12 +40,19 @@ defmodule Escalated.Services.GeneralSettings do
     booleans =
       Map.new(@defaults, fn {key, default} ->
         name = Atom.to_string(key)
-        configured = boolean(Application.get_env(:escalated, key, default), default)
+        configured = boolean(configured(key, default), default)
         {name, boolean(Map.get(stored, name), configured)}
       end)
 
     Map.merge(booleans, Map.new(@text_keys, &{&1, Map.get(stored, &1) || ""}))
   end
+
+  # `two_factor_required` defaults to `two_factor: [required: ...]` (env
+  # ESCALATED_TWO_FACTOR_REQUIRED); the others to the key of the same name.
+  defp configured(:two_factor_required, _default),
+    do: Escalated.Services.TwoFactorService.configured_required?()
+
+  defp configured(key, default), do: Application.get_env(:escalated, key, default)
 
   def enabled?(key) when is_atom(key), do: Map.fetch!(all(), Atom.to_string(key))
 

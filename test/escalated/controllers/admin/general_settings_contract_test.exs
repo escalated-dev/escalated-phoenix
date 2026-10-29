@@ -42,6 +42,7 @@ defmodule Escalated.Controllers.Admin.GeneralSettingsContractTest do
              "knowledge_base_public" => false,
              "knowledge_base_feedback_enabled" => false,
              "show_powered_by" => true,
+             "two_factor_required" => false,
              "widget_allowed_origins" => "",
              "widget_enabled" => true
            }

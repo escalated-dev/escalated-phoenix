@@ -30,7 +30,7 @@ defmodule Escalated.AccessFeatures do
 
   # The features this port enforces. A switch for any other feature is
   # accepted but reported off until its enforcement lands.
-  @enforced [:roles_permissions]
+  @enforced [:roles_permissions, :two_factor]
 
   @env %{
     roles_permissions: "ESCALATED_ROLES_PERMISSIONS",
