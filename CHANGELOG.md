@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Upgrading
+- **An Inertia visit to an Escalated route that ends in 403, 404, 419, 429, 500 or 503 now gets the shared `Escalated/Error` page** (props `status` and a generic `message`, as Rails and Laravel send them) instead of the JSON error body or the host's error page, which the Inertia client could only show in a modal. `escalated_routes/2` adds `Escalated.Plugs.InertiaErrorPage` to its scope; nothing to configure. It covers plug refusals, controller error statuses and exceptions rendered by the host endpoint's `render_errors`. A plug's, controller's or exception's own text never reaches the page, so an Inertia visit refused for a missing permission no longer names the permission (JSON clients still get `{error, permission}`). Untouched: requests without `x-inertia`, the JSON API, widget, webhook, inbound-email and SSO controllers, the host's own routes, responses that are already Inertia pages, a 500 while the endpoint's `debug_errors` is on, and everything while `ui_enabled` is false. Failures raised in the host's pipeline before Escalated's scope (a refused CSRF token from `:protect_from_forgery`) still go to the host's error view.
+
 - Every Escalated Inertia page now shares a `ziggy` prop: the route names the
   shared pages call, with this package's paths (`Escalated.Routes`). Add
   `{Escalated.Routes.helper_tag(nonce: assigns[:csp_nonce])}` to your root
