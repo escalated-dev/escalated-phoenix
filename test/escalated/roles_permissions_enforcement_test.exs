@@ -444,4 +444,37 @@ defmodule Escalated.RolesPermissionsEnforcementTest do
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "own role management"
     assert "role.manage" in Permissions.list_slugs_for_user(admin)
   end
+
+  test "a bad role_ids goes back with Laravel's errors by key" do
+    enforce!()
+    admin = staff!(:admin, "admin")
+    agent = staff!(:agent, "agent")
+
+    for {body, key} <- [
+          {%{}, "role_ids"},
+          {%{"role_ids" => "admin"}, "role_ids"},
+          {%{"role_ids" => ["x"]}, "role_ids.0"},
+          {%{"role_ids" => [987_654]}, "role_ids.0"}
+        ] do
+      conn = visit(:put, "/support/admin/users/#{agent.id}/roles", admin, body)
+      assert redirected?(conn), "#{inspect(body)} answered #{conn.status}: #{conn.resp_body}"
+      errors = Plug.Conn.get_session(conn, "inertia_errors") || %{}
+      assert Map.keys(errors) == [key], "#{inspect(body)} gave #{inspect(errors)}"
+    end
+
+    assert "ticket.assign" in Permissions.list_slugs_for_user(agent)
+  end
+
+  test "a role change flashes User updated. and an unknown user is 404" do
+    enforce!()
+    admin = staff!(:admin, "admin")
+    agent = staff!(:agent, "agent")
+
+    conn = visit(:put, "/support/admin/users/#{agent.id}/roles", admin, %{"role_ids" => []})
+    assert redirected?(conn)
+    assert Permissions.list_slugs_for_user(agent) == []
+
+    assert visit(:put, "/support/admin/users/987654/roles", admin, %{"role_ids" => []}).status ==
+             404
+  end
 end

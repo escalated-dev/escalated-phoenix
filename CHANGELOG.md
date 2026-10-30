@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Admin > Users roles picker validation now answers like escalated-laravel.**
+  A bad `role_ids` on `PUT /support/admin/users/:user_id/roles` used to answer a
+  JSON 422, which the shared screen cannot show; an Inertia visit now goes back
+  with the error on `role_ids` or `role_ids.N` in Laravel's wording (present,
+  array, integer, existing role). Non-Inertia requests keep a JSON 422.
+
 ### Upgrading
 - **Roles & permissions is now an install-level switch, off by default**
   (`config :escalated, access: [roles_permissions: true]`, or env
