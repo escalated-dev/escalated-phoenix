@@ -85,26 +85,22 @@ defmodule Escalated.Controllers.Admin.UserController do
   end
 
   defp legacy_update_roles(conn, user_id, params) do
-    with {:ok, role_ids} <- validate_role_ids(Map.get(params, "role_ids")),
+    with {:ok, role_ids} <- validate_role_ids(params),
          {:ok, target} <- find_user(user_id) do
-      cond do
-        self_target?(conn, target) and not Escalated.Roles.grants?(role_ids, "role.manage") ->
-          conn
-          |> put_flash(:error, "You cannot remove your own role management.")
-          |> redirect_back()
-
-        Escalated.Roles.replace(Map.get(target, :id), role_ids) == :ok ->
-          conn |> put_flash(:info, "User updated.") |> redirect_back()
-
-        true ->
-          conn |> put_status(422) |> Phoenix.Controller.json(%{error: "unknown role"})
+      if self_target?(conn, target) and not Escalated.Roles.grants?(role_ids, "role.manage") do
+        conn
+        |> put_flash(:error, "You cannot remove your own role management.")
+        |> redirect_back()
+      else
+        :ok = Escalated.Roles.replace(Map.get(target, :id), role_ids)
+        conn |> put_flash(:info, "User updated.") |> redirect_back()
       end
     else
       {:error, :not_found} ->
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "User not found"})
 
-      {:error, message} ->
-        conn |> put_status(422) |> Phoenix.Controller.json(%{error: message})
+      {:invalid, errors} ->
+        Escalated.Controllers.FormResponse.invalid(conn, errors, "/support/admin/users")
     end
   end
 
@@ -117,29 +113,57 @@ defmodule Escalated.Controllers.Admin.UserController do
     Ecto.Query.CastError -> {:error, :not_found}
   end
 
-  @doc false
-  def validate_role_ids(ids) when is_list(ids) do
-    parsed =
-      Enum.map(ids, fn
-        id when is_integer(id) ->
-          id
+  @doc """
+  Laravel's rules for `role_ids`: present, an array, of integers that are
+  roles. `{:invalid, %{key => message}}` keys an error as Laravel does
+  (`role_ids` or `role_ids.N`).
+  """
+  def validate_role_ids(%{"role_ids" => ids}) when is_list(ids) do
+    parsed = Enum.map(ids, &parse_id/1)
 
-        id when is_binary(id) ->
-          case Integer.parse(id) do
-            {n, ""} -> n
-            _ -> nil
-          end
+    case Enum.find_index(parsed, &is_nil/1) do
+      nil ->
+        known_role_ids(parsed)
 
-        _ ->
-          nil
-      end)
-
-    if Enum.any?(parsed, &is_nil/1),
-      do: {:error, "role_ids must be role ids"},
-      else: {:ok, Enum.uniq(parsed)}
+      index ->
+        {:invalid, %{"role_ids.#{index}" => "The role_ids.#{index} field must be an integer."}}
+    end
   end
 
-  def validate_role_ids(_), do: {:error, "role_ids must be a list"}
+  def validate_role_ids(%{"role_ids" => nil}), do: role_ids_missing()
+
+  def validate_role_ids(%{"role_ids" => _}),
+    do: {:invalid, %{"role_ids" => "The role ids field must be an array."}}
+
+  def validate_role_ids(_), do: role_ids_missing()
+
+  defp role_ids_missing, do: {:invalid, %{"role_ids" => "The role ids field must be present."}}
+
+  defp parse_id(id) when is_integer(id), do: id
+
+  defp parse_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {n, ""} -> n
+      _ -> nil
+    end
+  end
+
+  defp parse_id(_), do: nil
+
+  defp known_role_ids(ids) do
+    known =
+      if ids == [],
+        do: MapSet.new(),
+        else:
+          from(r in Escalated.Schemas.Role, where: r.id in ^ids, select: r.id)
+          |> Escalated.repo().all()
+          |> MapSet.new()
+
+    case Enum.find_index(ids, &(not MapSet.member?(known, &1))) do
+      nil -> {:ok, Enum.uniq(ids)}
+      index -> {:invalid, %{"role_ids.#{index}" => "The selected role_ids.#{index} is invalid."}}
+    end
+  end
 
   @doc """
   PATCH /support/admin/users/:user_id/role — grant or revoke admin/agent
