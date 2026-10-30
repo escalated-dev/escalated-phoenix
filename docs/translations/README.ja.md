@@ -46,7 +46,7 @@ Phoenixアプリケーション向けの組み込み可能なヘルプデスク�
 ```elixir
 def deps do
   [
-    {:escalated_phoenix, "~> 0.2.8"}
+    {:escalated_phoenix, "~> 0.2.9"}
   ]
 end
 ```
