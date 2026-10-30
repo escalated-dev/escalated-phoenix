@@ -46,6 +46,11 @@ defmodule Escalated.MixProject do
       {:tz, "~> 0.28"},
       # TOTP (RFC 6238) for two-factor authentication.
       {:nimble_totp, "~> 1.0"},
+      # Single sign-on: JWT verification with a pinned algorithm (joken, on
+      # jose) and the OAuth 2 authorization-code flow with state and PKCE
+      # (assent).
+      {:joken, "~> 2.6"},
+      {:assent, "~> 0.3.1"},
 
       # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
       # from escalated-dev/escalated-locale. Once that Hex package is actually
