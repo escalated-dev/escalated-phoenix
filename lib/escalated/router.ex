@@ -602,6 +602,9 @@ defmodule Escalated.Router do
           post "/plugins/:slug/activate", PluginController, :activate
           post "/plugins/:slug/deactivate", PluginController, :deactivate
           delete "/plugins/:slug", PluginController, :delete
+          # Pages an active plugin declares (pages/0), rendered as the shared
+          # Escalated/Plugin/Page (plugin contract, "Pages").
+          get "/plugins/:slug/*route", PluginPageController, :show
 
           # Macro admin CRUD (the agent-facing apply endpoint lives in
           # the agent scope above).

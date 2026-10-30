@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- Every Inertia page now shares `escalated.plugins` (the shape the shared
+  `usePluginExtensions()` reads). It is `{}` unless a registered plugin is
+  active, so nothing changes for installs without plugins. Hosts that
+  register plugins: an active plugin costs one query on the
+  `escalated_plugins` table per page render.
+
+### Added
+- **Plugin pages (`Escalated/Plugin/Page`).** A plugin module can declare
+  admin pages with the new optional `pages/0` callback (`route`, `component`,
+  `title`, `layout`, `capability`, `props`, `menu`) and supply their props
+  with `page_props/2`. Each page of an **active** plugin is served at
+  `{prefix}/admin/plugins/{slug}/{route}` behind the admin guard, rendering
+  the shared `Escalated/Plugin/Page` with `plugin`, `component`, `layout`
+  (default `admin`), `title` and `props` (`{}` when `page_props/2` raises),
+  per the plugin contract (escalated-developer-context
+  `domain-model/plugin-contract.md`, "Pages"). An inactive or unknown plugin,
+  or an undeclared route, is a 404. A page's `capability` is a permission
+  slug: checked against the user's roles while roles & permissions is on, or
+  by `config :escalated, plugin_capability_check: fn user, slug -> ... end`
+  when set; without it, a 403. Pages with a `menu` appear in the shared
+  `escalated.plugins.menuItems` (`label`, `route`, `icon`, `position`
+  (default 100), `section` (default `admin`), `plugin`), for active plugins
+  only, `admin` items for admins only, and leaving out items whose capability
+  the viewer lacks. `Escalated/Plugin/Page` is off the page-name parity
+  "not rendered yet" list.
+
 ## [0.2.9] - 2026-10-30
 
 ### Upgrading
