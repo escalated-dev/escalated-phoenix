@@ -218,7 +218,19 @@ defmodule Escalated.RolesPermissionsEnforcementTest do
 
     conn = visit(:post, "/support/admin/departments", admin, %{"name" => "Billing"})
     assert conn.status == 403
-    assert conn.resp_body =~ "department.create"
+    # An Inertia visit gets the shared Error page; a JSON client is told
+    # which permission it lacks.
+    assert Jason.decode!(conn.resp_body)["component"] == "Escalated/Error"
+
+    json =
+      conn(:post, "/support/admin/departments", Jason.encode!(%{"name" => "Billing"}))
+      |> put_req_header("content-type", "application/json")
+      |> init_test_session(%{})
+      |> assign(:current_user, admin)
+      |> Router.call(Router.init([]))
+
+    assert json.status == 403
+    assert json.resp_body =~ "department.create"
     refute repo().get_by(Escalated.Schemas.Department, name: "Billing")
 
     assert visit(:get, "/support/admin/webhooks", admin).status == 403

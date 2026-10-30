@@ -191,7 +191,15 @@ defmodule Escalated.Router do
       unquote(widget)
 
       scope unquote(prefix), as: :escalated do
-        pipe_through [Escalated.Plugs.ResolveTenant, Escalated.Plugs.TicketVisibility]
+        # Inertia visits that end in an error get the shared Escalated/Error
+        # page (Escalated.Plugs.InertiaErrorPage). First, so it sees the
+        # refusals of every plug after it.
+        pipe_through [
+          Escalated.Plugs.InertiaErrorPage,
+          Escalated.Plugs.ResolveTenant,
+          Escalated.Plugs.TicketVisibility
+        ]
+
         # Attachment downloads authenticate and authorize the owning ticket/reply.
         get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
 
