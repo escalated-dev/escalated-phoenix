@@ -160,7 +160,8 @@ config :escalated,
 | `repo` | *required* | The Ecto repo Escalated's own tables live on |
 | `user_repo` | `repo` | The Ecto repo your `user_schema` lives on. Only set it when that is a different database — see [Separate databases](#separate-databases) |
 | `user_schema` | *required* | Your User schema module |
-| `route_prefix` | `"/support"` | URL prefix for all Escalated routes |
+| `route_prefix` | `"/support"` | URL prefix for all Escalated routes; set it to the prefix you pass to `escalated_routes/2` (the shared `ziggy` route table is built from it) |
+| `route_overrides` | `%{}` | Your own paths for route names the shared pages call: `%{"login" => "/users/log_in"}`, `%{name => %{uri: ..., methods: [...]}}`, or `nil` to drop one. See [UI Rendering](#ui-rendering) |
 | `table_prefix` | `"escalated_"` | Database table name prefix |
 | `user_key_type` | `:integer` | Column type for host-user references: `:integer` (default), `:binary_id` (UUID), or `:string`. Set to match your `user_schema` primary key so UUID/string-keyed apps migrate cleanly. |
 | `ui_enabled` | `true` | Mount Inertia.js UI routes |
@@ -562,17 +563,39 @@ Node.js SSR adapter must also explicitly depend on `nodejs` 3.1.4+ below 4.0.
 Review the [upstream migration guide](https://github.com/inertiajs/inertia-phoenix/blob/v3.0.1/guides/upgrading_to_v3.md)
 before changing the server adapter major.
 
-Phoenix has no Ziggy, so the host's `window.route` shim maps the Laravel route
-names the shared pages call. The live chat bar on the agent ticket page passes
-the ticket's `chat_session_id` (a ChatSession id, not the ticket id):
+### Named routes (`route()`)
 
-| Route name | Path |
-|---|---|
-| `escalated.admin.chat.transfer` | `POST {prefix}/agent/chat/:session/transfer` |
-| `escalated.admin.chat.end` | `POST {prefix}/agent/chat/:session/end` |
+The shared pages call Laravel-style named routes, `route('escalated.agent.tickets.show', ticket)`.
+Escalated ships those names with this package's paths (`Escalated.Routes`)
+and shares them on every Escalated Inertia page as the `ziggy` prop, in the
+shape ziggy-js reads. Install the matching `route()` helper once in your root
+layout, in the body, before your app's script runs:
 
-Do not map them to `/agent/chat/sessions/:id/...`; those console routes take
-the chat ticket's id.
+```heex
+<body>
+  {@inner_content}
+  {Escalated.Routes.helper_tag(nonce: assigns[:csp_nonce])}
+</body>
+```
+
+(`Escalated.Routes.helper_script/0` returns the bare JavaScript if you bundle
+it yourself.) The helper does nothing when `window.route` already exists, so a
+page that loads ziggy-js or your own shim keeps it, and it reads
+`window.Ziggy.routes` before the shared prop. An unknown name logs a warning
+and returns `#`.
+
+You no longer map the names yourself. To change one, your mapping wins:
+
+- `config :escalated, route_overrides: %{"login" => "/users/log_in"}` replaces
+  or adds single names (`%{uri: ..., methods: [...]}` for a non-GET route,
+  `nil` to drop one). `login` is yours to map: Escalated does not own sign-in.
+- A `ziggy` prop your own pipeline shares (`Inertia.Controller.assign_prop/3`)
+  is used instead of the built-in table.
+
+The URIs follow `route_prefix`, which must match the prefix you mount
+`escalated_routes/2` at. The live chat bar's `escalated.admin.chat.transfer`
+and `escalated.admin.chat.end` point at `{prefix}/agent/chat/:session/...`,
+keyed by the ticket's `chat_session_id`.
 
 Maintainers can run `MIX_ENV=test mix run --no-start scripts/verify_package.exs`
 to build and unpack the actual Hex package, install it in isolated hosts, audit

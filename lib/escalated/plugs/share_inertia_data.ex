@@ -3,7 +3,8 @@ defmodule Escalated.Plugs.ShareInertiaData do
   Plug that shares common Escalated data with Inertia.js pages.
 
   Only active when `inertia` is loaded and `ui_enabled` is true.
-  Shares the current user, escalated configuration, and flash messages.
+  Shares the current user, escalated configuration, flash messages, and the
+  `ziggy` route table (`Escalated.Routes`) unless the host shares its own.
   """
   import Plug.Conn
   @behaviour Plug
@@ -78,6 +79,8 @@ defmodule Escalated.Plugs.ShareInertiaData do
     conn
     |> assign_inertia_prop(:escalated, escalated_props(user, config))
     |> assign_inertia_prop(:auth, auth)
+    # The named routes the shared pages call through route() (Escalated.Routes).
+    |> Escalated.Routes.share()
   end
 
   # apply/3 rather than a direct call because `inertia` is an OPTIONAL

@@ -75,7 +75,7 @@ defmodule Escalated.Controllers.AgentDetailReportTest do
     props = detail(ctx, "?days=30")
     day = created |> DateTime.to_date() |> Date.to_iso8601()
 
-    assert (Map.keys(props) -- ~w(errors flash)) |> Enum.sort() == @declared
+    assert (Map.keys(props) -- ~w(errors flash ziggy)) |> Enum.sort() == @declared
     assert props["period_days"] == 30
 
     assert props["agent"] == %{
