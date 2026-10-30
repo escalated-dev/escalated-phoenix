@@ -33,7 +33,6 @@ defmodule Escalated.PageNameParityTest do
     Escalated/Admin/Settings/Sandbox
     Escalated/Admin/Workflows/Builder
     Escalated/Error
-    Escalated/Plugin/Page
   )
 
   @page_name ~r/"(Escalated\/[A-Za-z0-9\/_]+)"/

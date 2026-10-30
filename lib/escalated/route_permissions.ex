@@ -147,6 +147,9 @@ defmodule Escalated.RoutePermissions do
       Admin.WebhookController => resource("webhook", [:index, :deliveries]),
       Admin.ApiTokenController => resource("api_token"),
       Admin.PluginController => resource("plugin"),
+      # Plugin pages: the admin gate plus the page's own capability, which the
+      # controller checks (plugin contract, "Pages").
+      Admin.PluginPageController => %{show: []},
       Admin.CannedResponseController => resource("macro"),
 
       # Macros: anyone who may create one may save it; shared edits manage.

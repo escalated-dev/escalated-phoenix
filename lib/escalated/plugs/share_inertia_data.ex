@@ -48,6 +48,9 @@ defmodule Escalated.Plugs.ShareInertiaData do
       # switches (Escalated.AccessFeatures). The layout hides their screens.
       features:
         Map.merge(%{newsletters: newsletters_enabled?()}, Escalated.AccessFeatures.shared()),
+      # Active plugins' UI extensions (menuItems from their pages), the shape
+      # the shared usePluginExtensions() reads; %{} with no active plugin.
+      plugins: Escalated.Plugins.ui_extensions(user),
       # Whether this staff user must set up two-factor before using anything.
       two_factor_required: Escalated.Services.TwoFactorService.must_enrol?(user)
     }

@@ -11,6 +11,7 @@ defmodule Escalated.Plugins do
   """
   require Logger
 
+  alias Escalated.Permissions
   alias Escalated.Plugins.Hooks
   alias Escalated.Schemas.Plugin
 
@@ -149,6 +150,181 @@ defmodule Escalated.Plugins do
         repo.delete(plugin)
     end
   end
+
+  @doc """
+  The pages a plugin module declares with its optional `pages/0`, normalized
+  to `%{route, component, title, layout, capability, props, menu}`. Entries
+  with an empty route or component are skipped with a warning.
+  """
+  def pages(module) do
+    if function_exported?(module, :pages, 0) do
+      module.pages()
+      |> List.wrap()
+      |> Enum.flat_map(&normalize_page(module, &1))
+      |> Enum.uniq_by(& &1.route)
+    else
+      []
+    end
+  rescue
+    error ->
+      Logger.error(
+        "Escalated plugin #{module.slug()} pages/0 raised: #{Exception.message(error)}"
+      )
+
+      []
+  end
+
+  @doc """
+  Finds the page at `route` of the **active** plugin `slug`. Returns
+  `{:ok, module, page}`, or `:error` for an unknown or inactive plugin or a
+  route the plugin does not declare.
+  """
+  def find_page(slug, route) when is_binary(slug) and is_binary(route) do
+    with module when not is_nil(module) <- Enum.find(active_plugins(), &(&1.slug() == slug)),
+         page when not is_nil(page) <- Enum.find(pages(module), &(&1.route == route)) do
+      {:ok, module, page}
+    else
+      _ -> :error
+    end
+  end
+
+  @doc """
+  The props for a page's component: the plugin's `page_props/2` answer, or the
+  page's static `props` when it has none or answers `nil`. A raising
+  `page_props/2` is logged and sends `%{}`.
+  """
+  def page_props(module, page, user) do
+    answer =
+      if function_exported?(module, :page_props, 2),
+        do: module.page_props(page.component, user),
+        else: nil
+
+    if is_map(answer), do: answer, else: page.props
+  rescue
+    error ->
+      Logger.error(
+        "Escalated plugin #{module.slug()} page_props/2 raised for #{page.component}: " <>
+          Exception.message(error)
+      )
+
+      %{}
+  end
+
+  @doc """
+  Whether `user` holds a plugin page's `capability`; `nil` needs nothing. A
+  configured `:plugin_capability_check` (`fn user, capability -> boolean end`)
+  decides; otherwise `Escalated.Permissions.allows?/2` does (the user's roles
+  while roles & permissions is on, the admin gate alone while it is off).
+  """
+  def capable?(_user, nil), do: true
+
+  def capable?(user, capability) do
+    case Escalated.config(:plugin_capability_check) do
+      fun when is_function(fun, 2) -> fun.(user, capability) == true
+      _ -> not is_nil(user) and Permissions.allows?(user, to_string(capability))
+    end
+  end
+
+  @doc "The URL of a plugin page."
+  def page_url(slug, route) do
+    "#{Escalated.config(:route_prefix, "/support")}/admin/plugins/#{slug}/#{route}"
+  end
+
+  @doc """
+  The shared `escalated.plugins` prop for `user`: `menuItems` from the active
+  plugins' pages that declare a `menu` (admin items for admins only; items
+  whose capability the user lacks left out), with empty `pageComponents` and
+  `dashboardWidgets`. `%{}` with no active plugin.
+  """
+  def ui_extensions(user) do
+    with [_ | _] <- registered_modules(),
+         [_ | _] = active <- active_plugins() do
+      admin? = Permissions.admin?(user)
+
+      items =
+        for module <- active,
+            page <- pages(module),
+            menu = page.menu,
+            menu != nil,
+            menu.section != "admin" or admin?,
+            capable?(user, page.capability) do
+          slug = module.slug()
+
+          %{
+            label: menu.label || page.title || page.component,
+            route: page_url(slug, page.route),
+            icon: menu.icon,
+            position: menu.position,
+            section: menu.section,
+            plugin: slug
+          }
+        end
+
+      %{
+        menuItems: Enum.sort_by(items, & &1.position),
+        pageComponents: %{},
+        dashboardWidgets: []
+      }
+    else
+      _ -> %{}
+    end
+  end
+
+  defp normalize_page(module, page) when is_map(page) do
+    route = page |> field(:route, field(page, :slug)) |> to_text() |> String.trim("/")
+    component = page |> field(:component) |> to_text()
+
+    if route == "" or component == "" do
+      Logger.warning(
+        "Escalated plugin #{module.slug()} declares a page without a route or component; skipped."
+      )
+
+      []
+    else
+      props = field(page, :props, %{})
+
+      [
+        %{
+          route: route,
+          component: component,
+          title: field(page, :title),
+          layout: to_text(field(page, :layout, "admin")),
+          capability: field(page, :capability),
+          props: if(is_map(props), do: props, else: %{}),
+          menu: normalize_menu(field(page, :menu))
+        }
+      ]
+    end
+  end
+
+  defp normalize_page(module, _page) do
+    Logger.warning(
+      "Escalated plugin #{module.slug()} declares a page that is not a map; skipped."
+    )
+
+    []
+  end
+
+  defp normalize_menu(menu) when is_map(menu) do
+    %{
+      label: field(menu, :label),
+      icon: field(menu, :icon),
+      position: field(menu, :position, 100),
+      section: to_text(field(menu, :section, "admin"))
+    }
+  end
+
+  defp normalize_menu(_menu), do: nil
+
+  defp field(map, key, default \\ nil) do
+    case Map.get(map, key, Map.get(map, Atom.to_string(key))) do
+      nil -> default
+      value -> value
+    end
+  end
+
+  defp to_text(nil), do: ""
+  defp to_text(value), do: to_string(value)
 
   # Invoke an optional lifecycle callback on the plugin module for `slug`,
   # swallowing (but logging) any error so a misbehaving plugin cannot abort the
