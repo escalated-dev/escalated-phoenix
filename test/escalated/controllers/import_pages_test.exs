@@ -20,7 +20,7 @@ defmodule Escalated.Controllers.ImportPagesTest do
 
   @base "/support/admin/import"
   @field_mappings %{"tickets" => %{"subject" => "title", "state" => "status"}}
-  @shared ~w(errors auth current_user flash escalated plugin_ui page)
+  @shared ~w(errors auth current_user flash escalated plugin_ui page ziggy)
   @manifest "test/fixtures/escalated-pages.json"
             |> File.read!()
             |> Jason.decode!()

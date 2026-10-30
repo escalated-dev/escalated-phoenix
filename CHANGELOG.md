@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- Every Escalated Inertia page now shares a `ziggy` prop: the route names the
+  shared pages call, with this package's paths (`Escalated.Routes`). Add
+  `{Escalated.Routes.helper_tag(nonce: assigns[:csp_nonce])}` to your root
+  layout's body and you can delete your `window.route` shim. A shim you keep
+  still wins (the helper does nothing when `window.route` exists), as does a
+  `ziggy` prop you share yourself. Set `route_prefix` to the prefix you mount
+  `escalated_routes/2` at, if you have not already; the URIs are built from it.
+
+### Added
+- **Built-in route list.** `Escalated.Routes` maps the route names the shared
+  frontend calls (`route('escalated....')`) to their real paths and methods,
+  shared as the Ziggy-shaped `ziggy` prop (`url`, `port`, `defaults`,
+  `routes`, `location`) by `Escalated.Plugs.ShareInertiaData` and on every
+  page Escalated renders. `Escalated.Routes.helper_tag/1` (or
+  `helper_script/0`) is the matching `route()` helper for the host's root
+  layout. `config :escalated, route_overrides: %{...}` replaces, adds (for
+  example `login`) or removes single names. Names the frontend calls that this
+  backend does not serve: `login` (the host's), `escalated.admin.automations.create`
+  and `.edit` (no automation pages), `escalated.admin.plugins.upload`.
+- `PUT {prefix}/admin/capacity/:id`, which the shared Capacity page sends;
+  `PATCH` stays.
+
 ## [0.2.10] - 2026-10-30
 
 ### Upgrading

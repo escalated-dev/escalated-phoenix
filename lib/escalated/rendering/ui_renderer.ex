@@ -41,6 +41,10 @@ defmodule Escalated.Rendering.UIRenderer do
       # apply/3 rather than a direct call because `inertia` is an OPTIONAL
       # dependency: a direct call compiles to a warning for hosts that do not
       # install it, which is why the guard above exists at all.
+      #
+      # Every Escalated page carries the `ziggy` route table its route() calls
+      # read, unless the host (or ShareInertiaData) already shared one.
+      conn = Escalated.Routes.share(conn)
       # credo:disable-for-next-line Credo.Check.Refactor.Apply
       apply(Inertia.Controller, :render_inertia, [conn, component, Map.new(props)])
     else

@@ -145,7 +145,9 @@ With `ESCALATED_TWO_FACTOR=true` (or `access: [two_factor: true]`):
 While the switch is off, the enrolment and challenge routes answer 404 and
 nobody is challenged. Enrolments are kept.
 
-The shared pages call these route names through your `window.route` shim:
+The shared pages call these route names; they are in the built-in route
+table (`Escalated.Routes`, see the README's UI Rendering section), so there is
+nothing to map:
 
 | Route name | Path |
 |---|---|

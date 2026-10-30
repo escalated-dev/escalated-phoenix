@@ -594,6 +594,8 @@ defmodule Escalated.Router do
           # Per-agent ticket capacity (load-aware assignment).
           get "/capacity", CapacityController, :index
           patch "/capacity/:id", CapacityController, :update
+          # The shared Capacity page saves with PUT (escalated.admin.capacity.update).
+          put "/capacity/:id", CapacityController, :update
 
           # Plugins / extensibility (activate/deactivate host-registered
           # plugin modules; the hook dispatch itself lives in
