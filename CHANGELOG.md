@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.10] - 2026-10-30
+
 ### Upgrading
 - Every Inertia page now shares `escalated.plugins` (the shape the shared
   `usePluginExtensions()` reads). It is `{}` unless a registered plugin is
