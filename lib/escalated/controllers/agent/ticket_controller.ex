@@ -31,7 +31,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
         UIRenderer.render_page(conn, "Escalated/Agent/TicketIndex", props)
 
       {:error, errors} ->
-        FormResponse.invalid(conn, errors, "#{TicketDesk.prefix()}/agent/tickets")
+        FormResponse.invalid_visit(conn, errors, "#{TicketDesk.prefix()}/agent/tickets")
     end
   end
 

@@ -318,18 +318,36 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
         {"updated_within_hours too large", "updated_within_hours=8761", "updated_within_hours"}
       ] do
     test "rejects a malformed #{name}", ctx do
+      # escalated-laravel's $request->validate(): a JSON client gets a 422 ...
       conn =
         :get
         |> conn(@index <> "?" <> unquote(query))
+        |> put_req_header("accept", "application/json")
         |> init_test_session(%{})
         |> assign(:current_user, ctx.agent)
         |> Escalated.Test.Router.call(Escalated.Test.Router.init([]))
 
       assert conn.status == 422
-      assert Map.has_key?(Jason.decode!(conn.resp_body)["errors"], unquote(field))
+      body = Jason.decode!(conn.resp_body)
+      assert Map.has_key?(body["errors"], unquote(field))
+      assert is_binary(body["message"])
 
+      # ... an Inertia visit and a plain browser visit go back with the errors,
+      # never a raw 422 (which the Inertia client shows as an error modal).
       inertia = visit(:get, @index <> "?" <> unquote(query), ctx.agent)
       assert inertia.status == 302
+
+      browser =
+        :get
+        |> conn(@index <> "?" <> unquote(query))
+        |> put_req_header("accept", "text/html")
+        |> put_req_header("referer", "http://www.example.com" <> @index <> "?assigned=me")
+        |> init_test_session(%{})
+        |> assign(:current_user, ctx.agent)
+        |> Escalated.Test.Router.call(Escalated.Test.Router.init([]))
+
+      assert browser.status == 302
+      assert get_resp_header(browser, "location") == [@index <> "?assigned=me"]
     end
   end
 
