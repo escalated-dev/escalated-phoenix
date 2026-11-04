@@ -66,6 +66,17 @@ defmodule Escalated.Rendering.UserDirectory do
     |> Enum.sort_by(&String.downcase(to_string(&1.name || &1.email || "")))
   end
 
+  @doc """
+  The agents and admins `ticket` can be assigned to, as `%{id, name}`: the
+  assignee picker's agents, less those the ticket's department visibility or
+  account scoping keeps it from (`Escalated.TicketVisibility.can_assign?/2`).
+  """
+  def assignable_agents(ticket) do
+    agents()
+    |> Enum.filter(&Escalated.TicketVisibility.can_assign?(ticket, &1.id))
+    |> Enum.map(&Map.take(&1, [:id, :name]))
+  end
+
   @doc "A host user struct or map as `%{id, name, email}`."
   def person(user) do
     %{id: Map.get(user, :id), name: display_name(user), email: Map.get(user, :email)}

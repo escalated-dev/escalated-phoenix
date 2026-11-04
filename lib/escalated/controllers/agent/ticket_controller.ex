@@ -4,10 +4,11 @@ defmodule Escalated.Controllers.Agent.TicketController do
   """
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
+  import Ecto.Query, only: [from: 2, where: 3]
 
   alias Escalated.Controllers.{AgentInbox, FormResponse, TicketDesk}
-  alias Escalated.Rendering.UIRenderer
-  alias Escalated.Schemas.Reply
+  alias Escalated.Rendering.{UIRenderer, UserDirectory}
+  alias Escalated.Schemas.{Reply, Ticket}
   alias Escalated.Serializers.TicketSerializer
   alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
 
@@ -47,7 +48,9 @@ defmodule Escalated.Controllers.Agent.TicketController do
         props =
           conn
           |> TicketDesk.show_props(ticket)
+          |> Map.update!(:ticket, &Map.put(&1, :requester_tickets, requester_tickets(ticket)))
           |> Map.put(:customActions, serialize_custom_actions(ticket, agent))
+          |> Map.put(:agents, UserDirectory.assignable_agents(ticket))
           |> Map.merge(%{
             queue: AgentInbox.queue_prop(queue),
             inbox: AgentInbox.inbox(agent, queue)
@@ -209,22 +212,26 @@ defmodule Escalated.Controllers.Agent.TicketController do
     end
   end
 
-  def snooze(conn, %{"reference" => reference, "snoozed_until" => until_str}) do
+  @doc """
+  Snoozes the ticket until `snoozed_until`, which must be a date in the
+  future (escalated-laravel's `SnoozeTicketRequest`). The admin desk
+  delegates here.
+  """
+  def snooze(conn, %{"reference" => reference} = params) do
     user = conn.assigns[:current_user]
 
-    with ticket when not is_nil(ticket) <- TicketService.find(reference),
-         {:ok, until, _} <- DateTime.from_iso8601(until_str),
-         {:ok, updated} <- TicketService.snooze_ticket(ticket, until, actor_id: user.id) do
-      desk_answer(conn, updated, "Ticket snoozed.")
-    else
+    case TicketService.find(reference) do
       nil ->
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
-      {:error, :invalid_format} ->
-        conn |> put_status(422) |> Phoenix.Controller.json(%{error: "Invalid datetime format"})
-
-      {:error, changeset} ->
-        conn |> put_status(422) |> Phoenix.Controller.json(%{errors: format_errors(changeset)})
+      ticket ->
+        with {:ok, until} <- snooze_until(params["snoozed_until"]),
+             {:ok, updated} <- TicketService.snooze_ticket(ticket, until, actor_id: user.id) do
+          desk_answer(conn, updated, "Ticket snoozed.")
+        else
+          {:error, errors} ->
+            FormResponse.invalid(conn, errors, TicketDesk.ticket_path(desk_scope(conn), ticket))
+        end
     end
   end
 
@@ -276,17 +283,88 @@ defmodule Escalated.Controllers.Agent.TicketController do
 
   # Private helpers
 
+  # `snoozed_until`: required, a date (ISO 8601; a time without an offset is
+  # UTC), strictly in the future.
+  defp snooze_until(value) when is_binary(value) and value != "" do
+    parsed =
+      case DateTime.from_iso8601(value) do
+        {:ok, until, _offset} ->
+          {:ok, until}
+
+        _ ->
+          case NaiveDateTime.from_iso8601(value) do
+            {:ok, naive} -> {:ok, DateTime.from_naive!(naive, "Etc/UTC")}
+            _ -> :error
+          end
+      end
+
+    case parsed do
+      {:ok, until} ->
+        if DateTime.compare(until, DateTime.utc_now()) == :gt,
+          do: {:ok, DateTime.truncate(until, :second)},
+          else: {:error, %{"snoozed_until" => ["The snooze time must be in the future."]}}
+
+      :error ->
+        {:error, %{"snoozed_until" => ["The snooze time must be a valid date."]}}
+    end
+  end
+
+  defp snooze_until(_value),
+    do: {:error, %{"snoozed_until" => ["The snooze time is required."]}}
+
+  # The requester's five most recent other tickets, matched as
+  # `requester_ticket_count` is and read through the visibility-scoped repo.
+  defp requester_tickets(ticket) do
+    query = from(t in Ticket, where: t.id != ^ticket.id)
+
+    query =
+      cond do
+        not is_nil(ticket.requester_id) and is_nil(ticket.requester_type) ->
+          where(query, [t], t.requester_id == ^ticket.requester_id and is_nil(t.requester_type))
+
+        not is_nil(ticket.requester_id) ->
+          where(
+            query,
+            [t],
+            t.requester_id == ^ticket.requester_id and t.requester_type == ^ticket.requester_type
+          )
+
+        is_binary(ticket.guest_email) and ticket.guest_email != "" ->
+          where(query, [t], t.guest_email == ^ticket.guest_email)
+
+        true ->
+          nil
+      end
+
+    if query do
+      from(t in query, order_by: [desc: t.inserted_at, desc: t.id], limit: 5)
+      |> Escalated.repo().all()
+      |> Enum.map(fn other ->
+        %{
+          id: other.id,
+          reference: other.reference,
+          subject: other.subject,
+          status: to_string(other.status),
+          created_at: other.inserted_at && DateTime.to_iso8601(other.inserted_at),
+          updated_at: other.updated_at && DateTime.to_iso8601(other.updated_at)
+        }
+      end)
+    else
+      []
+    end
+  end
+
+  defp desk_scope(conn),
+    do: if(String.contains?(conn.request_path, "/admin/tickets/"), do: "admin", else: "agent")
+
   # The shared SnoozeButton posts as an Inertia visit, which needs a redirect
   # back to the page; a JSON client still gets the ticket. The admin desk
   # delegates here, so the page to go back to follows the request path.
   defp desk_answer(conn, ticket, message) do
     if get_req_header(conn, "x-inertia") != [] do
-      scope =
-        if String.contains?(conn.request_path, "/admin/tickets/"), do: "admin", else: "agent"
-
       conn
       |> put_flash(:info, message)
-      |> redirect(to: TicketDesk.ticket_path(scope, ticket))
+      |> redirect(to: TicketDesk.ticket_path(desk_scope(conn), ticket))
     else
       Phoenix.Controller.json(conn, %{message: message, ticket: ticket_list_json(ticket)})
     end
