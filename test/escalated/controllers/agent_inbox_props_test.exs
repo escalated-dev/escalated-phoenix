@@ -335,13 +335,14 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
 
   test "previews the latest customer-visible message, never an internal note", ctx do
     ticket = ticket!()
+    answered_at = minutes(-5)
 
     repo().insert!(%Reply{
       ticket_id: ticket.id,
       body: "Customer-visible answer",
       author_id: ctx.agent.id,
       is_internal: false,
-      inserted_at: minutes(-5)
+      inserted_at: answered_at
     })
 
     repo().insert!(%Reply{
@@ -356,7 +357,7 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
 
     assert row["latest_reply"]["body"] == "Customer-visible answer"
     assert row["latest_reply"]["author"]["name"] == "Al Agent"
-    assert row["last_reply_at"] == DateTime.to_iso8601(minutes(-5))
+    assert row["last_reply_at"] == DateTime.to_iso8601(answered_at)
     # Escalated tracks no per-agent read state or customer presence.
     refute Map.has_key?(row, "is_unread")
     refute Map.has_key?(row, "requester_online")
