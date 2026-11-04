@@ -37,7 +37,7 @@ defmodule Escalated.MixProject do
       # CVE-2026-97853. Export the patched floor to host applications too.
       {:decimal, ">= 3.1.2 and < 4.0.0"},
       {:jason, "~> 1.4"},
-      {:inertia, "~> 2.6", optional: true},
+      {:inertia, "~> 3.1", optional: true},
       {:plug, "~> 1.14"},
       {:gettext, "~> 1.0"},
       # IANA time zone data for business hours (schedules keep wall-clock
