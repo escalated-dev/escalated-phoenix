@@ -24,11 +24,18 @@ defmodule Escalated.Controllers.TicketDesk do
     TicketService
   }
 
-  @filter_keys ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type account_type account_id)
+  @filter_keys ~w(status priority department_id assigned_to search unassigned sla_breached ticket_type account_type account_id
+                  open sla_at_risk resolved_today updated_within_hours sort_by sort_dir)
 
-  @doc "The ticket queue as a paginator of rows, plus the filters sent back."
-  def queue_props(conn, params, scope) do
-    tickets = TicketService.list(atomize_filters(params))
+  @flag_keys ~w(unassigned sla_breached open sla_at_risk resolved_today)
+
+  @doc """
+  The ticket queue as a paginator of rows, plus the filters sent back.
+  `list_filters` are what the list is filtered by when they differ from the
+  request's (the agent inbox resolves `assigned=me` and `view=<id>`).
+  """
+  def queue_props(conn, params, scope, list_filters \\ nil) do
+    tickets = TicketService.list(atomize_filters(list_filters || params))
     path = "#{prefix()}/#{scope}/tickets"
 
     %{
@@ -191,7 +198,8 @@ defmodule Escalated.Controllers.TicketDesk do
 
   defp scoped_repo, do: Escalated.Tenancy.scoped_repo(Escalated.repo())
 
-  defp prefix, do: Escalated.config(:route_prefix, "/support")
+  @doc false
+  def prefix, do: Escalated.config(:route_prefix, "/support")
 
   @doc false
   def atomize_filters(params) do
@@ -200,9 +208,23 @@ defmodule Escalated.Controllers.TicketDesk do
     |> Enum.reduce(%{}, fn
       {_key, ""}, acc -> acc
       {_key, nil}, acc -> acc
-      {"unassigned", "true"}, acc -> Map.put(acc, :unassigned, true)
-      {"sla_breached", "true"}, acc -> Map.put(acc, :sla_breached, true)
+      {key, val}, acc when key in @flag_keys -> put_flag(acc, key, val)
+      {"updated_within_hours", val}, acc -> put_hours(acc, val)
       {key, val}, acc -> Map.put(acc, String.to_existing_atom(key), val)
     end)
   end
+
+  defp put_flag(acc, key, val) do
+    if flag?(val), do: Map.put(acc, String.to_existing_atom(key), true), else: acc
+  end
+
+  defp put_hours(acc, val) do
+    case Integer.parse(to_string(val)) do
+      {hours, ""} when hours > 0 -> Map.put(acc, :updated_within_hours, hours)
+      _ -> acc
+    end
+  end
+
+  @doc "Whether a query flag is on (`1`, `true`, `on`, `yes`)."
+  def flag?(val), do: String.downcase(to_string(val)) in ~w(1 true on yes)
 end

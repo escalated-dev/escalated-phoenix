@@ -17,6 +17,12 @@ defmodule Escalated.Services.TicketService do
   import Ecto.Query
   require Logger
 
+  # Statuses a ticket is not open in: resolved, closed, or snoozed.
+  @not_open_statuses ~w(resolved closed snoozed)
+
+  # How close a due SLA target has to be for the ticket to be "at risk".
+  @sla_at_risk_minutes 60
+
   @doc """
   Creates a new ticket.
 
@@ -735,27 +741,56 @@ defmodule Escalated.Services.TicketService do
 
   @doc """
   Lists tickets with optional filters.
+
+  Besides the column filters, `open: true` keeps unresolved, unsnoozed
+  tickets, `sla_at_risk: true` those whose SLA is breached or falls due within
+  the hour, `resolved_today: true` those resolved since the start of the day
+  (UTC), `updated_within_hours: n` those updated in the last `n` hours, and
+  `sort_by` (`created_at`, `updated_at`, `priority`, `status`) with `sort_dir`
+  (`asc`, or `desc` by default) orders them.
   """
   def list(filters \\ %{}) do
     repo = Escalated.repo()
 
     query =
-      Ticket
-      |> maybe_status(filters)
-      |> maybe_filter(:priority, filters)
-      |> maybe_filter(:department_id, filters)
-      |> maybe_filter(:assigned_to, filters)
-      |> maybe_filter(:requester_id, filters)
-      |> maybe_filter(:ticket_type, filters)
-      |> maybe_account(filters)
-      |> maybe_search(filters)
-      |> maybe_unassigned(filters)
-      |> maybe_breached(filters)
-      |> Ticket.recent()
+      filters
+      |> filter_query()
+      |> sort(filters)
 
     query = Hooks.apply_filters("ticket_list_query", query, [filters])
     tickets = repo.all(query)
     Hooks.apply_filters("ticket_list_data", tickets, [filters])
+  end
+
+  @doc """
+  The number of tickets `list/1` would return for `filters`. The agent inbox
+  counts through this, so a count and the list it labels cannot disagree.
+  """
+  def count(filters \\ %{}) do
+    query = Hooks.apply_filters("ticket_list_query", filter_query(filters), [filters])
+
+    query
+    |> exclude(:order_by)
+    |> exclude(:preload)
+    |> Escalated.repo().aggregate(:count)
+  end
+
+  defp filter_query(filters) do
+    Ticket
+    |> maybe_status(filters)
+    |> maybe_open(filters)
+    |> maybe_filter(:priority, filters)
+    |> maybe_filter(:department_id, filters)
+    |> maybe_filter(:assigned_to, filters)
+    |> maybe_filter(:requester_id, filters)
+    |> maybe_filter(:ticket_type, filters)
+    |> maybe_account(filters)
+    |> maybe_search(filters)
+    |> maybe_unassigned(filters)
+    |> maybe_breached(filters)
+    |> maybe_sla_at_risk(filters)
+    |> maybe_resolved_today(filters)
+    |> maybe_updated_within(filters)
   end
 
   @doc """
@@ -887,4 +922,53 @@ defmodule Escalated.Services.TicketService do
 
   defp maybe_breached(query, %{sla_breached: true}), do: Ticket.breached_sla(query)
   defp maybe_breached(query, _), do: query
+
+  # Not resolved or closed, and not snoozed.
+  defp maybe_open(query, %{open: true}),
+    do: from(t in query, where: t.status not in @not_open_statuses)
+
+  defp maybe_open(query, _), do: query
+
+  # Unresolved tickets whose SLA is breached, or whose first response (still
+  # unsent) or resolution falls due within the hour.
+  defp maybe_sla_at_risk(query, %{sla_at_risk: true}) do
+    soon = DateTime.add(DateTime.utc_now(), @sla_at_risk_minutes * 60, :second)
+
+    from(t in query,
+      where:
+        t.status not in @not_open_statuses and
+          (t.sla_breached == true or
+             (is_nil(t.first_response_at) and t.sla_first_response_due_at <= ^soon) or
+             t.sla_resolution_due_at <= ^soon)
+    )
+  end
+
+  defp maybe_sla_at_risk(query, _), do: query
+
+  defp maybe_resolved_today(query, %{resolved_today: true}) do
+    start = DateTime.new!(Date.utc_today(), ~T[00:00:00], "Etc/UTC")
+    from(t in query, where: t.resolved_at >= ^start)
+  end
+
+  defp maybe_resolved_today(query, _), do: query
+
+  defp maybe_updated_within(query, %{updated_within_hours: hours})
+       when is_integer(hours) and hours > 0 do
+    since = DateTime.add(DateTime.utc_now(), -hours * 3600, :second)
+    from(t in query, where: t.updated_at >= ^since)
+  end
+
+  defp maybe_updated_within(query, _), do: query
+
+  defp sort(query, filters) do
+    dir = if Map.get(filters, :sort_dir) == "asc", do: :asc, else: :desc
+
+    case Map.get(filters, :sort_by) do
+      "updated_at" -> from(t in query, order_by: [{^dir, t.updated_at}, {^dir, t.id}])
+      "priority" -> from(t in query, order_by: [{^dir, t.priority}, {^dir, t.id}])
+      "status" -> from(t in query, order_by: [{^dir, t.status}, {^dir, t.id}])
+      "created_at" -> from(t in query, order_by: [{^dir, t.inserted_at}, {^dir, t.id}])
+      _ -> Ticket.recent(query)
+    end
+  end
 end

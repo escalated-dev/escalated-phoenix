@@ -48,7 +48,10 @@ defmodule Escalated.Rendering.TicketPresenter do
   def row(%Ticket{} = ticket, directory, tags \\ nil) do
     ticket = Escalated.repo().preload(ticket, :department)
     tags = tags || Map.get(tags_by_ticket([ticket.id]), ticket.id, [])
-    computed = TicketSerializer.computed_fields(ticket)
+    # The preview, its age and author come from the latest public reply, never
+    # an internal note (escalated-laravel's `latestReply`).
+    reply = TicketSerializer.last_reply(ticket, public: true)
+    computed = TicketSerializer.computed_fields(ticket, public: true, last_reply: reply)
 
     %{
       id: ticket.id,
@@ -64,7 +67,7 @@ defmodule Escalated.Rendering.TicketPresenter do
       requester: %{name: computed.requester_name, email: computed.requester_email},
       assignee: UserDirectory.get(directory, ticket.assigned_to),
       tags: Enum.map(tags, &%{id: &1.id, name: &1.name, color: &1.color}),
-      latest_reply: latest_reply(computed),
+      latest_reply: latest_reply(reply, computed),
       sla_breached: ticket.sla_breached,
       first_response_due_at: iso(ticket.sla_first_response_due_at),
       resolution_due_at: iso(ticket.sla_resolution_due_at),
@@ -308,6 +311,16 @@ defmodule Escalated.Rendering.TicketPresenter do
 
   defp department(%{department: %{id: id, name: name}}), do: %{id: id, name: name}
   defp department(_), do: nil
+
+  defp latest_reply(nil, _computed), do: nil
+
+  defp latest_reply(reply, computed),
+    do: %{
+      id: reply.id,
+      body: reply.body,
+      created_at: computed.last_reply_at,
+      author: %{name: computed.last_reply_author}
+    }
 
   defp latest_reply(%{last_reply_at: nil}), do: nil
 

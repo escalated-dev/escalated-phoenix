@@ -5,18 +5,34 @@ defmodule Escalated.Controllers.Agent.TicketController do
   use Phoenix.Controller, formats: [:html, :json]
   import Plug.Conn
 
-  alias Escalated.Controllers.{FormResponse, TicketDesk}
+  alias Escalated.Controllers.{AgentInbox, FormResponse, TicketDesk}
   alias Escalated.Rendering.UIRenderer
   alias Escalated.Schemas.Reply
   alias Escalated.Serializers.TicketSerializer
   alias Escalated.Services.{AssignmentService, TicketActionRegistry, TicketService}
 
   def index(conn, params) do
-    UIRenderer.render_page(
-      conn,
-      "Escalated/Agent/TicketIndex",
-      TicketDesk.queue_props(conn, params, "agent")
-    )
+    agent = conn.assigns[:current_user]
+
+    case AgentInbox.validate(params) do
+      :ok ->
+        filters = AgentInbox.normalise(params, agent)
+        queue = AgentInbox.queue_for(filters, agent)
+        conn = AgentInbox.remember(conn, queue)
+
+        props =
+          conn
+          |> TicketDesk.queue_props(params, "agent", AgentInbox.list_filters(filters, queue))
+          |> Map.merge(%{
+            queue: AgentInbox.queue_prop(queue),
+            inbox: AgentInbox.inbox(agent, queue)
+          })
+
+        UIRenderer.render_page(conn, "Escalated/Agent/TicketIndex", props)
+
+      {:error, errors} ->
+        FormResponse.invalid(conn, errors, "#{TicketDesk.prefix()}/agent/tickets")
+    end
   end
 
   def show(conn, %{"reference" => reference}) do
@@ -25,13 +41,17 @@ defmodule Escalated.Controllers.Agent.TicketController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
 
       ticket ->
+        agent = conn.assigns[:current_user]
+        queue = AgentInbox.recalled(conn, agent)
+
         props =
           conn
           |> TicketDesk.show_props(ticket)
-          |> Map.put(
-            :customActions,
-            serialize_custom_actions(ticket, conn.assigns[:current_user])
-          )
+          |> Map.put(:customActions, serialize_custom_actions(ticket, agent))
+          |> Map.merge(%{
+            queue: AgentInbox.queue_prop(queue),
+            inbox: AgentInbox.inbox(agent, queue)
+          })
 
         UIRenderer.render_page(conn, "Escalated/Agent/TicketShow", props)
     end

@@ -144,7 +144,31 @@ defmodule Escalated.Serializers.TicketSerializer do
     {name, Map.get(requester, :email)}
   end
 
+  @doc """
+  The ticket's most recent reply, or nil. Pass `public: true` to skip
+  internal notes.
+  """
+  def last_reply(ticket, opts \\ []), do: fetch_last_reply(ticket, Escalated.repo(), opts)
+
   defp resolve_last_reply(ticket, repo, opts) do
+    last_reply =
+      case Keyword.fetch(opts, :last_reply) do
+        {:ok, reply} -> reply
+        :error -> fetch_last_reply(ticket, repo, opts)
+      end
+
+    case last_reply do
+      nil ->
+        {nil, nil}
+
+      reply ->
+        at = reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
+        author = resolve_author_name(reply.author_id)
+        {at, author}
+    end
+  end
+
+  defp fetch_last_reply(ticket, repo, opts) do
     query =
       from(r in Reply,
         where: r.ticket_id == ^ticket.id,
@@ -157,17 +181,7 @@ defmodule Escalated.Serializers.TicketSerializer do
         do: where(query, [r], r.is_internal == false),
         else: query
 
-    last_reply = repo.one(query)
-
-    case last_reply do
-      nil ->
-        {nil, nil}
-
-      reply ->
-        at = reply.inserted_at && DateTime.to_iso8601(reply.inserted_at)
-        author = resolve_author_name(reply.author_id)
-        {at, author}
-    end
+    repo.one(query)
   end
 
   defp resolve_author_name(nil), do: nil
