@@ -42,9 +42,10 @@ defmodule Escalated.ChatEndTest do
     # so a route that read the ticket id would not find this chat.
     {_decoy_token, decoy} = start_chat()
 
-    for _ <- 1..3 do
-      repo().insert!(%ChatSession{ticket_id: decoy.id, status: "ended"})
-    end
+    # Ids are not reset between tests on MySQL, so other tests' tickets can put
+    # the ticket counter anywhere: add sessions until they are clear ahead.
+    Stream.repeatedly(fn -> repo().insert!(%ChatSession{ticket_id: decoy.id, status: "ended"}) end)
+    |> Enum.find(&(&1.id > decoy.id + 3))
 
     {_token, ticket} = accepted_chat()
     session = repo().get_by!(ChatSession, ticket_id: ticket.id)

@@ -444,7 +444,7 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
     tickets = Escalated.table_name("tickets")
 
     %{
-      counts: Enum.count(sql, &(&1 =~ ~r/count\(/i and &1 =~ ~r/FROM "?#{tickets}"?/i))
+      counts: Enum.count(sql, &(&1 =~ ~r/count\(/i and &1 =~ ~r/FROM [`"]?#{tickets}[`"]?/i))
     }
   end
 
