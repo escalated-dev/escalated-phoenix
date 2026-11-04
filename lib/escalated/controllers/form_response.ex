@@ -23,6 +23,34 @@ defmodule Escalated.Controllers.FormResponse do
     end
   end
 
+  @doc """
+  Answers malformed query input on a page (a list's filters), as
+  escalated-laravel's `$request->validate()` does on a GET: a JSON client
+  (`Accept: application/json`, no `X-Inertia`) gets a 422 with `message` and
+  `errors`; any other visit -- Inertia or a browser -- goes back to the
+  Referer (else `fallback_path`) with the errors for the next page's `errors`
+  prop. A raw 422 is what the Inertia client shows as an error modal.
+  """
+  def invalid_visit(conn, errors, fallback_path) when is_map(errors) do
+    if json_client?(conn) do
+      first = errors |> Map.values() |> List.first() |> List.wrap() |> List.first()
+
+      conn
+      |> put_status(422)
+      |> json(%{message: first || "The given data was invalid.", errors: errors})
+    else
+      conn
+      |> assign_inertia_errors(errors)
+      |> redirect(to: back_path(conn, fallback_path))
+    end
+  end
+
+  @doc "Whether the request is from a JSON client rather than a page visit."
+  def json_client?(conn) do
+    not inertia?(conn) and
+      Enum.any?(get_req_header(conn, "accept"), &String.contains?(&1, "application/json"))
+  end
+
   @doc "Whether the request is an Inertia visit."
   def inertia?(conn), do: get_req_header(conn, "x-inertia") == ["true"]
 
