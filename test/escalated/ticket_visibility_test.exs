@@ -62,6 +62,11 @@ defmodule Escalated.TicketVisibilityTest do
       ChatRoutingRule.changeset(%ChatRoutingRule{}, %{name: "Chat", agent_ids: [901, 900]})
     )
 
+    # Only online agents get chats (their own status).
+    for id <- [900, 901] do
+      Escalated.repo().insert!(%Escalated.Schemas.AgentProfile{user_id: id, chat_status: "online"})
+    end
+
     assert {:ok, 900} =
              Escalated.Services.ChatRoutingService.find_available_agent(c.a.id, c.allowed)
 

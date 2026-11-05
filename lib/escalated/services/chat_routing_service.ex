@@ -6,7 +6,7 @@ defmodule Escalated.Services.ChatRoutingService do
   based on the configured strategy (round_robin, least_active).
   """
 
-  alias Escalated.Schemas.{ChatRoutingRule, ChatSession}
+  alias Escalated.Schemas.{AgentProfile, ChatRoutingRule, ChatSession}
   import Ecto.Query
 
   # Agent used for round-robin state (stored in process dictionary for simplicity)
@@ -28,7 +28,9 @@ defmodule Escalated.Services.ChatRoutingService do
     agent_id =
       Enum.find_value(rules, fn rule ->
         ids =
-          Enum.filter(rule.agent_ids || [], fn id ->
+          (rule.agent_ids || [])
+          |> online_agents()
+          |> Enum.filter(fn id ->
             not Escalated.TicketVisibility.enabled?() or
               (ticket && Escalated.TicketVisibility.can_assign?(ticket, id))
           end)
@@ -37,6 +39,27 @@ defmodule Escalated.Services.ChatRoutingService do
       end)
 
     {:ok, agent_id}
+  end
+
+  @doc """
+  The agents among `agent_ids` whose own status (`agent_profiles.chat_status`,
+  ADR 2026-11-05-agent-panel-data) is `"online"`, in the given order. Away and
+  offline agents, and agents with no profile, get no new chats, as
+  escalated-laravel's chat routing.
+  """
+  def online_agents([]), do: []
+
+  def online_agents(agent_ids) when is_list(agent_ids) do
+    online =
+      Escalated.repo().all(
+        from(p in AgentProfile,
+          where: p.user_id in ^agent_ids and p.chat_status == "online",
+          select: p.user_id
+        )
+      )
+      |> MapSet.new(&to_string/1)
+
+    Enum.filter(agent_ids, &MapSet.member?(online, to_string(&1)))
   end
 
   @doc """

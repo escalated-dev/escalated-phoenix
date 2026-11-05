@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Upgrading
+- **Live chat goes only to agents who are online.** Chat routing (widget chat start, requeues and department transfers) and the widget's chat availability now read the agent's own status (`agent_profiles.chat_status`), as escalated-laravel does: only `online` agents in a routing rule get new chats; `away` and `offline` agents, and agents with no profile, are skipped. Agents must set themselves Online to receive chats.
 - **Run the package migration `20261105000001_add_agent_panel_data`** (the agent panel's data, ADR 2026-11-05-agent-panel-data): it adds `tickets.last_customer_activity_at`, `agent_profiles.chat_status` (default `offline`) and the `ticket_reads`, `customer_presence` and `notifications` tables, on SQLite, PostgreSQL and MySQL. Existing tickets get no customer activity, so none turn unread on upgrade.
 - **Assigning a ticket to yourself no longer emails you** ("Ticket Assigned to You"), and creates no in-app notification. Someone else assigning you a ticket still does both. `ticket.assigned` now carries the `:actor_id` (webhook payloads are unchanged).
 - **Agents get in-app notifications** (`config :escalated, agent_notifications:`, on by default). The in-app `ticket_reply` notification is only for customer-side replies: another agent's reply still emails you as before, but does not go into the feed. Set `agent_notifications: false` to switch the feed off.
