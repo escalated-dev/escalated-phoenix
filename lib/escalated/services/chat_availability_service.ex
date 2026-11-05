@@ -13,8 +13,9 @@ defmodule Escalated.Services.ChatAvailabilityService do
   @doc """
   Checks whether live chat is currently available.
 
-  Returns `true` if at least one routing rule is active and at least
-  one agent in those rules is below their concurrent-chat limit.
+  Returns `true` if at least one routing rule is active and at least one
+  agent in those rules is online (their own status) and below their
+  concurrent-chat limit.
   """
   def available? do
     repo = Escalated.repo()
@@ -23,7 +24,7 @@ defmodule Escalated.Services.ChatAvailabilityService do
 
     Enum.any?(rules, fn rule ->
       is_list(rule.agent_ids) &&
-        Enum.any?(rule.agent_ids, fn agent_id ->
+        Enum.any?(ChatRoutingService.online_agents(rule.agent_ids), fn agent_id ->
           ChatRoutingService.count_active_chats(agent_id) < rule.max_concurrent_chats
         end)
     end)
