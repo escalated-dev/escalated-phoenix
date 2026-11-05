@@ -14,6 +14,9 @@ defmodule Escalated.Test.Router do
   use Phoenix.Router
   use Escalated.Router
 
+  # __route_table__/0, for the default-route snapshot (test/escalated/embed).
+  @before_compile Escalated.Test.RouteTable
+
   pipeline :browser do
     plug Plug.Parsers,
       parsers: [:urlencoded, :json],
