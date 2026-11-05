@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- **Run the package migration `20261105000001_add_agent_panel_data`** (the agent panel's data, ADR 2026-11-05-agent-panel-data): it adds `tickets.last_customer_activity_at`, `agent_profiles.chat_status` (default `offline`) and the `ticket_reads`, `customer_presence` and `notifications` tables, on SQLite, PostgreSQL and MySQL. Existing tickets get no customer activity, so none turn unread on upgrade.
+- **Assigning a ticket to yourself no longer emails you** ("Ticket Assigned to You"), and creates no in-app notification. Someone else assigning you a ticket still does both. `ticket.assigned` now carries the `:actor_id` (webhook payloads are unchanged).
+- **Agents get in-app notifications** (`config :escalated, agent_notifications:`, on by default). The in-app `ticket_reply` notification is only for customer-side replies: another agent's reply still emails you as before, but does not go into the feed. Set `agent_notifications: false` to switch the feed off.
+- **`inbox` gains `unread`** (three more count queries per agent list and ticket page) and the agent ticket rows gain `is_unread`, `requester_online` and `requester_last_seen_at`; the 0.2.12 "Not sent" note no longer applies. Older frontends ignore them.
+- The customer knowledge-base and widget article searches now take `%` and `_` literally and match case-insensitively on every database.
+
+### Added
+- **The agent panel's data** (ADR 2026-11-05-agent-panel-data, after escalated-laravel; `docs/agent-panel.md`):
+  - agent status: `PUT`/`POST {prefix}/agent/status` (`escalated.agent.status`), stored on the agent profile's `chat_status`; shared `escalated.agent_status` and `escalated.agent_statuses`;
+  - knowledge-base search for agents: `GET {prefix}/agent/kb/search` (`escalated.agent.kb.search`, `kb.view`), published articles, title matches first;
+  - unread tickets: `ticket_reads`, `escalated.agent.tickets.read` / `.unread`, bulk `mark_read` / `mark_unread`, `is_unread` on list rows (one query per page) and the ticket page, `inbox.unread` `{mine, unassigned, all}`;
+  - customer presence: the customer portal, the guest ticket page and the widget record when the customer was last seen (throttled to 30 seconds); agent pages only show `requester_online` (within `presence_online_window_seconds`, default 120) and `requester_last_seen_at`;
+  - notifications: `escalated.agent.notifications.index` / `.read` / `.read-all`, shared `escalated.notifications.unread_count`, types `ticket_assigned`, `ticket_reply`, `mention`, `sla_warning`, `sla_breached`, `chat_transferred`; notifications about tickets the agent can no longer see are redacted; with broadcasting on, `notification.created` on the agent's topic `escalated:agent:<id>`.
+- The seven new route names are in the shared `ziggy` routes (`Escalated.Routes`) and mapped in `Escalated.RoutePermissions`.
+
+### Not sent
+- Notification titles are English: this package sends no translated strings of its own.
+
 ## [0.2.12] - 2026-11-04
 
 ### Upgrading

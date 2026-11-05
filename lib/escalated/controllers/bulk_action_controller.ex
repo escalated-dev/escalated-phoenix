@@ -6,7 +6,8 @@ defmodule Escalated.Controllers.BulkActionController do
 
   The body is `{ticket_ids: [id, ...], action, value}`: 1 to 50 ids, and an
   action of `status`, `priority`, `assign`, `tags` (a list of tag ids),
-  `department` or `delete` (admins only; no value). Each ticket goes through
+  `department`, `delete` (admins only; no value), or `mark_read` /
+  `mark_unread` (the agent's own unread markers; no value). Each ticket goes through
   the same service an agent's single change does, so events, workflows and
   notification emails run per ticket. A ticket that cannot be changed is
   skipped. Redirects back with a flash naming how many were updated.
@@ -20,7 +21,9 @@ defmodule Escalated.Controllers.BulkActionController do
 
   require Logger
 
-  @actions ~w(status priority assign tags department delete)
+  @actions ~w(status priority assign tags department delete mark_read mark_unread)
+  # Actions that take no value.
+  @valueless ~w(delete mark_read mark_unread)
   @max_tickets 50
 
   def bulk(conn, params) do
@@ -50,7 +53,7 @@ defmodule Escalated.Controllers.BulkActionController do
       |> check(:ticket_ids, ids in [nil, []], "must list at least one ticket")
       |> check(:ticket_ids, is_list(ids) and length(ids) > @max_tickets, "at most 50 tickets")
       |> check(:action, action not in @actions, "is not a bulk action")
-      |> check(:value, action != "delete" and value in [nil, "", []], "can't be blank")
+      |> check(:value, action not in @valueless and value in [nil, "", []], "can't be blank")
 
     if errors == %{}, do: {:ok, ids, action, value}, else: {:error, errors}
   end
@@ -138,6 +141,13 @@ defmodule Escalated.Controllers.BulkActionController do
   end
 
   defp change(ticket, "delete", _value, _actor_id), do: Escalated.repo().delete(ticket)
+
+  # The agent's own unread markers (ADR 2026-11-05-agent-panel-data).
+  defp change(ticket, "mark_read", _value, actor_id),
+    do: {:ok, Escalated.AgentPanel.mark_read(actor_id, ticket)}
+
+  defp change(ticket, "mark_unread", _value, actor_id),
+    do: {:ok, Escalated.AgentPanel.mark_unread(actor_id, ticket)}
 
   defp back_path(conn) do
     with [referer | _] <- get_req_header(conn, "referer"),

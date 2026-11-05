@@ -10,7 +10,7 @@ defmodule Escalated.Notifications do
     * `reply.created` (public replies only): the requester, unless they wrote
       it; the assignee, unless they wrote it; and every follower except the
       author, the requester and the assignee.
-    * `ticket.assigned`: the new assignee.
+    * `ticket.assigned`: the new assignee, unless they assigned themselves.
     * `ticket.status_changed`: the requester and the followers, except whoever
       changed the status.
     * `ticket.escalated`: the assignee.
@@ -114,10 +114,13 @@ defmodule Escalated.Notifications do
     end
   end
 
-  defp messages("ticket.assigned", %{ticket: %Ticket{} = ticket, agent_id: agent_id}) do
+  defp messages("ticket.assigned", %{ticket: %Ticket{} = ticket, agent_id: agent_id} = context) do
+    # Assigning a ticket to yourself tells you nothing.
+    recipients = if same_id?(agent_id, Map.get(context, :actor_id)), do: [], else: [agent_id]
+
     notice(
       ticket,
-      agent_addresses(ticket, [agent_id]),
+      agent_addresses(ticket, recipients),
       "[#{ticket.reference}] Ticket Assigned to You",
       [
         "A ticket has been assigned to you.",

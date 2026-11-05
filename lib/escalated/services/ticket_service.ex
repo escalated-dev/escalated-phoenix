@@ -170,8 +170,22 @@ defmodule Escalated.Services.TicketService do
   def insert(attrs, account_source \\ nil) do
     %Ticket{}
     |> Ticket.changeset(attrs)
+    |> customer_activity()
     |> Escalated.TicketAccounts.resolve(account_source)
     |> insert_with_fresh_reference(Escalated.repo(), @reference_attempts)
+  end
+
+  # A new ticket is customer activity for the agents' unread markers (ADR
+  # 2026-11-05-agent-panel-data); an imported one is not.
+  defp customer_activity(changeset) do
+    if Escalated.Import.Context.importing?(),
+      do: changeset,
+      else:
+        Ecto.Changeset.put_change(
+          changeset,
+          :last_customer_activity_at,
+          DateTime.utc_now() |> DateTime.truncate(:second)
+        )
   end
 
   # Retries with the changeset as it was before the insert: the failed one
@@ -791,7 +805,15 @@ defmodule Escalated.Services.TicketService do
     |> maybe_sla_at_risk(filters)
     |> maybe_resolved_today(filters)
     |> maybe_updated_within(filters)
+    |> maybe_unread_for(filters)
   end
+
+  # `unread_for: user_id` keeps the tickets unread for that agent (the agent
+  # inbox's `unread` counts, ADR 2026-11-05-agent-panel-data).
+  defp maybe_unread_for(query, %{unread_for: user_id}) when not is_nil(user_id),
+    do: Escalated.AgentPanel.only_unread(query, user_id)
+
+  defp maybe_unread_for(query, _filters), do: query
 
   @doc """
   Finds a ticket by reference or ID.

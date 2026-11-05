@@ -174,11 +174,26 @@ defmodule Escalated.Services.MentionService do
     |> case do
       {:ok, %Mention{id: id} = mention} when not is_nil(id) ->
         Hooks.do_action("agent_mentioned", [mention, reply, ticket])
+        notify_mention(reply, ticket, user_id)
         mention
 
       _ ->
         nil
     end
+  end
+
+  # The agents' in-app `mention` notification (ADR 2026-11-05-agent-panel-data).
+  defp notify_mention(reply, ticket, user_id) do
+    author_id = Map.get(reply, :author_id)
+    author = author_id && Escalated.TicketVisibility.load_user(author_id)
+
+    Escalated.AgentPanel.notify(
+      user_id,
+      "mention",
+      ticket,
+      %{reply_id: Map.get(reply, :id), mentioned_by: author && Map.get(author, :name)},
+      author_id
+    )
   end
 
   defp self_mention?(_user_id, nil), do: false

@@ -16,7 +16,8 @@ defmodule Escalated.Broadcasting do
 
   - `"escalated:tickets"` - all ticket events (create, update, status change, etc.)
   - `"escalated:ticket:<id>"` - events for a specific ticket
-  - `"escalated:agent:<agent_id>"` - events relevant to a specific agent
+  - `"escalated:agent:<agent_id>"` - events relevant to a specific agent, and
+    their in-app notifications (`notification.created`)
   - `"escalated:chat:<ticket_id>"` - live chat events for one session
   - `"escalated:chat:queue"` - chat sessions starting, being taken and ending
 
@@ -227,6 +228,29 @@ defmodule Escalated.Broadcasting do
       :ok
     end
   end
+
+  @doc """
+  Broadcasts an agent's new in-app notification (ADR
+  2026-11-05-agent-panel-data) as `notification.created` on that agent's
+  topic only, `"escalated:agent:<agent_id>"`. The payload is the feed item
+  plus its `ticket_id`, which `Escalated.Channels.TicketChannel` checks
+  before pushing it to an agent under department visibility.
+  """
+  def notification_created(agent_id, item) do
+    if enabled?() do
+      Phoenix.PubSub.broadcast(
+        pubsub_server(),
+        Tenancy.topic("escalated:agent:#{agent_id}"),
+        %{event: "notification.created", payload: Map.put(item, :ticket_id, ticket_id(item))}
+      )
+    end
+
+    :ok
+  end
+
+  # The ticket the agent channel checks visibility against before pushing.
+  defp ticket_id(%{ticket: %{id: id}}), do: id
+  defp ticket_id(_item), do: nil
 
   @doc """
   Subscribes the calling process to events for a specific agent.

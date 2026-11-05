@@ -77,10 +77,36 @@ defmodule Escalated.Plugs.ShareInertiaData do
     # data out of conn.assigns; `inertia` reads it from conn.private, so an
     # assign would leave every page missing its shared props with no error.
     conn
-    |> assign_inertia_prop(:escalated, escalated_props(user, config))
+    |> assign_inertia_prop(
+      :escalated,
+      Map.merge(escalated_props(user, config), panel_props(user))
+    )
     |> assign_inertia_prop(:auth, auth)
     # The named routes the shared pages call through route() (Escalated.Routes).
     |> Escalated.Routes.share()
+  end
+
+  # The agent panel's data for staff (ADR 2026-11-05-agent-panel-data): their
+  # status, the statuses they may set and, while the feed is on, their unread
+  # notification count. Never for customers or guests.
+  @doc false
+  def panel_props(user) do
+    if Escalated.Permissions.agent?(user) do
+      props = %{
+        agent_status: Escalated.AgentPanel.status(user),
+        agent_statuses: Escalated.AgentPanel.statuses()
+      }
+
+      if Escalated.AgentPanel.notifications_enabled?(),
+        do:
+          Map.put(props, :notifications, %{unread_count: Escalated.AgentPanel.unread_count(user)}),
+        else: props
+    else
+      %{}
+    end
+  rescue
+    # The agent panel tables may not be migrated yet.
+    _ -> %{}
   end
 
   # apply/3 rather than a direct call because `inertia` is an OPTIONAL

@@ -23,7 +23,7 @@ defmodule Escalated.Services.AssignmentService do
         log_activity(updated, "assigned", actor_id, %{agent_id: agent_id})
         Hooks.do_action("ticket_assigned", [updated, agent_id])
         Events.emit("ticket.updated", %{ticket: updated})
-        Events.emit("ticket.assigned", %{ticket: updated, agent_id: agent_id})
+        Events.emit("ticket.assigned", %{ticket: updated, agent_id: agent_id, actor_id: actor_id})
         {:ok, updated}
 
       error ->

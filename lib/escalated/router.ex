@@ -237,8 +237,11 @@ defmodule Escalated.Router do
           end
         end
 
-        # Customer routes
+        # Customer routes. Signed-in customers are recorded as on the site for
+        # the agent pages' presence (ADR 2026-11-05-agent-panel-data).
         scope "/", Escalated.Controllers.Customer do
+          pipe_through Escalated.Plugs.RecordCustomerPresence
+
           get "/tickets", TicketController, :index
           get "/tickets/new", TicketController, :new
           post "/tickets", TicketController, :create
@@ -304,6 +307,14 @@ defmodule Escalated.Router do
           get "/dashboard", DashboardController, :index
           get "/tickets", TicketController, :index
 
+          # The agent panel's data (ADR 2026-11-05-agent-panel-data).
+          put "/status", PanelController, :status
+          post "/status", PanelController, :status
+          get "/kb/search", PanelController, :kb_search
+          get "/notifications", PanelController, :notifications
+          post "/notifications/read-all", PanelController, :read_all
+          post "/notifications/:id/read", PanelController, :read
+
           # The shared BulkActionBar (escalated.agent.tickets.bulk). Declared
           # ahead of the :reference routes; `alias: false` because the
           # controller is shared with the admin scope.
@@ -325,6 +336,8 @@ defmodule Escalated.Router do
           post "/tickets/:reference/follow", TicketController, :follow
           post "/tickets/:reference/macro", TicketController, :macro
           post "/tickets/:reference/presence", TicketController, :presence
+          post "/tickets/:reference/read", TicketController, :read
+          post "/tickets/:reference/unread", TicketController, :unread
           post "/tickets/:reference/replies/:reply_id/pin", TicketController, :pin
 
           resources "/saved-views", SavedViewController, except: [:new, :edit]

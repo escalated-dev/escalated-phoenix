@@ -23,7 +23,7 @@ defmodule Escalated.Events do
   workflow runner both log and swallow their own failures.
   """
 
-  alias Escalated.Notifications
+  alias Escalated.{AgentPanel, Notifications}
   alias Escalated.Schemas.Ticket
   alias Escalated.Services.{WebhookEvents, WorkflowRunner}
 
@@ -88,6 +88,8 @@ defmodule Escalated.Events do
   def emit(event, context) when is_binary(event) and is_map(context) do
     WebhookEvents.dispatch(event, context)
     Notifications.notify(event, context)
+    # Unread markers and the agents' in-app notifications.
+    AgentPanel.on_event(event, context)
 
     case Map.get(context, :ticket) do
       %Ticket{} = ticket -> WorkflowRunner.run_guarded(event, ticket)
