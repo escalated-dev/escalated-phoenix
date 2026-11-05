@@ -127,5 +127,5 @@ defmodule Escalated.Controllers.Admin.EmailSettingsController do
   end
 
   defp settings_path,
-    do: "#{Escalated.config(:route_prefix, "/support")}/admin/settings/email"
+    do: Escalated.Embed.admin_path("/settings/email")
 end

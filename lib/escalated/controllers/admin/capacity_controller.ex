@@ -40,8 +40,7 @@ defmodule Escalated.Controllers.Admin.CapacityController do
   end
 
   defp capacity_path do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/capacity"
+    Escalated.Embed.admin_path("/capacity")
   end
 
   defp format_errors(changeset) do

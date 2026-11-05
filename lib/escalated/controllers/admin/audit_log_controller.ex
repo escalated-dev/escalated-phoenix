@@ -20,7 +20,7 @@ defmodule Escalated.Controllers.Admin.AuditLogController do
 
   def index(conn, params) do
     repo = Escalated.Tenancy.scoped_repo(Escalated.repo())
-    path = Escalated.config(:route_prefix, "/support") <> "/admin/audit-log"
+    path = Escalated.Embed.admin_path("/audit-log")
 
     page =
       Paginator.paginate_query(filtered(params), repo, Map.put(params, "per_page", "50"), path)

@@ -113,8 +113,7 @@ defmodule Escalated.Controllers.Admin.AutomationController do
   end
 
   defp admin_automations_path(_conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/automations"
+    Escalated.Embed.admin_path("/automations")
   end
 
   defp format_errors(changeset) do

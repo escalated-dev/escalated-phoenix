@@ -215,5 +215,5 @@ defmodule Escalated.Controllers.Admin.RoleController do
 
   defp repo, do: Escalated.Tenancy.scoped_repo(Escalated.repo())
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/roles"
+  defp index_path, do: Escalated.Embed.admin_path("/roles")
 end

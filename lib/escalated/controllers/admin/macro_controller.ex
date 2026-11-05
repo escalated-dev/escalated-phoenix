@@ -107,8 +107,7 @@ defmodule Escalated.Controllers.Admin.MacroController do
   end
 
   defp admin_macros_path(_conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/macros"
+    Escalated.Embed.admin_path("/macros")
   end
 
   defp format_errors(changeset) do

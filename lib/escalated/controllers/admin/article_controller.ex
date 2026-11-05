@@ -152,5 +152,5 @@ defmodule Escalated.Controllers.Admin.ArticleController do
 
   defp filter_category(query, _), do: query
 
-  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb-articles"
+  defp index_path, do: Escalated.Embed.admin_path("/kb-articles")
 end

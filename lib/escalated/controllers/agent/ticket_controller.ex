@@ -394,8 +394,13 @@ defmodule Escalated.Controllers.Agent.TicketController do
     end
   end
 
-  defp desk_scope(conn),
-    do: if(String.contains?(conn.request_path, "/admin/tickets/"), do: "admin", else: "agent")
+  # The admin desk: {prefix}/admin/tickets/..., or the embedded admin under the
+  # host's prefix (ADR 2026-11-05-embeddable-admin).
+  defp desk_scope(conn) do
+    if Escalated.Embed.embedded?(conn) or String.contains?(conn.request_path, "/admin/tickets/"),
+      do: "admin",
+      else: "agent"
+  end
 
   # The shared SnoozeButton posts as an Inertia visit, which needs a redirect
   # back to the page; a JSON client still gets the ticket. The admin desk

@@ -79,7 +79,11 @@ defmodule Escalated.Plugs.ShareInertiaData do
     conn
     |> assign_inertia_prop(
       :escalated,
-      Map.merge(escalated_props(user, config), panel_props(user))
+      escalated_props(user, config)
+      |> Map.merge(panel_props(user))
+      # `embed` and `navigation` while the admin is embedded in the host's
+      # admin panel (ADR 2026-11-05-embeddable-admin); absent while it is off.
+      |> Escalated.Embed.put_props(user, conn)
     )
     |> assign_inertia_prop(:auth, auth)
     # The named routes the shared pages call through route() (Escalated.Routes).

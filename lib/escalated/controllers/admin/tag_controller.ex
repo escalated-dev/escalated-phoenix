@@ -87,8 +87,7 @@ defmodule Escalated.Controllers.Admin.TagController do
   end
 
   defp admin_tags_path(conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/tags"
+    Escalated.Embed.admin_path("/tags")
   end
 
   defp format_errors(changeset) do

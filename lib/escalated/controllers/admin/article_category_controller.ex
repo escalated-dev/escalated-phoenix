@@ -68,5 +68,5 @@ defmodule Escalated.Controllers.Admin.ArticleCategoryController do
     end
   end
 
-  defp index_path, do: "#{Escalated.config(:route_prefix, "/support")}/admin/kb-categories"
+  defp index_path, do: Escalated.Embed.admin_path("/kb-categories")
 end

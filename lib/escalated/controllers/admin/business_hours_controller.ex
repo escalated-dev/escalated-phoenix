@@ -271,5 +271,5 @@ defmodule Escalated.Controllers.Admin.BusinessHoursController do
 
   defp repo, do: Escalated.Tenancy.scoped_repo(Escalated.repo())
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/business-hours"
+  defp index_path, do: Escalated.Embed.admin_path("/business-hours")
 end

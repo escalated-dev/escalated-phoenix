@@ -156,9 +156,16 @@ defmodule Escalated.Controllers.BulkActionController do
       if query, do: "#{path}?#{query}", else: path
     else
       _ ->
-        prefix = Escalated.config(:route_prefix, "/support")
-        area = if String.contains?(conn.request_path, "/admin/"), do: "admin", else: "agent"
-        "#{prefix}/#{area}/tickets"
+        cond do
+          Escalated.Embed.embedded?(conn) ->
+            Escalated.Embed.admin_path("/tickets")
+
+          String.contains?(conn.request_path, "/admin/") ->
+            Escalated.config(:route_prefix, "/support") <> "/admin/tickets"
+
+          true ->
+            Escalated.config(:route_prefix, "/support") <> "/agent/tickets"
+        end
     end
   end
 end

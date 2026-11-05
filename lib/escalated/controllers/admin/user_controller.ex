@@ -100,7 +100,7 @@ defmodule Escalated.Controllers.Admin.UserController do
         conn |> put_status(404) |> Phoenix.Controller.json(%{error: "User not found"})
 
       {:invalid, errors} ->
-        Escalated.Controllers.FormResponse.invalid(conn, errors, "/support/admin/users")
+        Escalated.Controllers.FormResponse.invalid(conn, errors, admin_users_path())
     end
   end
 
@@ -259,8 +259,7 @@ defmodule Escalated.Controllers.Admin.UserController do
   end
 
   defp build_links(page, last_page, search) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    base = "#{prefix}/admin/users"
+    base = Escalated.Embed.admin_path("/users")
 
     query_for = fn p ->
       params = if search == "", do: %{page: p}, else: %{page: p, search: search}
@@ -359,8 +358,7 @@ defmodule Escalated.Controllers.Admin.UserController do
   end
 
   defp admin_users_path do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/users"
+    Escalated.Embed.admin_path("/users")
   end
 
   defp tenant_denied(conn) do

@@ -142,8 +142,11 @@ defmodule Escalated.Controllers.Admin.SsoSettingsController do
   defp normalize(value) when is_binary(value), do: String.trim(value)
   defp normalize(_value), do: ""
 
-  defp settings_path,
-    do:
-      "/" <>
-        String.trim(Escalated.config(:route_prefix, "/support"), "/") <> "/admin/settings/sso"
+  defp settings_path do
+    if Escalated.Embed.enabled?(),
+      do: Escalated.Embed.admin_path("/settings/sso"),
+      else:
+        "/" <>
+          String.trim(Escalated.config(:route_prefix, "/support"), "/") <> "/admin/settings/sso"
+  end
 end

@@ -64,6 +64,6 @@ defmodule Escalated.Controllers.Admin.DataRetentionController do
   end
 
   defp settings_path do
-    "#{Escalated.config(:route_prefix, "/support")}/admin/settings/data-retention"
+    Escalated.Embed.admin_path("/settings/data-retention")
   end
 end

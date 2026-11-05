@@ -94,7 +94,6 @@ defmodule Escalated.Controllers.Admin.CsatSettingsController do
   end
 
   defp settings_path do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/settings/csat"
+    Escalated.Embed.admin_path("/settings/csat")
   end
 end

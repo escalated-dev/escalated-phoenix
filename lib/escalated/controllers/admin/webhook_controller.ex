@@ -167,7 +167,6 @@ defmodule Escalated.Controllers.Admin.WebhookController do
   end
 
   defp admin_webhooks_path do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/webhooks"
+    Escalated.Embed.admin_path("/webhooks")
   end
 end

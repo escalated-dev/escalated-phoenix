@@ -250,7 +250,7 @@ defmodule Escalated.Controllers.Admin.ImportController do
   defp scalar(value) when is_number(value) or is_boolean(value), do: to_string(value)
   defp scalar(_), do: ""
 
-  defp base_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/import"
+  defp base_path, do: Escalated.Embed.admin_path("/import")
 
   defp repo, do: Escalated.Tenancy.scoped_repo(Escalated.repo())
 end

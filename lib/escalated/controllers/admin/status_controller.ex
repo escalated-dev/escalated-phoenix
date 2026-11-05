@@ -213,5 +213,5 @@ defmodule Escalated.Controllers.Admin.StatusController do
 
   defp repo, do: Escalated.repo()
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/statuses"
+  defp index_path, do: Escalated.Embed.admin_path("/statuses")
 end
