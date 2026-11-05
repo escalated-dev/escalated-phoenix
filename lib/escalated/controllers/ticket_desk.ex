@@ -36,7 +36,7 @@ defmodule Escalated.Controllers.TicketDesk do
   """
   def queue_props(conn, params, scope, list_filters \\ nil) do
     tickets = TicketService.list(atomize_filters(list_filters || params))
-    path = "#{prefix()}/#{scope}/tickets"
+    path = "#{area(scope)}/tickets"
 
     %{
       tickets: Paginator.paginate(tickets, params, path) |> present_page(),
@@ -153,7 +153,12 @@ defmodule Escalated.Controllers.TicketDesk do
   end
 
   @doc "The ticket page path for a desk."
-  def ticket_path(scope, ticket), do: "#{prefix()}/#{scope}/tickets/#{ticket.reference}"
+  def ticket_path(scope, ticket), do: "#{area(scope)}/tickets/#{ticket.reference}"
+
+  # Where a desk lives: {prefix}/agent, and {prefix}/admin or the host's prefix
+  # while the admin is embedded (ADR 2026-11-05-embeddable-admin).
+  defp area("admin"), do: Escalated.Embed.admin_base()
+  defp area(scope), do: "#{prefix()}/#{scope}"
 
   defp with_ticket(conn, reference, fun) do
     case TicketService.find(reference) do

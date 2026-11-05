@@ -106,7 +106,7 @@ defmodule Escalated.Controllers.Admin.TicketMergeController do
          false <- String.starts_with?(rest, "/") do
       if query, do: "#{path}?#{query}", else: path
     else
-      _ -> "#{Escalated.config(:route_prefix, "/support")}/admin/tickets/#{ticket.reference}"
+      _ -> Escalated.Embed.admin_path("/tickets/#{ticket.reference}")
     end
   end
 

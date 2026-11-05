@@ -165,5 +165,5 @@ defmodule Escalated.Controllers.Admin.DatabaseConnectionController do
   end
 
   defp index_path,
-    do: "#{Escalated.config(:route_prefix, "/support")}/admin/settings/database"
+    do: Escalated.Embed.admin_path("/settings/database")
 end

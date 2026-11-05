@@ -7,7 +7,8 @@ defmodule Escalated.Routes do
   shape ziggy-js reads (`url`, `port`, `defaults`, `routes`, `location`; each
   route a `uri` without a leading slash, with `{param}` placeholders, and its
   `methods`). The URIs follow `config :escalated, route_prefix:`, which must be
-  the prefix you pass to `escalated_routes/2`.
+  the prefix you pass to `escalated_routes/2`, and the admin's follow the
+  embed prefix while the admin is embedded (`Escalated.Embed`).
 
   The host owns the root layout, so it installs the matching `route()` helper
   once with `helper_tag/1` (see the README). The helper does nothing when the
@@ -330,9 +331,11 @@ defmodule Escalated.Routes do
   def routes(prefix \\ nil) do
     base = prefix |> Kernel.||(Escalated.config(:route_prefix, "/support")) |> trim()
 
+    embedded = Escalated.Embed.enabled?()
+
     built_in =
       Map.new(@routes, fn {name, path, methods} ->
-        {name, %{uri: join(base, path), methods: methods}}
+        {name, %{uri: uri(base, path, embedded), methods: methods}}
       end)
 
     Enum.reduce(overrides(), built_in, fn
@@ -459,6 +462,17 @@ defmodule Escalated.Routes do
   end
 
   defp trim(path), do: String.trim(to_string(path), "/")
+
+  # While the admin is embedded in the host's admin panel (ADR
+  # 2026-11-05-embeddable-admin) its routes live under the host's prefix; the
+  # two-factor enrolment pages stay where they are.
+  defp uri(base, "admin/" <> rest = path, true) do
+    if String.starts_with?(path, "admin/settings/two-factor"),
+      do: join(base, path),
+      else: Escalated.Embed.prefix() <> "/" <> rest
+  end
+
+  defp uri(base, path, _embedded), do: join(base, path)
 
   defp join("", path), do: path
   defp join(base, path), do: base <> "/" <> path

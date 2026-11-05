@@ -227,7 +227,8 @@ defmodule Escalated.Plugins do
 
   @doc "The URL of a plugin page."
   def page_url(slug, route) do
-    "#{Escalated.config(:route_prefix, "/support")}/admin/plugins/#{slug}/#{route}"
+    # Beside the admin: {prefix}/admin, or the host's prefix while embedded.
+    Escalated.Embed.admin_path("/plugins/#{slug}/#{route}")
   end
 
   @doc """

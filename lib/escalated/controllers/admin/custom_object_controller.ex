@@ -398,5 +398,5 @@ defmodule Escalated.Controllers.Admin.CustomObjectController do
 
   defp repo, do: Escalated.repo()
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/custom-objects"
+  defp index_path, do: Escalated.Embed.admin_path("/custom-objects")
 end

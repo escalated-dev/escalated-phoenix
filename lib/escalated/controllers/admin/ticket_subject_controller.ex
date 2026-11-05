@@ -72,8 +72,7 @@ defmodule Escalated.Controllers.Admin.TicketSubjectController do
   end
 
   defp admin_ticket_path(_conn, ticket) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/tickets/#{ticket.reference}"
+    Escalated.Embed.admin_path("/tickets/#{ticket.reference}")
   end
 
   defp format_errors(changeset) do

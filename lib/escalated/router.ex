@@ -190,6 +190,16 @@ defmodule Escalated.Router do
     quote do
       unquote(widget)
 
+      # The route keys of `config :escalated, :ui, embed: [...]`, read when
+      # the host's router compiles (Escalated.Embed).
+      escalated_embed =
+        Escalated.Router.__embed__(
+          Application.compile_env(:escalated, [:ui, :embed, :enabled], false),
+          Application.compile_env(:escalated, [:ui, :embed, :prefix], "admin/support"),
+          Application.compile_env(:escalated, [:ui, :embed, :middleware], nil),
+          Application.compile_env(:escalated, [:ui, :embed, :replace_admin_gate], false)
+        )
+
       scope unquote(prefix), as: :escalated do
         # Inertia visits that end in an error get the shared Escalated/Error
         # page (Escalated.Plugs.InertiaErrorPage). First, so it sees the
@@ -370,7 +380,10 @@ defmodule Escalated.Router do
           post "/chat/:session/transfer", ChatController, :transfer_by_session
         end
 
-        # Admin routes
+        # Admin routes, at {prefix}/admin. While the admin is embedded in the
+        # host's admin panel (config :escalated, :ui, embed: [enabled: true];
+        # ADR 2026-11-05-embeddable-admin) they are mounted under the host's
+        # prefix instead (below), and only the newsletter admin stays here.
         scope "/admin", Escalated.Controllers.Admin, as: :admin do
           # Roles & permissions, when switched on, adds each route's
           # permission (Escalated.RoutePermissions) on top of the admin gate.
@@ -381,313 +394,11 @@ defmodule Escalated.Router do
             Escalated.Plugs.EnforceRoutePermissions
           ]
 
-          get "/tickets", TicketController, :index
-
-          # Ticket merge (the shared TicketMergeDialog) and bulk actions
-          # (BulkActionBar). merge-search is declared ahead of
-          # /tickets/:reference so the literal segment is never read as a
-          # reference.
-          get "/tickets/merge-search", TicketMergeController, :search
-          post "/tickets/bulk", Escalated.Controllers.BulkActionController, :bulk, alias: false
-          post "/tickets/:reference/merge", TicketMergeController, :merge
-          get "/tickets/:reference", TicketController, :show
-          post "/tickets/:reference/reply", TicketController, :reply
-          post "/tickets/:reference/note", TicketController, :note
-          patch "/tickets/:reference/status", TicketController, :status
-          patch "/tickets/:reference/priority", TicketController, :priority
-          post "/tickets/:reference/assign", TicketController, :assign
-          patch "/tickets/:reference/tags", TicketController, :tags
-          # The shared ticket page posts these (escalated.admin.tickets.*). Status
-          # and priority are POST there; the PATCH routes stay for API clients.
-          post "/tickets/:reference/status", TicketController, :status
-          post "/tickets/:reference/priority", TicketController, :priority
-          post "/tickets/:reference/follow", TicketController, :follow
-          post "/tickets/:reference/macro", TicketController, :macro
-          post "/tickets/:reference/presence", TicketController, :presence
-          post "/tickets/:reference/replies/:reply_id/pin", TicketController, :pin
-          post "/tickets/:reference/tags", TicketController, :tags
-          post "/tickets/:reference/department", TicketController, :department
-          post "/tickets/:reference/subjects", TicketSubjectController, :create
-          delete "/tickets/:reference/subjects/:id", TicketSubjectController, :delete
-
-          # Typed ticket-to-ticket links (problem/incident, parent/child, related).
-          get "/tickets/:reference/links", TicketLinkController, :index
-          post "/tickets/:reference/links", TicketLinkController, :create
-          delete "/tickets/:reference/links/:id", TicketLinkController, :delete
-
-          # Side conversations (internal-note / email side-channel threads).
-          get "/tickets/:reference/side-conversations", SideConversationController, :index
-          post "/tickets/:reference/side-conversations", SideConversationController, :create
-
-          post "/tickets/:reference/side-conversations/:id/reply",
-               SideConversationController,
-               :reply
-
-          post "/tickets/:reference/side-conversations/:id/close",
-               SideConversationController,
-               :close
-
-          patch "/tickets/:reference/department", TicketController, :department
-          post "/tickets/:reference/snooze", TicketController, :snooze
-          post "/tickets/:reference/unsnooze", TicketController, :unsnooze
-          post "/tickets/:reference/split", TicketController, :split
-
-          # SLA policies (Laravel's resource routes: /create and /:id/edit).
-          get "/sla-policies/create", SlaPolicyController, :new
-          get "/sla-policies/:id/edit", SlaPolicyController, :edit
-
-          resources "/sla-policies", SlaPolicyController,
-            only: [:index, :create, :update, :delete]
-
-          # Business hours (Laravel's resource routes: /create and /:id/edit).
-          # Custom fields and custom objects (escalated.admin.custom-fields.*,
-          # escalated.admin.custom-objects.*, Laravel's paths). The literal
-          # segments are declared before the :id routes.
-          get "/custom-fields/create", CustomFieldController, :new
-          post "/custom-fields/reorder", CustomFieldController, :reorder
-          get "/custom-fields/:id/edit", CustomFieldController, :edit
-
-          resources "/custom-fields", CustomFieldController,
-            only: [:index, :create, :update, :delete]
-
-          # Custom ticket statuses (escalated.admin.statuses.*, Laravel's
-          # paths).
-          get "/statuses/create", StatusController, :new
-          get "/statuses/:id/edit", StatusController, :edit
-
-          resources "/statuses", StatusController, only: [:index, :create, :update, :delete]
-
-          # Import wizard (escalated.admin.import.*, Laravel's paths). The
-          # literal segments come before the :platform ones.
-          get "/import", ImportController, :index
-          get "/import/progress/:job_id", ImportController, :progress
-          get "/import/status/:job_id", ImportController, :status
-          post "/import/pause/:job_id", ImportController, :pause
-          post "/import/resume/:job_id", ImportController, :resume
-          post "/import/cancel/:job_id", ImportController, :cancel
-          get "/import/:platform/connect", ImportController, :connect
-          post "/import/:platform/test-connection", ImportController, :test_connection
-          get "/import/:platform/mapping", ImportController, :mapping
-          post "/import/:platform/review", ImportController, :review
-          post "/import/:platform/start", ImportController, :start
-
-          get "/custom-objects/create", CustomObjectController, :new
-          get "/custom-objects/:id/edit", CustomObjectController, :edit
-          get "/custom-objects/:id/records", CustomObjectController, :records
-          post "/custom-objects/:id/records", CustomObjectController, :create_record
-          put "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
-          patch "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
-          delete "/custom-objects/:id/records/:record_id", CustomObjectController, :delete_record
-
-          resources "/custom-objects", CustomObjectController,
-            only: [:index, :create, :update, :delete]
-
-          get "/business-hours/create", BusinessHoursController, :new
-          get "/business-hours/:id/edit", BusinessHoursController, :edit
-
-          resources "/business-hours", BusinessHoursController,
-            only: [:index, :create, :update, :delete]
-
-          get "/audit-log", AuditLogController, :index
-
-          # Report screens (escalated.admin.reports.*, Laravel's paths).
-          get "/reports", ReportController, :index
-          get "/reports/dashboard", ReportController, :dashboard
-          get "/reports/agents", ReportController, :agents
-          get "/reports/sla", ReportController, :sla
-          get "/reports/csat", ReportController, :csat
-          get "/reports/comparison", ReportController, :comparison
-          get "/reports/frt", ReportController, :response_times
-          get "/reports/response-times", ReportController, :response_times
-          get "/reports/resolution", ReportController, :resolution_times
-          get "/reports/resolution-times", ReportController, :resolution_times
-          get "/reports/agent-ranking", ReportController, :agent_ranking
-          get "/reports/agent/:id/detail", ReportController, :agent_detail
-          get "/reports/sla-trends", ReportController, :sla_trends
-          get "/reports/cohorts", ReportController, :cohorts
-
-          resources "/departments", DepartmentController
-          resources "/tags", TagController, except: [:edit]
-
-          resources "/skills", SkillController, except: [:show]
-
-          # Knowledge base admin (articles + categories).
-          resources "/kb/categories", ArticleCategoryController, except: [:edit, :new, :show]
-          resources "/kb/articles", ArticleController, except: [:edit, :new]
-
-          # The shared pages' paths (escalated.admin.kb-articles.* and
-          # kb-categories.*, Laravel's resource routes). The /kb/ paths above
-          # stay for existing links.
-          get "/kb-articles/create", ArticleController, :new
-          get "/kb-articles/:id/edit", ArticleController, :edit
-          resources "/kb-articles", ArticleController, only: [:index, :create, :update, :delete]
-
-          resources "/kb-categories", ArticleCategoryController,
-            only: [:index, :create, :update, :delete]
-
-          # Users (host User model: list + grant/revoke admin/agent).
-          # Surfaces the host's `users` table for an admin to flip the
-          # `is_admin` / `is_agent` columns from the panel.
-          get "/users", UserController, :index
-          patch "/users/:user_id/role", UserController, :update_role
-
-          # API tokens for the JSON ticket API (Admin/ApiTokens/Index).
-          get "/api-tokens", ApiTokenController, :index
-          post "/api-tokens", ApiTokenController, :create
-          patch "/api-tokens/:id", ApiTokenController, :update
-          put "/api-tokens/:id", ApiTokenController, :update
-          delete "/api-tokens/:id", ApiTokenController, :delete
-
-          # Roles screens and role assignment: only while roles & permissions
-          # is switched on (404 otherwise; Escalated.AccessFeatures).
-          scope "/" do
-            pipe_through Escalated.Plugs.EnsureFeatureEnabled.RolesPermissions
-
-            get "/roles/create", RoleController, :new
-            get "/roles/:id/edit", RoleController, :edit
-            resources "/roles", RoleController, only: [:index, :create, :update, :delete]
-            put "/users/:user_id/roles", UserController, :update_roles
+          unless escalated_embed.enabled do
+            unquote(admin_routes())
           end
 
-          # @mention autocomplete: matching agents by name/email.
-          get "/agents/search", AgentSearchController, :search
-
-          get "/settings", SettingsController, :index
-          post "/settings", SettingsController, :update
-          put "/settings", SettingsController, :update
-
-          # CSAT settings (question text, scale, delivery trigger, delay).
-          get "/settings/csat", CsatSettingsController, :index
-          post "/settings/csat", CsatSettingsController, :update
-
-          # Data retention settings + purge preview.
-          get "/settings/data-retention", DataRetentionController, :index
-          post "/settings/data-retention", DataRetentionController, :update
-
-          # Read-only view of the repo Escalated's tables live on; the
-          # connection is set in config, so update only says so.
-          get "/settings/database", DatabaseConnectionController, :index
-          post "/settings/database/test", DatabaseConnectionController, :test
-          post "/settings/database", DatabaseConnectionController, :update
-
-          # Support email addresses and the default reply address.
-          get "/settings/email", EmailSettingsController, :index
-          post "/settings/email", EmailSettingsController, :update
-
-          # The SSO provider and its fields: only while single sign-on is
-          # switched on (404 otherwise; Escalated.AccessFeatures).
-          scope "/" do
-            pipe_through Escalated.Plugs.EnsureFeatureEnabled.Sso
-
-            get "/settings/sso", SsoSettingsController, :index
-            post "/settings/sso", SsoSettingsController, :update
-          end
-
-          # Event-driven admin Workflows (fired inline from TicketService on
-          # ticket lifecycle events — distinct from time-based Automations
-          # and agent-applied Macros; see escalated-developer-context).
-          #
-          # new/edit render the builder; toggle and reorder are the Index
-          # page's controls. The wire shapes are fixed by
-          # domain-model/workflow-admin-contract.md. reorder is declared ahead
-          # of the resource so the literal segment is never read as an :id.
-          post "/workflows/reorder", WorkflowController, :reorder
-          # The run log, ahead of the resource so "logs" is never read as an id.
-          get "/workflows/logs", WorkflowController, :logs
-          get "/workflows/:id/logs", WorkflowController, :workflow_logs
-          post "/workflows/:id/toggle", WorkflowController, :toggle
-          resources "/workflows", WorkflowController
-
-          # Time-based admin automations (distinct from event-driven Workflows
-          # and agent-applied Macros — see escalated-developer-context).
-          resources "/automations", AutomationController, except: [:edit, :new]
-          post "/automations/run", AutomationController, :run
-
-          # Time-based escalation rules (evaluated by
-          # `mix escalated.evaluate_escalations`).
-          # The shared pages link to /create and /:id/edit (Laravel's resource
-          # routes); declared ahead of the resource so "create" is no id.
-          get "/escalation-rules/create", EscalationRuleController, :new
-          get "/escalation-rules/:id/edit", EscalationRuleController, :edit
-          resources "/escalation-rules", EscalationRuleController, except: [:edit, :new]
-          post "/escalation-rules/run", EscalationRuleController, :run
-
-          # Per-agent ticket capacity (load-aware assignment).
-          get "/capacity", CapacityController, :index
-          patch "/capacity/:id", CapacityController, :update
-          # The shared Capacity page saves with PUT (escalated.admin.capacity.update).
-          put "/capacity/:id", CapacityController, :update
-
-          # Plugins / extensibility (activate/deactivate host-registered
-          # plugin modules; the hook dispatch itself lives in
-          # Escalated.Plugins.Hooks).
-          get "/plugins", PluginController, :index
-          post "/plugins/:slug/activate", PluginController, :activate
-          post "/plugins/:slug/deactivate", PluginController, :deactivate
-          delete "/plugins/:slug", PluginController, :delete
-          # Pages an active plugin declares (pages/0), rendered as the shared
-          # Escalated/Plugin/Page (plugin contract, "Pages").
-          get "/plugins/:slug/*route", PluginPageController, :show
-
-          # Macro admin CRUD (the agent-facing apply endpoint lives in
-          # the agent scope above).
-          resources "/macros", MacroController, except: [:edit, :new]
-
-          # Canned-response library admin CRUD (the agent-facing list lives
-          # in the agent scope above).
-          resources "/canned-responses", CannedResponseController, except: [:edit, :new]
-
-          # Outbound webhooks: CRUD over subscriptions plus the per-webhook
-          # delivery log and a manual delivery retry.
-          get "/webhooks/create", WebhookController, :new
-          get "/webhooks/:id/edit", WebhookController, :edit
-          resources "/webhooks", WebhookController, only: [:index, :create, :update, :delete]
-          post "/webhooks/deliveries/:id/retry", WebhookController, :retry
-          get "/webhooks/:id/deliveries", WebhookController, :deliveries
-          post "/webhook-deliveries/:id/retry", WebhookController, :retry
-
-          get "/settings/public-tickets", SettingsController, :public_tickets
-          # The shared page posts; PUT is kept for existing clients.
-          post "/settings/public-tickets", SettingsController, :update_public_tickets
-          put "/settings/public-tickets", SettingsController, :update_public_tickets
-
-          if Application.compile_env(:escalated, :enable_newsletters, false) do
-            # Newsletter admin (static paths before :newsletter catch-all)
-            get "/newsletters", NewsletterController, :index
-            get "/newsletters/new", NewsletterController, :create
-            post "/newsletters", NewsletterController, :store
-            post "/newsletters/preview", NewsletterController, :preview
-            post "/newsletters/test", NewsletterController, :test_send
-
-            get "/newsletters/lists", NewsletterListController, :index
-            get "/newsletters/lists/new", NewsletterListController, :create
-            post "/newsletters/lists", NewsletterListController, :store
-            get "/newsletters/lists/:list", NewsletterListController, :show
-            put "/newsletters/lists/:list", NewsletterListController, :update
-            delete "/newsletters/lists/:list", NewsletterListController, :delete
-            post "/newsletters/lists/:list/members", NewsletterListController, :add_member
-
-            delete "/newsletters/lists/:list/members/:contact_id",
-                   NewsletterListController,
-                   :remove_member
-
-            post "/newsletters/lists/:list/import", NewsletterListController, :import_csv
-
-            get "/newsletters/templates", NewsletterTemplateController, :index
-            get "/newsletters/templates/new", NewsletterTemplateController, :create
-            post "/newsletters/templates", NewsletterTemplateController, :store
-            get "/newsletters/templates/:template", NewsletterTemplateController, :show
-            put "/newsletters/templates/:template", NewsletterTemplateController, :update
-            delete "/newsletters/templates/:template", NewsletterTemplateController, :delete
-
-            get "/newsletters/settings", NewsletterSettingsController, :show
-            put "/newsletters/settings", NewsletterSettingsController, :update
-
-            get "/newsletters/:newsletter", NewsletterController, :show
-            get "/newsletters/:newsletter/edit", NewsletterController, :edit
-            put "/newsletters/:newsletter", NewsletterController, :update
-            delete "/newsletters/:newsletter", NewsletterController, :delete
-          end
+          unquote(newsletter_admin_routes())
         end
 
         if Application.compile_env(:escalated, :enable_newsletters, false) do
@@ -798,6 +509,373 @@ defmodule Escalated.Router do
             post "/tickets/:reference/actions/:action", TicketController, :custom_action
           end
         end
+      end
+
+      # The admin embedded in the host's admin panel (optional; ADR
+      # 2026-11-05-embeddable-admin): the same routes, controllers and helper
+      # names under the host's prefix, through the host's middleware.
+      # ApplyEmbedContext comes first so the framing headers it sets when the
+      # response is sent come after every later plug's. The admin gate stays
+      # unless the host replaced it; two-factor and route permissions always
+      # run.
+      if escalated_embed.enabled do
+        scope escalated_embed.path, as: :escalated do
+          pipe_through [Escalated.Plugs.ApplyEmbedContext, Escalated.Plugs.InertiaErrorPage]
+          pipe_through escalated_embed.middleware
+          pipe_through [Escalated.Plugs.ResolveTenant, Escalated.Plugs.TicketVisibility]
+
+          scope "/", Escalated.Controllers.Admin, as: :admin do
+            pipe_through escalated_embed.guards
+            unquote(admin_routes())
+          end
+        end
+      end
+    end
+  end
+
+  @doc false
+  # The compile-time part of the embed configuration (Escalated.Embed).
+  def __embed__(enabled, prefix, middleware, replace_admin_gate) do
+    enabled = Escalated.Embed.truthy?(enabled)
+    middleware = if is_nil(middleware), do: [], else: List.wrap(middleware)
+
+    unless Enum.all?(middleware, &is_atom/1) do
+      raise ArgumentError,
+            "config :escalated, :ui, embed: [middleware: ...] must be pipeline names or plug " <>
+              "modules, got: #{inspect(middleware)}"
+    end
+
+    guards =
+      if Escalated.Embed.truthy?(replace_admin_gate),
+        do: [Escalated.Plugs.RequireTwoFactor, Escalated.Plugs.EnforceRoutePermissions],
+        else: [
+          Escalated.Plugs.EnsureAdmin,
+          Escalated.Plugs.RequireTwoFactor,
+          Escalated.Plugs.EnforceRoutePermissions
+        ]
+
+    %{
+      enabled: enabled,
+      path: "/" <> Escalated.Embed.trim_prefix(prefix),
+      middleware: middleware,
+      guards: guards
+    }
+  end
+
+  # Every admin route below `{prefix}/admin` (or the embed prefix), in the order
+  # they are matched.
+  defp admin_routes do
+    quote do
+      get "/tickets", TicketController, :index
+
+      # Ticket merge (the shared TicketMergeDialog) and bulk actions
+      # (BulkActionBar). merge-search is declared ahead of
+      # /tickets/:reference so the literal segment is never read as a
+      # reference.
+      get "/tickets/merge-search", TicketMergeController, :search
+      post "/tickets/bulk", Escalated.Controllers.BulkActionController, :bulk, alias: false
+      post "/tickets/:reference/merge", TicketMergeController, :merge
+      get "/tickets/:reference", TicketController, :show
+      post "/tickets/:reference/reply", TicketController, :reply
+      post "/tickets/:reference/note", TicketController, :note
+      patch "/tickets/:reference/status", TicketController, :status
+      patch "/tickets/:reference/priority", TicketController, :priority
+      post "/tickets/:reference/assign", TicketController, :assign
+      patch "/tickets/:reference/tags", TicketController, :tags
+      # The shared ticket page posts these (escalated.admin.tickets.*). Status
+      # and priority are POST there; the PATCH routes stay for API clients.
+      post "/tickets/:reference/status", TicketController, :status
+      post "/tickets/:reference/priority", TicketController, :priority
+      post "/tickets/:reference/follow", TicketController, :follow
+      post "/tickets/:reference/macro", TicketController, :macro
+      post "/tickets/:reference/presence", TicketController, :presence
+      post "/tickets/:reference/replies/:reply_id/pin", TicketController, :pin
+      post "/tickets/:reference/tags", TicketController, :tags
+      post "/tickets/:reference/department", TicketController, :department
+      post "/tickets/:reference/subjects", TicketSubjectController, :create
+      delete "/tickets/:reference/subjects/:id", TicketSubjectController, :delete
+
+      # Typed ticket-to-ticket links (problem/incident, parent/child, related).
+      get "/tickets/:reference/links", TicketLinkController, :index
+      post "/tickets/:reference/links", TicketLinkController, :create
+      delete "/tickets/:reference/links/:id", TicketLinkController, :delete
+
+      # Side conversations (internal-note / email side-channel threads).
+      get "/tickets/:reference/side-conversations", SideConversationController, :index
+      post "/tickets/:reference/side-conversations", SideConversationController, :create
+
+      post "/tickets/:reference/side-conversations/:id/reply",
+           SideConversationController,
+           :reply
+
+      post "/tickets/:reference/side-conversations/:id/close",
+           SideConversationController,
+           :close
+
+      patch "/tickets/:reference/department", TicketController, :department
+      post "/tickets/:reference/snooze", TicketController, :snooze
+      post "/tickets/:reference/unsnooze", TicketController, :unsnooze
+      post "/tickets/:reference/split", TicketController, :split
+
+      # SLA policies (Laravel's resource routes: /create and /:id/edit).
+      get "/sla-policies/create", SlaPolicyController, :new
+      get "/sla-policies/:id/edit", SlaPolicyController, :edit
+
+      resources "/sla-policies", SlaPolicyController, only: [:index, :create, :update, :delete]
+
+      # Business hours (Laravel's resource routes: /create and /:id/edit).
+      # Custom fields and custom objects (escalated.admin.custom-fields.*,
+      # escalated.admin.custom-objects.*, Laravel's paths). The literal
+      # segments are declared before the :id routes.
+      get "/custom-fields/create", CustomFieldController, :new
+      post "/custom-fields/reorder", CustomFieldController, :reorder
+      get "/custom-fields/:id/edit", CustomFieldController, :edit
+
+      resources "/custom-fields", CustomFieldController, only: [:index, :create, :update, :delete]
+
+      # Custom ticket statuses (escalated.admin.statuses.*, Laravel's
+      # paths).
+      get "/statuses/create", StatusController, :new
+      get "/statuses/:id/edit", StatusController, :edit
+
+      resources "/statuses", StatusController, only: [:index, :create, :update, :delete]
+
+      # Import wizard (escalated.admin.import.*, Laravel's paths). The
+      # literal segments come before the :platform ones.
+      get "/import", ImportController, :index
+      get "/import/progress/:job_id", ImportController, :progress
+      get "/import/status/:job_id", ImportController, :status
+      post "/import/pause/:job_id", ImportController, :pause
+      post "/import/resume/:job_id", ImportController, :resume
+      post "/import/cancel/:job_id", ImportController, :cancel
+      get "/import/:platform/connect", ImportController, :connect
+      post "/import/:platform/test-connection", ImportController, :test_connection
+      get "/import/:platform/mapping", ImportController, :mapping
+      post "/import/:platform/review", ImportController, :review
+      post "/import/:platform/start", ImportController, :start
+
+      get "/custom-objects/create", CustomObjectController, :new
+      get "/custom-objects/:id/edit", CustomObjectController, :edit
+      get "/custom-objects/:id/records", CustomObjectController, :records
+      post "/custom-objects/:id/records", CustomObjectController, :create_record
+      put "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
+      patch "/custom-objects/:id/records/:record_id", CustomObjectController, :update_record
+      delete "/custom-objects/:id/records/:record_id", CustomObjectController, :delete_record
+
+      resources "/custom-objects", CustomObjectController,
+        only: [:index, :create, :update, :delete]
+
+      get "/business-hours/create", BusinessHoursController, :new
+      get "/business-hours/:id/edit", BusinessHoursController, :edit
+
+      resources "/business-hours", BusinessHoursController,
+        only: [:index, :create, :update, :delete]
+
+      get "/audit-log", AuditLogController, :index
+
+      # Report screens (escalated.admin.reports.*, Laravel's paths).
+      get "/reports", ReportController, :index
+      get "/reports/dashboard", ReportController, :dashboard
+      get "/reports/agents", ReportController, :agents
+      get "/reports/sla", ReportController, :sla
+      get "/reports/csat", ReportController, :csat
+      get "/reports/comparison", ReportController, :comparison
+      get "/reports/frt", ReportController, :response_times
+      get "/reports/response-times", ReportController, :response_times
+      get "/reports/resolution", ReportController, :resolution_times
+      get "/reports/resolution-times", ReportController, :resolution_times
+      get "/reports/agent-ranking", ReportController, :agent_ranking
+      get "/reports/agent/:id/detail", ReportController, :agent_detail
+      get "/reports/sla-trends", ReportController, :sla_trends
+      get "/reports/cohorts", ReportController, :cohorts
+
+      resources "/departments", DepartmentController
+      resources "/tags", TagController, except: [:edit]
+
+      resources "/skills", SkillController, except: [:show]
+
+      # Knowledge base admin (articles + categories).
+      resources "/kb/categories", ArticleCategoryController, except: [:edit, :new, :show]
+      resources "/kb/articles", ArticleController, except: [:edit, :new]
+
+      # The shared pages' paths (escalated.admin.kb-articles.* and
+      # kb-categories.*, Laravel's resource routes). The /kb/ paths above
+      # stay for existing links.
+      get "/kb-articles/create", ArticleController, :new
+      get "/kb-articles/:id/edit", ArticleController, :edit
+      resources "/kb-articles", ArticleController, only: [:index, :create, :update, :delete]
+
+      resources "/kb-categories", ArticleCategoryController,
+        only: [:index, :create, :update, :delete]
+
+      # Users (host User model: list + grant/revoke admin/agent).
+      # Surfaces the host's `users` table for an admin to flip the
+      # `is_admin` / `is_agent` columns from the panel.
+      get "/users", UserController, :index
+      patch "/users/:user_id/role", UserController, :update_role
+
+      # API tokens for the JSON ticket API (Admin/ApiTokens/Index).
+      get "/api-tokens", ApiTokenController, :index
+      post "/api-tokens", ApiTokenController, :create
+      patch "/api-tokens/:id", ApiTokenController, :update
+      put "/api-tokens/:id", ApiTokenController, :update
+      delete "/api-tokens/:id", ApiTokenController, :delete
+
+      # Roles screens and role assignment: only while roles & permissions
+      # is switched on (404 otherwise; Escalated.AccessFeatures).
+      scope "/" do
+        pipe_through Escalated.Plugs.EnsureFeatureEnabled.RolesPermissions
+
+        get "/roles/create", RoleController, :new
+        get "/roles/:id/edit", RoleController, :edit
+        resources "/roles", RoleController, only: [:index, :create, :update, :delete]
+        put "/users/:user_id/roles", UserController, :update_roles
+      end
+
+      # @mention autocomplete: matching agents by name/email.
+      get "/agents/search", AgentSearchController, :search
+
+      get "/settings", SettingsController, :index
+      post "/settings", SettingsController, :update
+      put "/settings", SettingsController, :update
+
+      # CSAT settings (question text, scale, delivery trigger, delay).
+      get "/settings/csat", CsatSettingsController, :index
+      post "/settings/csat", CsatSettingsController, :update
+
+      # Data retention settings + purge preview.
+      get "/settings/data-retention", DataRetentionController, :index
+      post "/settings/data-retention", DataRetentionController, :update
+
+      # Read-only view of the repo Escalated's tables live on; the
+      # connection is set in config, so update only says so.
+      get "/settings/database", DatabaseConnectionController, :index
+      post "/settings/database/test", DatabaseConnectionController, :test
+      post "/settings/database", DatabaseConnectionController, :update
+
+      # Support email addresses and the default reply address.
+      get "/settings/email", EmailSettingsController, :index
+      post "/settings/email", EmailSettingsController, :update
+
+      # The SSO provider and its fields: only while single sign-on is
+      # switched on (404 otherwise; Escalated.AccessFeatures).
+      scope "/" do
+        pipe_through Escalated.Plugs.EnsureFeatureEnabled.Sso
+
+        get "/settings/sso", SsoSettingsController, :index
+        post "/settings/sso", SsoSettingsController, :update
+      end
+
+      # Event-driven admin Workflows (fired inline from TicketService on
+      # ticket lifecycle events — distinct from time-based Automations
+      # and agent-applied Macros; see escalated-developer-context).
+      #
+      # new/edit render the builder; toggle and reorder are the Index
+      # page's controls. The wire shapes are fixed by
+      # domain-model/workflow-admin-contract.md. reorder is declared ahead
+      # of the resource so the literal segment is never read as an :id.
+      post "/workflows/reorder", WorkflowController, :reorder
+      # The run log, ahead of the resource so "logs" is never read as an id.
+      get "/workflows/logs", WorkflowController, :logs
+      get "/workflows/:id/logs", WorkflowController, :workflow_logs
+      post "/workflows/:id/toggle", WorkflowController, :toggle
+      resources "/workflows", WorkflowController
+
+      # Time-based admin automations (distinct from event-driven Workflows
+      # and agent-applied Macros — see escalated-developer-context).
+      resources "/automations", AutomationController, except: [:edit, :new]
+      post "/automations/run", AutomationController, :run
+
+      # Time-based escalation rules (evaluated by
+      # `mix escalated.evaluate_escalations`).
+      # The shared pages link to /create and /:id/edit (Laravel's resource
+      # routes); declared ahead of the resource so "create" is no id.
+      get "/escalation-rules/create", EscalationRuleController, :new
+      get "/escalation-rules/:id/edit", EscalationRuleController, :edit
+      resources "/escalation-rules", EscalationRuleController, except: [:edit, :new]
+      post "/escalation-rules/run", EscalationRuleController, :run
+
+      # Per-agent ticket capacity (load-aware assignment).
+      get "/capacity", CapacityController, :index
+      patch "/capacity/:id", CapacityController, :update
+      # The shared Capacity page saves with PUT (escalated.admin.capacity.update).
+      put "/capacity/:id", CapacityController, :update
+
+      # Plugins / extensibility (activate/deactivate host-registered
+      # plugin modules; the hook dispatch itself lives in
+      # Escalated.Plugins.Hooks).
+      get "/plugins", PluginController, :index
+      post "/plugins/:slug/activate", PluginController, :activate
+      post "/plugins/:slug/deactivate", PluginController, :deactivate
+      delete "/plugins/:slug", PluginController, :delete
+      # Pages an active plugin declares (pages/0), rendered as the shared
+      # Escalated/Plugin/Page (plugin contract, "Pages").
+      get "/plugins/:slug/*route", PluginPageController, :show
+
+      # Macro admin CRUD (the agent-facing apply endpoint lives in
+      # the agent scope above).
+      resources "/macros", MacroController, except: [:edit, :new]
+
+      # Canned-response library admin CRUD (the agent-facing list lives
+      # in the agent scope above).
+      resources "/canned-responses", CannedResponseController, except: [:edit, :new]
+
+      # Outbound webhooks: CRUD over subscriptions plus the per-webhook
+      # delivery log and a manual delivery retry.
+      get "/webhooks/create", WebhookController, :new
+      get "/webhooks/:id/edit", WebhookController, :edit
+      resources "/webhooks", WebhookController, only: [:index, :create, :update, :delete]
+      post "/webhooks/deliveries/:id/retry", WebhookController, :retry
+      get "/webhooks/:id/deliveries", WebhookController, :deliveries
+      post "/webhook-deliveries/:id/retry", WebhookController, :retry
+
+      get "/settings/public-tickets", SettingsController, :public_tickets
+      # The shared page posts; PUT is kept for existing clients.
+      post "/settings/public-tickets", SettingsController, :update_public_tickets
+      put "/settings/public-tickets", SettingsController, :update_public_tickets
+    end
+  end
+
+  # The newsletter admin. It stays at {prefix}/admin/newsletters while the
+  # rest of the admin is embedded (the ADR leaves it where it is).
+  defp newsletter_admin_routes do
+    quote do
+      if Application.compile_env(:escalated, :enable_newsletters, false) do
+        # Newsletter admin (static paths before :newsletter catch-all)
+        get "/newsletters", NewsletterController, :index
+        get "/newsletters/new", NewsletterController, :create
+        post "/newsletters", NewsletterController, :store
+        post "/newsletters/preview", NewsletterController, :preview
+        post "/newsletters/test", NewsletterController, :test_send
+
+        get "/newsletters/lists", NewsletterListController, :index
+        get "/newsletters/lists/new", NewsletterListController, :create
+        post "/newsletters/lists", NewsletterListController, :store
+        get "/newsletters/lists/:list", NewsletterListController, :show
+        put "/newsletters/lists/:list", NewsletterListController, :update
+        delete "/newsletters/lists/:list", NewsletterListController, :delete
+        post "/newsletters/lists/:list/members", NewsletterListController, :add_member
+
+        delete "/newsletters/lists/:list/members/:contact_id",
+               NewsletterListController,
+               :remove_member
+
+        post "/newsletters/lists/:list/import", NewsletterListController, :import_csv
+
+        get "/newsletters/templates", NewsletterTemplateController, :index
+        get "/newsletters/templates/new", NewsletterTemplateController, :create
+        post "/newsletters/templates", NewsletterTemplateController, :store
+        get "/newsletters/templates/:template", NewsletterTemplateController, :show
+        put "/newsletters/templates/:template", NewsletterTemplateController, :update
+        delete "/newsletters/templates/:template", NewsletterTemplateController, :delete
+
+        get "/newsletters/settings", NewsletterSettingsController, :show
+        put "/newsletters/settings", NewsletterSettingsController, :update
+
+        get "/newsletters/:newsletter", NewsletterController, :show
+        get "/newsletters/:newsletter/edit", NewsletterController, :edit
+        put "/newsletters/:newsletter", NewsletterController, :update
+        delete "/newsletters/:newsletter", NewsletterController, :delete
       end
     end
   end

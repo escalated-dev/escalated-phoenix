@@ -197,5 +197,5 @@ defmodule Escalated.Controllers.Admin.ApiTokenController do
 
   defp not_found(conn), do: conn |> put_status(404) |> json(%{error: "Token not found"})
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/api-tokens"
+  defp index_path, do: Escalated.Embed.admin_path("/api-tokens")
 end

@@ -110,7 +110,6 @@ defmodule Escalated.Controllers.Admin.EscalationRuleController do
   end
 
   defp admin_path(_conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/escalation-rules"
+    Escalated.Embed.admin_path("/escalation-rules")
   end
 end

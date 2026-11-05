@@ -156,13 +156,11 @@ defmodule Escalated.Controllers.Admin.DepartmentController do
   end
 
   defp admin_department_path(conn, dept) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/departments/#{dept.id}"
+    Escalated.Embed.admin_path("/departments/#{dept.id}")
   end
 
   defp admin_departments_path(conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/departments"
+    Escalated.Embed.admin_path("/departments")
   end
 
   defp format_errors(changeset) do

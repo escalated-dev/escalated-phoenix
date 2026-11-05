@@ -129,11 +129,11 @@ defmodule Escalated.Controllers.Admin.SideConversationController do
   end
 
   defp ticket_path(ticket) do
-    "#{Escalated.config(:route_prefix, "/support")}/admin/tickets/#{ticket.reference}"
+    Escalated.Embed.admin_path("/tickets/#{ticket.reference}")
   end
 
   defp default_path do
-    "#{Escalated.config(:route_prefix, "/support")}/admin/tickets"
+    Escalated.Embed.admin_path("/tickets")
   end
 
   defp format_errors(changeset) do

@@ -91,8 +91,9 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
 
   @doc "A workflow's own log link: the log page filtered to it."
   def workflow_logs(conn, %{"id" => id}) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    redirect(conn, to: "#{prefix}/admin/workflows/logs?" <> URI.encode_query(%{workflow: id}))
+    redirect(conn,
+      to: Escalated.Embed.admin_path("/workflows/logs?") <> URI.encode_query(%{workflow: id})
+    )
   end
 
   defp log_json(log, names, references) do
@@ -383,8 +384,7 @@ defmodule Escalated.Controllers.Admin.WorkflowController do
   end
 
   defp admin_workflows_path do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/workflows"
+    Escalated.Embed.admin_path("/workflows")
   end
 
   defp json_errors(%Ecto.Changeset{} = changeset), do: format_errors(changeset)

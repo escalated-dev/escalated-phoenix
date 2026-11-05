@@ -91,4 +91,24 @@ defmodule Escalated do
   def configuration do
     Escalated.Config.from_env()
   end
+
+  @doc """
+  Escalated's admin menu for `user` on the request `conn`, for a host that
+  lists it in its own sidebar (ADR 2026-11-05-embeddable-admin): maps with
+  `key`, `label`, `route`, `url`, `icon`, `position`, `active`, `badge`,
+  `plugin` and `children`, filtered by the admin gate, feature switches and
+  route permissions, with active plugins' admin items. `active` is read from
+  `conn`'s path (pass nil outside a request).
+
+  In a HEEx root layout:
+
+      <li :for={item <- Escalated.admin_navigation(@conn.assigns[:current_user], @conn)}>
+        <a href={item.url} aria-current={if item.active, do: "page"}>{item.label}</a>
+      </li>
+
+  It works whether or not the admin is embedded; the URLs follow wherever the
+  admin routes are. See `docs/embedding-admin.md`.
+  """
+  @spec admin_navigation(term(), Plug.Conn.t() | nil) :: [map()]
+  def admin_navigation(user, conn \\ nil), do: Escalated.AdminNavigation.for(user, conn)
 end

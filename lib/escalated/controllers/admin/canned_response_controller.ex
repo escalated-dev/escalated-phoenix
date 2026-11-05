@@ -104,8 +104,7 @@ defmodule Escalated.Controllers.Admin.CannedResponseController do
   end
 
   defp admin_canned_responses_path(_conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/canned-responses"
+    Escalated.Embed.admin_path("/canned-responses")
   end
 
   defp format_errors(changeset) do

@@ -265,5 +265,5 @@ defmodule Escalated.Controllers.Admin.CustomFieldController do
 
   defp repo, do: Escalated.repo()
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/custom-fields"
+  defp index_path, do: Escalated.Embed.admin_path("/custom-fields")
 end

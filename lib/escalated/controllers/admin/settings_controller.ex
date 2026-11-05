@@ -66,8 +66,11 @@ defmodule Escalated.Controllers.Admin.SettingsController do
     end
   end
 
-  defp settings_path,
-    do: "/#{String.trim(Escalated.config(:route_prefix, "/support"), "/")}/admin/settings"
+  defp settings_path do
+    if Escalated.Embed.enabled?(),
+      do: Escalated.Embed.admin_path("/settings"),
+      else: "/#{String.trim(Escalated.config(:route_prefix, "/support"), "/")}/admin/settings"
+  end
 
   @doc """
   GET /admin/settings/public-tickets -- the shared

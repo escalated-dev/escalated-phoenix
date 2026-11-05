@@ -146,5 +146,5 @@ defmodule Escalated.Controllers.Admin.SlaPolicyController do
 
   defp repo, do: Escalated.Tenancy.scoped_repo(Escalated.repo())
 
-  defp index_path, do: Escalated.config(:route_prefix, "/support") <> "/admin/sla-policies"
+  defp index_path, do: Escalated.Embed.admin_path("/sla-policies")
 end

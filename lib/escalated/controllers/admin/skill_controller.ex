@@ -105,8 +105,7 @@ defmodule Escalated.Controllers.Admin.SkillController do
   end
 
   defp admin_skills_path(_conn) do
-    prefix = Escalated.config(:route_prefix, "/support")
-    "#{prefix}/admin/skills"
+    Escalated.Embed.admin_path("/skills")
   end
 
   defp format_errors(changeset) do

@@ -61,6 +61,6 @@ defmodule Escalated.Controllers.Admin.PluginController do
   end
 
   defp index_path do
-    "#{Escalated.config(:route_prefix, "/support")}/admin/plugins"
+    Escalated.Embed.admin_path("/plugins")
   end
 end
