@@ -6,6 +6,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
   import Plug.Conn
   import Ecto.Query, only: [from: 2, where: 3]
 
+  alias Escalated.AgentPanel
   alias Escalated.Controllers.{AgentInbox, FormResponse, TicketDesk}
   alias Escalated.Rendering.{UIRenderer, UserDirectory}
   alias Escalated.Schemas.{Reply, Ticket}
@@ -24,6 +25,7 @@ defmodule Escalated.Controllers.Agent.TicketController do
         props =
           conn
           |> TicketDesk.queue_props(params, "agent", AgentInbox.list_filters(filters, queue))
+          |> Map.update!(:tickets, &with_panel_fields(&1, agent))
           |> Map.merge(%{
             queue: AgentInbox.queue_prop(queue),
             inbox: AgentInbox.inbox(agent, queue)
@@ -45,10 +47,15 @@ defmodule Escalated.Controllers.Agent.TicketController do
         agent = conn.assigns[:current_user]
         queue = AgentInbox.recalled(conn, agent)
 
+        # Opening the ticket in the agent panel is reading it.
+        AgentPanel.mark_read(agent.id, ticket)
+        panel = Map.fetch!(AgentPanel.row_fields(agent, [ticket]), ticket.id)
+
         props =
           conn
           |> TicketDesk.show_props(ticket)
           |> Map.update!(:ticket, &Map.put(&1, :requester_tickets, requester_tickets(ticket)))
+          |> Map.update!(:ticket, &Map.merge(&1, panel))
           |> Map.put(:customActions, serialize_custom_actions(ticket, agent))
           |> Map.put(:agents, UserDirectory.assignable_agents(ticket))
           |> Map.merge(%{
@@ -82,6 +89,39 @@ defmodule Escalated.Controllers.Agent.TicketController do
             FormResponse.invalid(conn, errors, agent_ticket_path(conn, ticket))
         end
     end
+  end
+
+  @doc """
+  `escalated.agent.tickets.read` / `.unread`: marks the ticket read or unread
+  for the agent. Answers `{is_unread}`; an Inertia visit goes back.
+  """
+  def read(conn, params), do: mark(conn, params, false)
+  def unread(conn, params), do: mark(conn, params, true)
+
+  defp mark(conn, %{"reference" => reference}, unread?) do
+    case TicketService.find(reference) do
+      nil ->
+        conn |> put_status(404) |> Phoenix.Controller.json(%{error: "Ticket not found"})
+
+      ticket ->
+        agent = conn.assigns[:current_user]
+
+        if unread?,
+          do: AgentPanel.mark_unread(agent.id, ticket),
+          else: AgentPanel.mark_read(agent.id, ticket)
+
+        FormResponse.json_or_back(conn, %{is_unread: unread?}, agent_ticket_path(conn, ticket))
+    end
+  end
+
+  # is_unread and the requester's presence on every row (ADR
+  # 2026-11-05-agent-panel-data): one query each for the page.
+  defp with_panel_fields(%{data: rows} = page, agent) do
+    ids = Enum.map(rows, & &1.id)
+    tickets = Escalated.repo().all(from(t in Ticket, where: t.id in ^ids))
+    fields = AgentPanel.row_fields(agent, tickets)
+
+    %{page | data: Enum.map(rows, &Map.merge(&1, Map.get(fields, &1.id, %{})))}
   end
 
   def follow(conn, params), do: TicketDesk.follow(conn, params, "agent")

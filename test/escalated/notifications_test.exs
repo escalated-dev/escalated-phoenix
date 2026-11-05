@@ -252,11 +252,12 @@ defmodule Escalated.NotificationsTest do
   end
 
   describe "assignment, status, SLA and escalation" do
-    test "the assignee is told when a ticket is assigned", %{customer: customer, agent: agent} do
+    test "the assignee is told when a ticket is assigned",
+         %{customer: customer, agent: agent, other: other} do
       ticket = ticket!(customer)
 
       conn =
-        visit(:post, "/support/agent/tickets/#{ticket.reference}/assign", user(agent), %{
+        visit(:post, "/support/agent/tickets/#{ticket.reference}/assign", user(other), %{
           "agent_id" => agent.id
         })
 
@@ -265,6 +266,18 @@ defmodule Escalated.NotificationsTest do
       assert mail.to == "ali@example.com"
       assert mail.subject == "[#{ticket.reference}] Ticket Assigned to You"
       assert mail.headers["In-Reply-To"] == "<ticket-#{ticket.id}@#{@domain}>"
+    end
+
+    test "assigning a ticket to yourself sends you nothing", %{customer: customer, agent: agent} do
+      ticket = ticket!(customer)
+
+      conn =
+        visit(:post, "/support/agent/tickets/#{ticket.reference}/assign", user(agent), %{
+          "agent_id" => agent.id
+        })
+
+      assert conn.status == 302
+      assert mails() == []
     end
 
     test "the requester is told when the status changes, the agent who changed it is not",

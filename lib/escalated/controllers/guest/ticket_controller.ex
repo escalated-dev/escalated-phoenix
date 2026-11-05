@@ -61,6 +61,9 @@ defmodule Escalated.Controllers.Guest.TicketController do
   def show(conn, %{"token" => token}) do
     case GuestAccess.resolve(token) do
       {:ok, ticket, grant} ->
+        # The customer is on the site (only agent pages ever show it).
+        Escalated.AgentPanel.quietly(fn -> Escalated.AgentPanel.see_ticket_customer(ticket) end)
+
         payload =
           ticket
           |> TicketPresenter.customer_detail(

@@ -406,6 +406,27 @@ defmodule Escalated.Tenancy.Tables do
       unique_keys: []
     },
     %{
+      name: "ticket_reads",
+      schema: Escalated.Schemas.TicketRead,
+      local_refs: %{ticket_id: {"tickets", :id}},
+      host_refs: [:user_id],
+      unique_keys: [[:user_id, :ticket_id]]
+    },
+    %{
+      name: "customer_presence",
+      schema: Escalated.Schemas.CustomerPresence,
+      local_refs: %{},
+      host_refs: [],
+      unique_keys: [[:subject_type, :subject_id]]
+    },
+    %{
+      name: "notifications",
+      schema: Escalated.Schemas.AgentNotification,
+      local_refs: %{},
+      host_refs: [:user_id],
+      unique_keys: []
+    },
+    %{
       name: "ticket_followers",
       schema: Escalated.Schemas.TicketFollower,
       local_refs: %{ticket_id: {"tickets", :id}},

@@ -56,9 +56,42 @@ defmodule Escalated.Schemas.Article do
   def published(query \\ __MODULE__), do: from(a in query, where: a.status == "published")
   def draft(query \\ __MODULE__), do: from(a in query, where: a.status == "draft")
 
+  @doc """
+  Articles whose title or body contains `term`: case-insensitive on every
+  database, with `%` and `_` in the term taken literally.
+  """
   def search(query \\ __MODULE__, term) do
-    pattern = "%#{term}%"
-    from(a in query, where: like(a.title, ^pattern) or like(a.body, ^pattern))
+    pattern = like_pattern(term)
+
+    from(a in query,
+      where:
+        fragment("LOWER(?) LIKE ? ESCAPE '!'", a.title, ^pattern) or
+          fragment("LOWER(?) LIKE ? ESCAPE '!'", a.body, ^pattern)
+    )
+  end
+
+  @doc "Title matches first (the agents' knowledge-base search)."
+  def order_by_title_match(query, term) do
+    pattern = like_pattern(term)
+
+    from(a in query,
+      order_by: [
+        asc: fragment("CASE WHEN LOWER(?) LIKE ? ESCAPE '!' THEN 0 ELSE 1 END", a.title, ^pattern)
+      ]
+    )
+  end
+
+  @doc "`%term%`, lower-cased, with `!`, `%` and `_` escaped by `!`."
+  def like_pattern(term) do
+    escaped =
+      term
+      |> to_string()
+      |> String.downcase()
+      |> String.replace("!", "!!")
+      |> String.replace("%", "!%")
+      |> String.replace("_", "!_")
+
+    "%" <> escaped <> "%"
   end
 
   def to_json(%__MODULE__{} = article) do

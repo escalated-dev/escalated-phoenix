@@ -176,7 +176,16 @@ defmodule Escalated.Controllers.WidgetChatController do
     %{name: Map.get(agents, id) || "Support"}
   end
 
-  defp session(_conn, %{"token" => token}) do
+  # Every visitor request is the chat's customer on the site, for the agent
+  # pages' presence (ADR 2026-11-05-agent-panel-data).
+  defp session(conn, params) do
+    with {:ok, ticket, _session, _grant} = found <- find_session(conn, params) do
+      Escalated.AgentPanel.quietly(fn -> Escalated.AgentPanel.see_ticket_customer(ticket) end)
+      found
+    end
+  end
+
+  defp find_session(_conn, %{"token" => token}) do
     with {:ok, ticket, grant} <- GuestAccess.resolve(token, "chat"),
          %ChatSession{} = session <- Escalated.repo().get_by(ChatSession, ticket_id: ticket.id) do
       {:ok, ticket, session, grant}
@@ -185,6 +194,6 @@ defmodule Escalated.Controllers.WidgetChatController do
     end
   end
 
-  defp session(conn, params),
+  defp find_session(conn, params),
     do: GuestAccess.resolve_session(params["reference"], GuestAccess.token(conn, params))
 end

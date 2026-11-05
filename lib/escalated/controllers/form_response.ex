@@ -45,6 +45,16 @@ defmodule Escalated.Controllers.FormResponse do
     end
   end
 
+  @doc """
+  Answers a successful write: an Inertia visit goes back to the Referer
+  (else `fallback_path`); any other client gets `body` as JSON.
+  """
+  def json_or_back(conn, body, fallback_path) do
+    if inertia?(conn),
+      do: redirect(conn, to: back_path(conn, fallback_path)),
+      else: json(conn, body)
+  end
+
   @doc "Whether the request is from a JSON client rather than a page visit."
   def json_client?(conn) do
     not inertia?(conn) and

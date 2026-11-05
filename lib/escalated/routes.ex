@@ -88,6 +88,14 @@ defmodule Escalated.Routes do
     {"escalated.agent.tickets.snooze", "agent/tickets/{ticket}/snooze", @post},
     {"escalated.agent.tickets.unsnooze", "agent/tickets/{ticket}/unsnooze", @post},
     {"escalated.agent.tickets.split", "agent/tickets/{ticket}/split", @post},
+    {"escalated.agent.tickets.read", "agent/tickets/{ticket}/read", @post},
+    {"escalated.agent.tickets.unread", "agent/tickets/{ticket}/unread", @post},
+    # The agent panel's data (ADR 2026-11-05-agent-panel-data).
+    {"escalated.agent.status", "agent/status", ["PUT" | @post]},
+    {"escalated.agent.kb.search", "agent/kb/search", @get},
+    {"escalated.agent.notifications.index", "agent/notifications", @get},
+    {"escalated.agent.notifications.read", "agent/notifications/{id}/read", @post},
+    {"escalated.agent.notifications.read-all", "agent/notifications/read-all", @post},
     # Live chat on the ticket page, keyed by the ChatSession id the page
     # carries as `chat_session_id` (Laravel serves them under /admin/chat).
     {"escalated.admin.chat.end", "agent/chat/{session}/end", @post},

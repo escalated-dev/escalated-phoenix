@@ -131,6 +131,8 @@ defmodule Escalated.Controllers.WidgetController do
 
     with {:ok, ticket, grant} <- GuestAccess.resolve(token),
          true <- ticket.reference == reference do
+      # The customer is on the site (only agent pages ever show it).
+      Escalated.AgentPanel.quietly(fn -> Escalated.AgentPanel.see_ticket_customer(ticket) end)
       payload = GuestTicketView.correspondence(ticket, token, grant)
       json(conn, Map.put(payload, "ticket", payload))
     else

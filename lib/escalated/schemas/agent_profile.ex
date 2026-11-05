@@ -15,6 +15,9 @@ defmodule Escalated.Schemas.AgentProfile do
     field :is_active, :boolean, default: true
     field :max_tickets, :integer, default: 0
     field :metadata, :map, default: %{}
+    # The agent's own status (ADR 2026-11-05-agent-panel-data): online, away
+    # or offline. Set through Escalated.AgentPanel.set_status/2.
+    field :chat_status, :string, default: "offline"
 
     timestamps(type: :utc_datetime)
   end

@@ -53,6 +53,12 @@ defmodule Escalated.Schemas.Ticket do
     # cast by changeset/2: only a merge sets it.
     field :merged_into_id, :id
 
+    # The last time the customer side was active on the ticket: its creation
+    # and every public reply from the customer side (ADR
+    # 2026-11-05-agent-panel-data). Agents' unread markers compare with it.
+    # Not cast by changeset/2.
+    field :last_customer_activity_at, :utc_datetime
+
     belongs_to :department, Escalated.Schemas.Department
     belongs_to :sla_policy, Escalated.Schemas.SlaPolicy
 

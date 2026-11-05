@@ -10,8 +10,9 @@ defmodule Escalated.Controllers.AgentInbox do
   filters name a status; `stats` are for the current queue.
 
   The counts are not cached: this package has no cache of its own, and each
-  list request runs a bounded number of count queries (3 counts, 5 built-in
-  views, 4 stats and one per saved view, up to 50 saved views).
+  list request runs a bounded number of count queries (3 counts, 3 unread
+  counts, 5 built-in views, 4 stats and one per saved view, up to 50 saved
+  views).
   """
   import Ecto.Query, only: [from: 2]
 
@@ -157,6 +158,13 @@ defmodule Escalated.Controllers.AgentInbox do
         unassigned: count_open(%{"unassigned" => 1}),
         all: count_open(%{})
       },
+      # Of the same open tickets, those unread for this agent (ADR
+      # 2026-11-05-agent-panel-data).
+      unread: %{
+        mine: count_unread(%{"assigned_to" => agent.id}, agent),
+        unassigned: count_unread(%{"unassigned" => 1}, agent),
+        all: count_unread(%{}, agent)
+      },
       views:
         Enum.map(views(agent), fn view ->
           %{id: view.id, name: view.name, count: count_open(view.filters), filters: view.filters}
@@ -216,6 +224,15 @@ defmodule Escalated.Controllers.AgentInbox do
   end
 
   defp count(filters), do: filters |> TicketDesk.atomize_filters() |> TicketService.count()
+
+  defp count_unread(filters, agent) do
+    filters = if blank?(filters["status"]), do: Map.put(filters, "open", 1), else: filters
+
+    filters
+    |> TicketDesk.atomize_filters()
+    |> Map.put(:unread_for, agent.id)
+    |> TicketService.count()
+  end
 
   defp normalise_assignee(filters, agent) do
     filters = Map.new(filters, fn {key, value} -> {to_string(key), value} end)

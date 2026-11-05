@@ -54,6 +54,8 @@ defmodule Escalated.RoutePermissions do
       show: view,
       follow: view,
       presence: view,
+      read: view,
+      unread: view,
       update: edit,
       status: edit,
       priority: edit,
@@ -75,6 +77,9 @@ defmodule Escalated.RoutePermissions do
     %{
       # ---- Tickets (admin and agent panels, staff API) ------------------
       Agent.DashboardController => %{index: view},
+      # The agent's own status and notifications need no permission; the
+      # knowledge-base search needs kb.view (ADR 2026-11-05-agent-panel-data).
+      Agent.PanelController => %{kb_search: ["kb.view"], *: []},
       Agent.TicketController => agent_ticket,
       Admin.TicketController => agent_ticket,
       # Bulk: per action, see required/2.

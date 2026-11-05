@@ -59,7 +59,7 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
     props = index(ctx.agent)
     inbox = props["inbox"]
 
-    assert Map.keys(inbox) |> Enum.sort() == ~w(counts stats views)
+    assert Map.keys(inbox) |> Enum.sort() == ~w(counts stats unread views)
     # Unresolved, unsnoozed tickets in each queue.
     assert inbox["counts"] == %{"mine" => 2, "unassigned" => 1, "all" => 4}
     assert Enum.map(inbox["views"], & &1["id"]) == @built_in
@@ -376,9 +376,9 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
     assert row["latest_reply"]["body"] == "Customer-visible answer"
     assert row["latest_reply"]["author"]["name"] == "Al Agent"
     assert row["last_reply_at"] == DateTime.to_iso8601(answered_at)
-    # Escalated tracks no per-agent read state or customer presence.
-    refute Map.has_key?(row, "is_unread")
-    refute Map.has_key?(row, "requester_online")
+    # Per-agent read state and the customer's presence (ADR 2026-11-05-agent-panel-data).
+    assert Map.has_key?(row, "is_unread")
+    assert Map.has_key?(row, "requester_online")
   end
 
   test "sends inbox and the queue the agent last opened on the ticket page", ctx do
@@ -389,7 +389,7 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
     props = visit(:get, show, ctx.agent) |> page!("Escalated/Agent/TicketShow")
     assert props["queue"] == %{"key" => "all", "title" => "All tickets"}
     assert props["inbox"]["counts"] == %{"mine" => 1, "unassigned" => 1, "all" => 2}
-    assert Map.keys(props["inbox"]) |> Enum.sort() == ~w(counts stats views)
+    assert Map.keys(props["inbox"]) |> Enum.sort() == ~w(counts stats unread views)
 
     list = visit(:get, @index <> "?assigned_to=#{ctx.agent.id}", ctx.agent)
     assert list.status == 200
@@ -424,7 +424,8 @@ defmodule Escalated.Controllers.AgentInboxPropsTest do
 
     # The number of count queries does not grow with the number of tickets.
     assert first.counts == second.counts
-    assert first.counts == 3 + 5 + 3 + 4
+    # counts, unread counts, built-in views, saved views, stats.
+    assert first.counts == 3 + 3 + 5 + 3 + 4
   end
 
   defp saved_view!(user, name, filters, position, shared \\ false) do
