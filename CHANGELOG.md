@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.12] - 2026-11-04
+
 ### Upgrading
 - **The agent ticket pages send the agent panel's optional `inbox` and `queue` props** (shared frontend `docs/agent-panel.md`, as escalated-laravel sends them). Each agent list and ticket page request runs a few extra count queries (3 counts, 5 built-in views, 4 stats and one per saved view, up to 50 views). They are not cached: this package has no cache to keep them in. Older frontends ignore the props.
 - **A queue row's `latest_reply` is now the ticket's latest public reply, and carries its `id` and `body`** (the one-line preview). It used to be the latest reply of any kind, so an internal note's time and author showed in the agent and admin lists and the agent dashboard. `last_reply_at` and `last_reply_author` on those rows follow it. Internal notes are never used.
@@ -26,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Not sent
 - `is_unread` and `requester_online`: Escalated tracks no per-agent read state or customer presence, so the list rows carry neither. Live chat tickets are still marked through `is_live_chat`.
 - Queue and view names are English: this package sends no translated strings of its own.
+
+### Changed
+- The bundled widget is now `@escalated-dev/escalated` 0.12.8. The widget's source did not change in 0.12.8; the bundle is rebuilt with Vue 3.5.44, so it behaves as before.
 
 ## [0.2.11] - 2026-10-30
 
