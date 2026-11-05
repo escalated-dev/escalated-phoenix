@@ -32,6 +32,7 @@ host integration hooks and migration instructions.
 - **Agent dashboard** — Ticket queue with filters, internal notes, canned responses
 - **Customer portal** — Self-service ticket creation, replies, and status tracking
 - **Admin panel** — Manage departments, SLA policies, tags, and view reports
+- **Admin inside your own admin panel (optional)** — Off by default; the standalone admin stays the default. Turn it on to mount Escalated's admin under your prefix and pipelines, render it inside your Inertia layout or HEEx root layout (or an allow-listed iframe), and list its menu in your own sidebar ([guide](docs/embedding-admin.md))
 - **File attachments** — Drag-and-drop uploads with configurable storage and size limits
 - **Activity timeline** — Full audit log of every action on every ticket
 - **Department routing** — Organize agents into departments with auto-assignment
@@ -165,6 +166,7 @@ config :escalated,
 | `table_prefix` | `"escalated_"` | Database table name prefix |
 | `user_key_type` | `:integer` | Column type for host-user references: `:integer` (default), `:binary_id` (UUID), or `:string`. Set to match your `user_schema` primary key so UUID/string-keyed apps migrate cleanly. |
 | `ui_enabled` | `true` | Mount Inertia.js UI routes |
+| `ui` | `[]` | `embed:` -- embed the admin in your own admin panel, off by default: `enabled`, `mode`, `prefix`, `middleware`, `replace_admin_gate`, `layout`, `root_view`, `frame_ancestors`. See [embedding the admin](docs/embedding-admin.md) |
 | `api_enabled` | `false` | Mount JSON API routes |
 | `guest_tickets_enabled` | `true` | Allow guest ticket codes, lookups and creates on the mobile guest API (`false` answers them 403) |
 | `api_tokens_enabled` | `false` | Accept Escalated-issued API tokens on the ticket API ([API tokens](docs/api-tokens.md)) |
@@ -344,6 +346,35 @@ config :escalated,
   api_token_validator: &MyApp.Api.validate_token/1, # {:ok, user} | :error
   agent_check: &MyApp.Accounts.agent?/1
 ```
+
+## Embedding the admin in your own admin panel (optional)
+
+The admin at `/support/admin` is the default and needs nothing more. If your
+app already has an admin panel, you can show Escalated's admin screens inside
+it instead: under your URL prefix and pipelines, inside your Vue layout or your
+HEEx admin root layout, or in an iframe on another origin you allow. Nothing
+changes until you turn it on:
+
+```elixir
+# config/config.exs (read when your router compiles)
+config :escalated, :ui,
+  embed: [
+    enabled: true,
+    prefix: "/admin/support",
+    middleware: [:require_admin],
+    layout: "Layouts/AdminLayout"
+  ]
+```
+
+Your `escalated_routes/2` call then mounts the admin under `/admin/support`
+(same controllers and route names; `/support/admin` is no longer routed),
+Escalated's admin gate stays on unless you set `replace_admin_gate: true`, and
+every Inertia page carries `escalated.embed` and the admin menu as
+`escalated.navigation` (`Escalated.admin_navigation/2` returns it for HEEx).
+The agent panel, customer portal, widget, API, two-factor and newsletter URLs
+do not move. See [embedding the admin](docs/embedding-admin.md) for the three
+setups (Vue + Inertia, HEEx root layout, iframe), every key and the security
+notes.
 
 ## Public request limits
 

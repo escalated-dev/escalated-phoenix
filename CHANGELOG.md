@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Upgrading
+- **Optional: embed the admin in your own admin panel (off by default; no change unless configured).** With no `config :escalated, :ui, embed:` every route, page, shared prop, header and gate is unchanged (a test compares the whole route table, pipelines included, with a snapshot taken before this change). See `docs/embedding-admin.md`.
 - **Live chat goes only to agents who are online.** Chat routing (widget chat start, requeues and department transfers) and the widget's chat availability now read the agent's own status (`agent_profiles.chat_status`), as escalated-laravel does: only `online` agents in a routing rule get new chats; `away` and `offline` agents, and agents with no profile, are skipped. Agents must set themselves Online to receive chats.
 - **Run the package migration `20261105000001_add_agent_panel_data`** (the agent panel's data, ADR 2026-11-05-agent-panel-data): it adds `tickets.last_customer_activity_at`, `agent_profiles.chat_status` (default `offline`) and the `ticket_reads`, `customer_presence` and `notifications` tables, on SQLite, PostgreSQL and MySQL. Existing tickets get no customer activity, so none turn unread on upgrade.
 - **Assigning a ticket to yourself no longer emails you** ("Ticket Assigned to You"), and creates no in-app notification. Someone else assigning you a ticket still does both. `ticket.assigned` now carries the `:actor_id` (webhook payloads are unchanged).
@@ -16,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The customer knowledge-base and widget article searches now take `%` and `_` literally and match case-insensitively on every database.
 
 ### Added
+- **Embedding the admin in your own admin panel** (optional; ADR 2026-11-05-embeddable-admin, after escalated-laravel). `config :escalated, :ui, embed: [enabled:, mode:, prefix:, middleware:, replace_admin_gate:, layout:, root_view:, frame_ancestors:]`, read in your config from `ESCALATED_EMBED`, `ESCALATED_EMBED_MODE`, `ESCALATED_EMBED_PREFIX`, `ESCALATED_EMBED_FRAME_ANCESTORS` (`enabled`, `prefix`, `middleware` and `replace_admin_gate` at compile time):
+  - `escalated_routes/2` mounts every admin route (admin screens, plugin pages, API tokens, import) under the host's prefix with the host's pipelines and the same controllers and helper names; Escalated's admin gate stays unless `replace_admin_gate`; two-factor and route permissions always run; agent, customer, guest, widget, API, SSO, two-factor and newsletter routes do not move;
+  - the `ziggy` route names, admin redirects and pagination links follow the move;
+  - every Inertia page shares `escalated.embed` (`enabled`, `mode`, `layout`, `route`, `base_url`, `allowed_origins`) and `escalated.navigation`, the admin menu filtered by the admin gate, feature switches and route permissions, with active plugins' admin items; `Escalated.admin_navigation/2` returns the same for HEEx layouts;
+  - `root_view` renders embedded pages in the host's root layout;
+  - iframe mode sends `Content-Security-Policy: frame-ancestors 'self' <origins>` and drops `X-Frame-Options` on embedded responses only (`Escalated.Plugs.ApplyEmbedContext`, at send time).
 - **The agent panel's data** (ADR 2026-11-05-agent-panel-data, after escalated-laravel; `docs/agent-panel.md`):
   - agent status: `PUT`/`POST {prefix}/agent/status` (`escalated.agent.status`), stored on the agent profile's `chat_status`; shared `escalated.agent_status` and `escalated.agent_statuses`;
   - knowledge-base search for agents: `GET {prefix}/agent/kb/search` (`escalated.agent.kb.search`, `kb.view`), published articles, title matches first;
