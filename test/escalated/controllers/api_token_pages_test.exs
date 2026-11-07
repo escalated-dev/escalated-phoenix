@@ -157,16 +157,16 @@ defmodule Escalated.Controllers.ApiTokenPagesTest do
       assert_in_delta DateTime.diff(token.expires_at, DateTime.utc_now()), 30 * 86_400, 60
 
       # The page after the redirect is where useForm's onSuccess reads it.
-      props =
+      flash =
         conn(:get, @base)
         |> init_test_session(%{"phoenix_flash" => %{"plain_text_token" => plain}})
         |> assign(:current_user, ctx.admin)
         |> put_req_header("x-inertia", "true")
         |> put_req_header("x-inertia-version", inertia_version())
         |> Escalated.Test.Router.call(Escalated.Test.Router.init([]))
-        |> page!("Escalated/Admin/ApiTokens/Index")
+        |> page_flash!("Escalated/Admin/ApiTokens/Index")
 
-      assert props["flash"]["plain_text_token"] == plain
+      assert flash["plain_text_token"] == plain
     end
 
     test "a JSON client gets the plain text in a 201", ctx do
