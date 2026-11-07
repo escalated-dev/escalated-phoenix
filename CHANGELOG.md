@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.14] - 2026-11-07
+
 ### Upgrading
 - **The optional `inertia` dependency now accepts `~> 2.6 or ~> 3.1`.** Nothing changes for a host that keeps inertia 2.6. A host may move to inertia 3 together with Inertia.js v3 on the client (`@inertiajs/vue3` 3.x, which the shared frontend supports); inertia 3 also needs Elixir 1.15+ and `phoenix_html ~> 4.0`. With inertia 3 the flash travels as the page's top-level `flash` key instead of a `flash` prop, which the shared frontend reads on either version.
 
