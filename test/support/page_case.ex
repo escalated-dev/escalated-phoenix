@@ -103,6 +103,15 @@ defmodule Escalated.PageCase do
     page["props"]
   end
 
+  @doc """
+  The flash a rendered page carries: the top-level `flash` key of an
+  inertia 3 (Inertia.js v3) page, or the `flash` prop of an inertia 2 page.
+  """
+  def page_flash!(conn, component) do
+    props = page!(conn, component)
+    Map.get(Jason.decode!(conn.resp_body), "flash") || props["flash"]
+  end
+
   @doc "Asserts that `map` carries every key in `keys`."
   def assert_keys(map, keys, label \\ "props") do
     assert is_map(map), "#{label} is not a map: #{inspect(map)}"
