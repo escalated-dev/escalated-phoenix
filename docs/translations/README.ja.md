@@ -1,193 +1,169 @@
-<p align="center">
-  <a href="README.ar.md">العربية</a> •
-  <a href="README.de.md">Deutsch</a> •
-  <a href="../../README.md">English</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.fr.md">Français</a> •
-  <a href="README.it.md">Italiano</a> •
-  <b>日本語</b> •
-  <a href="README.ko.md">한국어</a> •
-  <a href="README.nl.md">Nederlands</a> •
-  <a href="README.pl.md">Polski</a> •
-  <a href="README.pt-BR.md">Português (BR)</a> •
-  <a href="README.ru.md">Русский</a> •
-  <a href="README.tr.md">Türkçe</a> •
+<p align="center"><sub>
+  <a href="README.ar.md">العربية</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="../../README.md">English</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <b>日本語</b> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.nl.md">Nederlands</a> ·
+  <a href="README.pl.md">Polski</a> ·
+  <a href="README.pt-BR.md">Português (BR)</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.tr.md">Türkçe</a> ·
   <a href="README.zh-CN.md">简体中文</a>
+</sub></p>
+
+<p align="center">
+  <a href="https://escalated.dev"><img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/logo.png" width="72" height="72" alt="Escalated"></a>
 </p>
 
-# Escalated for Phoenix
+<h1 align="center">Escalated for Phoenix</h1>
 
-Phoenixアプリケーション向けの組み込み可能なヘルプデスクおよびサポートチケットシステム。Hexパッケージとして、サポートチケット、部門、SLAポリシー、エージェント管理をドロップインで提供します。
+<p align="center">
+  Phoenix アプリに本格的なヘルプデスクを追加できます。<br>
+  チケット、SLA、エスカレーションルール、エージェント用の受信トレイ、カスタマーポータルが、あなた自身のデータベース上で動きます。
+</p>
+
+<p align="center">
+  <a href="https://escalated.dev"><b>Website</b></a> ·
+  <a href="https://escalated.dev/docs"><b>ドキュメント</b></a> ·
+  <a href="https://escalated.dev/cloud"><b>Cloud</b></a> ·
+  <a href="../../CHANGELOG.md"><b>変更履歴</b></a>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-dark.png">
+  <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-light.png" alt="Escalated のエージェント受信トレイ: 件数付きの保存済みビュー、各チケットの SLA カウントダウンと優先度" width="100%">
+</picture>
+
+## できること
+
+<table>
+  <tr>
+    <td width="40%">
+      <h3>エージェントが一日中作業できる受信トレイ</h3>
+      会話、内部メモ、定型返信、SLA タイマーを 1 つの画面にまとめています。チケットは Postmark、Mailgun、SES 経由のメールでも届きます。
+    </td>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-light.png" alt="エージェントのワークスペースで開いたチケットと返信エディター">
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-light.png" alt="応答時間、CSAT、SLA 違反を表示する管理者向けレポートページ">
+      </picture>
+    </td>
+    <td width="40%">
+      <h3>ひと目でわかる SLA とエスカレーションルール</h3>
+      営業時間を考慮した優先度ごとの応答・解決目標、目標に遅れたときにエスカレーションや再割り当てを行うルール、違反に関するレポートを備えています。
+    </td>
+  </tr>
+</table>
 
 ## 機能
 
-- **チケットライフサイクル** — 設定可能なステータス遷移によるの作成、割り当て、返信、解決、クローズ、再開
-- **SLAエンジン** — 優先度別の応答・解決目標、営業時間計算、自動違反検出
-- **エージェントダッシュボード** — フィルター、内部メモ、定型応答付きのチケットキュー
-- **カスタマーポータル** — セルフサービスのチケット作成、返信、ステータス追跡
-- **管理パネル** — 部門、SLAポリシー、タグの管理とレポートの閲覧
-- **ファイル添付** — 設定可能なストレージとサイズ制限付きのドラッグ＆ドロップアップロード
-- **アクティビティタイムライン** — すべてのチケットのすべての操作の完全な監査ログ
-- **部門ルーティング** — 自動割り当て付きでエージェントを部門に編成
-- **タグシステム** — カラータグでチケットを分類
-- **チケット分割** — 元のコンテキストを保持しながら返信を新しい独立したチケットに分割
-- **チケットスヌーズ** — プリセット（1時間、4時間、明日、来週）でチケットをスヌーズ；`mix escalated.wake_snoozed_tickets` Mixタスクがスケジュールに従って自動的に起こします
-- **保存済みビュー / カスタムキュー** — フィルタープリセットを再利用可能なチケットビューとして保存、命名、共有
-- **埋め込み可能サポートウィジェット** — KB検索、チケットフォーム、ステータス確認付きの軽量 `<script>` ウィジェット
-- **メールスレッディング** — 送信メールにメールクライアントでの正しいスレッド表示のための適切な `In-Reply-To` と `References` ヘッダーを含む
-- **ブランド付きメールテンプレート** — すべての送信メールに設定可能なロゴ、プライマリカラー、フッターテキスト
-- **リアルタイムブロードキャスト** — 自動ポーリングフォールバック付きのPhoenix PubSubによるオプトインブロードキャスト
-- **ナレッジベーストグル** — 管理設定から公開ナレッジベースを有効/無効に切り替え
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## インストール
+**チケット**
+- 作成、割り当て、返信、解決、再オープン
+- 設定可能なステータス遷移
+- 返信を新しいチケットに分割
+- 自動で再開するスヌーズ
+- タグ、添付ファイル、アクティビティ履歴
 
-`mix.exs` の依存関係リストに `escalated` を追加してください：
+</td>
+<td width="33%" valign="top">
+
+**エージェントのワークスペース**
+- フィルターと保存済みビュー付きのキュー
+- 内部メモと定型返信
+- 自動割り当て付きの部署
+- Phoenix PubSub によるリアルタイム更新
+
+</td>
+<td width="33%" valign="top">
+
+**SLA とルーティング**
+- 優先度ごとの応答・解決目標
+- 営業時間
+- 違反の自動検出
+- 部署とアカウント単位の表示制限 (オプトイン)
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+**顧客**
+- セルフサービスポータル: 起票、返信、進捗確認
+- 期限付きの権限による認証済みゲストアクセス
+- ナレッジベース検索付きの埋め込みウィジェット
+- ナレッジベース (オン/オフ切り替え可)
+
+</td>
+<td width="33%" valign="top">
+
+**メール**
+- Swoosh メーラー経由の通知
+- Postmark、Mailgun、SES 経由の受信
+- メールクライアントでの正しいスレッド表示
+- ブランドに合わせたテンプレート
+
+</td>
+<td width="33%" valign="top">
+
+**管理とテナンシー**
+- 部署、SLA ポリシー、タグ、レポート
+- あなたの管理画面の中に組み込める管理機能
+- スタッフ席付きのマーチャント単位のテナンシー
+- 設定可能なストレージへの添付ファイル保存
+
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><a href="../features.md">すべての機能の詳細</a></sub></p>
+
+<p align="center">
+  <a href="https://www.phoenixframework.org"><img src="https://img.shields.io/badge/Phoenix-FD4F00?style=for-the-badge&logo=phoenixframework&logoColor=white" alt="Phoenix"></a>
+  <a href="https://elixir-lang.org"><img src="https://img.shields.io/badge/Elixir_1.15+-4B275F?style=for-the-badge&logo=elixir&logoColor=white" alt="Elixir 1.15+"></a>
+  <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3"></a>
+</p>
+
+## クイックスタート
 
 ```elixir
-def deps do
-  [
-    {:escalated_phoenix, "~> 0.2.14"}
-  ]
-end
+{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
 ```
-
-## 設定
-
-`config/config.exs` に以下を追加してください：
-
-```elixir
-config :escalated,
-  repo: MyApp.Repo,
-  user_schema: MyApp.Accounts.User,
-  route_prefix: "/support",
-  table_prefix: "escalated_",
-  ui_enabled: true,
-  admin_check: &MyApp.Accounts.admin?/1,
-  agent_check: &MyApp.Accounts.agent?/1
-```
-
-### 設定オプション
-
-| オプション | デフォルト | 説明 |
-|--------|---------|-------------|
-| `repo` | *必須* | Ecto Repoモジュール |
-| `user_schema` | *必須* | Userスキーマモジュール |
-| `route_prefix` | `"/support"` | すべてのEscalatedルートのURLプレフィックス |
-| `table_prefix` | `"escalated_"` | データベーステーブル名のプレフィックス |
-| `ui_enabled` | `true` | Inertia.js UIルートをマウント |
-| `api_enabled` | `false` | JSON APIルートをマウント |
-| `admin_check` | `nil` | 管理者アクセス用の関数 `(user -> boolean)` |
-| `agent_check` | `nil` | エージェントアクセス用の関数 `(user -> boolean)` |
-| `default_priority` | `:medium` | デフォルトのチケット優先度 |
-| `allow_customer_close` | `true` | 顧客が自分のチケットをクローズすることを許可 |
-| `sla` | `%{enabled: true, ...}` | SLA設定マップ |
-
-## データベースのセットアップ
-
-Escalatedマイグレーションを実行してください：
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-次に `priv/repo/migrations/20260406000001_create_escalated_tables.exs` からマイグレーション内容をコピーするか、以下で実行してください：
+`mix.exs` の `deps` に依存関係を追加し、パッケージのマイグレーションを実行してから、ルーターに `use Escalated.Router` を書きます。Elixir 1.15 以上と Ecto SQL 3.14 以上が必要です。ルーターのパイプラインについては[スタートガイド](../getting-started.md)を参照してください。
 
-```bash
-mix ecto.migrate
-```
+## 詳しく知る
 
-## ルーターの設定
+- [すべての機能](../features.md) · [はじめに](../getting-started.md) · [設定、UI のレンダリング、plug](../configuration.md)
+- [チケットの件名、アクション、使い方、翻訳](../customization.md) · [通知メールと受信メール](../email.md)
+- [アクセス制御](../access-control.md) · [API トークン](../api-tokens.md) · [チケットのアクセスとルーティング](../ticket-access-and-routing.md)
+- [マーチャントとゲストのアクセス](../merchant-and-guest-access.md) · [ウィジェットの埋め込み](../embedding-the-widget.md)
+- [エージェントパネル](../agent-panel.md) · [管理画面の埋め込み](../embedding-admin.md) · [ニュースレター](../newsletters.md)
 
-PhoenixルーターにEscalatedルートをマウントしてください：
-
-```elixir
-defmodule MyAppWeb.Router do
-  use MyAppWeb, :router
-  use Escalated.Router
-
-  pipeline :authenticated do
-    plug :require_authenticated_user
-  end
-
-  scope "/" do
-    pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
-  end
-end
-```
-
-これにより以下がマウントされます：
-
-- **カスタマールート** `/support/tickets/*` — チケットの表示/作成/返信
-- **エージェントルート** `/support/agent/*` — エージェントダッシュボードとチケット管理
-- **管理ルート** `/support/admin/*` — 完全な管理（部門、タグ、設定）
-- **APIルート** `/support/api/v1/*` — JSON API（`api_enabled: true` の場合）
-
-## 使い方
-
-### プログラムでチケットを作成
-
-```elixir
-{:ok, ticket} = Escalated.Services.TicketService.create(%{
-  subject: "Cannot log in",
-  description: "I'm getting a 500 error when trying to log in.",
-  priority: "high",
-  requester_id: user.id,
-  requester_type: "MyApp.Accounts.User"
-})
-```
-
-### チケットに返信
-
-```elixir
-{:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
-  body: "We're looking into this issue.",
-  author_id: agent.id,
-  is_internal: false
-})
-```
-
-### チケットの割り当て
-
-```elixir
-{:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
-{:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
-```
-
-### SLA管理
-
-```elixir
-# SLA違反をチェック（スケジューラーで定期的に実行）
-breached = Escalated.Services.SlaService.check_breaches()
-
-# SLA統計を取得
-stats = Escalated.Services.SlaService.stats()
-```
-
-## UIレンダリング
-
-デフォルトでは、`inertia` がインストールされている場合、Escalatedは [Inertia.js](https://github.com/inertiajs/inertia-phoenix) を通じてページをレンダリングします。Inertiaが利用できない場合、コントローラーはJSON応答にフォールバックします。
-
-Inertiaページのpropsを消費する独自のフロントエンドコンポーネントを構築するか、JSON APIを直接使用できます。
-
-## プラグ
-
-Escalatedは認可用のプラグを提供します：
-
-- `Escalated.Plugs.EnsureAgent` — 設定された `agent_check` にユーザーが合格することを要求
-- `Escalated.Plugs.EnsureAdmin` — 設定された `admin_check` にユーザーが合格することを要求
-- `Escalated.Plugs.ShareInertiaData` — 共通のEscalatedデータをInertiaページと共有
-
-## スキーマ
-
-- `Escalated.Schemas.Ticket` — ステータス、優先度、SLA追跡付きのサポートチケット
-- `Escalated.Schemas.Reply` — チケットの返信と内部メモ
-- `Escalated.Schemas.Department` — サポート部門/チーム
-- `Escalated.Schemas.Tag` — 分類用のチケットタグ
-- `Escalated.Schemas.SlaPolicy` — 優先度別目標付きのSLAポリシー
-- `Escalated.Schemas.TicketActivity` — チケット変更の監査ログ
-- `Escalated.Schemas.AgentProfile` — エージェント固有のプロファイルデータ
+Escalated は [Laravel](https://github.com/escalated-dev/escalated-laravel)、[Rails](https://github.com/escalated-dev/escalated-rails)、[Django](https://github.com/escalated-dev/escalated-django)、[NestJS](https://github.com/escalated-dev/escalated-nestjs)、[AdonisJS](https://github.com/escalated-dev/escalated-adonis)、[Symfony](https://github.com/escalated-dev/escalated-symfony)、[Go](https://github.com/escalated-dev/escalated-go)、[.NET](https://github.com/escalated-dev/escalated-dotnet)、[Spring](https://github.com/escalated-dev/escalated-spring)、[WordPress](https://github.com/escalated-dev/escalated-wordpress)、[Filament](https://github.com/escalated-dev/escalated-filament) 向けにも提供しています。UI は [escalated](https://github.com/escalated-dev/escalated) にあります。
 
 ## ライセンス
 
-MITライセンス。詳細は [LICENSE](LICENSE) を参照してください。
+MIT。Copyright (c) Escalated.dev。詳細は [LICENSE](../../LICENSE) を参照してください。

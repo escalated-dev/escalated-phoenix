@@ -1,193 +1,169 @@
-<p align="center">
-  <a href="README.ar.md">العربية</a> •
-  <b>Deutsch</b> •
-  <a href="../../README.md">English</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.fr.md">Français</a> •
-  <a href="README.it.md">Italiano</a> •
-  <a href="README.ja.md">日本語</a> •
-  <a href="README.ko.md">한국어</a> •
-  <a href="README.nl.md">Nederlands</a> •
-  <a href="README.pl.md">Polski</a> •
-  <a href="README.pt-BR.md">Português (BR)</a> •
-  <a href="README.ru.md">Русский</a> •
-  <a href="README.tr.md">Türkçe</a> •
+<p align="center"><sub>
+  <a href="README.ar.md">العربية</a> ·
+  <b>Deutsch</b> ·
+  <a href="../../README.md">English</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.nl.md">Nederlands</a> ·
+  <a href="README.pl.md">Polski</a> ·
+  <a href="README.pt-BR.md">Português (BR)</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.tr.md">Türkçe</a> ·
   <a href="README.zh-CN.md">简体中文</a>
+</sub></p>
+
+<p align="center">
+  <a href="https://escalated.dev"><img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/logo.png" width="72" height="72" alt="Escalated"></a>
 </p>
 
-# Escalated für Phoenix
+<h1 align="center">Escalated for Phoenix</h1>
 
-Einbettbares Helpdesk- und Support-Ticketsystem für Phoenix-Anwendungen. Sofort einsatzbereite Support-Tickets, Abteilungen, SLA-Richtlinien und Agentenverwaltung als Hex-Paket.
+<p align="center">
+  Füge deiner Phoenix-App einen vollständigen Helpdesk hinzu.<br>
+  Tickets, SLAs, Eskalationsregeln, ein Agenten-Posteingang und ein Kundenportal, direkt auf deiner eigenen Datenbank.
+</p>
+
+<p align="center">
+  <a href="https://escalated.dev"><b>Website</b></a> ·
+  <a href="https://escalated.dev/docs"><b>Dokumentation</b></a> ·
+  <a href="https://escalated.dev/cloud"><b>Cloud</b></a> ·
+  <a href="../../CHANGELOG.md"><b>Änderungsprotokoll</b></a>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-dark.png">
+  <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-light.png" alt="Der Agenten-Posteingang von Escalated: gespeicherte Ansichten mit Zählern, SLA-Countdowns und Prioritäten an jedem Ticket" width="100%">
+</picture>
+
+## Was es kann
+
+<table>
+  <tr>
+    <td width="40%">
+      <h3>Ein Posteingang, in dem deine Agenten den ganzen Tag arbeiten können</h3>
+      Konversation, interne Notizen, Textbausteine und SLA-Timer auf einem Bildschirm. Tickets kommen auch per E-Mail über Postmark, Mailgun oder SES an.
+    </td>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-light.png" alt="Ein geöffnetes Ticket im Agenten-Arbeitsbereich mit dem Antwort-Editor">
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-light.png" alt="Die Berichtsseite im Adminbereich mit Antwortzeiten, CSAT und SLA-Verstößen">
+      </picture>
+    </td>
+    <td width="40%">
+      <h3>SLAs und Eskalationsregeln, die du im Blick hast</h3>
+      Reaktions- und Lösungsziele pro Priorität mit Geschäftszeiten, Regeln, die eskalieren oder neu zuweisen, wenn ein Ziel verfehlt wird, und Berichte über Verstöße.
+    </td>
+  </tr>
+</table>
 
 ## Funktionen
 
-- **Ticket-Lebenszyklus** — Erstellen, Zuweisen, Antworten, Lösen, Schließen, Wiederöffnen mit konfigurierbaren Statusübergängen
-- **SLA-Engine** — Antwort- und Lösungsziele pro Priorität, Geschäftszeitenberechnung, automatische Verletzungserkennung
-- **Agenten-Dashboard** — Ticket-Warteschlange mit Filtern, internen Notizen, vorgefertigten Antworten
-- **Kundenportal** — Self-Service-Ticketerstellung, Antworten und Statusverfolgung
-- **Admin-Panel** — Verwaltung von Abteilungen, SLA-Richtlinien, Tags und Berichten
-- **Dateianhänge** — Drag-and-Drop-Uploads mit konfigurierbarem Speicher und Größenlimits
-- **Aktivitätszeitlinie** — Vollständiges Audit-Log jeder Aktion an jedem Ticket
-- **Abteilungsrouting** — Agenten in Abteilungen organisieren mit automatischer Zuweisung
-- **Tagging-System** — Tickets mit farbigen Tags kategorisieren
-- **Ticket-Aufteilung** — Eine Antwort in ein neues eigenständiges Ticket aufteilen und dabei den ursprünglichen Kontext bewahren
-- **Ticket-Schlummern** — Tickets mit Voreinstellungen schlummern lassen (1 Std., 4 Std., morgen, nächste Woche); `mix escalated.wake_snoozed_tickets` Mix-Task weckt sie planmäßig automatisch
-- **Gespeicherte Ansichten / benutzerdefinierte Warteschlangen** — Filter-Voreinstellungen als wiederverwendbare Ticket-Ansichten speichern, benennen und teilen
-- **Einbettbares Support-Widget** — Leichtgewichtiges `<script>`-Widget mit KB-Suche, Ticketformular und Statusprüfung
-- **E-Mail-Threading** — Ausgehende E-Mails enthalten korrekte `In-Reply-To`- und `References`-Header für korrektes Threading in E-Mail-Clients
-- **Gebrandete E-Mail-Vorlagen** — Konfigurierbares Logo, Primärfarbe und Fußzeilentext für alle ausgehenden E-Mails
-- **Echtzeit-Broadcasting** — Opt-in-Broadcasting über Phoenix PubSub mit automatischem Polling-Fallback
-- **Wissensdatenbank-Umschalter** — Öffentliche Wissensdatenbank in den Admin-Einstellungen aktivieren oder deaktivieren
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## Installation
+**Tickets**
+- Erstellen, zuweisen, antworten, lösen, wieder öffnen
+- Konfigurierbare Statusübergänge
+- Eine Antwort in ein neues Ticket aufteilen
+- Zurückstellen mit automatischer Wiedervorlage
+- Tags, Anhänge, Aktivitätsverlauf
 
-Fügen Sie `escalated` zu Ihrer Abhängigkeitsliste in `mix.exs` hinzu:
+</td>
+<td width="33%" valign="top">
+
+**Agenten-Arbeitsbereich**
+- Warteschlange mit Filtern und gespeicherten Ansichten
+- Interne Notizen und Textbausteine
+- Abteilungen mit automatischer Zuweisung
+- Echtzeit-Updates über Phoenix PubSub
+
+</td>
+<td width="33%" valign="top">
+
+**SLAs und Routing**
+- Reaktions- und Lösungsziele pro Priorität
+- Geschäftszeiten
+- Automatische Erkennung von Verstößen
+- Optionale Sichtbarkeit nach Abteilung und Konto
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+**Kunden**
+- Self-Service-Portal: eröffnen, antworten, verfolgen
+- Verifizierter Gastzugang mit ablaufenden Freigaben
+- Einbettbares Widget mit Wissensdatenbank-Suche
+- Wissensdatenbank, ein- oder ausschaltbar
+
+</td>
+<td width="33%" valign="top">
+
+**E-Mail**
+- Benachrichtigungen über deinen Swoosh-Mailer
+- Eingehend über Postmark, Mailgun, SES
+- Korrekte Thread-Darstellung in Mail-Clients
+- Vorlagen in deinem Branding
+
+</td>
+<td width="33%" valign="top">
+
+**Verwaltung und Mandanten**
+- Abteilungen, SLA-Richtlinien, Tags, Berichte
+- Adminbereich in deinem eigenen Admin-Panel
+- Händler-Mandanten mit Plätzen für Mitarbeiter
+- Anhänge auf konfigurierbarem Speicher
+
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><a href="../features.md">Alle Funktionen im Detail</a></sub></p>
+
+<p align="center">
+  <a href="https://www.phoenixframework.org"><img src="https://img.shields.io/badge/Phoenix-FD4F00?style=for-the-badge&logo=phoenixframework&logoColor=white" alt="Phoenix"></a>
+  <a href="https://elixir-lang.org"><img src="https://img.shields.io/badge/Elixir_1.15+-4B275F?style=for-the-badge&logo=elixir&logoColor=white" alt="Elixir 1.15+"></a>
+  <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3"></a>
+</p>
+
+## Schnellstart
 
 ```elixir
-def deps do
-  [
-    {:escalated_phoenix, "~> 0.2.14"}
-  ]
-end
+{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
 ```
-
-## Konfiguration
-
-Fügen Sie Folgendes zu Ihrer `config/config.exs` hinzu:
-
-```elixir
-config :escalated,
-  repo: MyApp.Repo,
-  user_schema: MyApp.Accounts.User,
-  route_prefix: "/support",
-  table_prefix: "escalated_",
-  ui_enabled: true,
-  admin_check: &MyApp.Accounts.admin?/1,
-  agent_check: &MyApp.Accounts.agent?/1
-```
-
-### Konfigurationsoptionen
-
-| Option | Standard | Beschreibung |
-|--------|---------|-------------|
-| `repo` | *erforderlich* | Ihr Ecto-Repo-Modul |
-| `user_schema` | *erforderlich* | Ihr User-Schema-Modul |
-| `route_prefix` | `"/support"` | URL-Präfix für alle Escalated-Routen |
-| `table_prefix` | `"escalated_"` | Präfix für Datenbanktabellennamen |
-| `ui_enabled` | `true` | Inertia.js-UI-Routen einbinden |
-| `api_enabled` | `false` | JSON-API-Routen einbinden |
-| `admin_check` | `nil` | Funktion `(user -> boolean)` für Admin-Zugang |
-| `agent_check` | `nil` | Funktion `(user -> boolean)` für Agenten-Zugang |
-| `default_priority` | `:medium` | Standard-Ticketpriorität |
-| `allow_customer_close` | `true` | Kunden erlauben, ihre Tickets zu schließen |
-| `sla` | `%{enabled: true, ...}` | SLA-Konfigurationsmap |
-
-## Datenbank-Setup
-
-Führen Sie die Escalated-Migration aus:
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-Kopieren Sie dann den Migrationsinhalt aus `priv/repo/migrations/20260406000001_create_escalated_tables.exs` oder installieren Sie über:
+Füge die Abhängigkeit zu `deps` in `mix.exs` hinzu, führe die Migrationen des Pakets aus und setze dann `use Escalated.Router` in deinen Router. Voraussetzungen: Elixir 1.15+ und Ecto SQL 3.14+. Die [Einstiegsanleitung](../getting-started.md) erklärt die Router-Pipelines.
 
-```bash
-mix ecto.migrate
-```
+## Mehr erfahren
 
-## Router-Setup
+- [Alle Funktionen](../features.md) · [Erste Schritte](../getting-started.md) · [Konfiguration, UI-Rendering und Plugs](../configuration.md)
+- [Ticket-Betreffe, Aktionen, Nutzung und Übersetzungen](../customization.md) · [Benachrichtigungen und eingehende E-Mails](../email.md)
+- [Zugriffskontrolle](../access-control.md) · [API-Tokens](../api-tokens.md) · [Ticketzugriff und Routing](../ticket-access-and-routing.md)
+- [Händler- und Gastzugang](../merchant-and-guest-access.md) · [Widget einbetten](../embedding-the-widget.md)
+- [Agenten-Panel](../agent-panel.md) · [Adminbereich einbetten](../embedding-admin.md) · [Newsletter](../newsletters.md)
 
-Binden Sie Escalated-Routen in Ihren Phoenix-Router ein:
-
-```elixir
-defmodule MyAppWeb.Router do
-  use MyAppWeb, :router
-  use Escalated.Router
-
-  pipeline :authenticated do
-    plug :require_authenticated_user
-  end
-
-  scope "/" do
-    pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
-  end
-end
-```
-
-Dies bindet ein:
-
-- **Kundenrouten** unter `/support/tickets/*` — Tickets anzeigen/erstellen/beantworten
-- **Agentenrouten** unter `/support/agent/*` — Agenten-Dashboard und Ticketverwaltung
-- **Admin-Routen** unter `/support/admin/*` — Vollständige Verwaltung (Abteilungen, Tags, Einstellungen)
-- **API-Routen** unter `/support/api/v1/*` — JSON-API (wenn `api_enabled: true`)
-
-## Verwendung
-
-### Tickets programmatisch erstellen
-
-```elixir
-{:ok, ticket} = Escalated.Services.TicketService.create(%{
-  subject: "Cannot log in",
-  description: "I'm getting a 500 error when trying to log in.",
-  priority: "high",
-  requester_id: user.id,
-  requester_type: "MyApp.Accounts.User"
-})
-```
-
-### Auf Tickets antworten
-
-```elixir
-{:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
-  body: "We're looking into this issue.",
-  author_id: agent.id,
-  is_internal: false
-})
-```
-
-### Tickets zuweisen
-
-```elixir
-{:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
-{:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
-```
-
-### SLA-Verwaltung
-
-```elixir
-# Auf SLA-Verletzungen prüfen (periodisch über einen Scheduler ausführen)
-breached = Escalated.Services.SlaService.check_breaches()
-
-# SLA-Statistiken abrufen
-stats = Escalated.Services.SlaService.stats()
-```
-
-## UI-Rendering
-
-Standardmäßig rendert Escalated Seiten über [Inertia.js](https://github.com/inertiajs/inertia-phoenix), wenn `inertia` installiert ist. Wenn Inertia nicht verfügbar ist, fallen Controller auf JSON-Antworten zurück.
-
-Sie können eigene Frontend-Komponenten erstellen, die die Inertia-Seitenprops konsumieren, oder die JSON-API direkt verwenden.
-
-## Plugs
-
-Escalated bietet Plugs für die Autorisierung:
-
-- `Escalated.Plugs.EnsureAgent` — erfordert, dass der Benutzer den konfigurierten `agent_check` besteht
-- `Escalated.Plugs.EnsureAdmin` — erfordert, dass der Benutzer den konfigurierten `admin_check` besteht
-- `Escalated.Plugs.ShareInertiaData` — teilt gemeinsame Escalated-Daten mit Inertia-Seiten
-
-## Schemata
-
-- `Escalated.Schemas.Ticket` — Support-Tickets mit Status, Priorität, SLA-Tracking
-- `Escalated.Schemas.Reply` — Ticket-Antworten und interne Notizen
-- `Escalated.Schemas.Department` — Support-Abteilungen/Teams
-- `Escalated.Schemas.Tag` — Ticket-Tags zur Kategorisierung
-- `Escalated.Schemas.SlaPolicy` — SLA-Richtlinien mit prioritätsbezogenen Zielen
-- `Escalated.Schemas.TicketActivity` — Audit-Log von Ticket-Änderungen
-- `Escalated.Schemas.AgentProfile` — Agentenspezifische Profildaten
+Escalated gibt es auch für [Laravel](https://github.com/escalated-dev/escalated-laravel), [Rails](https://github.com/escalated-dev/escalated-rails), [Django](https://github.com/escalated-dev/escalated-django), [NestJS](https://github.com/escalated-dev/escalated-nestjs), [AdonisJS](https://github.com/escalated-dev/escalated-adonis), [Symfony](https://github.com/escalated-dev/escalated-symfony), [Go](https://github.com/escalated-dev/escalated-go), [.NET](https://github.com/escalated-dev/escalated-dotnet), [Spring](https://github.com/escalated-dev/escalated-spring), [WordPress](https://github.com/escalated-dev/escalated-wordpress) und [Filament](https://github.com/escalated-dev/escalated-filament). Die Oberfläche liegt in [escalated](https://github.com/escalated-dev/escalated).
 
 ## Lizenz
 
-MIT-Lizenz. Siehe [LICENSE](LICENSE) für Details.
+MIT. Copyright (c) Escalated.dev. Siehe [LICENSE](../../LICENSE).
