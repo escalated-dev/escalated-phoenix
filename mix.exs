@@ -50,7 +50,7 @@ defmodule Escalated.MixProject do
       # jose) and the OAuth 2 authorization-code flow with state and PKCE
       # (assent).
       {:joken, "~> 2.6"},
-      {:assent, "~> 0.3.1"},
+      {:assent, "~> 0.4.0"},
 
       # Translations are vendored at priv/gettext/{locale}/LC_MESSAGES/escalated.po
       # from escalated-dev/escalated-locale. Once that Hex package is actually
