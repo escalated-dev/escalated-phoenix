@@ -1,193 +1,169 @@
-<p align="center">
-  <a href="README.ar.md">العربية</a> •
-  <a href="README.de.md">Deutsch</a> •
-  <a href="../../README.md">English</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.fr.md">Français</a> •
-  <a href="README.it.md">Italiano</a> •
-  <a href="README.ja.md">日本語</a> •
-  <a href="README.ko.md">한국어</a> •
-  <a href="README.nl.md">Nederlands</a> •
-  <a href="README.pl.md">Polski</a> •
-  <a href="README.pt-BR.md">Português (BR)</a> •
-  <a href="README.ru.md">Русский</a> •
-  <b>Türkçe</b> •
+<p align="center"><sub>
+  <a href="README.ar.md">العربية</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="../../README.md">English</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.nl.md">Nederlands</a> ·
+  <a href="README.pl.md">Polski</a> ·
+  <a href="README.pt-BR.md">Português (BR)</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <b>Türkçe</b> ·
   <a href="README.zh-CN.md">简体中文</a>
+</sub></p>
+
+<p align="center">
+  <a href="https://escalated.dev"><img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/logo.png" width="72" height="72" alt="Escalated"></a>
 </p>
 
-# Escalated Phoenix için
+<h1 align="center">Escalated for Phoenix</h1>
 
-Phoenix uygulamaları için gömülebilir yardım masası ve destek bilet sistemi. Hex paketi olarak hazır destek biletleri, departmanlar, SLA politikaları ve temsilci yönetimi.
+<p align="center">
+  Phoenix uygulamanıza eksiksiz bir yardım masası ekleyin.<br>
+  Talepler, SLA'lar, eskalasyon kuralları, temsilci gelen kutusu ve müşteri portalı, hepsi kendi veritabanınızda çalışır.
+</p>
+
+<p align="center">
+  <a href="https://escalated.dev"><b>Website</b></a> ·
+  <a href="https://escalated.dev/docs"><b>Dokümantasyon</b></a> ·
+  <a href="https://escalated.dev/cloud"><b>Cloud</b></a> ·
+  <a href="../../CHANGELOG.md"><b>Değişiklik günlüğü</b></a>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-dark.png">
+  <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-light.png" alt="Escalated temsilci gelen kutusu: sayılarıyla kayıtlı görünümler, her talepte SLA geri sayımları ve öncelikler" width="100%">
+</picture>
+
+## Neler yapar
+
+<table>
+  <tr>
+    <td width="40%">
+      <h3>Temsilcilerinizin gün boyu çalışabileceği bir gelen kutusu</h3>
+      Yazışma, dahili notlar, hazır yanıtlar ve SLA sayaçları tek ekranda. Talepler Postmark, Mailgun veya SES üzerinden e-postayla da gelir.
+    </td>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-light.png" alt="Temsilci çalışma alanında yanıt düzenleyicisiyle açık bir talep">
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-light.png" alt="Yanıt sürelerini, CSAT'i ve SLA ihlallerini gösteren yönetici rapor sayfası">
+      </picture>
+    </td>
+    <td width="40%">
+      <h3>Görebildiğiniz SLA'lar ve eskalasyon kuralları</h3>
+      Mesai saatlerini dikkate alan, önceliğe göre yanıt ve çözüm hedefleri, hedef kaçtığında eskalasyon yapan veya talebi yeniden atayan kurallar ve ihlal raporları.
+    </td>
+  </tr>
+</table>
 
 ## Özellikler
 
-- **Bilet yaşam döngüsü** — Yapılandırılabilir durum geçişleriyle oluşturma, atama, yanıtlama, çözme, kapatma, yeniden açma
-- **SLA motoru** — Önceliğe göre yanıt ve çözüm hedefleri, iş saatleri hesaplama, otomatik ihlal tespiti
-- **Temsilci panosu** — Filtreler, dahili notlar, hazır yanıtlarla bilet kuyruğu
-- **Müşteri portalı** — Self-servis bilet oluşturma, yanıtlar ve durum takibi
-- **Yönetici paneli** — Departmanları, SLA politikalarını, etiketleri yönetin ve raporları görüntüleyin
-- **Dosya ekleri** — Yapılandırılabilir depolama ve boyut limitleriyle sürükle-bırak yükleme
-- **Etkinlik zaman çizelgesi** — Her biletteki her eylemin tam denetim günlüğü
-- **Departman yönlendirme** — Otomatik atamayla temsilcileri departmanlara organize edin
-- **Etiketleme sistemi** — Biletleri renkli etiketlerle kategorize edin
-- **Bilet bölme** — Orijinal bağlamı koruyarak bir yanıtı yeni bağımsız bir bilete bölün
-- **Bilet erteleme** — Ön ayarlarla biletleri erteleyin (1sa, 4sa, yarın, gelecek hafta); `mix escalated.wake_snoozed_tickets` Mix görevi onları programa göre otomatik olarak uyandırır
-- **Kaydedilmiş görünümler / özel kuyruklar** — Filtre ön ayarlarını yeniden kullanılabilir bilet görünümleri olarak kaydedin, adlandırın ve paylaşın
-- **Gömülebilir destek widget'ı** — KB araması, bilet formu ve durum kontrolü içeren hafif `<script>` widget'ı
-- **E-posta dizileme** — Giden e-postalar, posta istemcilerinde doğru dizileme için uygun `In-Reply-To` ve `References` başlıklarını içerir
-- **Markalı e-posta şablonları** — Tüm giden e-postalar için yapılandırılabilir logo, birincil renk ve altbilgi metni
-- **Gerçek zamanlı yayın** — Otomatik yoklama yedeğiyle Phoenix PubSub aracılığıyla isteğe bağlı yayın
-- **Bilgi bankası geçişi** — Yönetici ayarlarından genel bilgi bankasını etkinleştirin veya devre dışı bırakın
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## Kurulum
+**Talepler**
+- Oluşturma, atama, yanıtlama, çözme, yeniden açma
+- Yapılandırılabilir durum geçişleri
+- Bir yanıtı yeni bir talebe ayırma
+- Otomatik uyanan erteleme
+- Etiketler, ekler, etkinlik zaman çizelgesi
 
-`mix.exs` dosyasındaki bağımlılık listenize `escalated` ekleyin:
+</td>
+<td width="33%" valign="top">
+
+**Temsilci çalışma alanı**
+- Filtreler ve kayıtlı görünümlerle kuyruk
+- Dahili notlar ve hazır yanıtlar
+- Otomatik atamalı departmanlar
+- Phoenix PubSub ile gerçek zamanlı güncellemeler
+
+</td>
+<td width="33%" valign="top">
+
+**SLA'lar ve yönlendirme**
+- Önceliğe göre yanıt ve çözüm hedefleri
+- Mesai saatleri
+- Otomatik ihlal tespiti
+- İsteğe bağlı departman ve hesap görünürlüğü
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+**Müşteriler**
+- Self servis portal: talep açma, yanıtlama, takip
+- Süresi dolan yetkilerle doğrulanmış misafir erişimi
+- Bilgi bankası aramalı yerleştirilebilir widget
+- Açılıp kapatılabilen bilgi bankası
+
+</td>
+<td width="33%" valign="top">
+
+**E-posta**
+- Swoosh mailer'ınız üzerinden bildirimler
+- Postmark, Mailgun, SES üzerinden gelen e-posta
+- E-posta istemcilerinde doğru yazışma zinciri
+- Markanıza uygun şablonlar
+
+</td>
+<td width="33%" valign="top">
+
+**Yönetim ve çoklu kiracılık**
+- Departmanlar, SLA politikaları, etiketler, raporlar
+- Kendi yönetim panelinizin içinde yönetim ekranı
+- Personel koltuklarıyla satıcı bazlı çoklu kiracılık
+- Yapılandırılabilir depolamada ekler
+
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><a href="../features.md">Tüm özellikler ayrıntılı olarak</a></sub></p>
+
+<p align="center">
+  <a href="https://www.phoenixframework.org"><img src="https://img.shields.io/badge/Phoenix-FD4F00?style=for-the-badge&logo=phoenixframework&logoColor=white" alt="Phoenix"></a>
+  <a href="https://elixir-lang.org"><img src="https://img.shields.io/badge/Elixir_1.15+-4B275F?style=for-the-badge&logo=elixir&logoColor=white" alt="Elixir 1.15+"></a>
+  <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3"></a>
+</p>
+
+## Hızlı başlangıç
 
 ```elixir
-def deps do
-  [
-    {:escalated_phoenix, "~> 0.2.14"}
-  ]
-end
+{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
 ```
-
-## Yapılandırma
-
-`config/config.exs` dosyanıza şunu ekleyin:
-
-```elixir
-config :escalated,
-  repo: MyApp.Repo,
-  user_schema: MyApp.Accounts.User,
-  route_prefix: "/support",
-  table_prefix: "escalated_",
-  ui_enabled: true,
-  admin_check: &MyApp.Accounts.admin?/1,
-  agent_check: &MyApp.Accounts.agent?/1
-```
-
-### Yapılandırma Seçenekleri
-
-| Seçenek | Varsayılan | Açıklama |
-|--------|---------|-------------|
-| `repo` | *gerekli* | Ecto Repo modülünüz |
-| `user_schema` | *gerekli* | User şema modülünüz |
-| `route_prefix` | `"/support"` | Tüm Escalated rotaları için URL öneki |
-| `table_prefix` | `"escalated_"` | Veritabanı tablo adı öneki |
-| `ui_enabled` | `true` | Inertia.js UI rotalarını bağla |
-| `api_enabled` | `false` | JSON API rotalarını bağla |
-| `admin_check` | `nil` | Yönetici erişimi için fonksiyon `(user -> boolean)` |
-| `agent_check` | `nil` | Temsilci erişimi için fonksiyon `(user -> boolean)` |
-| `default_priority` | `:medium` | Varsayılan bilet önceliği |
-| `allow_customer_close` | `true` | Müşterilerin biletlerini kapatmasına izin ver |
-| `sla` | `%{enabled: true, ...}` | SLA yapılandırma haritası |
-
-## Veritabanı Kurulumu
-
-Escalated migration'ını çalıştırın:
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-Ardından migration içeriğini `priv/repo/migrations/20260406000001_create_escalated_tables.exs` dosyasından kopyalayın veya şununla kurun:
+Bağımlılığı `mix.exs` içindeki `deps` listesine ekleyin, paketin migration'larını çalıştırın, ardından router'ınıza `use Escalated.Router` ekleyin. Elixir 1.15+ ve Ecto SQL 3.14+ gerekir. [Başlangıç kılavuzu](../getting-started.md) router pipeline'larını anlatır.
 
-```bash
-mix ecto.migrate
-```
+## Daha fazla bilgi
 
-## Yönlendirici Kurulumu
+- [Tüm özellikler](../features.md) · [Başlarken](../getting-started.md) · [Yapılandırma, arayüz oluşturma ve plug'lar](../configuration.md)
+- [Talep konuları, eylemler, kullanım ve çeviriler](../customization.md) · [Bildirim ve gelen e-postalar](../email.md)
+- [Erişim denetimi](../access-control.md) · [API token'ları](../api-tokens.md) · [Talep erişimi ve yönlendirme](../ticket-access-and-routing.md)
+- [Satıcı ve misafir erişimi](../merchant-and-guest-access.md) · [Widget'ı yerleştirme](../embedding-the-widget.md)
+- [Temsilci paneli](../agent-panel.md) · [Yönetim ekranını yerleştirme](../embedding-admin.md) · [Bültenler](../newsletters.md)
 
-Phoenix yönlendiricinize Escalated rotalarını bağlayın:
-
-```elixir
-defmodule MyAppWeb.Router do
-  use MyAppWeb, :router
-  use Escalated.Router
-
-  pipeline :authenticated do
-    plug :require_authenticated_user
-  end
-
-  scope "/" do
-    pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
-  end
-end
-```
-
-Bu şunları bağlar:
-
-- **Müşteri rotaları** `/support/tickets/*` adresinde — biletleri görüntüle/oluştur/yanıtla
-- **Temsilci rotaları** `/support/agent/*` adresinde — temsilci panosu ve bilet yönetimi
-- **Yönetici rotaları** `/support/admin/*` adresinde — tam yönetim (departmanlar, etiketler, ayarlar)
-- **API rotaları** `/support/api/v1/*` adresinde — JSON API (`api_enabled: true` olduğunda)
-
-## Kullanım
-
-### Programatik olarak bilet oluşturma
-
-```elixir
-{:ok, ticket} = Escalated.Services.TicketService.create(%{
-  subject: "Cannot log in",
-  description: "I'm getting a 500 error when trying to log in.",
-  priority: "high",
-  requester_id: user.id,
-  requester_type: "MyApp.Accounts.User"
-})
-```
-
-### Biletlere yanıt verme
-
-```elixir
-{:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
-  body: "We're looking into this issue.",
-  author_id: agent.id,
-  is_internal: false
-})
-```
-
-### Bilet atama
-
-```elixir
-{:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
-{:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
-```
-
-### SLA Yönetimi
-
-```elixir
-# SLA ihlallerini kontrol et (bir zamanlayıcı aracılığıyla düzenli olarak çalıştırın)
-breached = Escalated.Services.SlaService.check_breaches()
-
-# SLA istatistiklerini al
-stats = Escalated.Services.SlaService.stats()
-```
-
-## Arayüz Oluşturma
-
-Varsayılan olarak, `inertia` kurulu olduğunda Escalated sayfaları [Inertia.js](https://github.com/inertiajs/inertia-phoenix) aracılığıyla oluşturur. Inertia mevcut değilse, controller'lar JSON yanıtlarına geri döner.
-
-Inertia sayfa prop'larını kullanan kendi frontend bileşenlerinizi oluşturabilir veya JSON API'yi doğrudan kullanabilirsiniz.
-
-## Plug'lar
-
-Escalated yetkilendirme için plug'lar sağlar:
-
-- `Escalated.Plugs.EnsureAgent` — kullanıcının yapılandırılmış `agent_check` kontrolünü geçmesini gerektirir
-- `Escalated.Plugs.EnsureAdmin` — kullanıcının yapılandırılmış `admin_check` kontrolünü geçmesini gerektirir
-- `Escalated.Plugs.ShareInertiaData` — ortak Escalated verilerini Inertia sayfalarıyla paylaşır
-
-## Şemalar
-
-- `Escalated.Schemas.Ticket` — durum, öncelik, SLA takibini içeren destek biletleri
-- `Escalated.Schemas.Reply` — bilet yanıtları ve dahili notlar
-- `Escalated.Schemas.Department` — destek departmanları/takımları
-- `Escalated.Schemas.Tag` — kategorize etmek için bilet etiketleri
-- `Escalated.Schemas.SlaPolicy` — öncelik bazında hedeflerle SLA politikaları
-- `Escalated.Schemas.TicketActivity` — bilet değişikliklerinin denetim günlüğü
-- `Escalated.Schemas.AgentProfile` — temsilciye özel profil verileri
+Escalated, [Laravel](https://github.com/escalated-dev/escalated-laravel), [Rails](https://github.com/escalated-dev/escalated-rails), [Django](https://github.com/escalated-dev/escalated-django), [NestJS](https://github.com/escalated-dev/escalated-nestjs), [AdonisJS](https://github.com/escalated-dev/escalated-adonis), [Symfony](https://github.com/escalated-dev/escalated-symfony), [Go](https://github.com/escalated-dev/escalated-go), [.NET](https://github.com/escalated-dev/escalated-dotnet), [Spring](https://github.com/escalated-dev/escalated-spring), [WordPress](https://github.com/escalated-dev/escalated-wordpress) ve [Filament](https://github.com/escalated-dev/escalated-filament) için de kullanılabilir. Arayüz [escalated](https://github.com/escalated-dev/escalated) deposunda bulunur.
 
 ## Lisans
 
-MIT Lisansı. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
+MIT. Copyright (c) Escalated.dev. Ayrıntılar için [LICENSE](../../LICENSE) dosyasına bakın.

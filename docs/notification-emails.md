@@ -76,4 +76,4 @@ Every message carries the headers in `Escalated.Emails.TicketEmail`:
 
 When `:email_inbound_secret` is set, each message also has a signed
 `Reply-To` (`reply+{id}.{hmac8}@{email_domain}`), so a reply by email threads
-back onto the ticket through the [inbound endpoint](../README.md#inbound-email).
+back onto the ticket through the [inbound endpoint](email.md#inbound-email).

@@ -102,6 +102,12 @@ defmodule Escalated.MixProject do
       source_url: @source_url,
       extras: [
         "README.md",
+        "docs/features.md",
+        "docs/getting-started.md",
+        "docs/configuration.md",
+        "docs/customization.md",
+        "docs/email.md",
+        "docs/newsletters.md",
         "docs/merchant-and-guest-access.md",
         "docs/embedding-the-widget.md",
         "docs/api-tokens.md",

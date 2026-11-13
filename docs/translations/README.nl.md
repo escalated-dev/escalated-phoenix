@@ -1,193 +1,169 @@
-<p align="center">
-  <a href="README.ar.md">العربية</a> •
-  <a href="README.de.md">Deutsch</a> •
-  <a href="../../README.md">English</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.fr.md">Français</a> •
-  <a href="README.it.md">Italiano</a> •
-  <a href="README.ja.md">日本語</a> •
-  <a href="README.ko.md">한국어</a> •
-  <b>Nederlands</b> •
-  <a href="README.pl.md">Polski</a> •
-  <a href="README.pt-BR.md">Português (BR)</a> •
-  <a href="README.ru.md">Русский</a> •
-  <a href="README.tr.md">Türkçe</a> •
+<p align="center"><sub>
+  <a href="README.ar.md">العربية</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="../../README.md">English</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <b>Nederlands</b> ·
+  <a href="README.pl.md">Polski</a> ·
+  <a href="README.pt-BR.md">Português (BR)</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.tr.md">Türkçe</a> ·
   <a href="README.zh-CN.md">简体中文</a>
+</sub></p>
+
+<p align="center">
+  <a href="https://escalated.dev"><img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/logo.png" width="72" height="72" alt="Escalated"></a>
 </p>
 
-# Escalated voor Phoenix
+<h1 align="center">Escalated for Phoenix</h1>
 
-Inbedbaar helpdesk- en support-ticketsysteem voor Phoenix-applicaties. Kant-en-klare support-tickets, afdelingen, SLA-beleid en agentbeheer als Hex-pakket.
+<p align="center">
+  Voeg een complete helpdesk toe aan je Phoenix-app.<br>
+  Tickets, SLA's, escalatieregels, een inbox voor agents en een klantenportaal, draaiend op je eigen database.
+</p>
+
+<p align="center">
+  <a href="https://escalated.dev"><b>Website</b></a> ·
+  <a href="https://escalated.dev/docs"><b>Documentatie</b></a> ·
+  <a href="https://escalated.dev/cloud"><b>Cloud</b></a> ·
+  <a href="../../CHANGELOG.md"><b>Wijzigingslog</b></a>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-dark.png">
+  <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-light.png" alt="De agent-inbox van Escalated: opgeslagen weergaven met aantallen, SLA-afteltimers en prioriteiten op elk ticket" width="100%">
+</picture>
+
+## Wat het doet
+
+<table>
+  <tr>
+    <td width="40%">
+      <h3>Een inbox waarin je agents de hele dag kunnen werken</h3>
+      Gesprek, interne notities, standaardantwoorden en SLA-timers op één scherm. Tickets komen ook binnen per e-mail via Postmark, Mailgun of SES.
+    </td>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-light.png" alt="Een geopend ticket in de werkruimte van de agent met de antwoordeditor">
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-light.png" alt="De rapportagepagina voor beheerders met reactietijden, CSAT en SLA-overschrijdingen">
+      </picture>
+    </td>
+    <td width="40%">
+      <h3>SLA's en escalatieregels die je kunt zien</h3>
+      Reactie- en oplosdoelen per prioriteit met kantooruren, regels die escaleren of opnieuw toewijzen als een doel uitloopt, en rapporten over overschrijdingen.
+    </td>
+  </tr>
+</table>
 
 ## Functies
 
-- **Ticket-levenscyclus** — Aanmaken, toewijzen, beantwoorden, oplossen, sluiten, heropenen met configureerbare statusovergangen
-- **SLA-engine** — Respons- en oplossingsdoelen per prioriteit, kantooruurberekening, automatische overtredingsdetectie
-- **Agentdashboard** — Ticketwachtrij met filters, interne notities, standaardantwoorden
-- **Klantenportaal** — Self-service ticketaanmaak, antwoorden en statusopvolging
-- **Adminpaneel** — Beheer afdelingen, SLA-beleid, tags en bekijk rapporten
-- **Bestandsbijlagen** — Drag-and-drop uploads met configureerbare opslag en groottelimieten
-- **Activiteitstijdlijn** — Volledige auditlog van elke actie op elk ticket
-- **Afdelingsroutering** — Agenten organiseren in afdelingen met automatische toewijzing
-- **Tagsysteem** — Tickets categoriseren met gekleurde tags
-- **Ticket splitsen** — Een antwoord afsplitsen naar een nieuw zelfstandig ticket met behoud van de oorspronkelijke context
-- **Ticket snoozen** — Tickets snoozen met voorinstellingen (1u, 4u, morgen, volgende week); `mix escalated.wake_snoozed_tickets` Mix-taak wekt ze automatisch volgens schema
-- **Opgeslagen weergaven / aangepaste wachtrijen** — Filtervoorinstellingen opslaan, benoemen en delen als herbruikbare ticketweergaven
-- **Inbedbare supportwidget** — Lichtgewicht `<script>`-widget met KB-zoeken, ticketformulier en statuscontrole
-- **E-mailthreading** — Uitgaande e-mails bevatten correcte `In-Reply-To`- en `References`-headers voor correcte threading in e-mailclients
-- **Gepersonaliseerde e-mailsjablonen** — Configureerbaar logo, primaire kleur en voettekst voor alle uitgaande e-mails
-- **Realtime broadcasting** — Opt-in broadcasting via Phoenix PubSub met automatische polling-fallback
-- **Kennisbank-schakelaar** — Publieke kennisbank in-/uitschakelen vanuit de admin-instellingen
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## Installatie
+**Tickets**
+- Aanmaken, toewijzen, beantwoorden, oplossen, heropenen
+- Instelbare statusovergangen
+- Een antwoord afsplitsen naar een nieuw ticket
+- Uitstellen met automatisch wekken
+- Tags, bijlagen, activiteitentijdlijn
 
-Voeg `escalated` toe aan uw lijst met afhankelijkheden in `mix.exs`:
+</td>
+<td width="33%" valign="top">
+
+**Werkruimte voor agents**
+- Wachtrij met filters en opgeslagen weergaven
+- Interne notities en standaardantwoorden
+- Afdelingen met automatische toewijzing
+- Realtime updates via Phoenix PubSub
+
+</td>
+<td width="33%" valign="top">
+
+**SLA's en routering**
+- Reactie- en oplosdoelen per prioriteit
+- Kantooruren
+- Automatische detectie van overschrijdingen
+- Optionele zichtbaarheid per afdeling en account
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+**Klanten**
+- Selfserviceportaal: aanmaken, beantwoorden, volgen
+- Geverifieerde gasttoegang met verlopende rechten
+- Insluitbare widget met zoeken in de kennisbank
+- Kennisbank, aan of uit
+
+</td>
+<td width="33%" valign="top">
+
+**E-mail**
+- Meldingen via je Swoosh-mailer
+- Inkomend via Postmark, Mailgun, SES
+- Correcte threads in mailprogramma's
+- Templates in je eigen huisstijl
+
+</td>
+<td width="33%" valign="top">
+
+**Beheer en multitenancy**
+- Afdelingen, SLA-beleid, tags, rapporten
+- Beheer binnen je eigen adminpaneel
+- Multitenancy per merchant met plaatsen voor medewerkers
+- Bijlagen op instelbare opslag
+
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><a href="../features.md">Alle functies in detail</a></sub></p>
+
+<p align="center">
+  <a href="https://www.phoenixframework.org"><img src="https://img.shields.io/badge/Phoenix-FD4F00?style=for-the-badge&logo=phoenixframework&logoColor=white" alt="Phoenix"></a>
+  <a href="https://elixir-lang.org"><img src="https://img.shields.io/badge/Elixir_1.15+-4B275F?style=for-the-badge&logo=elixir&logoColor=white" alt="Elixir 1.15+"></a>
+  <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3"></a>
+</p>
+
+## Snel aan de slag
 
 ```elixir
-def deps do
-  [
-    {:escalated_phoenix, "~> 0.2.14"}
-  ]
-end
+{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
 ```
-
-## Configuratie
-
-Voeg het volgende toe aan uw `config/config.exs`:
-
-```elixir
-config :escalated,
-  repo: MyApp.Repo,
-  user_schema: MyApp.Accounts.User,
-  route_prefix: "/support",
-  table_prefix: "escalated_",
-  ui_enabled: true,
-  admin_check: &MyApp.Accounts.admin?/1,
-  agent_check: &MyApp.Accounts.agent?/1
-```
-
-### Configuratieopties
-
-| Optie | Standaard | Beschrijving |
-|--------|---------|-------------|
-| `repo` | *vereist* | Uw Ecto Repo-module |
-| `user_schema` | *vereist* | Uw User-schemamodule |
-| `route_prefix` | `"/support"` | URL-prefix voor alle Escalated-routes |
-| `table_prefix` | `"escalated_"` | Prefix voor databasetabelnamen |
-| `ui_enabled` | `true` | Inertia.js UI-routes koppelen |
-| `api_enabled` | `false` | JSON API-routes koppelen |
-| `admin_check` | `nil` | Functie `(user -> boolean)` voor admintoegang |
-| `agent_check` | `nil` | Functie `(user -> boolean)` voor agenttoegang |
-| `default_priority` | `:medium` | Standaard ticketprioriteit |
-| `allow_customer_close` | `true` | Klanten toestaan hun tickets te sluiten |
-| `sla` | `%{enabled: true, ...}` | SLA-configuratiemap |
-
-## Database-setup
-
-Voer de Escalated-migratie uit:
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-Kopieer vervolgens de migratie-inhoud van `priv/repo/migrations/20260406000001_create_escalated_tables.exs` of installeer via:
+Voeg de dependency toe aan `deps` in `mix.exs`, voer de migraties van het pakket uit en zet daarna `use Escalated.Router` in je router. Vereist Elixir 1.15+ en Ecto SQL 3.14+. De [handleiding om te beginnen](../getting-started.md) behandelt de router-pipelines.
 
-```bash
-mix ecto.migrate
-```
+## Meer informatie
 
-## Router-setup
+- [Alle functies](../features.md) · [Aan de slag](../getting-started.md) · [Configuratie, UI-rendering en plugs](../configuration.md)
+- [Ticketonderwerpen, acties, gebruik en vertalingen](../customization.md) · [Meldings- en inkomende e-mail](../email.md)
+- [Toegangsbeheer](../access-control.md) · [API-tokens](../api-tokens.md) · [Tickettoegang en routering](../ticket-access-and-routing.md)
+- [Toegang voor merchants en gasten](../merchant-and-guest-access.md) · [De widget insluiten](../embedding-the-widget.md)
+- [Agentpaneel](../agent-panel.md) · [Het beheer insluiten](../embedding-admin.md) · [Nieuwsbrieven](../newsletters.md)
 
-Koppel Escalated-routes in uw Phoenix-router:
-
-```elixir
-defmodule MyAppWeb.Router do
-  use MyAppWeb, :router
-  use Escalated.Router
-
-  pipeline :authenticated do
-    plug :require_authenticated_user
-  end
-
-  scope "/" do
-    pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
-  end
-end
-```
-
-Dit koppelt:
-
-- **Klantroutes** op `/support/tickets/*` — tickets bekijken/aanmaken/beantwoorden
-- **Agentroutes** op `/support/agent/*` — agentdashboard en ticketbeheer
-- **Adminroutes** op `/support/admin/*` — volledige administratie (afdelingen, tags, instellingen)
-- **API-routes** op `/support/api/v1/*` — JSON API (wanneer `api_enabled: true`)
-
-## Gebruik
-
-### Tickets programmatisch aanmaken
-
-```elixir
-{:ok, ticket} = Escalated.Services.TicketService.create(%{
-  subject: "Cannot log in",
-  description: "I'm getting a 500 error when trying to log in.",
-  priority: "high",
-  requester_id: user.id,
-  requester_type: "MyApp.Accounts.User"
-})
-```
-
-### Op tickets antwoorden
-
-```elixir
-{:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
-  body: "We're looking into this issue.",
-  author_id: agent.id,
-  is_internal: false
-})
-```
-
-### Tickets toewijzen
-
-```elixir
-{:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
-{:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
-```
-
-### SLA-beheer
-
-```elixir
-# Controleren op SLA-overtredingen (periodiek uitvoeren via een planner)
-breached = Escalated.Services.SlaService.check_breaches()
-
-# SLA-statistieken ophalen
-stats = Escalated.Services.SlaService.stats()
-```
-
-## UI-rendering
-
-Standaard rendert Escalated pagina's via [Inertia.js](https://github.com/inertiajs/inertia-phoenix) wanneer `inertia` is geïnstalleerd. Als Inertia niet beschikbaar is, vallen controllers terug op JSON-responses.
-
-U kunt uw eigen frontendcomponenten bouwen die de Inertia-paginaprops gebruiken, of de JSON API direct aanspreken.
-
-## Plugs
-
-Escalated biedt plugs voor autorisatie:
-
-- `Escalated.Plugs.EnsureAgent` — vereist dat de gebruiker de geconfigureerde `agent_check` doorstaat
-- `Escalated.Plugs.EnsureAdmin` — vereist dat de gebruiker de geconfigureerde `admin_check` doorstaat
-- `Escalated.Plugs.ShareInertiaData` — deelt gemeenschappelijke Escalated-gegevens met Inertia-pagina's
-
-## Schema's
-
-- `Escalated.Schemas.Ticket` — supporttickets met status, prioriteit, SLA-tracking
-- `Escalated.Schemas.Reply` — ticketantwoorden en interne notities
-- `Escalated.Schemas.Department` — support-afdelingen/teams
-- `Escalated.Schemas.Tag` — tickettags voor categorisering
-- `Escalated.Schemas.SlaPolicy` — SLA-beleid met doelen per prioriteit
-- `Escalated.Schemas.TicketActivity` — auditlog van ticketwijzigingen
-- `Escalated.Schemas.AgentProfile` — agentspecifieke profielgegevens
+Escalated is ook beschikbaar voor [Laravel](https://github.com/escalated-dev/escalated-laravel), [Rails](https://github.com/escalated-dev/escalated-rails), [Django](https://github.com/escalated-dev/escalated-django), [NestJS](https://github.com/escalated-dev/escalated-nestjs), [AdonisJS](https://github.com/escalated-dev/escalated-adonis), [Symfony](https://github.com/escalated-dev/escalated-symfony), [Go](https://github.com/escalated-dev/escalated-go), [.NET](https://github.com/escalated-dev/escalated-dotnet), [Spring](https://github.com/escalated-dev/escalated-spring), [WordPress](https://github.com/escalated-dev/escalated-wordpress) en [Filament](https://github.com/escalated-dev/escalated-filament). De UI staat in [escalated](https://github.com/escalated-dev/escalated).
 
 ## Licentie
 
-MIT-licentie. Zie [LICENSE](LICENSE) voor details.
+MIT. Copyright (c) Escalated.dev. Zie [LICENSE](../../LICENSE).

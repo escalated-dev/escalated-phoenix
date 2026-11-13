@@ -1,193 +1,169 @@
-<p align="center">
-  <a href="README.ar.md">العربية</a> •
-  <a href="README.de.md">Deutsch</a> •
-  <a href="../../README.md">English</a> •
-  <a href="README.es.md">Español</a> •
-  <a href="README.fr.md">Français</a> •
-  <a href="README.it.md">Italiano</a> •
-  <a href="README.ja.md">日本語</a> •
-  <a href="README.ko.md">한국어</a> •
-  <a href="README.nl.md">Nederlands</a> •
-  <b>Polski</b> •
-  <a href="README.pt-BR.md">Português (BR)</a> •
-  <a href="README.ru.md">Русский</a> •
-  <a href="README.tr.md">Türkçe</a> •
+<p align="center"><sub>
+  <a href="README.ar.md">العربية</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="../../README.md">English</a> ·
+  <a href="README.es.md">Español</a> ·
+  <a href="README.fr.md">Français</a> ·
+  <a href="README.it.md">Italiano</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.ko.md">한국어</a> ·
+  <a href="README.nl.md">Nederlands</a> ·
+  <b>Polski</b> ·
+  <a href="README.pt-BR.md">Português (BR)</a> ·
+  <a href="README.ru.md">Русский</a> ·
+  <a href="README.tr.md">Türkçe</a> ·
   <a href="README.zh-CN.md">简体中文</a>
+</sub></p>
+
+<p align="center">
+  <a href="https://escalated.dev"><img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/logo.png" width="72" height="72" alt="Escalated"></a>
 </p>
 
-# Escalated dla Phoenix
+<h1 align="center">Escalated for Phoenix</h1>
 
-Wbudowany system helpdesk i zgłoszeń wsparcia dla aplikacji Phoenix. Gotowe do użycia zgłoszenia wsparcia, działy, polityki SLA i zarządzanie agentami jako pakiet Hex.
+<p align="center">
+  Dodaj kompletny helpdesk do swojej aplikacji Phoenix.<br>
+  Zgłoszenia, SLA, reguły eskalacji, skrzynka dla agentów i portal klienta, działające na Twojej własnej bazie danych.
+</p>
+
+<p align="center">
+  <a href="https://escalated.dev"><b>Website</b></a> ·
+  <a href="https://escalated.dev/docs"><b>Dokumentacja</b></a> ·
+  <a href="https://escalated.dev/cloud"><b>Cloud</b></a> ·
+  <a href="../../CHANGELOG.md"><b>Lista zmian</b></a>
+</p>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-dark.png">
+  <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/inbox-light.png" alt="Skrzynka agenta w Escalated: zapisane widoki z licznikami, odliczanie SLA i priorytety przy każdym zgłoszeniu" width="100%">
+</picture>
+
+## Co robi
+
+<table>
+  <tr>
+    <td width="40%">
+      <h3>Skrzynka, w której Twoi agenci mogą pracować cały dzień</h3>
+      Rozmowa, notatki wewnętrzne, gotowe odpowiedzi i liczniki SLA na jednym ekranie. Zgłoszenia przychodzą też e-mailem przez Postmark, Mailgun lub SES.
+    </td>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/ticket-light.png" alt="Zgłoszenie otwarte w obszarze roboczym agenta z edytorem odpowiedzi">
+      </picture>
+    </td>
+  </tr>
+  <tr>
+    <td width="60%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-dark.png">
+        <img src="https://raw.githubusercontent.com/escalated-dev/escalated/main/docs/assets/readme/dashboard-light.png" alt="Strona raportów w panelu administracyjnym z czasami odpowiedzi, CSAT i naruszeniami SLA">
+      </picture>
+    </td>
+    <td width="40%">
+      <h3>SLA i reguły eskalacji, które widać</h3>
+      Cele czasu odpowiedzi i rozwiązania dla każdego priorytetu z uwzględnieniem godzin pracy, reguły, które eskalują lub ponownie przypisują zgłoszenie, gdy termin się przesuwa, oraz raporty naruszeń.
+    </td>
+  </tr>
+</table>
 
 ## Funkcje
 
-- **Cykl życia zgłoszenia** — Tworzenie, przypisywanie, odpowiadanie, rozwiązywanie, zamykanie, ponowne otwieranie z konfigurowalnymi przejściami statusów
-- **Silnik SLA** — Cele odpowiedzi i rozwiązania na priorytet, obliczanie godzin pracy, automatyczne wykrywanie naruszeń
-- **Panel agenta** — Kolejka zgłoszeń z filtrami, notatkami wewnętrznymi, gotowymi odpowiedziami
-- **Portal klienta** — Samoobsługowe tworzenie zgłoszeń, odpowiedzi i śledzenie statusu
-- **Panel administracyjny** — Zarządzanie działami, politykami SLA, tagami i przeglądanie raportów
-- **Załączniki plików** — Przesyłanie metodą przeciągnij i upuść z konfigurowalnym magazynem i limitami rozmiaru
-- **Oś czasu aktywności** — Pełny dziennik audytu każdej akcji na każdym zgłoszeniu
-- **Routing departamentowy** — Organizacja agentów w działy z automatycznym przypisywaniem
-- **System tagów** — Kategoryzacja zgłoszeń kolorowymi tagami
-- **Podział zgłoszeń** — Podział odpowiedzi na nowe samodzielne zgłoszenie z zachowaniem oryginalnego kontekstu
-- **Wstrzymywanie zgłoszeń** — Wstrzymywanie zgłoszeń z predefiniowanymi ustawieniami (1h, 4h, jutro, przyszły tydzień); zadanie `mix escalated.wake_snoozed_tickets` automatycznie je budzi zgodnie z harmonogramem
-- **Zapisane widoki / kolejki niestandardowe** — Zapisywanie, nazywanie i udostępnianie presetów filtrów jako wielokrotnego użytku widoków zgłoszeń
-- **Wbudowany widget wsparcia** — Lekki widget `<script>` z wyszukiwaniem bazy wiedzy, formularzem zgłoszenia i sprawdzaniem statusu
-- **Wątkowanie e-maili** — Wychodzące e-maile zawierają prawidłowe nagłówki `In-Reply-To` i `References` dla poprawnego wątkowania w klientach poczty
-- **Markowe szablony e-maili** — Konfigurowalne logo, kolor główny i tekst stopki dla wszystkich wychodzących e-maili
-- **Nadawanie w czasie rzeczywistym** — Opcjonalne nadawanie przez Phoenix PubSub z automatycznym odpytywaniem jako rezerwą
-- **Przełącznik bazy wiedzy** — Włączanie lub wyłączanie publicznej bazy wiedzy z ustawień administracyjnych
+<table>
+<tr>
+<td width="33%" valign="top">
 
-## Instalacja
+**Zgłoszenia**
+- Tworzenie, przypisywanie, odpowiadanie, rozwiązywanie, ponowne otwieranie
+- Konfigurowalne przejścia statusów
+- Wydzielenie odpowiedzi do nowego zgłoszenia
+- Odkładanie z automatycznym wybudzeniem
+- Tagi, załączniki, oś czasu aktywności
 
-Dodaj `escalated` do listy zależności w `mix.exs`:
+</td>
+<td width="33%" valign="top">
+
+**Obszar roboczy agenta**
+- Kolejka z filtrami i zapisanymi widokami
+- Notatki wewnętrzne i gotowe odpowiedzi
+- Działy z automatycznym przypisywaniem
+- Aktualizacje w czasie rzeczywistym przez Phoenix PubSub
+
+</td>
+<td width="33%" valign="top">
+
+**SLA i routing**
+- Cele czasu odpowiedzi i rozwiązania dla każdego priorytetu
+- Godziny pracy
+- Automatyczne wykrywanie naruszeń
+- Opcjonalna widoczność według działu i konta
+
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+
+**Klienci**
+- Portal samoobsługowy: zgłaszanie, odpowiadanie, śledzenie
+- Zweryfikowany dostęp dla gości z wygasającymi uprawnieniami
+- Osadzany widżet z wyszukiwaniem w bazie wiedzy
+- Baza wiedzy, włączona lub wyłączona
+
+</td>
+<td width="33%" valign="top">
+
+**E-mail**
+- Powiadomienia przez Twój mailer Swoosh
+- Poczta przychodząca przez Postmark, Mailgun, SES
+- Poprawne wątki w programach pocztowych
+- Szablony z Twoją marką
+
+</td>
+<td width="33%" valign="top">
+
+**Administracja i wielodostępność**
+- Działy, polityki SLA, tagi, raporty
+- Administracja wewnątrz Twojego panelu admina
+- Wielodostępność dla sprzedawców z miejscami dla personelu
+- Załączniki w konfigurowalnym magazynie
+
+</td>
+</tr>
+</table>
+
+<p align="center"><sub><a href="../features.md">Wszystkie funkcje szczegółowo</a></sub></p>
+
+<p align="center">
+  <a href="https://www.phoenixframework.org"><img src="https://img.shields.io/badge/Phoenix-FD4F00?style=for-the-badge&logo=phoenixframework&logoColor=white" alt="Phoenix"></a>
+  <a href="https://elixir-lang.org"><img src="https://img.shields.io/badge/Elixir_1.15+-4B275F?style=for-the-badge&logo=elixir&logoColor=white" alt="Elixir 1.15+"></a>
+  <a href="https://inertiajs.com"><img src="https://img.shields.io/badge/Inertia-9553E9?style=for-the-badge&logo=inertia&logoColor=white" alt="Inertia"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue_3-4FC08D?style=for-the-badge&logo=vuedotjs&logoColor=white" alt="Vue 3"></a>
+</p>
+
+## Szybki start
 
 ```elixir
-def deps do
-  [
-    {:escalated_phoenix, "~> 0.2.14"}
-  ]
-end
+{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
 ```
-
-## Konfiguracja
-
-Dodaj poniższe do `config/config.exs`:
-
-```elixir
-config :escalated,
-  repo: MyApp.Repo,
-  user_schema: MyApp.Accounts.User,
-  route_prefix: "/support",
-  table_prefix: "escalated_",
-  ui_enabled: true,
-  admin_check: &MyApp.Accounts.admin?/1,
-  agent_check: &MyApp.Accounts.agent?/1
-```
-
-### Opcje konfiguracji
-
-| Opcja | Domyślnie | Opis |
-|--------|---------|-------------|
-| `repo` | *wymagane* | Moduł Ecto Repo |
-| `user_schema` | *wymagane* | Moduł schematu User |
-| `route_prefix` | `"/support"` | Prefiks URL dla wszystkich tras Escalated |
-| `table_prefix` | `"escalated_"` | Prefiks nazw tabel bazy danych |
-| `ui_enabled` | `true` | Montowanie tras interfejsu Inertia.js |
-| `api_enabled` | `false` | Montowanie tras JSON API |
-| `admin_check` | `nil` | Funkcja `(user -> boolean)` dla dostępu administratora |
-| `agent_check` | `nil` | Funkcja `(user -> boolean)` dla dostępu agenta |
-| `default_priority` | `:medium` | Domyślny priorytet zgłoszenia |
-| `allow_customer_close` | `true` | Pozwalanie klientom zamykać swoje zgłoszenia |
-| `sla` | `%{enabled: true, ...}` | Mapa konfiguracji SLA |
-
-## Konfiguracja bazy danych
-
-Uruchom migrację Escalated:
 
 ```bash
-mix ecto.gen.migration create_escalated_tables
+mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo/migrations
 ```
 
-Następnie skopiuj zawartość migracji z `priv/repo/migrations/20260406000001_create_escalated_tables.exs` lub zainstaluj przez:
+Dodaj zależność do `deps` w `mix.exs`, uruchom migracje pakietu, a potem dodaj `use Escalated.Router` do swojego routera. Wymaga Elixir 1.15+ i Ecto SQL 3.14+. [Przewodnik na start](../getting-started.md) opisuje pipeline'y routera.
 
-```bash
-mix ecto.migrate
-```
+## Dowiedz się więcej
 
-## Konfiguracja routera
+- [Wszystkie funkcje](../features.md) · [Pierwsze kroki](../getting-started.md) · [Konfiguracja, renderowanie UI i plugi](../configuration.md)
+- [Tematy zgłoszeń, akcje, użycie i tłumaczenia](../customization.md) · [Powiadomienia e-mail i poczta przychodząca](../email.md)
+- [Kontrola dostępu](../access-control.md) · [Tokeny API](../api-tokens.md) · [Dostęp do zgłoszeń i routing](../ticket-access-and-routing.md)
+- [Dostęp dla sprzedawców i gości](../merchant-and-guest-access.md) · [Osadzanie widżetu](../embedding-the-widget.md)
+- [Panel agenta](../agent-panel.md) · [Osadzanie panelu administracyjnego](../embedding-admin.md) · [Newslettery](../newsletters.md)
 
-Zamontuj trasy Escalated w routerze Phoenix:
-
-```elixir
-defmodule MyAppWeb.Router do
-  use MyAppWeb, :router
-  use Escalated.Router
-
-  pipeline :authenticated do
-    plug :require_authenticated_user
-  end
-
-  scope "/" do
-    pipe_through [:browser, :authenticated]
-    escalated_routes("/support")
-  end
-end
-```
-
-To montuje:
-
-- **Trasy klienta** pod `/support/tickets/*` — przeglądanie/tworzenie/odpowiadanie na zgłoszenia
-- **Trasy agenta** pod `/support/agent/*` — panel agenta i zarządzanie zgłoszeniami
-- **Trasy administratora** pod `/support/admin/*` — pełna administracja (działy, tagi, ustawienia)
-- **Trasy API** pod `/support/api/v1/*` — JSON API (gdy `api_enabled: true`)
-
-## Użycie
-
-### Programowe tworzenie zgłoszeń
-
-```elixir
-{:ok, ticket} = Escalated.Services.TicketService.create(%{
-  subject: "Cannot log in",
-  description: "I'm getting a 500 error when trying to log in.",
-  priority: "high",
-  requester_id: user.id,
-  requester_type: "MyApp.Accounts.User"
-})
-```
-
-### Odpowiadanie na zgłoszenia
-
-```elixir
-{:ok, reply} = Escalated.Services.TicketService.reply(ticket, %{
-  body: "We're looking into this issue.",
-  author_id: agent.id,
-  is_internal: false
-})
-```
-
-### Przypisywanie zgłoszeń
-
-```elixir
-{:ok, ticket} = Escalated.Services.AssignmentService.assign(ticket, agent_id)
-{:ok, ticket} = Escalated.Services.AssignmentService.auto_assign(ticket)
-```
-
-### Zarządzanie SLA
-
-```elixir
-# Sprawdzanie naruszeń SLA (uruchamiać okresowo przez planistę)
-breached = Escalated.Services.SlaService.check_breaches()
-
-# Pobieranie statystyk SLA
-stats = Escalated.Services.SlaService.stats()
-```
-
-## Renderowanie interfejsu
-
-Domyślnie Escalated renderuje strony przez [Inertia.js](https://github.com/inertiajs/inertia-phoenix) gdy `inertia` jest zainstalowane. Jeśli Inertia nie jest dostępne, kontrolery przechodzą na odpowiedzi JSON.
-
-Możesz zbudować własne komponenty frontendowe korzystające z propsów strony Inertia lub bezpośrednio używać JSON API.
-
-## Plugi
-
-Escalated udostępnia plugi do autoryzacji:
-
-- `Escalated.Plugs.EnsureAgent` — wymaga przejścia skonfigurowanego `agent_check` przez użytkownika
-- `Escalated.Plugs.EnsureAdmin` — wymaga przejścia skonfigurowanego `admin_check` przez użytkownika
-- `Escalated.Plugs.ShareInertiaData` — udostępnia wspólne dane Escalated stronom Inertia
-
-## Schematy
-
-- `Escalated.Schemas.Ticket` — zgłoszenia wsparcia ze statusem, priorytetem, śledzeniem SLA
-- `Escalated.Schemas.Reply` — odpowiedzi na zgłoszenia i notatki wewnętrzne
-- `Escalated.Schemas.Department` — działy/zespoły wsparcia
-- `Escalated.Schemas.Tag` — tagi zgłoszeń do kategoryzacji
-- `Escalated.Schemas.SlaPolicy` — polityki SLA z celami na priorytet
-- `Escalated.Schemas.TicketActivity` — dziennik audytu zmian zgłoszeń
-- `Escalated.Schemas.AgentProfile` — dane profilu specyficzne dla agenta
+Escalated jest dostępny również dla [Laravel](https://github.com/escalated-dev/escalated-laravel), [Rails](https://github.com/escalated-dev/escalated-rails), [Django](https://github.com/escalated-dev/escalated-django), [NestJS](https://github.com/escalated-dev/escalated-nestjs), [AdonisJS](https://github.com/escalated-dev/escalated-adonis), [Symfony](https://github.com/escalated-dev/escalated-symfony), [Go](https://github.com/escalated-dev/escalated-go), [.NET](https://github.com/escalated-dev/escalated-dotnet), [Spring](https://github.com/escalated-dev/escalated-spring), [WordPress](https://github.com/escalated-dev/escalated-wordpress) i [Filament](https://github.com/escalated-dev/escalated-filament). Interfejs znajduje się w [escalated](https://github.com/escalated-dev/escalated).
 
 ## Licencja
 
-Licencja MIT. Zobacz [LICENSE](LICENSE) po szczegóły.
+MIT. Copyright (c) Escalated.dev. Zobacz [LICENSE](../../LICENSE).
