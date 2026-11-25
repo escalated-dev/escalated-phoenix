@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `mix escalated.run_automations` (the time-based automations had no task) and `mix escalated.doctor` (user schema, staff gates, recurring jobs).
 - A test that the agent and admin ticket pages send `ticket.subjects` exactly as the API ticket resource does (they already did).
 
+### Changed
+- **Dependencies (lock), for the advisories `mix hex.audit` reports:** phoenix 1.8.17, plug 1.20.4, db_connection 2.10.3, phoenix_live_view 1.2.15, and for tests swoosh 1.30.0 with idna 8.0.0.
+
 ## [0.2.14] - 2026-11-07
 
 ### Upgrading
