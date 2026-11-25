@@ -100,6 +100,97 @@ config :escalated,
   agent_check: &MyApp.Accounts.agent?/1
 ```
 
+## Required: schedule the recurring jobs
+
+SLA breach checks, escalation rules, automations, delayed workflow actions and
+snooze wake-ups run only when something runs them on a timer. Nothing in a
+Phoenix app does that by default, so pick one of these:
+
+**In-process (simplest).** Add `Escalated.Scheduler` to your supervision tree
+after your repo. It runs every job below at its interval, one run of a job at a
+time, for every tenant in your trusted catalog when tenancy is on:
+
+```elixir
+children = [
+  MyApp.Repo,
+  Escalated.Scheduler,
+  MyAppWeb.Endpoint
+]
+```
+
+On a cluster, start it on one node only, or every node runs every job.
+
+**Your own scheduler.** Run each job at its interval: `mix escalated.<job>` from
+cron, or `Escalated.Scheduler.run(:job)` from Oban or Quantum (use this in a
+release, where Mix tasks are not available).
+
+| Job | Mix task | Interval |
+|-----|----------|----------|
+| `:check_sla` | `mix escalated.check_sla` | every minute |
+| `:run_due_delayed_actions` | `mix escalated.run_due_delayed_actions` | every minute |
+| `:wake_snoozed_tickets` | `mix escalated.wake_snoozed_tickets` | every minute |
+| `:evaluate_escalations` | `mix escalated.evaluate_escalations` | every 5 minutes |
+| `:run_automations` | `mix escalated.run_automations` | every 5 minutes |
+
+Optional features add their own: `mix escalated.newsletters.dispatch` (every
+minute, with newsletters on), `mix escalated.purge_guest_access` (hourly, with
+guest access; see [merchant and guest access](merchant-and-guest-access.md))
+and `mix escalated.purge_expired` (daily, with data retention).
+
+Every SLA check records a heartbeat. When it is missing or more than 15
+minutes old, the admin Settings page and the Reports overview and dashboard
+warn that the recurring jobs are not running and list what to schedule (their
+`scheduler` prop: `healthy`, `last_run_at`, `message`, `commands`), and
+`mix escalated.doctor` reports it.
+
+## Check the setup
+
+`mix escalated.doctor` reports a user schema that does not meet
+`Escalated.UserContract` (unset, not an Ecto schema, or without `:id`), staff
+gates that are missing (no `agent_check` / `admin_check` and no `is_agent` /
+`is_admin` fields), and the recurring jobs' heartbeat. It exits non-zero on an
+error. In a release, call `Escalated.UserContract.problems/0` and
+`Escalated.Scheduler.status/0`.
+
+## Optional public routes and staff-only installs
+
+The widget and the guest portal are public: they answer requests from people
+who are not signed in. On an install that does not use them, switch their
+routes off so they are not mounted at all. A customer route, by default,
+accepts any signed-in user; `customer_middleware` adds your own guard to them.
+All three are read when your router compiles (put them in `config/config.exs`,
+not `runtime.exs`, and recompile after a change):
+
+```elixir
+config :escalated,
+  routes: [
+    # No /support/widget/* route, from escalated_routes/2 or
+    # escalated_widget_routes/1. Default true; env ESCALATED_WIDGET_ENABLED.
+    widget: false,
+    # No /support/guest/*, /support/api/v1/guest/* or
+    # /support/api/v1/mobile/guest/* route. Default true;
+    # env ESCALATED_GUEST_ROUTES.
+    guest: false,
+    # Plugs (or pipeline names) run after the customer plugs on the customer
+    # ticket routes (/support/tickets/*, including CSAT by reference) and the
+    # customer knowledge base (/support/kb/*). Default [].
+    customer_middleware: [Escalated.Plugs.EnsureAgent]
+  ]
+```
+
+Together these make the portal **staff-only**: no public widget or guest
+routes, and a signed-in user who is not an agent gets 403 from the customer
+and knowledge-base routes instead of being able to list and raise tickets. Use
+any plug of your own in place of `Escalated.Plugs.EnsureAgent`.
+
+The runtime switches keep working inside routes that are mounted:
+`widget_settings: %{enabled: false}` still refuses widget requests, and the
+knowledge base settings still answer 404. `escalated_routes/2` also takes
+`guest: false`, like `widget: false` and `sso: false`.
+
+Slack and a cloud-to-site webhook are not part of this package, so there are
+no routes of theirs to switch off.
+
 ## Embedding the admin in your own admin panel (optional)
 
 The admin at `/support/admin` is the default and needs nothing more. If your
