@@ -154,6 +154,10 @@ mix ecto.migrate -r MyApp.SupportRepo --migrations-path deps/escalated/priv/repo
 
 Add the dependency to `deps` in `mix.exs`, run the package migrations, then `use Escalated.Router` in your router. Needs Elixir 1.15+ and Ecto SQL 3.14+. The [getting started guide](docs/getting-started.md) covers the router pipelines.
 
+## Required: schedule the recurring jobs
+
+SLA checks, escalation rules, automations, delayed actions and snooze wake-ups only run when something schedules them. Add `Escalated.Scheduler` to your supervision tree after your repo, or run `mix escalated.check_sla`, `run_due_delayed_actions` and `wake_snoozed_tickets` every minute and `evaluate_escalations` and `run_automations` every five minutes. Admin pages warn when the SLA check has not run for 15 minutes; `mix escalated.doctor` checks the setup. See [getting started](docs/getting-started.md#required-schedule-the-recurring-jobs).
+
 ## Learn more
 
 - [All features](docs/features.md) · [Getting started](docs/getting-started.md) · [Configuration, UI rendering and plugs](docs/configuration.md)

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Upgrading
+- **Schedule the recurring jobs if you do not already.** SLA checks, escalation rules, automations, delayed actions and snooze wake-ups only run when scheduled. Add `Escalated.Scheduler` to your supervision tree (opt-in), or schedule the Mix tasks / `Escalated.Scheduler.run/1`; see "Required: schedule the recurring jobs" in `docs/getting-started.md`.
+- **A misconfigured user setup now raises `Escalated.UserContract.Error`** naming what to configure, instead of a raw `UndefinedFunctionError` / `Protocol.UndefinedError` (a `:user_schema` that is not an Ecto schema with `:id`), and instead of a bare 403 on agent and admin routes (a signed-in `current_user` with no `:id`).
+
+### Added
+- `config :escalated, routes: [widget:, guest:, customer_middleware:]`, read when the router compiles. `widget: false` (env `ESCALATED_WIDGET_ENABLED`) mounts no widget route; `guest: false` (env `ESCALATED_GUEST_ROUTES`) mounts no guest portal, guest API or mobile guest API route; `customer_middleware` adds plugs after the customer plugs on the customer ticket, CSAT and knowledge-base routes (e.g. `[Escalated.Plugs.EnsureAgent]` for a staff-only portal). Defaults mount and guard exactly what they did before. `escalated_routes/2` also takes `guest: false`.
+- `Escalated.Scheduler`: the recurring jobs, an opt-in in-process runner, and a heartbeat recorded by every SLA check. The admin Settings page and the Reports overview and dashboard get a `scheduler` prop (`healthy`, `last_run_at`, `message`, `commands`); `healthy` is false when the heartbeat is missing or more than 15 minutes old.
+- `mix escalated.run_automations` (the time-based automations had no task) and `mix escalated.doctor` (user schema, staff gates, recurring jobs).
+- A test that the agent and admin ticket pages send `ticket.subjects` exactly as the API ticket resource does (they already did).
+
+### Changed
+- **Dependencies (lock), for the advisories `mix hex.audit` reports:** phoenix 1.8.17, plug 1.20.4, db_connection 2.10.3, phoenix_live_view 1.2.15, and for tests swoosh 1.30.0 with idna 8.0.0.
+
 ## [0.2.14] - 2026-11-07
 
 ### Upgrading

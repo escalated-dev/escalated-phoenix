@@ -7,6 +7,9 @@ defmodule Escalated.Plugs.EnsureAdmin do
   must return a boolean. Without a callback, the host admin flag or an
   Escalated admin profile is required.
 
+  A signed-in `current_user` that is not a struct or map with an `:id`
+  raises `Escalated.UserContract.Error`, which names what to configure.
+
   ## Configuration
 
       config :escalated,
@@ -21,6 +24,10 @@ defmodule Escalated.Plugs.EnsureAdmin do
   @impl true
   def call(conn, _opts) do
     user = conn.assigns[:current_user]
+
+    # A signed-in user Escalated cannot identify is a setup mistake, not a
+    # refusal: say what to configure (Escalated.UserContract).
+    Escalated.UserContract.check_current_user!(user)
 
     cond do
       is_nil(user) ->

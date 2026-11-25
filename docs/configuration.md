@@ -24,7 +24,11 @@ staff-only. Permanent legacy guest tokens are rejected.
 
 `Escalated.Permissions.admin?/1` and `agent?/1` determine access consistently
 for admin/agent routes, ticket APIs and realtime channels. The host must supply
-an authenticated user with an ID. Configured `admin_check` and `agent_check`
+an authenticated user with an ID (`Escalated.UserContract`): a signed-in
+`current_user` without `:id` on an agent or admin route, or a `:user_schema`
+that is unset or not an Ecto schema with an `:id` field, raises
+`Escalated.UserContract.Error` saying what to configure. `mix escalated.doctor`
+checks this, and the gates below, up front. Configured `admin_check` and `agent_check`
 callbacks are authoritative for their respective capability and must return
 the boolean `true` to grant it. A denied or invalid callback never falls back to
 stored roles.
