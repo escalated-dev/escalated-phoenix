@@ -34,7 +34,10 @@ defmodule Escalated.Controllers.Admin.SettingsController do
       settings:
         Map.put(GeneralSettings.all(), "widget_enabled", widget_enabled not in [false, nil]),
       supported_settings: GeneralSettings.supported_keys(),
-      update_url: settings_path()
+      update_url: settings_path(),
+      # Whether the recurring jobs run (the SLA check's heartbeat); the page
+      # warns while `healthy` is false.
+      scheduler: Escalated.Scheduler.status()
     })
   end
 

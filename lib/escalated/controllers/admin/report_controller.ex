@@ -46,6 +46,15 @@ defmodule Escalated.Controllers.Admin.ReportController do
 
   defp screen(conn, params, name) do
     props = apply(ReportScreens, name, [ReportScreens.period_days(params)])
+    props = with_scheduler(props, name)
+
     UIRenderer.render_page(conn, Map.fetch!(@screens, name), props)
   end
+
+  # The reports overview and dashboard warn admins while the recurring jobs
+  # are not running (Escalated.Scheduler.status/1).
+  defp with_scheduler(props, name) when name in [:overview, :dashboard],
+    do: Map.put(props, :scheduler, Escalated.Scheduler.status())
+
+  defp with_scheduler(props, _name), do: props
 end
