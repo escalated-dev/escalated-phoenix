@@ -126,16 +126,30 @@ defmodule Escalated.UserContractTest do
 
       assert_received {:mix_shell, :info, ["[error] " <> message]}
       assert message =~ "is not an Ecto schema"
-      assert_received {:mix_shell, :info, ["[warning] " <> scheduler]}
-      assert scheduler =~ "mix escalated.check_sla"
+
+      warnings = for {:mix_shell, :info, ["[warning] " <> warning]} <- drain(), do: warning
+      assert Enum.any?(warnings, &(&1 =~ "no staff gate"))
+      assert Enum.any?(warnings, &(&1 =~ "mix escalated.check_sla"))
     end
   end
 
-  # The router wraps what a plug raises in Plug.Conn.WrapperError.
+  defp drain(acc \\ []) do
+    receive do
+      message -> drain([message | acc])
+    after
+      0 -> Enum.reverse(acc)
+    end
+  end
+
+  # What the request raised, unwrapped if the router wrapped it in
+  # Plug.Conn.WrapperError.
   defp staff_error(fun) do
     fun.()
     flunk("expected Escalated.UserContract.Error")
   rescue
+    error in UserContract.Error ->
+      error
+
     error in Plug.Conn.WrapperError ->
       assert %UserContract.Error{} = error.reason
       error.reason
