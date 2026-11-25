@@ -47,9 +47,7 @@ defmodule Escalated.Router do
   """
   defmacro escalated_widget_routes(prefix) do
     quote do
-      if Escalated.Router.__route_switches__(
-           Application.compile_env(:escalated, :routes, [])
-         ).widget do
+      if Escalated.Router.__route_switches__(Application.compile_env(:escalated, :routes, [])).widget do
         unquote(widget_scope(prefix))
       end
     end

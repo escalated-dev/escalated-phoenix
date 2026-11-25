@@ -68,11 +68,9 @@ defmodule Escalated.Scheduler do
   # {name, mix task, interval as shown, interval in ms}
   @jobs [
     {:check_sla, "mix escalated.check_sla", "every minute", @minute},
-    {:run_due_delayed_actions, "mix escalated.run_due_delayed_actions", "every minute",
-     @minute},
+    {:run_due_delayed_actions, "mix escalated.run_due_delayed_actions", "every minute", @minute},
     {:wake_snoozed_tickets, "mix escalated.wake_snoozed_tickets", "every minute", @minute},
-    {:evaluate_escalations, "mix escalated.evaluate_escalations", "every 5 minutes",
-     5 * @minute},
+    {:evaluate_escalations, "mix escalated.evaluate_escalations", "every 5 minutes", 5 * @minute},
     {:run_automations, "mix escalated.run_automations", "every 5 minutes", 5 * @minute}
   ]
 

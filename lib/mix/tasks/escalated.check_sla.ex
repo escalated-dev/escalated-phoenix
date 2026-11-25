@@ -20,7 +20,6 @@ defmodule Mix.Tasks.Escalated.CheckSla do
   """
   use Mix.Task
 
-
   @shortdoc "Marks SLA breaches and sends SLA warnings"
 
   @impl Mix.Task
