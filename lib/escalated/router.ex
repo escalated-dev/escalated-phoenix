@@ -41,8 +41,19 @@ defmodule Escalated.Router do
   `Escalated.Plugs.WidgetCors` runs before `:protect_from_forgery` so sites
   listed in `widget_allowed_origins` can post without a CSRF token. See the
   README's router setup.
+
+  Mounts nothing while `config :escalated, routes: [widget: false]` (see
+  `escalated_routes/2`).
   """
-  defmacro escalated_widget_routes(prefix), do: widget_scope(prefix)
+  defmacro escalated_widget_routes(prefix) do
+    quote do
+      if Escalated.Router.__route_switches__(
+           Application.compile_env(:escalated, :routes, [])
+         ).widget do
+        unquote(widget_scope(prefix))
+      end
+    end
+  end
 
   @doc """
   Mounts only the single sign-on routes (`{prefix}/sso/*`).
@@ -180,15 +191,50 @@ defmodule Escalated.Router do
       them with `escalated_widget_routes/1` (default: `true`)
     * `:sso` - `false` leaves out the single sign-on routes, for hosts that
       mount them with `escalated_sso_routes/1` (default: `true`)
+    * `:guest` - `false` leaves out the guest portal and guest API routes
+      (default: `true`)
+
+  ## Route switches
+
+  Read when the host's router compiles (`config/config.exs`, not
+  `runtime.exs`; changing one needs a recompile):
+
+      config :escalated,
+        routes: [
+          # false: no `{prefix}/widget/*` route is mounted, here or by
+          # `escalated_widget_routes/1`. Falls back to ESCALATED_WIDGET_ENABLED.
+          widget: true,
+          # false: no `{prefix}/guest/*`, `api/v1/guest/*` or
+          # `api/v1/mobile/guest/*` route is mounted. Falls back to
+          # ESCALATED_GUEST_ROUTES.
+          guest: true,
+          # Plugs or pipeline names run after the customer plugs on the
+          # customer ticket routes, the customer knowledge base and customer
+          # CSAT. `[Escalated.Plugs.EnsureAgent]` makes the portal staff-only.
+          customer_middleware: []
+        ]
+
+  The runtime switches (`widget_settings.enabled`, the knowledge base
+  settings) keep working inside routes that are mounted.
   """
   defmacro escalated_routes(prefix, opts \\ []) do
     # `widget: false` leaves the widget routes to `escalated_widget_routes/1`,
     # mounted by the host in a pipeline of their own.
     widget = if Keyword.get(opts, :widget, true) == false, do: nil, else: widget_scope(prefix)
     sso = if Keyword.get(opts, :sso, true) == false, do: nil, else: sso_scope()
+    guest? = Keyword.get(opts, :guest, true) != false
 
     quote do
-      unquote(widget)
+      # `config :escalated, routes: [...]`, read when the host's router
+      # compiles (Escalated.Router.__route_switches__/1).
+      escalated_switches =
+        Escalated.Router.__route_switches__(Application.compile_env(:escalated, :routes, []))
+
+      escalated_guest = unquote(guest?) and escalated_switches.guest
+
+      if escalated_switches.widget do
+        unquote(widget)
+      end
 
       # The route keys of `config :escalated, :ui, embed: [...]`, read when
       # the host's router compiles (Escalated.Embed).
@@ -213,44 +259,27 @@ defmodule Escalated.Router do
         # Attachment downloads authenticate and authorize the owning ticket/reply.
         get "/attachments/:id/download", Escalated.Controllers.AttachmentController, :download
 
-        # CSAT rating submission (customer by reference, guest by token).
-        post "/tickets/:reference/rate",
-             Escalated.Controllers.SatisfactionRatingController,
-             :store
+        # CSAT rating submission by the customer, by reference (guests rate
+        # by token below).
+        scope "/" do
+          pipe_through escalated_switches.customer_middleware
 
-        scope "/guest" do
-          pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
-
-          post "/verification", Escalated.Controllers.GuestAccessController, :challenge
-          post "/lookup", Escalated.Controllers.GuestAccessController, :lookup
-
-          post "/tickets/:token/rate",
+          post "/tickets/:reference/rate",
                Escalated.Controllers.SatisfactionRatingController,
-               :store_guest
+               :store
+        end
 
-          # The guest portal pages (escalated.guest.tickets.*). /create is
-          # declared ahead of /:token so it is never read as a token.
-          get "/create", Escalated.Controllers.Guest.TicketController, :create
-          get "/:token", Escalated.Controllers.Guest.TicketController, :show
-
-          post "/:token/rate", Escalated.Controllers.SatisfactionRatingController, :store_guest,
-            as: :guest_page_rate
-
-          scope "/" do
-            pipe_through Escalated.Plugs.GuestTicketRateLimit
-            post "/", Escalated.Controllers.Guest.TicketController, :store
-          end
-
-          scope "/" do
-            pipe_through Escalated.Plugs.GuestReplyRateLimit
-            post "/:token/reply", Escalated.Controllers.Guest.TicketController, :reply
-          end
+        if escalated_guest do
+          unquote(guest_ui_routes())
         end
 
         # Customer routes. Signed-in customers are recorded as on the site for
-        # the agent pages' presence (ADR 2026-11-05-agent-panel-data).
+        # the agent pages' presence (ADR 2026-11-05-agent-panel-data). The
+        # host's `routes: [customer_middleware: ...]` runs after that, so a
+        # staff-only install can refuse everyone else.
         scope "/", Escalated.Controllers.Customer do
           pipe_through Escalated.Plugs.RecordCustomerPresence
+          pipe_through escalated_switches.customer_middleware
 
           get "/tickets", TicketController, :index
           get "/tickets/new", TicketController, :new
@@ -265,6 +294,7 @@ defmodule Escalated.Router do
         # knowledge_base_enabled config via EnsureKbEnabled.
         scope "/kb", Escalated.Controllers.Customer, as: :kb do
           pipe_through Escalated.Plugs.EnsureKbEnabled
+          pipe_through escalated_switches.customer_middleware
 
           get "/", KnowledgeBaseController, :index
           get "/:slug", KnowledgeBaseController, :show
@@ -444,46 +474,10 @@ defmodule Escalated.Router do
             get "/departments", ResourceController, :departments
             get "/tags", ResourceController, :tags
 
-            # Anonymous (guest) ticket submission + lookup by token.
-            scope "/guest" do
-              pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
-
-              post "/verification", GuestAccessController, :challenge
-              post "/lookup", GuestAccessController, :lookup
-
-              get "/tickets/:token", GuestTicketController, :show
-
-              scope "/" do
-                pipe_through Escalated.Plugs.GuestTicketRateLimit
-                post "/tickets", GuestTicketController, :create
-              end
-
-              scope "/" do
-                pipe_through Escalated.Plugs.GuestReplyRateLimit
-                post "/tickets/:token/replies", GuestTicketController, :reply
-              end
-            end
-
-            # The mobile guest API (domain-model/mobile-guest-api.md in
-            # escalated-developer-context): the same codes, grants and per-IP
-            # guest budgets as the routes above. GuestPrivacy runs first so
-            # rate-limit refusals carry its headers too.
-            scope "/mobile/guest", as: :mobile_guest do
-              pipe_through [Escalated.Plugs.GuestPrivacy, Escalated.Plugs.GuestRateLimit]
-
-              get "/tickets/:token", MobileGuestController, :show
-
-              scope "/" do
-                pipe_through Escalated.Plugs.GuestTicketRateLimit
-                post "/verification", MobileGuestController, :verification
-                post "/tickets", MobileGuestController, :create
-              end
-
-              scope "/" do
-                pipe_through Escalated.Plugs.GuestReplyRateLimit
-                post "/lookup", MobileGuestController, :lookup
-                post "/tickets/:token/replies", MobileGuestController, :reply
-              end
+            # Anonymous (guest) ticket submission + lookup by token, and the
+            # mobile guest API. Mounted only while `routes: [guest: ...]` is on.
+            if escalated_guest do
+              unquote(guest_api_routes())
             end
           end
 
@@ -534,6 +528,41 @@ defmodule Escalated.Router do
   end
 
   @doc false
+  # `config :escalated, routes: [...]` as the router macros use it, read when
+  # the host's router compiles. `widget` and `guest` fall back to
+  # ESCALATED_WIDGET_ENABLED and ESCALATED_GUEST_ROUTES, and default to on so
+  # an install that sets nothing mounts what it always has.
+  def __route_switches__(config) do
+    config = if is_map(config), do: Map.to_list(config), else: List.wrap(config)
+
+    unless Keyword.keyword?(config) do
+      raise ArgumentError,
+            "config :escalated, routes: ... must be a keyword list, got: #{inspect(config)}"
+    end
+
+    middleware = config |> Keyword.get(:customer_middleware) |> List.wrap()
+
+    unless Enum.all?(middleware, &is_atom/1) do
+      raise ArgumentError,
+            "config :escalated, routes: [customer_middleware: ...] must be pipeline names " <>
+              "or plug modules, got: #{inspect(middleware)}"
+    end
+
+    %{
+      widget: switch(config, :widget, "ESCALATED_WIDGET_ENABLED"),
+      guest: switch(config, :guest, "ESCALATED_GUEST_ROUTES"),
+      customer_middleware: middleware
+    }
+  end
+
+  defp switch(config, key, env) do
+    case Keyword.get(config, key) do
+      nil -> System.get_env(env) not in ["false", "0", "off", "no", "FALSE", "False"]
+      value -> value not in [false, "false", "0", 0]
+    end
+  end
+
+  @doc false
   # The compile-time part of the embed configuration (Escalated.Embed).
   def __embed__(enabled, prefix, middleware, replace_admin_gate) do
     enabled = Escalated.Embed.truthy?(enabled)
@@ -560,6 +589,89 @@ defmodule Escalated.Router do
       middleware: middleware,
       guards: guards
     }
+  end
+
+  # The guest portal (escalated.guest.*): public, so it is mounted only while
+  # `config :escalated, routes: [guest: ...]` is on.
+  defp guest_ui_routes do
+    quote do
+      scope "/guest" do
+        pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
+
+        post "/verification", Escalated.Controllers.GuestAccessController, :challenge
+        post "/lookup", Escalated.Controllers.GuestAccessController, :lookup
+
+        post "/tickets/:token/rate",
+             Escalated.Controllers.SatisfactionRatingController,
+             :store_guest
+
+        # The guest portal pages (escalated.guest.tickets.*). /create is
+        # declared ahead of /:token so it is never read as a token.
+        get "/create", Escalated.Controllers.Guest.TicketController, :create
+        get "/:token", Escalated.Controllers.Guest.TicketController, :show
+
+        post "/:token/rate", Escalated.Controllers.SatisfactionRatingController, :store_guest,
+          as: :guest_page_rate
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestTicketRateLimit
+          post "/", Escalated.Controllers.Guest.TicketController, :store
+        end
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestReplyRateLimit
+          post "/:token/reply", Escalated.Controllers.Guest.TicketController, :reply
+        end
+      end
+    end
+  end
+
+  # The guest API and the mobile guest API, inside the `api/v1` scope: public,
+  # so they are mounted only while `config :escalated, routes: [guest: ...]` is
+  # on.
+  defp guest_api_routes do
+    quote do
+      scope "/guest" do
+        pipe_through [Escalated.Plugs.GuestRateLimit, Escalated.Plugs.GuestPrivacy]
+
+        post "/verification", GuestAccessController, :challenge
+        post "/lookup", GuestAccessController, :lookup
+
+        get "/tickets/:token", GuestTicketController, :show
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestTicketRateLimit
+          post "/tickets", GuestTicketController, :create
+        end
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestReplyRateLimit
+          post "/tickets/:token/replies", GuestTicketController, :reply
+        end
+      end
+
+      # The mobile guest API (domain-model/mobile-guest-api.md in
+      # escalated-developer-context): the same codes, grants and per-IP
+      # guest budgets as the routes above. GuestPrivacy runs first so
+      # rate-limit refusals carry its headers too.
+      scope "/mobile/guest", as: :mobile_guest do
+        pipe_through [Escalated.Plugs.GuestPrivacy, Escalated.Plugs.GuestRateLimit]
+
+        get "/tickets/:token", MobileGuestController, :show
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestTicketRateLimit
+          post "/verification", MobileGuestController, :verification
+          post "/tickets", MobileGuestController, :create
+        end
+
+        scope "/" do
+          pipe_through Escalated.Plugs.GuestReplyRateLimit
+          post "/lookup", MobileGuestController, :lookup
+          post "/tickets/:token/replies", MobileGuestController, :reply
+        end
+      end
+    end
   end
 
   # Every admin route below `{prefix}/admin` (or the embed prefix), in the order
