@@ -66,10 +66,11 @@ defmodule Escalated do
 
   Query it through `user_repo/0`, never `repo/0` -- on a split install those are
   different databases, and your users are not in Escalated's.
+
+  Raises `Escalated.UserContract.Error`, naming what to configure, when it is
+  unset or not an Ecto schema with an `:id` field.
   """
-  def user_schema do
-    config(:user_schema) || raise "Escalated: :user_schema must be configured"
-  end
+  def user_schema, do: Escalated.UserContract.schema!()
 
   @doc """
   Returns the full table name with the configured prefix.
