@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.15] - 2026-11-25
 ### Upgrading
 - **Schedule the recurring jobs if you do not already.** SLA checks, escalation rules, automations, delayed actions and snooze wake-ups only run when scheduled. Add `Escalated.Scheduler` to your supervision tree (opt-in), or schedule the Mix tasks / `Escalated.Scheduler.run/1`; see "Required: schedule the recurring jobs" in `docs/getting-started.md`.
 - **A misconfigured user setup now raises `Escalated.UserContract.Error`** naming what to configure, instead of a raw `UndefinedFunctionError` / `Protocol.UndefinedError` (a `:user_schema` that is not an Ecto schema with `:id`), and instead of a bare 403 on agent and admin routes (a signed-in `current_user` with no `:id`).

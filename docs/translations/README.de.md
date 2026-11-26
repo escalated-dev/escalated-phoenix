@@ -145,7 +145,7 @@
 ## Schnellstart
 
 ```elixir
-{:escalated, "~> 0.2.14", hex: :escalated_phoenix}
+{:escalated, "~> 0.2.15", hex: :escalated_phoenix}
 ```
 
 ```bash
