@@ -86,7 +86,7 @@ jobs:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         run: |
           if [ -z "${HEX_API_KEY}" ]; then
-            echo "skipping: HEX_API_KEY not configured"
+            echo "::warning title=Hex publish skipped::HEX_API_KEY is not configured, so nothing was published."
             exit 0
           fi
           status="$(curl -s -o /dev/null -w '%{http_code}' "https://hex.pm/api/packages/escalated_phoenix/releases/${VERSION}")"
